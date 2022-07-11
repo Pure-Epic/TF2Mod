@@ -1,4 +1,0 @@
-﻿[*.cs]
-
-# CS0649: Field 'HealingBeam.beamSprite' is never assigned to, and will always have its default value null
-dotnet_diagnostic.CS0649.severity = warning
