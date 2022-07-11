@@ -1,0 +1,233 @@
+﻿//using TF2.Buffs;
+//using TF2.Dusts;
+using TF2.Items.Armor;
+//using TF2.NPCs;
+//using TF2.Projectiles;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameInput;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+
+namespace TF2
+{
+    public class TFClass : ModPlayer
+    {
+        public bool classAccessoryPrevious;
+        public bool classAccessory;
+        public bool classHideVanity;
+        public bool classForceVanity;
+        public bool classPower;
+        public bool classSelected;
+        public bool nullified;
+        public bool activateUbercharge = false;
+
+        public int ubercharge = 0;
+        public int maxUbercharge = 100;
+        public int uberchargeTime = 0;
+
+        public float stickybombCharge = 0;
+        public float stickybombMaxCharge = 0;
+        public float stickybombChargeTimer = 0;
+        public int stickybombAmount = 0;
+        public int stickybombMax;
+
+        public float sniperCharge = 0;
+        public float sniperMaxCharge = 0;
+        public float sniperChargeTimer = 0;
+
+        //class selection
+        public int currentClass;
+
+        public static readonly PlayerLayer MiscEffectsFront = new PlayerLayer("TF2", "MiscEffectsFront", PlayerLayer.MiscEffectsFront, delegate (PlayerDrawInfo drawInfo)
+        {
+            if (drawInfo.shadow != 0f)
+            {
+                return;
+            }
+            Player drawPlayer = drawInfo.drawPlayer;
+            Mod mod = ModLoader.GetMod("TF2");
+            TFClass modPlayer = drawPlayer.GetModPlayer<TFClass>();
+            switch (modPlayer.currentClass)
+            {
+                case 1:
+                    modPlayer.classSelected = true;
+                    Texture2D texture = mod.GetTexture("Items/Armor/ScoutClass_Head");
+                    int drawX = (int)(drawInfo.position.X + drawPlayer.width / 2f - Main.screenPosition.X);
+                    int drawY = (int)(drawInfo.position.Y + drawPlayer.height / 4f - Main.screenPosition.Y);
+                    DrawData data = new DrawData(texture, new Vector2(drawX, drawY), null, Color.White, 0f, new Vector2(texture.Width / 2f, texture.Height / 2f), 1f, SpriteEffects.None, 0);
+                    Main.playerDrawData.Add(data);
+                    break;
+
+                case 2:
+                    modPlayer.classSelected = true;
+                    Texture2D texture2 = mod.GetTexture("Items/Armor/SoldierClass_Head");
+                    int frameSize2 = texture2.Height / 3;
+                    int drawX2 = (int)(drawInfo.position.X + drawPlayer.width / 2f - Main.screenPosition.X);
+                    int drawY2 = (int)(drawInfo.position.Y + drawPlayer.height / 2f - Main.screenPosition.Y);
+                    DrawData data2 = new DrawData(texture2, new Vector2(drawX2, drawY2), new Rectangle(0, frameSize2 * 1, texture2.Width, frameSize2), Lighting.GetColor((int)((drawInfo.position.X + drawPlayer.width / 2f) / 16f), (int)((drawInfo.position.Y + drawPlayer.height / 2f) / 16f)), 0f, new Vector2(texture2.Width / 2f, frameSize2 / 2f), 1f, SpriteEffects.None, 0);
+                    break;
+
+                case 3:
+                    modPlayer.classSelected = true;
+                    Texture2D texture3 = mod.GetTexture("Items/Armor/PyroClass_Head");
+                    int drawX3 = (int)(drawInfo.position.X + drawPlayer.width / 2f - Main.screenPosition.X);
+                    int drawY3 = (int)(drawInfo.position.Y + drawPlayer.height / 4f - Main.screenPosition.Y);
+                    DrawData data3 = new DrawData(texture3, new Vector2(drawX3, drawY3), null, Color.White, 0f, new Vector2(texture3.Width / 2f, texture3.Height / 2f), 1f, SpriteEffects.None, 0);
+                    Main.playerDrawData.Add(data3);
+                    break;
+
+                default:
+                    break;
+            }
+        }); //useless
+
+        public override void OnEnterWorld(Player player)
+        {
+            player.statLife = player.statLifeMax2;
+        }
+        public override void OnRespawn(Player player)
+        {
+            player.statLife = player.statLifeMax2;
+        }
+        public override void ResetEffects()
+        {
+            nullified = false;
+            classAccessoryPrevious = classAccessory;
+            classAccessory = classHideVanity = classForceVanity = classPower = false;
+            currentClass = 0;
+            classSelected = false;            
+        }
+
+        //public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit)
+        //{
+        //if ( == true)
+        //{
+        //target.life += 2;
+        //}
+        //}
+
+        public override void UpdateVanityAccessories()
+        {
+            for (int n = 13; n < 18 + player.extraAccessorySlots; n++)
+            {
+                Item item = player.armor[n];
+                if (item.type == ModContent.ItemType<ScoutClass>() || item.type == ModContent.ItemType<SoldierClass>() || item.type == ModContent.ItemType<PyroClass>())
+                {
+                    classHideVanity = false;
+                    classForceVanity = true;
+                    classAccessory = false;
+                }
+            }
+        }
+
+        public override void FrameEffects()
+        {
+            if (classAccessory == true && classSelected == false)
+            {
+                switch (currentClass)
+                {
+                    case 1:
+                        classSelected = true;
+                        player.legs = mod.GetEquipSlot("ScoutLeg", EquipType.Legs);
+                        player.body = mod.GetEquipSlot("ScoutBody", EquipType.Body);
+                        player.head = mod.GetEquipSlot("ScoutHead", EquipType.Head);
+                        player.wings = mod.GetEquipSlot("ScoutFront", EquipType.Wings);
+                        break;
+
+                    case 2:
+                        classSelected = true;
+                        player.legs = mod.GetEquipSlot("SoldierLeg", EquipType.Legs);
+                        player.body = mod.GetEquipSlot("SoldierBody", EquipType.Body);
+                        player.head = mod.GetEquipSlot("SoldierHead", EquipType.Head);
+                        player.wings = mod.GetEquipSlot("SoldierFront", EquipType.Wings);
+                        break;
+
+                    case 3:
+                        classSelected = true;
+                        player.legs = mod.GetEquipSlot("PyroLeg", EquipType.Legs);
+                        player.body = mod.GetEquipSlot("PyroBody", EquipType.Body);
+                        player.head = mod.GetEquipSlot("PyroHead", EquipType.Head);
+                        player.wings = mod.GetEquipSlot("PyroFront", EquipType.Wings);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            if (nullified)
+            {
+                Nullify();
+            }
+
+        }
+        private void Nullify()
+        {
+            player.ResetEffects();
+            player.head = -1;
+            player.body = -1;
+            player.legs = -1;
+            player.handon = -1;
+            player.handoff = -1;
+            player.back = -1;
+            player.front = -1;
+            player.shoe = -1;
+            player.waist = -1;
+            player.shield = -1;
+            player.neck = -1;
+            player.face = -1;
+            player.balloon = -1;
+            nullified = true;
+        }
+
+        public override void PostUpdateBuffs()
+        {
+            if (nullified)
+            {
+                Nullify();
+            }
+        }
+
+        public override void PostUpdateEquips()
+        {
+            if (nullified)
+            {
+                Nullify();
+            }
+        }
+
+        public override void PreUpdate()
+        {
+            if (ubercharge >= maxUbercharge)
+            {
+                ubercharge = maxUbercharge;
+            }
+            if (player.statLife < 1)
+            {
+                ubercharge = 0;
+            }
+        }
+        public override void PostUpdate()
+        {
+            if (activateUbercharge == true)
+            {
+                uberchargeTime++;
+                player.AddBuff(ModContent.BuffType<Buffs.StopRegen>(), 1);
+                //Main.NewText("Ubercharge left " + uberchargeTime, Color.White);
+                if (uberchargeTime >= 600)
+                {
+                    uberchargeTime = 0;
+                    ubercharge = 0;
+                    activateUbercharge = false;
+                }
+            }
+        }
+    }
+}
