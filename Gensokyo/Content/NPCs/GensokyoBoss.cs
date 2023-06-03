@@ -260,6 +260,8 @@ namespace TF2.Gensokyo.Content.NPCs
                 bool revengeance = (bool)calamity.Call("GetDifficultyActive", "revengeance");
                 if (revengeance && (attackType == 0 || Overkill()))
                     NPC.dontTakeDamage = true;
+                else
+                    NPC.dontTakeDamage = false;
             }          
         }
 
