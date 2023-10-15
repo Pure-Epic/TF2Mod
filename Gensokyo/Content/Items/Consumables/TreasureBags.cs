@@ -1,31 +1,25 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.ItemDropRules;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Gensokyo.Common;
-using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
-using TF2.Gensokyo.Content.Items.Scout;
-using TF2.Gensokyo.Content.Items.Soldier;
-using TF2.Gensokyo.Content.Items.Pyro;
-using TF2.Gensokyo.Content.Items.Sniper;
-using TF2.Gensokyo.Content.Items.Spy;
 using TF2.Content.Items;
+using TF2.Gensokyo.Common;
+using TF2.Gensokyo.Content.Items.Pyro;
+using TF2.Gensokyo.Content.Items.Scout;
+using TF2.Gensokyo.Content.Items.Sniper;
+using TF2.Gensokyo.Content.Items.Soldier;
+using TF2.Gensokyo.Content.Items.Spy;
+using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.Items.Consumables
 {
     [ExtendsFromMod("Gensokyo")]
     public class GensokyoDLC_StarterBox : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("What's in the Gensokyo Box?");
-            Tooltip.SetDefault("Open the Gensokyo Box to reveal its contents.");
-        }
-
         public override void SetDefaults()
         {
             Item.width = 41;
@@ -58,7 +52,7 @@ namespace TF2.Gensokyo.Content.Items.Consumables
             GensokyoDLC.Gensokyo.TryFind("UtsuhoReiujiSpawner", out ModItem utsuhoReiujiSpawner);
             GensokyoDLC.Gensokyo.TryFind("TenshiHinanawiSpawner", out ModItem tenshiHinanawiSpawner);
 
-            var entitySource = player.GetSource_OpenItem(Type);
+            IEntitySource entitySource = player.GetSource_OpenItem(Type);
 
             player.QuickSpawnItem(entitySource, lilyWhiteSpawner.Type);
             player.QuickSpawnItem(entitySource, rumiaSpawner.Type);
@@ -87,19 +81,16 @@ namespace TF2.Gensokyo.Content.Items.Consumables
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Treasure Bag (Byakuren Hijiri)");
-            Tooltip.SetDefault("{$CommonItemTooltip.RightClickToOpen}");
             ItemID.Sets.BossBag[Type] = true;
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 3;
+            Item.ResearchUnlockCount = 3;
         }
 
         public override void SetDefaults()
         {
-            Item.maxStack = 9999;
-            Item.consumable = true;
             Item.width = 24;
             Item.height = 24;
+            Item.consumable = true;
+            Item.maxStack = Item.CommonMaxStack;
             if (ModLoader.TryGetMod("CalamityMod", out _))
                 Item.rare = 12; // Turquoise
             else

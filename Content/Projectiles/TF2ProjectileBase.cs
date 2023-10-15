@@ -12,25 +12,27 @@ namespace TF2.Content.Projectiles
     {
         public override bool InstancePerEntity => true;
 
-        public int time;
+        public int timer;
         public bool spawnedFromNPC;
         public int owner;
         public bool miniCrit;
         public bool crit;
+        public bool healingProjectile;
         public bool sniperMiniCrit; // Exclusive to the Sydney Sleeper
         public bool sniperCrit; // Exclusive to any Sniper Rifle (except for the Sydney Sleeper)
         public bool lEtrangerProjectile;
         public bool homing;
-        public int jarateDuration; // Exclusive to the Sydney Sleeper
         public float shootSpeed = 10f;
 
         public override void AI(Projectile projectile)
         {
-            time++;
+            timer++;
+            /*
             if ((sniperCrit || crit) && !spawnedFromNPC)
                 Main.player[projectile.owner].GetModPlayer<TF2Player>().crit = true;
             if ((sniperMiniCrit || miniCrit) && !spawnedFromNPC)
                 Main.player[projectile.owner].GetModPlayer<TF2Player>().miniCrit = true;
+            */
             if (homing)
             {
                 /*
@@ -59,29 +61,20 @@ namespace TF2.Content.Projectiles
                     projectile.alpha = 0;
                 float projectileX = projectile.position.X;
                 float projectileY = projectile.position.Y;
-                float maxDetectRadius; // The maximum radius at which a projectile can detect a target
-                switch (Main.player[projectile.owner].GetModPlayer<TF2Player>().homingPower)
+                float maxDetectRadius = Main.player[projectile.owner].GetModPlayer<TF2Player>().homingPower switch
                 {
-                    case 0:
-                        maxDetectRadius = 250f;
-                        break;
-                    case 1:
-                        maxDetectRadius = 1250f;
-                        break;
-                    case 2:
-                        maxDetectRadius = 2500f;
-                        break;
-                    default:
-                        maxDetectRadius = 0f;
-                        break;
-                }
+                    0 => 250f,
+                    1 => 1250f,
+                    2 => 2500f,
+                    _ => 0f,
+                };
                 bool canSeek = false;
                 int nextAI = 0;
                 if (projectile.ai[1] == 0f)
                 {
                     for (int i = 0; i < 200; i++)
                     {
-                        if (Main.npc[i].CanBeChasedBy(this) && (projectile.ai[1] == 0f || projectile.ai[1] == (float)(i + 1)))
+                        if (Main.npc[i].CanBeChasedBy(this) && (projectile.ai[1] == 0f || projectile.ai[1] == i + 1))
                         {
                             float npcX = Main.npc[i].position.X + (Main.npc[i].width / 2);
                             float npcY = Main.npc[i].position.Y + (Main.npc[i].height / 2);
@@ -132,6 +125,7 @@ namespace TF2.Content.Projectiles
                     projectile.velocity.Y = (projectile.velocity.Y * (swerveDistance - 1) + newProjectileY) / swerveDistance;
                 }
             }
+            projectile.netUpdate = true;
         }
 
         public override void OnSpawn(Projectile projectile, IEntitySource source)
@@ -140,8 +134,16 @@ namespace TF2.Content.Projectiles
                 spawnedFromNPC = true;
         }
 
-        public override void OnHitPvp(Projectile projectile, Player target, int damage, bool crit) => homing = false;
+        public override void ModifyHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if ((sniperCrit || crit) && !spawnedFromNPC)
+                Main.player[projectile.owner].GetModPlayer<TF2Player>().crit = true;
+            if ((sniperMiniCrit || miniCrit) && !spawnedFromNPC)
+                Main.player[projectile.owner].GetModPlayer<TF2Player>().miniCrit = true;
+        }
 
-        public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) => homing = false;
+        public override void OnHitPlayer(Projectile projectile, Player target, Player.HurtInfo info) => homing = false;
+
+        public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone) => homing = false;
     }
 }

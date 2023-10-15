@@ -8,8 +8,6 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Shield Charge");
-            Description.SetDefault("Grants melee crits");
             Main.buffNoSave[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
         }

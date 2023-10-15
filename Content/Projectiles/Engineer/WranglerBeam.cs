@@ -16,8 +16,10 @@ namespace TF2.Content.Projectiles.Engineer
 
         // The maximum charge value
         private const float MAX_CHARGE = 0f;
+
         // The distance charge particle from the player center
         private const float MOVE_DISTANCE = 20f;
+
         // The actual distance is stored in the ai0 field
         // By making a property to handle this it makes our life easier, and the accessibility more readable
 
@@ -44,7 +46,6 @@ namespace TF2.Content.Projectiles.Engineer
             Projectile.friendly = false;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
-            //Projectile.magic = true;
             Projectile.hide = true;
             Projectile.hostile = true;
             Projectile.Name = "Wrangler Beam";
@@ -74,7 +75,7 @@ namespace TF2.Content.Projectiles.Engineer
             for (float i = transDist; i <= Distance; i += step)
             {
                 Color c = Color.White;
-                var origin = start + i * unit;
+                Vector2 origin = start + i * unit;
                 spriteBatch.Draw(texture, origin - Main.screenPosition,
                     new Rectangle(0, 26, 28, 26), i < transDist ? Color.Transparent : c, r,
                     new Vector2(28 * .5f, 26 * .5f), scale, 0, 0);
@@ -103,7 +104,6 @@ namespace TF2.Content.Projectiles.Engineer
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), player.Center,
                 player.Center + unit * Distance, 22, ref point);
         }
-
 
         public override bool? CanHitNPC(NPC target)
         {
@@ -142,6 +142,7 @@ namespace TF2.Content.Projectiles.Engineer
         /*
 		 * Sets the end of the laser position based on mouse position and where it collides with something
 		 */
+
         private void SetLaserPosition(Player player)
         {
             Vector2 vectorToCursor = Main.MouseWorld - player.Center;
@@ -149,7 +150,7 @@ namespace TF2.Content.Projectiles.Engineer
             for (Distance = distanceToCursor; Distance <= 2200f; Distance += 5f)
             {
                 //Distance = distanceToCursor
-                var start = player.Center * Distance; //+ projectile.velocity
+                Vector2 start = player.Center * Distance; //+ projectile.velocity
                 if (!Collision.CanHit(player.Center, 1, 1, start, 1, 1))
                 {
                     Distance -= 5f;
@@ -161,7 +162,7 @@ namespace TF2.Content.Projectiles.Engineer
         private void ChargeLaser(Player player)
         {
             // Kill the projectile if the player stops channeling
-            if (!player.channel)
+            if (!player.controlUseItem)
             {
                 Projectile.Kill();
             }
@@ -203,6 +204,7 @@ namespace TF2.Content.Projectiles.Engineer
         /*
 		 * Update CutTiles so the laser will cut tiles (like grass)
 		 */
+
         public override void CutTiles()
         {
             DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;

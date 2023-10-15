@@ -1,27 +1,20 @@
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Items;
+using TF2.Common;
 using TF2.Content.Items.Spy;
 using TF2.Content.Projectiles;
-using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
-    public class CloakandDagger : ModBuff
+    public class CloakAndDaggerBuff : ModBuff
     {
         public override string Texture => "TF2/Content/Buffs/Cloaked";
 
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Cloaked");
-            Description.SetDefault("Invincible and invisible");
-            Main.buffNoSave[Type] = true;
-        }
+        public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<CloakandDaggerPlayer>().cloakandDaggerBuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerBuff = true;
     }
 
     public class BrokenCloak : ModBuff
@@ -30,8 +23,6 @@ namespace TF2.Content.Buffs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Broken Cloak");
-            Description.SetDefault("You cannot cloak");
             Main.buffNoSave[Type] = true;
             Main.debuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
@@ -41,56 +32,69 @@ namespace TF2.Content.Buffs
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<TF2Player>().brokenCloak = true;
     }
 
-    public class CloakandDaggerPlayer : ModPlayer
+    public class CloakAndDaggerPlayer : ModPlayer
     {
-        public bool cloakandDaggerBuff;
+        public bool cloakAndDaggerEquipped;
+        public bool cloakAndDaggerBuff;
         public int cloakMeter = 600;
         public int cloakMeterMax = 600;
         public int timer;
         private bool playDecloakingSound;
+        public bool fullCloak;
 
-        public override void OnRespawn(Player player) => cloakMeter = cloakMeterMax;
+        public override void OnRespawn() => cloakMeter = cloakMeterMax;
 
         public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) => cloakMeter = cloakMeterMax;
 
         public override void ResetEffects()
         {
-            cloakandDaggerBuff = false;
-            Player.opacityForCreditsRoll = 1f;
+            cloakAndDaggerEquipped = false;
+            cloakAndDaggerBuff = false;
+            Player.opacityForAnimation = 1f;
             cloakMeterMax = 600;
         }
 
         public override void PostUpdate()
         {
-            if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped)
+            if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped)
                 cloakMeterMax += 240;
-            if (Player.GetModPlayer<TF2Player>().yourEternalRewardEquipped)
+            if (Player.GetModPlayer<YourEternalRewardPlayer>().yourEternalRewardEquipped)
                 cloakMeterMax -= 200;
             if (!Player.GetModPlayer<TF2Player>().initializedClass)
                 cloakMeter = cloakMeterMax;
-            if (playDecloakingSound && Player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && cloakMeter <= 0)
+            if (playDecloakingSound && cloakAndDaggerEquipped && cloakMeter <= 0)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
                 playDecloakingSound = false;
             }
-
-            if (Player.GetModPlayer<TF2Player>().cloakandDaggerEquipped)
+            fullCloak = cloakMeter == cloakMeterMax;
+            if (cloakAndDaggerEquipped)
                 timer++;
             else
-                timer = 0;
-            cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
-            if (!cloakandDaggerBuff && Player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && timer >= 3)
             {
-                cloakMeter++;
+                Player.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
+                cloakMeter = 0;
                 timer = 0;
             }
-            else if (Player.HasBuff(ModContent.BuffType<CloakandDagger>()))
+
+            if (!cloakAndDaggerBuff && cloakAndDaggerEquipped && timer >= 3)
             {
-                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<CloakandDagger>());
+                cloakMeter++;
+                cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
+                timer = 0;
+            }
+            else if (Player.HasBuff(ModContent.BuffType<CloakAndDaggerBuff>()))
+            {
+                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<CloakAndDaggerBuff>());
                 if (Player.buffTime[buffIndex] > 0)
                 {
-                    if (!(Player.controlUp || Player.controlDown || Player.controlLeft || Player.controlRight || Player.controlJump))
+                    if (cloakAndDaggerEquipped)
+                        timer++;
+                    if (!(Player.controlUp || Player.controlDown || Player.controlLeft || Player.controlRight || Player.controlJump) && timer >= 3)
+                    {
                         cloakMeter++;
+                        timer = 0;
+                    }
                     else if (Player.controlRight)
                         cloakMeter -= (int)(Player.velocity.X * 0.25f);
                     else if (Player.controlLeft)
@@ -99,80 +103,80 @@ namespace TF2.Content.Buffs
                         cloakMeter -= (int)(Player.velocity.Y * 0.25f);
                     else if (Player.controlUp || Player.controlJump)
                         cloakMeter -= (int)(Player.velocity.Y * -0.25f);
+                    cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
                 }
                 Player.buffTime[buffIndex] = cloakMeter;
-                Player.opacityForCreditsRoll = 0.5f;
+                Player.opacityForAnimation = 0.5f;
                 playDecloakingSound = true;
-                timer = 0;
             }
-
-            if (Player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && Player.HeldItem.ModItem is YourEternalReward && cloakMeter == cloakMeterMax)
-                Player.HeldItem.GetGlobalItem<TF2ItemBase>().allowBackstab = true;
-            else if (Player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && Player.HeldItem.ModItem is YourEternalReward)
-                Player.HeldItem.GetGlobalItem<TF2ItemBase>().allowBackstab = false;
         }
 
         #region Cloak Drain On Attack
-        public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit)
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (cloakandDaggerBuff && Player.HasBuff<CloakandDagger>()) // Prevents index out of range exceptions
+            if (cloakAndDaggerBuff && Player.HasBuff<CloakAndDaggerBuff>())
             {
                 cloakMeter = 0;
-                Player.ClearBuff(ModContent.BuffType<CloakandDagger>());
+                Player.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
                 Player.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
             }
         }
 
-        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
-            if (cloakandDaggerBuff && Player.HasBuff<CloakandDagger>()) // Prevents index out of range exceptions
+            if (cloakAndDaggerBuff && Player.HasBuff<CloakAndDaggerBuff>())
             {
                 cloakMeter = 0;
-                Player.ClearBuff(ModContent.BuffType<CloakandDagger>());
+                Player.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
                 Player.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
             }
-            else if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
+            else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
                 cloakMeter += 90;
         }
 
-        public override void ModifyHitPvp(Item item, Player target, ref int damage, ref bool crit)
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (cloakandDaggerBuff && Player.HasBuff<CloakandDagger>()) // Prevents index out of range exceptions
+            if (!modifiers.PvP) return;
+            Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
+            if (opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerBuff && opponent.HasBuff<CloakAndDaggerBuff>())
             {
-                cloakMeter = 0;
-                Player.ClearBuff(ModContent.BuffType<CloakandDagger>());
-                Player.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
+                opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter = 0;
+                opponent.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
+                opponent.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
             }
         }
 
-        public override void ModifyHitPvpWithProj(Projectile proj, Player target, ref int damage, ref bool crit)
+        public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
         {
-            if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
-            if (cloakandDaggerBuff && Player.HasBuff<CloakandDagger>()) // Prevents index out of range exceptions
+            if (!hurtInfo.PvP) return;
+            Player opponent = Main.player[proj.owner];
+            if (opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerBuff && opponent.HasBuff<CloakAndDaggerBuff>())
             {
-                cloakMeter = 0;
-                Player.ClearBuff(ModContent.BuffType<CloakandDagger>());
-                Player.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
+                opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter = 0;
+                opponent.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
+                opponent.AddBuff(ModContent.BuffType<BrokenCloak>(), 600);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
             }
-            else if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
-                cloakMeter += 90;
+            else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
+                opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += 90;
         }
+
         #endregion Cloak Drain On Attack
 
-        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter)
+        public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (cloakandDaggerBuff && Player.HasBuff<Cloaked>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0) // Prevents index out of range exceptions
+            if (cloakAndDaggerBuff && Player.HasBuff<Cloaked>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0) // Prevents index out of range exceptions
             {
                 cloakMeter -= 60;
                 Player.GetModPlayer<TF2Player>().cloakImmuneTime += 30;
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/cloak_hit"), Player.Center);
-            }               
-            return !cloakandDaggerBuff;
+            }
+            return cloakAndDaggerBuff;
         }
     }
 }

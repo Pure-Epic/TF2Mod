@@ -1,17 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.Audio;
+using Terraria.Chat;
+using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
-using Terraria.ID;
-using Terraria.Chat;
-using Terraria.Audio;
-using System.Linq;
-using Terraria.GameContent;
-using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 using TF2.Gensokyo.Common;
+using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Events
 {
@@ -35,10 +35,7 @@ namespace TF2.Gensokyo.Events
         public override void PostUpdateWorld()
         {
             if (GensokyoDLC.bossRush)
-            {
-                CheckBossRushProgress();
                 UpdateBossRush();
-            }
         }
 
         public override void OnWorldUnload()
@@ -50,12 +47,10 @@ namespace TF2.Gensokyo.Events
         public static void StartBossRush()
         {
             BossList();
-            // Main.invasionType = -1;
-            // Main.invasionProgressIcon = 69;
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                if (!Main.npc[i].friendly)
-                    Main.npc[i].active = false;
+                if (!npc.friendly)
+                    npc.active = false;
             }
             GensokyoDLC.bossRush = true;
             bossesDefeated = 0;
@@ -65,9 +60,6 @@ namespace TF2.Gensokyo.Events
         {
             GensokyoDLC.bossRush = false;
             bossActive = false;
-            // Main.invasionType = 0;
-            // Main.invasionDelay = 0;
-            // Main.invasionProgressDisplayLeft = 0;
         }
 
         public static void BossRushResult()
@@ -88,10 +80,10 @@ namespace TF2.Gensokyo.Events
 
         public void UpdateBossRush()
         {
-            // If the custom invasion is up
             if (GensokyoDLC.bossRush)
             {
-                // End invasion if all bosses are defeated or the player dies
+                // Main.invasionType = 0;
+                // End boss rush if all bosses are defeated or the player dies
                 if (bossesDefeated == 19 || FailCheck())
                 {
                     BossRushResult();
@@ -113,17 +105,7 @@ namespace TF2.Gensokyo.Events
             }
         }
 
-        public static void CheckBossRushProgress() => Main.invasionProgressNearInvasion = true;
-
-        public static bool FailCheck()
-        {
-            if (targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer)
-                return true;
-            else if (Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.netMode != NetmodeID.SinglePlayer)
-                return true;
-            else
-                return false;
-        }
+        public static bool FailCheck() => (targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer) || (Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.netMode == NetmodeID.Server);
 
         public static void NextBoss()
         {
@@ -234,7 +216,7 @@ namespace TF2.Gensokyo.Events
                     {
                         if (Main.player[num30].active)
                         {
-                            Rectangle rectangle2 = new Rectangle((int)(Main.player[num30].position.X + (float)(Main.player[num30].width / 2) - (float)(NPC.sWidth / 2) - (float)NPC.safeRangeX), (int)(Main.player[num30].position.Y + (float)(Main.player[num30].height / 2) - (float)(NPC.sHeight / 2) - (float)NPC.safeRangeY), NPC.sWidth + NPC.safeRangeX * 2, NPC.sHeight + NPC.safeRangeY * 2);
+                            Rectangle rectangle2 = new Rectangle((int)(Main.player[num30].position.X + Main.player[num30].width / 2 - NPC.sWidth / 2 - NPC.safeRangeX), (int)(Main.player[num30].position.Y + Main.player[num30].height / 2 - NPC.sHeight / 2 - NPC.safeRangeY), NPC.sWidth + NPC.safeRangeX * 2, NPC.sHeight + NPC.safeRangeY * 2);
                             if (rectangle.Intersects(rectangle2))
                             {
                                 flag = false;
@@ -342,14 +324,22 @@ namespace TF2.Gensokyo.Events
         private static void DrawInterface_15_InvasionProgressBars()
         {
             DrawInvasionProgress();
-            if (Main.HealthBarDrawSettings != 0)
-                Main.BigBossProgressBar.Draw(Main.spriteBatch);
+            // if (Main.HealthBarDrawSettings != 0)
+            // Main.BigBossProgressBar.Draw(Main.spriteBatch);
         }
 
         public static void DrawInvasionProgress()
         {
+            /*
             if (!GensokyoDLC.bossRush)
+            {
+                if (Main.invasionProgressAlpha > 0f)
+                {
+                    Main.invasionProgressAlpha -= 0.05f;
+                    Main.invasionProgressAlpha = Utils.Clamp(Main.invasionProgressAlpha, 0f, 1f);
+                }
                 return;
+            }
             if (Main.invasionProgressMode == 2 && Main.invasionProgressNearInvasion && Main.invasionProgressDisplayLeft < 160)
                 Main.invasionProgressDisplayLeft = 160;
             if (!Main.gamePaused && Main.invasionProgressDisplayLeft > 0)
@@ -363,13 +353,17 @@ namespace TF2.Gensokyo.Events
                 Main.invasionProgressDisplayLeft = 0;
                 Main.invasionProgressAlpha = 0f;
             }
-            if (Main.invasionProgressAlpha < 0f)
-                Main.invasionProgressAlpha = 0f;
-            if (Main.invasionProgressAlpha > 1f)
-                Main.invasionProgressAlpha = 1f;
-            if (Main.invasionProgressAlpha <= 0f)
-                return;
-            float num = 0.5f + Main.invasionProgressAlpha * 0.5f;
+            if (Main.invasionProgressAlpha < 1f)
+            {
+                Main.invasionProgressAlpha += 0.05f;
+                Main.invasionProgressAlpha = Utils.Clamp(Main.invasionProgressAlpha, 0f, 1f);
+            }
+            */
+            // Main.invasionProgressAlpha = GensokyoDLC.bossRush ? 1f : 0f;
+            // if (Main.invasionProgressAlpha <= 0f)
+            if (!GensokyoDLC.bossRush) return;
+            float invasionProgressAlpha = 1f;
+            float num = 0.5f + invasionProgressAlpha * 0.5f;
             Texture2D value = (Texture2D)ModContent.Request<Texture2D>("TF2/Gensokyo/Content/Events/BossRushIcon");
             string text = " Boss Rush";
             Color c = new Color(255, 64, 64) * 0.5f;
@@ -385,7 +379,7 @@ namespace TF2.Gensokyo.Events
             // TextureAssets.ColorBlip.Value;
             if (totalBosses != 0)
             {
-                Main.spriteBatch.Draw(value3, vector3, null, Color.White * Main.invasionProgressAlpha, 0f, new Vector2(value3.Width / 2, 0f), num, SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(value3, vector3, null, Color.White * invasionProgressAlpha, 0f, new Vector2(value3.Width / 2, 0f), num, SpriteEffects.None, 0f);
                 float num9 = MathHelper.Clamp((float)bossesDefeated / totalBosses, 0f, 1f);
                 Vector2 vector4 = FontAssets.MouseText.Value.MeasureString(text3);
                 float num10 = num;
@@ -394,21 +388,21 @@ namespace TF2.Gensokyo.Events
                 float num11 = 169f * num;
                 float num12 = 8f * num;
                 Vector2 vector5 = vector3 + Vector2.UnitY * num12 + Vector2.UnitX * 1f;
-                Utils.DrawBorderString(Main.spriteBatch, text3, vector5 + new Vector2(0f, -4f), Color.White * Main.invasionProgressAlpha, num10, 0.5f, 1f);
+                Utils.DrawBorderString(Main.spriteBatch, text3, vector5 + new Vector2(0f, -4f), Color.White * invasionProgressAlpha, num10, 0.5f, 1f);
                 vector5 += Vector2.UnitX * (num9 - 0.5f) * num11;
-                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), new Color(255, 241, 51) * Main.invasionProgressAlpha, 0f, new Vector2(1f, 0.5f), new Vector2(num11 * num9, num12), SpriteEffects.None, 0f);
-                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), new Color(255, 165, 0, 127) * Main.invasionProgressAlpha, 0f, new Vector2(1f, 0.5f), new Vector2(2f, num12), SpriteEffects.None, 0f);
-                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), Color.Black * Main.invasionProgressAlpha, 0f, new Vector2(0f, 0.5f), new Vector2(num11 * (1f - num9), num12), SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), new Color(255, 241, 51) * invasionProgressAlpha, 0f, new Vector2(1f, 0.5f), new Vector2(num11 * num9, num12), SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), new Color(255, 165, 0, 127) * invasionProgressAlpha, 0f, new Vector2(1f, 0.5f), new Vector2(2f, num12), SpriteEffects.None, 0f);
+                Main.spriteBatch.Draw(TextureAssets.MagicPixel.Value, vector5, new Rectangle(0, 0, 1, 1), Color.Black * invasionProgressAlpha, 0f, new Vector2(0f, 0.5f), new Vector2(num11 * (1f - num9), num12), SpriteEffects.None, 0f);
             }
 
             Vector2 vector6 = FontAssets.MouseText.Value.MeasureString(text);
             float num13 = 120f;
             if (vector6.X > 200f)
                 num13 += vector6.X - 200f;
-            Rectangle r3 = Utils.CenteredRectangle(new Vector2((float)Main.screenWidth - num13, Main.screenHeight - 80), (vector6 + new Vector2(value.Width + 12, 6f)) * num);
+            Rectangle r3 = Utils.CenteredRectangle(new Vector2(Main.screenWidth - num13, Main.screenHeight - 80), (vector6 + new Vector2(value.Width + 12, 6f)) * num);
             Utils.DrawInvBG(Main.spriteBatch, r3, c);
-            Main.spriteBatch.Draw(value, r3.Left() + Vector2.UnitX * num * 8f, null, Color.White * Main.invasionProgressAlpha, 0f, new Vector2(0f, value.Height / 2), num * 0.8f, SpriteEffects.None, 0f);
-            Utils.DrawBorderString(Main.spriteBatch, text, r3.Right() + Vector2.UnitX * num * -22f, Color.White * Main.invasionProgressAlpha, num * 0.9f, 1f, 0.4f);
+            Main.spriteBatch.Draw(value, r3.Left() + Vector2.UnitX * num * 8f, null, Color.White * invasionProgressAlpha, 0f, new Vector2(0f, value.Height / 2), num * 0.8f, SpriteEffects.None, 0f);
+            Utils.DrawBorderString(Main.spriteBatch, text, r3.Right() + Vector2.UnitX * num * -22f, Color.White * invasionProgressAlpha, num * 0.9f, 1f, 0.4f);
         }
     }
 

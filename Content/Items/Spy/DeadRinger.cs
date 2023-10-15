@@ -1,11 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent.Creative;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -16,190 +13,159 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.Items.Spy
 {
-    public class DeadRinger : TF2WeaponNoAmmo
+    public class DeadRinger : TF2Weapon
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            DisplayName.SetDefault("Dead Ringer");
-            Tooltip.SetDefault("Cloak Type: Feign Death.\n"
-                             + "Leave a clone on taking damage and temporarily gain invisibility, speed and damage resistance.\n"
-                             + "Hitting reduces cloak duration");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Spy, PDA, Unique, Unlock);
+            SetUtilityWeapon();
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            Item.width = 40;
-            Item.height = 40;
-            Item.useTime = 30;
-            Item.useAnimation = 30;
-            Item.useTurn = true;
-            Item.useStyle = ItemUseStyleID.Thrust;
-            Item.autoReuse = true;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            AddHeader(description);
+            AddPositiveAttribute(description);
+            AddNegativeAttribute(description);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
+        public override bool WeaponCanBeUsed(Player player) => false;
 
-            var line = new TooltipLine(Mod, "Positive Attributes",
-                "+50% cloak regen rate\n"
-                + "+40% cloak duration")
-            {
-                OverrideColor = new Color(153, 204, 255)
-            };
-            tooltips.Add(line);
-
-            var line2 = new TooltipLine(Mod, "Negative Attributes",
-                "-50% cloak meter when Feign Death is activated")
-            {
-                OverrideColor = new Color(255, 64, 64)
-            };
-            tooltips.Add(line2);
-        }
-
-        public override bool CanUseItem(Player player) => false;
-
-        public override void UpdateInventory(Player player)
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                if (player.inventory[i].type == Type && !inHotbar)
-                    inHotbar = true;
-            }
-            if (!inHotbar && !ModContent.GetInstance<TF2ConfigClient>().InventoryStats) return;
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.deadRingerEquipped = true;
-            inHotbar = false;
-        }
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped = true;
     }
 
     public class FeignDeathPlayer : ModPlayer
     {
+        public bool deadRingerEquipped;
         public bool feignDeath;
         public float cloakMeter;
         public float cloakMeterMax = 840;
         public int timer;
         public int timer2;
         private bool playDecloakingSound;
+        public bool fullCloak;
 
-        public override void OnRespawn(Player player) => cloakMeter = cloakMeterMax;
+        public override void OnRespawn() => cloakMeter = cloakMeterMax;
 
         public override void PostNurseHeal(NPC nurse, int health, bool removeDebuffs, int price) => cloakMeter = cloakMeterMax;
 
         public override void ResetEffects()
         {
+            deadRingerEquipped = false;
             feignDeath = false;
-            Player.opacityForCreditsRoll = 1f;
-            cloakMeterMax = 840;
+            Player.opacityForAnimation = 1f;
+            cloakMeterMax = 840f;
         }
 
         public override void PostUpdate()
         {
-            if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped)
-                cloakMeterMax += 336;
-            if (Player.GetModPlayer<TF2Player>().yourEternalRewardEquipped)
-                cloakMeterMax -= 280;
+            if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped)
+                cloakMeterMax += 336f;
+            if (Player.GetModPlayer<YourEternalRewardPlayer>().yourEternalRewardEquipped)
+                cloakMeterMax -= 280f;
             if (!Player.GetModPlayer<TF2Player>().initializedClass)
                 cloakMeter = cloakMeterMax;
-            if (playDecloakingSound && Player.GetModPlayer<TF2Player>().deadRingerEquipped && cloakMeter <= 0)
+            if (playDecloakingSound && deadRingerEquipped && cloakMeter <= 0)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
                 playDecloakingSound = false;
             }
-
-            if (Player.GetModPlayer<TF2Player>().deadRingerEquipped)
+            fullCloak = cloakMeter == cloakMeterMax;
+            if (deadRingerEquipped)
                 timer++;
             else
+            {
+                Player.ClearBuff(ModContent.BuffType<FeignDeath>());
+                cloakMeter = 0;
                 timer = 0;
+            }          
             if (!feignDeath)
                 timer2 = 0;
-            cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
-            if (!feignDeath && Player.GetModPlayer<TF2Player>().deadRingerEquipped && timer >= 3)
+            if (!feignDeath && deadRingerEquipped && timer >= 3)
             {
                 cloakMeter += 2.1f;
+                cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
                 timer = 0;
             }
             else if (Player.HasBuff(ModContent.BuffType<FeignDeath>()))
             {
                 timer2++;
                 cloakMeter--;
+                cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
                 int buffIndex = Player.FindBuffIndex(ModContent.BuffType<FeignDeath>());
                 Player.buffTime[buffIndex] = Convert.ToInt32(cloakMeter);
-                Player.opacityForCreditsRoll = 0.5f;
+                Player.opacityForAnimation = 0.5f;
                 playDecloakingSound = true;
                 timer = 0;
                 if (timer2 <= 180)
                 {
                     Player.GetModPlayer<TF2Player>().damageReduction += 0.65f;
-                    Player.moveSpeed += 2.5f;
-                    Player.GetModPlayer<TF2Player>().speedMultiplier += 1f;
+                    TF2Weapon.SetPlayerSpeed(Player, 200);
                 }
             }
-
-            if (Player.GetModPlayer<TF2Player>().deadRingerEquipped && Player.HeldItem.ModItem is YourEternalReward && cloakMeter == cloakMeterMax)
-                Player.HeldItem.GetGlobalItem<TF2ItemBase>().allowBackstab = true;
-            else if (Player.GetModPlayer<TF2Player>().deadRingerEquipped && Player.HeldItem.ModItem is YourEternalReward)
-                Player.HeldItem.GetGlobalItem<TF2ItemBase>().allowBackstab = false;
         }
 
         #region Cloak Drain On Attack
-        public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit)
+
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (feignDeath && Player.HasBuff<FeignDeath>()) // Prevents index out of range exceptions
-                cloakMeter -= 150;
+            if (feignDeath && Player.HasBuff<FeignDeath>())
+                cloakMeter -= 150f;
         }
 
-        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
-            if (feignDeath && Player.HasBuff<FeignDeath>()) // Prevents index out of range exceptions
-                cloakMeter -= 150;
-            else if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
-                cloakMeter += 176;
+            if (feignDeath && Player.HasBuff<FeignDeath>())
+                cloakMeter -= 150f;
+            else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
+                cloakMeter += 176f;
         }
 
-        public override void ModifyHitPvp(Item item, Player target, ref int damage, ref bool crit)
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (feignDeath && Player.HasBuff<FeignDeath>()) // Prevents index out of range exceptions
-                cloakMeter -= 150;
+            if (!modifiers.PvP) return;
+            Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
+            if (opponent.GetModPlayer<FeignDeathPlayer>().feignDeath && opponent.HasBuff<FeignDeath>())
+                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter -= 150f;
         }
 
-        public override void ModifyHitPvpWithProj(Projectile proj, Player target, ref int damage, ref bool crit)
+        public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
         {
-            if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
-            if (feignDeath && Player.HasBuff<FeignDeath>()) // Prevents index out of range exceptions
-                cloakMeter -= 150;
-            else if (Player.GetModPlayer<TF2Player>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
-                cloakMeter += 176;
+            if (!hurtInfo.PvP) return;
+            Player opponent = Main.player[proj.owner];
+            if (opponent.GetModPlayer<FeignDeathPlayer>().feignDeath && opponent.HasBuff<FeignDeath>())
+                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter -= 150f;
+            else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
+                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter += 176f;
         }
+
         #endregion Cloak Drain On Attack
 
-        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter)
+        public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (Player.HeldItem.ModItem is DeadRinger && Player.GetModPlayer<TF2Player>().deadRingerEquipped)
+            if (Player.HeldItem.ModItem is DeadRinger && deadRingerEquipped)
             {
                 if (cloakMeter >= cloakMeterMax)
-                    cloakMeter /= 2;
-                else return true;
-                damage -= (int)(damage * 0.75);
+                    cloakMeter /= 2f;
+                else if (feignDeath && Player.HasBuff<FeignDeath>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0)
+                {
+                    cloakMeter -= 60f;
+                    Player.GetModPlayer<TF2Player>().cloakImmuneTime += 30;
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/cloak_hit"), Player.Center);
+                }
+                info.Damage = (int)(info.Damage * 0.25f);
                 Player.AddBuff(ModContent.BuffType<FeignDeath>(), 420);
                 if (Main.netMode == NetmodeID.SinglePlayer)
                 {
-                    var source = Player.GetSource_FromThis();
+                    IEntitySource source = Player.GetSource_FromThis();
                     int npc = NPC.NewNPC(source, (int)Player.position.X, (int)Player.position.Y, ModContent.NPCType<SpyNPC>(), Player.whoAmI);
-                    SpyNPC spawnedModNPC = Main.npc[npc].ModNPC as SpyNPC;
+                    SpyNPC spawnedModNPC = (SpyNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = Player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else
                 {
-                    Player.stealth = 1000;
+                    Player.stealth = 1000f;
                     Player.stealthTimer = (int)cloakMeter;
                 }
                 for (int i = 0; i < Player.MaxBuffs; i++)
@@ -212,19 +178,12 @@ namespace TF2.Content.Items.Spy
                     }
                 }
             }
-
-            if (feignDeath && Player.HasBuff<FeignDeath>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0) // Prevents index out of range exceptions
-            {
-                cloakMeter -= 60;
-                Player.GetModPlayer<TF2Player>().cloakImmuneTime += 30;
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/cloak_hit"), Player.Center);
-            }
-            return !feignDeath;
+            return feignDeath;
         }
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (KeybindSystem.Cloak.JustPressed && Player.GetModPlayer<TF2Player>().deadRingerEquipped && Player.HasBuff<FeignDeath>())
+            if (KeybindSystem.Cloak.JustPressed && deadRingerEquipped && Player.HasBuff<FeignDeath>())
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
                 Player.ClearBuff(ModContent.BuffType<FeignDeath>());

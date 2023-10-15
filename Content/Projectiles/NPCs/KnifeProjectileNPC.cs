@@ -1,20 +1,12 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ModLoader;
 
 namespace TF2.Content.Projectiles.NPCs
 {
-    // Shortsword projectiles are handled in a special way with how they draw and damage things
-    // The "hitbox" itself is closer to the player, the sprite is centered on it
-    // However the interactions with the world will occur offset from this hitbox, closer to the sword's tip (CutTiles, Colliding)
-    // Values chosen mostly correspond to Iron Shortword
     public class KnifeProjectileNPC : ModProjectile
     {
         public NPC owner;
-
-        public override void SetStaticDefaults() => DisplayName.SetDefault("Knife");
 
         public override void SetDefaults()
         {
@@ -31,25 +23,6 @@ namespace TF2.Content.Projectiles.NPCs
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
-
-
-        public override bool PreDraw(ref Color lightColor)
-        {
-            Main.instance.LoadProjectile(Projectile.type);
-            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-
-            // Redraw the projectile with the color not influenced by light
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, Projectile.height * 0.5f);
-            for (int i = 0; i < Projectile.oldPos.Length; i++)
-            {
-                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
-                Color color = Projectile.GetAlpha(lightColor) * ((Projectile.oldPos.Length - i) / (float)Projectile.oldPos.Length);
-                Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0);
-            }
-
-            return true;
-        }
-
 
         public override void AI()
         {
@@ -101,7 +74,7 @@ namespace TF2.Content.Projectiles.NPCs
             return false;
         }
 
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             target.immune[Projectile.owner] = 48;
         }

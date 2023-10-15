@@ -27,7 +27,7 @@ namespace TF2.Common
             ShieldCharge = KeybindLoader.RegisterKeybind(Mod, "Shield Charge", "Mouse2");
 
             // Mount keybinds
-            HomingPower = KeybindLoader.RegisterKeybind(Mod, "Hominh Distance", "I");
+            HomingPower = KeybindLoader.RegisterKeybind(Mod, "Homing Distance", "I");
             MountSpeed = KeybindLoader.RegisterKeybind(Mod, "Mount Speed", "O");
         }
 

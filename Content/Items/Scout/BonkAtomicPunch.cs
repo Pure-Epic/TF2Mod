@@ -1,65 +1,31 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
+using TF2.Content.Buffs;
 
 namespace TF2.Content.Items.Scout
 {
-    public class BonkAtomicPunch : TF2WeaponNoAmmo
+    public class BonkAtomicPunch : TF2Weapon
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            DisplayName.SetDefault("Bonk Atomic Punch");
-            Tooltip.SetDefault("Scout's Unlocked Secondary\n"
-                + "Drink to become invulnerable for 8 seconds.\n"
-                + "Cannot attack during this time.\n"
-                + "Damage absorbed will slow you when the effect ends.");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Scout, Secondary, Unique, Unlock);
+            SetWeaponSize(19, 40);
+            SetDrinkUseStyle();
+            SetWeaponAttackSpeed(1.2, hide: true);
+            SetWeaponAttackSound(SoundID.Item3);
+            SetUtilityWeapon();
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
+
+        public override bool WeaponCanBeUsed(Player player) => !player.HasBuff<DrinkCooldown>() && !player.GetModPlayer<RadioactivePlayer>().radiationBuff;
+
+        protected override bool? WeaponOnUse(Player player)
         {
-            Item.width = 40;
-            Item.height = 40;
-            Item.useStyle = ItemUseStyleID.DrinkLiquid;
-            Item.useAnimation = 72;
-            Item.useTime = 72;
-            Item.useTurn = true;
-            Item.UseSound = SoundID.Item3;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
-
-        public override void UseStyle(Player player, Rectangle heldItemFrame)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.classAccessory && !p.classHideVanity)
-                Item.noUseGraphic = true;
-            else
-                Item.noUseGraphic = false;
-        }
-
-        public override bool CanUseItem(Player player) => !player.GetModPlayer<Buffs.BonkPlayer>().bonkCooldown;
-
-        public override bool? UseItem(Player player)
-        {
-            if (player.whoAmI == Main.myPlayer)
-            {
-                player.AddBuff(ModContent.BuffType<Buffs.Radiation>(), 480);
-                player.AddBuff(ModContent.BuffType<Buffs.BonkCooldown>(), 1320);
-            }
+            player.AddBuff(ModContent.BuffType<Radiation>(), 480);
+            player.AddBuff(ModContent.BuffType<DrinkCooldown>(), 1320);
             return true;
         }
     }

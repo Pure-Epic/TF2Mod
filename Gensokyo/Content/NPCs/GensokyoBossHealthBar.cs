@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
@@ -25,7 +24,7 @@ namespace TF2.Gensokyo.Content.NPCs
             return null;
         }
 
-        public override bool? ModifyInfo(ref BigProgressBarInfo info, ref float lifePercent, ref float shieldPercent)
+        public override bool? ModifyInfo(ref BigProgressBarInfo info, ref float life, ref float lifeMax, ref float shield, ref float shieldMax)
         {
             NPC npc = Main.npc[info.npcIndexToAimAt];
             if (!npc.active)
@@ -46,10 +45,8 @@ namespace TF2.Gensokyo.Content.NPCs
             if (npc.ModNPC is not GensokyoBoss boss || Divider == null) return;
             float dividerWidth = drawParams.BarCenter.X - Divider.Value.Width / 2f - 1f;
             float dividerLength = drawParams.BarCenter.Y - Divider.Value.Height / 2f;
-            for (int i = 0; i < boss.spellCardAmount - 1; i++)
-            {
-                spriteBatch.Draw(Divider.Value, new Vector2(MathHelper.Lerp(dividerWidth - 226f, dividerWidth + 226f, (i + 1) / (float)boss.spellCardAmount), dividerLength - 2f), Color.White);
-            }
+            for (int i = 0; i < boss.NumStages - 1; i++)
+                spriteBatch.Draw(Divider.Value, new Vector2(MathHelper.Lerp(dividerWidth - 226f, dividerWidth + 226f, (i + 1) / (float)boss.NumStages), dividerLength - 2f), Color.White);
         }
     }
 }
