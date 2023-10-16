@@ -1,38 +1,93 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Materials;
-using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Medic
 {
-    public class VitaSaw : TF2Weapon
+    public class VitaSaw : TF2WeaponMelee
     {
-        protected override void WeaponStatistics()
+        public override void SetStaticDefaults()
         {
-            SetWeaponCategory(Medic, Melee, Unique, Unlock);
-            SetSwingUseStyle();
-            SetWeaponDamage(damage: 65);
-            SetWeaponAttackSpeed(0.8);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/melee_swing");
-            SetWeaponPrice(weapon: 1, scrap: 2);
+            DisplayName.SetDefault("Vita-Saw");
+            Tooltip.SetDefault("Medic's Crafted Melee");
+
+            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
-        protected override void WeaponDescription(List<TooltipLine> description)
+        public override void SafeSetDefaults()
         {
-            AddPositiveAttribute(description);
-            AddNegativeAttribute(description);
-            AddNeutralAttribute(description);
+            Item.width = 50;
+            Item.height = 50;
+            Item.scale = 1f;
+            Item.useTime = 58;
+            Item.useAnimation = 58;
+            Item.useTurn = true;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.noMelee = false;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/melee_swing");
+            Item.autoReuse = true;
+            Item.useTurn = true;
+
+            Item.damage = 65;
+            Item.knockBack = 0;
+            Item.crit = 0;
+
+            Item.value = Item.buyPrice(platinum: 1, gold: 4);
+            Item.rare = ModContent.RarityType<UniqueRarity>();
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => SetPlayerHealth(player, 93);
-
-        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            if (target.type == NPCID.TargetDummy) return;
+            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
+            tooltips.Remove(tt);
+
+            var line = new TooltipLine(Mod, "Positive Attributes",
+                "Collect the organs of people you hit")
+            {
+                OverrideColor = new Color(153, 204, 255)
+            };
+            tooltips.Add(line);
+
+            var line2 = new TooltipLine(Mod, "Negative Attributes",
+                "-10 max health on wearer")
+            {
+                OverrideColor = new Color(255, 64, 64)
+            };
+            tooltips.Add(line2);
+
+            var line3 = new TooltipLine(Mod, "Neutral Attributes",
+                "A percentage of your ÜberCharge level is retained on death,\n"
+                + " based on the number of organs harvested (15% per).\n"
+                + "Total ÜberCharge retained on spawn caps at 60%.")
+            {
+                OverrideColor = new Color(255, 255, 255)
+            };
+            tooltips.Add(line3);
+        }
+
+        public override void HoldItem(Player player) => player.statLifeMax2 = (int)(player.statLifeMax2 * 0.93f);
+
+        public override void UpdateInventory(Player player)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                if (player.inventory[i].type == Type && !inHotbar)
+                    inHotbar = true;
+            }
+            if (!inHotbar && !ModContent.GetInstance<TF2ConfigClient>().InventoryStats) return;
+            player.statLifeMax2 = (int)(player.statLifeMax2 * 0.93f);
+            inHotbar = false;
+        }
+
+        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
+        {
             player.GetModPlayer<TF2Player>().organs += 1;
             player.GetModPlayer<TF2Player>().organs = Utils.Clamp(player.GetModPlayer<TF2Player>().organs, 0, 4);
         }
@@ -41,40 +96,40 @@ namespace TF2.Content.Items.Medic
         {
             CreateRecipe()
                 .AddIngredient<Ubersaw>()
-                .AddIngredient<ScrapMetal>(2)
-                .AddTile<CraftingAnvil>()
+                .AddIngredient<Materials.ScrapMetal>(2)
+                .AddTile<Tiles.Crafting.CraftingAnvil>()
                 .Register();
         }
     }
 
     public class VitaSawPlayer : ModPlayer
     {
-        public int deathUberCharge;
-        public bool giveUberChargeFromVitaSaw;
+        public int deathUbercharge;
+        public bool giveUberchargeFromVitaSaw;
         public int timer;
 
         public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (p.uberCharge >= 600)
-                deathUberCharge = (int)(p.uberCharge * 0.6f);
+            if (p.ubercharge >= 600)
+                deathUbercharge = (int)(p.ubercharge * 0.6f);
             else
-                deathUberCharge = Utils.Clamp((int)p.uberCharge, 0, 150 * p.organs);
+                deathUbercharge = Utils.Clamp((int)p.ubercharge, 0, 150 * p.organs);
         }
 
-        public override void OnRespawn() => giveUberChargeFromVitaSaw = true;
+        public override void OnRespawn(Player player) => giveUberchargeFromVitaSaw = true;
 
         public override void PostUpdate()
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (giveUberChargeFromVitaSaw)
+            if (giveUberchargeFromVitaSaw)
             {
                 timer++;
-                if (timer >= 2) // MUST always be 2!
+                if (timer >= 2) // MUST ALWAYS be 2!
                 {
-                    giveUberChargeFromVitaSaw = false;
+                    giveUberchargeFromVitaSaw = false;
                     p.organs = 0;
-                    deathUberCharge = 0;
+                    deathUbercharge = 0;
                     timer = 0;
                 }
             }

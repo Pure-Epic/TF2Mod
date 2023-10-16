@@ -1,63 +1,123 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Buffs;
+using TF2.Common;
 
 namespace TF2.Content.Items.Heavy
 {
-    public class Sandvich : TF2Weapon
+    public class Sandvich : TF2WeaponNoAmmo
     {
-        protected override void WeaponStatistics()
+        public int timer;
+        public int timer2;
+        public int item;
+        public bool eatenSandvich;
+        public bool droppedSandvich;
+
+        public override void SetStaticDefaults()
         {
-            SetWeaponCategory(Heavy, Secondary, Unique, Unlock);
-            SetWeaponSize(50, 28);
-            SetFoodUseStyle();
-            SetWeaponAttackSpeed(4.3, hide: true);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/sandwicheat09");
+            Tooltip.SetDefault("Heavy's Unlocked Secondary\n"
+                + "Eat to regain full health.\n"
+                + "Alt-fire: Share a Sandvich with a friend (Medium Health Kit).");
+
+            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
-        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
-
-        public override bool WeaponCanBeUsed(Player player) => !player.HasBuff<FoodCooldown>();
-
-        protected override void WeaponActiveUpdate(Player player)
+        public override void SafeSetDefaults()
         {
-            if (player.controlUseTile && !eatingSandvich && !player.HasBuff<FoodCooldown>() && WeaponCanAltClick(player))
-            {
-                IEntitySource source = player.GetSource_FromThis();
-                sandvichItem = Item.NewItem(source, player.getRect(), ModContent.ItemType<DroppedSandvich>(), 1);
-                DroppedSandvich spawnedItem = (DroppedSandvich)Main.item[sandvichItem].ModItem;
-                spawnedItem.droppedPlayerName = player.name;
-                NetMessage.SendData(MessageID.SyncItem, number: sandvichItem);
-                player.AddBuff(ModContent.BuffType<FoodCooldown>(), 1800);
-            }
-            else if (eatingSandvich)
-            {
-                timer[0]++;
-                if (timer[0] >= 60)
-                {
-                    player.Heal((int)(0.25f * player.statLifeMax2));
-                    timer[0] = 0;
-                    timer[1]++;
-                }
-                if (timer[1] >= 4)
-                {
-                    player.AddBuff(ModContent.BuffType<FoodCooldown>(), 1800);
-                    timer[1] = 0;
-                    eatingSandvich = false;
-                }
-            }
+            Item.width = 40;
+            Item.height = 40;
+            Item.useStyle = ItemUseStyleID.EatFood;
+            Item.useAnimation = 258;
+            Item.useTime = 258;
+            Item.useTurn = true;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/sandwicheat09");
+
+            Item.value = Item.buyPrice(platinum: 1);
+            Item.rare = ModContent.RarityType<UniqueRarity>();
         }
 
-        protected override bool? WeaponOnUse(Player player)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            eatingSandvich = true;
+            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
+            tooltips.Remove(tt);
+        }
+
+        public override void UseStyle(Player player, Rectangle heldItemFrame)
+        {
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.classAccessory && !p.classHideVanity)
+                Item.noUseGraphic = true;
+            else
+                Item.noUseGraphic = false;
+        }
+
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool CanUseItem(Player player)
+        {
+            if (player.altFunctionUse == 2)
+            {
+                Item.UseSound = null;
+                Item.noUseGraphic = true;
+                Item.useAnimation = 1;
+            }
+            else
+            {
+                Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/sandwicheat09");
+                Item.noUseGraphic = false;
+                Item.useAnimation = 258;
+            }
+            return !player.GetModPlayer<Buffs.FoodPlayer>().foodCooldown;
+        }
+
+        public override bool? UseItem(Player player)
+        {
+            if (player.whoAmI == Main.myPlayer)
+            {
+                if (player.altFunctionUse == 2)
+                    droppedSandvich = true;
+                else
+                    eatenSandvich = true;
+                if (droppedSandvich && !player.HasBuff<Buffs.FoodCooldown>())
+                {
+                    var source = player.GetSource_FromThis();
+                    item = Item.NewItem(source, player.getRect(), ModContent.ItemType<DroppedSandvich>(), 1);
+                    DroppedSandvich spawnedItem = Main.item[item].ModItem as DroppedSandvich;
+                    spawnedItem.droppedPlayerName = player.name;
+                    NetMessage.SendData(MessageID.SyncItem, number: item);
+                    droppedSandvich = false;
+                    player.AddBuff(ModContent.BuffType<Buffs.FoodCooldown>(), 1800);
+                    return false;
+                }
+                player.AddBuff(ModContent.BuffType<Buffs.FoodCooldown>(), 1800);
+            }
+
             return true;
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (eatenSandvich)
+            {
+                timer++;
+                if (timer >= 60)
+                {
+                    player.statLife += (int)(0.25f * player.statLifeMax2);
+                    timer = 0;
+                    timer2++;
+                }
+                if (timer2 >= 4)
+                {
+                    eatenSandvich = false;
+                    timer2 = 0;
+                }
+            }
         }
     }
 
@@ -65,21 +125,19 @@ namespace TF2.Content.Items.Heavy
     {
         public string droppedPlayerName = string.Empty;
 
-        public override string Texture => "TF2/Content/Textures/DroppedSandvich";
-
-        public override void SetStaticDefaults() => Item.ResearchUnlockCount = 0;
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Sandvich");
 
         public override void SetDefaults()
         {
-            Item.width = 75;
-            Item.height = 41;
+            Item.width = 14;
+            Item.height = 14;
         }
 
-        public override bool CanPickup(Player player) => droppedPlayerName != player.name;
+        public override bool CanPickup(Player player) => !(droppedPlayerName == player.name);
 
         public override bool OnPickup(Player player)
         {
-            player.Heal((int)(0.5f * player.statLifeMax2));
+            player.statLife += (int)(player.statLifeMax2 * 0.5f);
             Item.stack = 0;
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/medkit"), player.Center);
             return false;

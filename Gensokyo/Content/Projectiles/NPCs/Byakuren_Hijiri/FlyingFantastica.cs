@@ -12,6 +12,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     {
         public bool projectileInitialized;
 
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Flying Fantastica");
+
         public override void SetDefaults()
         {
             Projectile.width = 28;
@@ -58,23 +60,18 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             Projectile.position.Y += 2.5f;
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
     [ExtendsFromMod("Gensokyo")]
-    public class FlyingFantastica2 : FlyingFantastica1
-    { }
+    public class FlyingFantastica2 : FlyingFantastica1 { }
 
     [ExtendsFromMod("Gensokyo")]
-    public class FlyingFantastica3 : FlyingFantastica1
-    { }
+    public class FlyingFantastica3 : FlyingFantastica1 { }
 
     [ExtendsFromMod("Gensokyo")]
-    public class FlyingFantastica4 : FlyingFantastica1
-    { }
+    public class FlyingFantastica4 : FlyingFantastica1 { }
 
     [ExtendsFromMod("Gensokyo")]
-    public class FlyingFantastica5 : FlyingFantastica1
-    { }
+    public class FlyingFantastica5 : FlyingFantastica1 { }
 }

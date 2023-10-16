@@ -1,146 +1,139 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Pyro
 {
     public class Airblast : ModProjectile
     {
-        private bool allowHeal;
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Air blast");     // The English name of the projectile
 
         public override void SetDefaults()
         {
-            Projectile.width = 25;
-            Projectile.height = 29;
-            Projectile.aiStyle = 1;
-            Projectile.timeLeft = 600;
-            Projectile.alpha = 64;
-            Projectile.light = 0.5f;
-            Projectile.ignoreWater = false;
-            Projectile.tileCollide = true;
+            Projectile.width = 25;               // The width of projectile hitbox
+            Projectile.height = 25;              // The height of projectile hitbox
+            Projectile.aiStyle = 1;              // The ai style of the projectile, please reference the source code of Terraria
+            Projectile.friendly = true;          // Can the projectile deal damage to enemies?
+            Projectile.hostile = true;           // Can the projectile deal damage to the player?
+            Projectile.timeLeft = 600;           // The live time for the projectile (60 = 1 second, so 600 is 10 seconds)
+            Projectile.alpha = 64;               // The transparency of the projectile, 255 for completely transparent. (aiStyle 1 quickly fades the projectile in) Make sure to delete this if you aren't using an aiStyle that fades in. You'll wonder why your projectile is invisible.
+            Projectile.light = 0.5f;             // How much light emit around the projectile
+            Projectile.ignoreWater = false;      // Does the projectile's speed be influenced by water?
+            Projectile.tileCollide = true;       // Can the projectile collide with tiles?
             Projectile.damage = 1;
             Projectile.knockBack = 20f;
-            AIType = ProjectileID.Bullet;
+            //projectile.scale = 5f;
+            AIType = ProjectileID.Bullet;        // Act exactly like default Bullet
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override void AI()
+        public override bool CanHitPlayer(Player player) => player != Main.player[Projectile.owner];
+
+        public override void AI() => Projectile.damage = 1;
+
+        public override bool PreDraw(ref Color lightColor)
         {
-            foreach (Projectile projectile in Main.projectile)
+            Main.instance.LoadProjectile(Projectile.type);
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+
+            // Redraw the projectile with the color not influenced by light
+            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, Projectile.height * 0.5f);
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
-                if (projectile != Projectile && Projectile.Hitbox.Intersects(projectile.Hitbox) && TF2.CanParryProjectile(projectile) && projectile.hostile && !projectile.friendly)
-                {
-                    projectile.velocity *= -1f;
-                    projectile.hostile = false;
-                }
+                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+                Color color = Projectile.GetAlpha(lightColor) * ((Projectile.oldPos.Length - i) / (float)Projectile.oldPos.Length);
+                Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0);
             }
-            foreach (NPC npc in Main.npc)
-            {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                {
-                    HitNPC(npc);
-                    Projectile.Kill();
-                }
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
-                {
-                    HitPlayer(player);
-                    if (Main.netMode != NetmodeID.SinglePlayer)
-                        NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
-                    Projectile.Kill();
-                }
-            }
+
+            return true;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override void OnKill(int timeLeft)
+        public override void Kill(int timeLeft)
         {
             // This code and the similar code above in OnTileCollide spawn dust from the tiles collided with. SoundID.Item10 is the bounce sound you hear.
             Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
             SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
         }
 
-        protected virtual void HitNPC(NPC npc)
+        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
         {
-            if (npc.friendly)
+            target.life += damage;
+            if (target.friendly)
             {
                 for (int i = 0; i < NPC.maxBuffs; i++)
                 {
-                    int buffTypes = npc.buffType[i];
-                    if (Main.debuff[buffTypes] && npc.buffTime[i] > 0)
+                    int buffTypes = target.buffType[i];
+                    if (Main.debuff[buffTypes] && target.buffTime[i] > 0)
                     {
-                        allowHeal = true;
-                        npc.DelBuff(i);
+                        target.DelBuff(i);
                         i = -1;
                     }
                 }
-                Player player = Main.player[Projectile.owner];
-                if (player.statLife == player.statLifeMax2 || !allowHeal) return;
-                player.Heal((int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428));
-            }
-            else if (!npc.friendly || npc.boss)
-            {
-                float knockbackPower = 10f;
-                int direction = Projectile.velocity.X > 0f ? 1 : -1;
-                if (npc.type == NPCID.TargetDummy) return;
-                if (direction < 0 && npc.velocity.X > 0f - knockbackPower)
-                {
-                    if (npc.velocity.X > 0f)
-                    {
-                        npc.velocity.X -= knockbackPower;
-                    }
-                    npc.velocity.X -= knockbackPower;
-                    if (npc.velocity.X < 0f - knockbackPower)
-                    {
-                        npc.velocity.X = 0f - knockbackPower;
-                    }
-                }
-                else if (direction > 0 && npc.velocity.X < knockbackPower)
-                {
-                    if (npc.velocity.X < 0f)
-                    {
-                        npc.velocity.X += knockbackPower;
-                    }
-                    npc.velocity.X += knockbackPower;
-                    if (npc.velocity.X > knockbackPower)
-                    {
-                        npc.velocity.X = knockbackPower;
-                    }
-                }
-                knockbackPower = (npc.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f));
-                if (npc.velocity.Y > knockbackPower)
-                {
-                    npc.velocity.Y += knockbackPower;
-                    if (npc.velocity.Y < knockbackPower)
-                    {
-                        npc.velocity.Y = knockbackPower;
-                    }
-                }
+                Main.player[Projectile.owner].statLife += (int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428);
             }
         }
 
-        protected virtual void HitPlayer(Player targetPlayer)
+        public override void OnHitPlayer(Player target, int damage, bool crit)
         {
+            target.statLife += damage;
             for (int i = 0; i < Player.MaxBuffs; i++)
             {
-                int buffTypes = targetPlayer.buffType[i];
-                if (Main.debuff[buffTypes] && targetPlayer.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                int buffTypes = target.buffType[i];
+                if (Main.debuff[buffTypes] && target.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !Buffs.TF2BuffBase.cooldownBuff[buffTypes])
                 {
-                    allowHeal = true;
-                    targetPlayer.DelBuff(i);
+                    target.DelBuff(i);
                     i = -1;
                 }
             }
-            Player player = Main.player[Projectile.owner];
-            if (player.statLife == player.statLifeMax2 || !allowHeal) return;
-            player.Heal((int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428));
+            Main.player[Projectile.owner].statLife += (int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428);
+        }
+
+        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        {
+            // Modified from Terraria's source code
+            damage = 1;
+            float knockbackPower = 10f;
+            if (!target.friendly && target.boss == true)
+            {
+                if (hitDirection < 0 && target.velocity.X > 0f - knockbackPower)
+                {
+                    if (target.velocity.X > 0f)
+                    {
+                        target.velocity.X -= knockbackPower;
+                    }
+                    target.velocity.X -= knockbackPower;
+                    if (target.velocity.X < 0f - knockbackPower)
+                    {
+                        target.velocity.X = 0f - knockbackPower;
+                    }
+                }
+                else if (hitDirection > 0 && target.velocity.X < knockbackPower)
+                {
+                    if (target.velocity.X < 0f)
+                    {
+                        target.velocity.X += knockbackPower;
+                    }
+                    target.velocity.X += knockbackPower;
+                    if (target.velocity.X > knockbackPower)
+                    {
+                        target.velocity.X = knockbackPower;
+                    }
+                }
+                knockbackPower = (target.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f));
+                if (target.velocity.Y > knockbackPower)
+                {
+                    target.velocity.Y += knockbackPower;
+                    if (target.velocity.Y < knockbackPower)
+                    {
+                        target.velocity.Y = knockbackPower;
+                    }
+                }
+            }
         }
     }
 }

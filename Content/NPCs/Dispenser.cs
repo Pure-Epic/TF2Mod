@@ -1,12 +1,11 @@
 ﻿using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Items.Ammo;
 using TF2.Content.Items.Consumables;
+using TF2.Common;
 
 namespace TF2.Content.NPCs
 {
@@ -53,6 +52,8 @@ namespace TF2.Content.NPCs
             }
         }
 
+        public void Kill() => NPC.life = 0;
+
         public void MultiplayerScaling() // if else chain incoming
         {
             if (NPC.downedMoonlord)
@@ -86,11 +87,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Dispenser Level 1");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
-
         public override void SetDefaults()
         {
             NPC.width = 50;
@@ -129,9 +130,9 @@ namespace TF2.Content.NPCs
             ai += 1;
             ai2 += 1;
             ai3 += 1;
-            if (ai >= 120)
+            if (ai >= 120) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource heartSource = NPC.GetSource_FromAI();
+                var heartSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<SmallHealth>();
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(heartSource, NPC.Center, type);
@@ -139,9 +140,9 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(heartSource, NPC.Center, type));
                 ai = 0;
             }
-            if (ai2 >= 750)
+            if (ai2 >= 750) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource metalSource = NPC.GetSource_FromAI();
+                var metalSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<Metal>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
@@ -150,11 +151,11 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(metalSource, NPC.Center, type));
                 ai2 = 0;
             }
-            if (ai3 >= 60)
+            if (ai3 >= 60) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    IEntitySource ammoSource = NPC.GetSource_FromAI();
+                    var ammoSource = NPC.GetSource_FromAI();
                     int type = ModContent.ItemType<PrimaryAmmo>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);
@@ -179,11 +180,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Dispenser Level 2");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
-
         public override void SetDefaults()
         {
             NPC.width = 50;
@@ -222,9 +223,9 @@ namespace TF2.Content.NPCs
             ai += 1;
             ai2 += 1;
             ai3 += 1;
-            if (ai >= 90)
+            if (ai >= 90) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource heartSource = NPC.GetSource_FromAI();
+                var heartSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<SmallHealth>();
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(heartSource, NPC.Center, type);
@@ -232,9 +233,9 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(heartSource, NPC.Center, type));
                 ai = 0;
             }
-            if (ai2 >= 600)
+            if (ai2 >= 600) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource metalSource = NPC.GetSource_FromAI();
+                var metalSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<Metal>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
@@ -243,11 +244,11 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(metalSource, NPC.Center, type));
                 ai2 = 0;
             }
-            if (ai3 >= 45)
+            if (ai3 >= 45) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    IEntitySource ammoSource = NPC.GetSource_FromAI();
+                    var ammoSource = NPC.GetSource_FromAI();
                     int type = ModContent.ItemType<PrimaryAmmo>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);
@@ -272,11 +273,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Dispenser Level 3");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
-
         public override void SetDefaults()
         {
             NPC.width = 50;
@@ -315,9 +316,9 @@ namespace TF2.Content.NPCs
             ai += 1;
             ai2 += 1;
             ai3 += 1;
-            if (ai >= 60)
+            if (ai >= 60) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource heartSource = NPC.GetSource_FromAI();
+                var heartSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<SmallHealth>();
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(heartSource, NPC.Center, type);
@@ -325,9 +326,9 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(heartSource, NPC.Center, type));
                 ai = 0;
             }
-            if (ai2 >= 375)
+            if (ai2 >= 375) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
-                IEntitySource metalSource = NPC.GetSource_FromAI();
+                var metalSource = NPC.GetSource_FromAI();
                 int type = ModContent.ItemType<Metal>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
@@ -336,11 +337,11 @@ namespace TF2.Content.NPCs
                     NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(metalSource, NPC.Center, type));
                 ai2 = 0;
             }
-            if (ai3 >= 30)
+            if (ai3 >= 30) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    IEntitySource ammoSource = NPC.GetSource_FromAI();
+                    var ammoSource = NPC.GetSource_FromAI();
                     int type = ModContent.ItemType<PrimaryAmmo>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);

@@ -1,47 +1,101 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Scout
 {
     public class MadMilkProjectile : ModProjectile
     {
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Mad Milk"); // The English name of the projectile
+
         public override void SetDefaults()
         {
-            Projectile.width = 32;
-            Projectile.height = 32;
-            Projectile.aiStyle = 1;
-            Projectile.timeLeft = 600;
-            Projectile.ignoreWater = true;
-            Projectile.tileCollide = true;
-            Projectile.extraUpdates = 1;
+            Projectile.width = 32; // The width of projectile hitbox
+            Projectile.height = 32; // The height of projectile hitbox
+            Projectile.aiStyle = 1; // The ai style of the projectile, please reference the source code of Terraria
+            Projectile.friendly = true; // Can the projectile deal damage to enemies?
+            Projectile.hostile = false; // Can the projectile deal damage to the player?
+            Projectile.penetrate = -1; // How many monsters the projectile can penetrate. (OnTileCollide below also decrements penetrate for bounces as well)
+            Projectile.timeLeft = 600; // The live time for the projectile (60 = 1 second, so 600 is 10 seconds)
+            Projectile.ignoreWater = true; // Does the projectile's speed be influenced by water?
+            Projectile.tileCollide = true; // Can the projectile collide with tiles?
+            Projectile.extraUpdates = 1; // Set to above 0 if you want the projectile to update multiple time in a frame
             AIType = ProjectileID.ToxicFlask;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
+        public override bool PreDraw(ref Color lightColor)
         {
-            Projectile.velocity = Vector2.Zero;
-            Projectile.tileCollide = false;
-            Projectile.alpha = 255;      
-            Projectile.position = Projectile.Center;
-            Projectile.width = 250;
-            Projectile.height = 250;
-            Projectile.Center = Projectile.position;
-            FinalCollision();
-            Projectile.timeLeft = 0;
-            return false;
+            Main.instance.LoadProjectile(Projectile.type);
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+
+            // Redraw the projectile with the color not influenced by light
+            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, Projectile.height * 0.5f);
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+                Color color = Projectile.GetAlpha(lightColor) * ((Projectile.oldPos.Length - i) / (float)Projectile.oldPos.Length);
+                Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0);
+            }
+
+            return true;
         }
 
-        public override void AI() => CheckCollision();
+        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
+        {
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/jar_explode"), Main.player[Projectile.owner].Center);
+            target.life += damage;
+            if (target.friendly)
+            {
+                for (int i = 0; i < NPC.maxBuffs; i++)
+                {
+                    int buffTypes = target.buffType[i];
+                    if (Main.debuff[buffTypes] && target.buffTime[i] > 0)
+                    {
+                        target.DelBuff(i);
+                        i = -1;
+                    }
+                }
+                for (int i = 0; i < Player.MaxBuffs; i++)
+                {
+                    if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<Buffs.MadMilkCooldown>())
+                        Main.player[Projectile.owner].buffTime[i] -= 240;
+                }
 
-        public override void OnKill(int timeLeft)
+            }
+            else
+            {
+                target.AddBuff(ModContent.BuffType<Buffs.MadMilkDebuff>(), 600);
+            }
+            Projectile.Kill();
+        }
+
+        public override void OnHitPlayer(Player target, int damage, bool crit)
+        {
+            target.statLife += damage;
+            for (int i = 0; i < Player.MaxBuffs; i++)
+            {
+                int buffTypes = target.buffType[i];
+                if (Main.debuff[buffTypes] && target.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !Buffs.TF2BuffBase.cooldownBuff[buffTypes])
+                {
+                    target.DelBuff(i);
+                    i = -1;
+                }
+            }
+            for (int i = 0; i < Player.MaxBuffs; i++)
+            {
+                if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<Buffs.MadMilkCooldown>() && Main.player[Projectile.owner] != target)
+                    Main.player[Projectile.owner].buffTime[i] -= 240;
+            }
+        }
+
+        public override void Kill(int timeLeft)
         {
             for (int i = 0; i < 25; i++)
             {
@@ -52,91 +106,22 @@ namespace TF2.Content.Projectiles.Scout
             }
         }
 
-        private void CheckCollision()
+        public override bool OnTileCollide(Vector2 oldVelocity)
         {
-            foreach (NPC npc in Main.npc)
-            {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                {
-                    HitNPC(npc);
-                    Projectile.Kill();
-                }
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
-                {
-                    HitPlayer(player);
-                    if (Main.netMode != NetmodeID.SinglePlayer)
-                        NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
-                    Projectile.Kill();
-                }
-            }
+            Projectile.velocity = new Vector2(0, 0);
+            Projectile.tileCollide = false;
+            // Set to transparent. This projectile technically lives as transparent for about 3 frames
+            Projectile.alpha = 255;
+            // Change the hitbox size, centered about the original projectile center. This makes the projectile damage enemies during the explosion.
+            Projectile.position = Projectile.Center;
+            Projectile.width = 250;
+            Projectile.height = 250;
+            Projectile.Center = Projectile.position;
+            Projectile.hostile = true;
+            Projectile.timeLeft = 0;
+            return false;
         }
 
-        private void FinalCollision()
-        {
-            foreach (NPC npc in Main.npc)
-            {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                {
-                    HitNPC(npc);
-                    Projectile.Kill();
-                }
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.active)
-                {
-                    HitPlayer(player);
-                    if (Main.netMode != NetmodeID.SinglePlayer)
-                        NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
-                    Projectile.Kill();
-                }
-            }
-        }
-
-        protected virtual void HitNPC(NPC npc)
-        {
-            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/jar_explode"), Main.player[Projectile.owner].Center);
-            if (npc.friendly)
-            {
-                for (int i = 0; i < NPC.maxBuffs; i++)
-                {
-                    int buffTypes = npc.buffType[i];
-                    if (Main.debuff[buffTypes] && npc.buffTime[i] > 0)
-                    {
-                        npc.DelBuff(i);
-                        i = -1;
-                    }
-                }
-                for (int i = 0; i < Player.MaxBuffs; i++)
-                {
-                    if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<MadMilkCooldown>())
-                        Main.player[Projectile.owner].buffTime[i] -= 240;
-                }
-            }
-            else
-                npc.AddBuff(ModContent.BuffType<MadMilkDebuff>(), 600);
-            Projectile.Kill();
-        }
-
-        protected virtual void HitPlayer(Player targetPlayer)
-        {
-            for (int i = 0; i < Player.MaxBuffs; i++)
-            {
-                int buffTypes = targetPlayer.buffType[i];
-                if (Main.debuff[buffTypes] && targetPlayer.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
-                {
-                    targetPlayer.DelBuff(i);
-                    i = -1;
-                }
-            }
-            for (int i = 0; i < Player.MaxBuffs; i++)
-            {
-                if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<MadMilkCooldown>() && Main.player[Projectile.owner] != targetPlayer)
-                    Main.player[Projectile.owner].buffTime[i] -= 240;
-            }
-        }
+        public override void AI() => Projectile.damage = 1;
     }
 }

@@ -1,63 +1,100 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Buffs;
-using TF2.Content.Items.Materials;
-using TF2.Content.Items.Spy;
-using TF2.Content.Tiles.Crafting;
+using TF2.Common;
 
 namespace TF2.Content.Items.Engineer
 {
-    public class SouthernHospitality : TF2Weapon
+    public class SouthernHospitality : TF2WeaponMelee
     {
-        protected override void WeaponStatistics()
+        public override void SetStaticDefaults()
         {
-            SetWeaponCategory(Engineer, Melee, Unique, Craft);
-            SetSwingUseStyle();
-            SetWeaponDamage(damage: 65, noRandomCriticalHits: true);
-            SetWeaponAttackSpeed(0.8);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/wrench_swing");
-            SetWeaponPrice(weapon: 1, scrap: 1);
+            Tooltip.SetDefault("Engineer's Crafted Melee");
         }
 
-        protected override void WeaponDescription(List<TooltipLine> description)
+        public override void SafeSetDefaults()
         {
-            AddPositiveAttribute(description);
-            AddNegativeAttribute(description);
+            Item.width = 50;
+            Item.height = 50;
+            Item.scale = 1f;
+            Item.useTime = 48;
+            Item.useAnimation = 48;
+            Item.useTurn = true;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.noMelee = false;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_swing");
+            Item.autoReuse = true;
+            Item.useTurn = true;
+            Item.shoot = ModContent.ProjectileType<WrenchHitbox>();
+
+            Item.damage = 65;
+            Item.knockBack = 0;
+            Item.crit = 0;
+            Item.GetGlobalItem<TF2ItemBase>().noRandomCrits = true;
+
+            Item.value = Item.buyPrice(platinum: 1, gold: 2);
+            Item.rare = ModContent.RarityType<UniqueRarity>();
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<SouthernHospitalityPlayer>().southernHospitalityEquipped = true;
-
-        protected override bool? WeaponOnUse(Player player)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<WrenchHitbox>(), 1, 0f);
-            return true;
+            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
+            tooltips.Remove(tt);
+
+            var line = new TooltipLine(Mod, "Positive Attributes",
+                "On Hit: Bleed for 5 seconds")
+            {
+                OverrideColor = new Color(153, 204, 255)
+            };
+            tooltips.Add(line);
+
+            var line2 = new TooltipLine(Mod, "Negative Attributes",
+                "No random critical hits\n"
+                + "20% contact damage vulnerability on wearer")
+            {
+                OverrideColor = new Color(255, 64, 64)
+            };
+            tooltips.Add(line2);
         }
 
-        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
+        public override void UpdateInventory(Player player)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                if (player.inventory[i].type == Type && !inHotbar)
+                    inHotbar = true;
+            }
+            if (!inHotbar && !ModContent.GetInstance<TF2ConfigClient>().InventoryStats) return;
+            player.GetModPlayer<SouthernHospitalityPlayer>().southernHospitalityEquipped = true;
+            inHotbar = false;
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            Projectile.NewProjectile(source, position, velocity, type, 1, knockback, player.whoAmI);
+            return false;
+        }
+
+        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             BleedingNPC npc = target.GetGlobalNPC<BleedingNPC>();
             npc.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<Bleeding>(), 300);
-        }
-
-        public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            BleedingPlayer bleedPlayer = target.GetModPlayer<BleedingPlayer>();
-            bleedPlayer.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<Bleeding>(), 300);
+            target.AddBuff(ModContent.BuffType<Bleeding>(), 300, false);
         }
 
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<Ambassador>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
+                .AddIngredient<Spy.Ambassador>()
+                .AddIngredient<Materials.ScrapMetal>()
+                .AddTile<Tiles.Crafting.CraftingAnvil>()
                 .Register();
         }
     }
@@ -68,10 +105,10 @@ namespace TF2.Content.Items.Engineer
 
         public override void ResetEffects() => southernHospitalityEquipped = false;
 
-        public override void ModifyHitByNPC(NPC npc, ref Player.HurtModifiers modifiers)
+        public override void ModifyHitByNPC(NPC npc, ref int damage, ref bool crit)
         {
             if (southernHospitalityEquipped)
-                modifiers.FinalDamage *= 1.2f;
+                damage = (int)(damage * 1.2f);
         }
     }
 }

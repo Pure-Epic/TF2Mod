@@ -18,7 +18,6 @@ namespace TF2.Gensokyo.Content.UI
         // For this bar we'll be using a frame texture and then a gradient inside bar, as it's one of the more simpler approaches while still looking decent.
         // Once this is all set up make sure to go and do the required stuff for most UI's in the Mod class.
         private UIText text;
-
         private UIElement area;
         private UIImage barFrame;
         private Color gradientA;
@@ -26,7 +25,7 @@ namespace TF2.Gensokyo.Content.UI
 
         public override void OnInitialize()
         {
-            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element.
+            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element. 
             // UIElement is invisible and has no padding. You can use a UIPanel if you wish for a background.
             area = new UIElement();
             area.Left.Set(-area.Width.Pixels - 600, 1f); // Place the resource bar to the left of the hearts.
@@ -57,7 +56,9 @@ namespace TF2.Gensokyo.Content.UI
         public override void Draw(SpriteBatch spriteBatch)
         {
             // This prevents drawing unless we are using an TF2Weapon
-            if (Main.LocalPlayer.HeldItem.ModItem is not HarshPunisher) return;
+            if (Main.LocalPlayer.HeldItem.ModItem is not HarshPunisher)
+                return;
+
             base.Draw(spriteBatch);
         }
 
@@ -65,7 +66,7 @@ namespace TF2.Gensokyo.Content.UI
         {
             base.DrawSelf(spriteBatch);
 
-            TF2Player modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
             // Calculate quotient
             float quotient = modPlayer.sniperCharge / modPlayer.sniperMaxCharge; // Creating a quotient that represents the difference of your currentResource vs your maximumResource, resulting in a float of 0-1f.
             quotient = Utils.Clamp(quotient, 0f, 1f); // Clamping it to 0-1f so it doesn't go over that.
@@ -81,20 +82,19 @@ namespace TF2.Gensokyo.Content.UI
             int left = hitbox.Left;
             int right = hitbox.Right;
             int steps = (int)((right - left) * quotient);
-            for (int i = 0; i < steps; i++)
+            for (int i = 0; i < steps; i += 1)
             {
                 //float percent = (float)i / steps; // Alternate Gradient Approach
                 float percent = (float)i / (right - left);
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.Lerp(gradientA, gradientB, percent));
             }
         }
-
         public override void Update(GameTime gameTime)
         {
             if (Main.LocalPlayer.HeldItem.ModItem is not HarshPunisher)
                 return;
 
-            TF2Player modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
             // Setting the text per tick to update and show our resource values.
             text.SetText($"Charge: {(int)(100 * (modPlayer.sniperCharge / modPlayer.sniperMaxCharge))}%");
             base.Update(gameTime);

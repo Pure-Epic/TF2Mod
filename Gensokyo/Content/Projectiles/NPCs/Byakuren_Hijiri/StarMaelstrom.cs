@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
@@ -26,6 +26,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         public float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Star Maelstrom");
 
         public override void SetDefaults()
         {
@@ -65,16 +67,16 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             return true;
         }
 
         public override void AI()
         {
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(timer * speed + angleOffset + 90);
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.Stage == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed + angleOffset)) * distance) - Projectile.width / 2;
@@ -92,7 +94,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.Opacity -= 0.05f;
                 Projectile.Opacity = Utils.Clamp(Projectile.Opacity, 0f, 1f);
             }
-            Projectile.netUpdate = true;
         }
 
         public override bool? CanDamage() => timer >= 45;
@@ -102,6 +103,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class StarMaelstrom2 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Star Maelstrom");
 
         public override void SetDefaults()
         {
@@ -139,7 +142,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -148,7 +151,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 }

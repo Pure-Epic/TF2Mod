@@ -11,8 +11,10 @@ namespace TF2.Content.Buffs
 
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Heavy Slow");
+            Description.SetDefault("Slowed");
             Main.debuff[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
         }
 
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<NataschaNPC>().slowDebuff = true;

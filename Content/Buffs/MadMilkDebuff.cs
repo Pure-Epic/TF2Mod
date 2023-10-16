@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Projectiles.Scout;
 
 namespace TF2.Content.Buffs
 {
@@ -11,10 +10,12 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Mad Milk");
+            Description.SetDefault("Life steal");
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
         }
 
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<MadMilkPlayer>().madMilkDebuff = true;
@@ -26,6 +27,8 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Mad Milk Cooldown");
+            Description.SetDefault("You need to restock on Mad Milk");
             Main.debuff[Type] = true;
             Main.buffNoSave[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
@@ -46,16 +49,16 @@ namespace TF2.Content.Buffs
             madMilkCooldown = false;
         }
 
-        public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
+        public override void ModifyHitByProjectile(Projectile proj, ref int damage, ref bool crit)
         {
-            if (proj.type == ModContent.ProjectileType<MadMilkProjectile>())
+            if (proj.type == ModContent.ProjectileType<Projectiles.Scout.MadMilkProjectile>())
             {
                 Player.noKnockback = true;
                 Player.statLife += 1;
                 for (int i = 0; i < Player.MaxBuffs; i++)
                 {
                     int buffTypes = Player.buffType[i];
-                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !Buffs.TF2BuffBase.cooldownBuff[buffTypes])
                     {
                         Player.DelBuff(i);
                         i = -1;
@@ -95,26 +98,26 @@ namespace TF2.Content.Buffs
                 npc.color = initialColor;
         }
 
-        public override void OnHitByItem(NPC npc, Player player, Item item, NPC.HitInfo hit, int damageDone)
+        public override void OnHitByItem(NPC npc, Player player, Item item, int damage, float knockback, bool crit)
         {
             if (madMilkDebuff)
             {
-                if (player.statLife == player.statLifeMax2) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
                 int healthDifference = player.statLifeMax2 / player.statLifeMax;
-                player.Heal((int)(damageDone * 0.6f / classMultiplier * healthDifference));
+                player.statLife += (int)(damage * 0.6f / classMultiplier * healthDifference);
+                player.HealEffect((int)(damage * 0.6f / classMultiplier * healthDifference), true);
             }
         }
 
-        public override void OnHitByProjectile(NPC npc, Projectile projectile, NPC.HitInfo hit, int damageDone)
+        public override void OnHitByProjectile(NPC npc, Projectile projectile, int damage, float knockback, bool crit)
         {
             if (madMilkDebuff)
             {
                 Player player = Main.player[projectile.owner];
-                if (player.statLife == player.statLifeMax2) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
                 int healthDifference = player.statLifeMax2 / player.statLifeMax;
-                player.Heal((int)(damageDone * 0.6f / classMultiplier * healthDifference));
+                player.statLife += (int)(damage * 0.6f / classMultiplier * healthDifference);
+                player.HealEffect((int)(damage * 0.6f / classMultiplier * healthDifference), true);
             }
         }
 

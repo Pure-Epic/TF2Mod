@@ -8,10 +8,10 @@ using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
-using TF2.Content.Items.NPCSummoners;
 
 namespace TF2.Content.NPCs.TownNPCs
 {
+    // [AutoloadHead] and NPC.townNPC are extremely important and absolutely both necessary for any Town NPC to work at all.
     [AutoloadHead]
     public class Administrator : ModNPC
     {
@@ -19,6 +19,8 @@ namespace TF2.Content.NPCs.TownNPCs
 
         public override void SetStaticDefaults()
         {
+            // DisplayName automatically assigned from localization files, but the commented line below is the normal approach.
+            DisplayName.SetDefault("Administrator");
             Main.npcFrameCount[Type] = 25; // The amount of frames the NPC has
 
             NPCID.Sets.ExtraFramesCount[Type] = 9; // Generally for Town NPCs, but this is how the NPC does extra things such as sitting in a chair and talking to other NPCs.
@@ -30,7 +32,7 @@ namespace TF2.Content.NPCs.TownNPCs
             NPCID.Sets.HatOffsetY[Type] = 5; // For when a party is active, the party hat spawns at a Y offset.
 
             // Influences how the NPC looks in the Bestiary
-            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new()
+            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new(0)
             {
                 Velocity = 1f, // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
                 Direction = 1, // -1 is left and 1 is right. NPCs are drawn facing the left by default but ExamplePerson will be drawn facing the right
@@ -78,11 +80,12 @@ namespace TF2.Content.NPCs.TownNPCs
             });
         }
 
-        public override void HitEffect(NPC.HitInfo hit)
+        public override void HitEffect(int hitDirection, double damage)
         {
+
         }
 
-        public override bool CanTownNPCSpawn(int numTownNPCs) => true;
+        public override bool CanTownNPCSpawn(int numTownNPCs, int money) => true;
 
         public override ITownNPCProfile TownNPCProfile() => new AdministratorProfile();
 
@@ -119,29 +122,53 @@ namespace TF2.Content.NPCs.TownNPCs
 
         public override void SetChatButtons(ref string button, ref string button2) => button = "Hire a mercenary";
 
-        public override void OnChatButtonClicked(bool firstButton, ref string shopName)
+        public override void OnChatButtonClicked(bool firstButton, ref bool shop)
         {
             if (firstButton)
-                shopName = "Shop";
+                shop = true;
         }
 
-        public override void AddShops()
+        public override void SetupShop(Chest shop, ref int nextSlot)
         {
-            NPCShop npcShop = new NPCShop(Type, "Shop")
-                .Add(new Item(ModContent.ItemType<ScoutSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1) })
-                .Add(new Item(ModContent.ItemType<SoldierSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 2) })
-                .Add(new Item(ModContent.ItemType<PyroSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50) })
-                .Add(new Item(ModContent.ItemType<DemomanSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50) })
-                .Add(new Item(ModContent.ItemType<HeavySummon>()) { shopCustomPrice = Item.buyPrice(platinum: 4) })
-                .Add(new Item(ModContent.ItemType<EngineerSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25) })
-                .Add(new Item(ModContent.ItemType<MedicSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 5) })
-                .Add(new Item(ModContent.ItemType<SniperSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 2) })
-                .Add(new Item(ModContent.ItemType<SpySummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25) });
-            npcShop.Register();
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.ScoutSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.SoldierSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 2);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.PyroSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.DemomanSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.HeavySummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 4);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.EngineerSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.MedicSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 5);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.SniperSummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 2);
+            nextSlot++;
+
+            shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.NPCSummoners.SpySummon>());
+            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25);
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+
         }
 
         // Make this Town NPC teleport to the King and/or Queen statue when triggered.

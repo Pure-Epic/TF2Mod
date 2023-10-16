@@ -16,13 +16,14 @@ namespace TF2.Content.UI
         // For this bar we'll be using a frame texture and then a gradient inside bar, as it's one of the more simpler approaches while still looking decent.
         // Once this is all set up make sure to go and do the required stuff for most UI's in the Mod class.
         private UIText text;
-
         private UIElement area;
         private UIImage barFrame;
+        private Color gradientA;
+        private Color gradientB;
 
         public override void OnInitialize()
         {
-            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element.
+            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element. 
             // UIElement is invisible and has no padding. You can use a UIPanel if you wish for a background.
             area = new UIElement();
             area.Left.Set(-area.Width.Pixels - 600, 1f); // Place the resource bar to the left of the hearts.
@@ -42,6 +43,9 @@ namespace TF2.Content.UI
             text.Top.Set(55, 0f);
             text.Left.Set(0, 0f);
 
+            gradientA = new Color(157, 49, 47); // Red
+            gradientB = new Color(189, 59, 59); // Lighter red
+
             area.Append(text);
             area.Append(barFrame);
             Append(area);
@@ -50,8 +54,10 @@ namespace TF2.Content.UI
         public override void Draw(SpriteBatch spriteBatch)
         {
             // This prevents drawing unless we are Engineer
-            TF2Player modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
-            if (!(modPlayer.currentClass == 6)) return;
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            if (!(modPlayer.currentClass == 6))
+                return;
+
             base.Draw(spriteBatch);
         }
 
@@ -59,11 +65,11 @@ namespace TF2.Content.UI
         {
             base.DrawSelf(spriteBatch);
 
-            TF2Player modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
             // Calculate quotient
             float quotient;
             quotient = (float)modPlayer.metal / modPlayer.maxMetal; // Creating a quotient that represents the difference of your currentResource vs your maximumResource, resulting in a float of 0-1f.
-            quotient = Utils.Clamp(quotient, 0f, 1f); // Clamping it to 0-1f so it doesn't go over that.
+            quotient = Utils.Clamp(quotient, 0f, 1f); // Clamping it to 0-1f so it doesn't go over that. 
             // Here we get the screen dimensions of the barFrame element, then tweak the resulting rectangle to arrive at a rectangle within the barFrame texture that we will draw the gradient. These values were measured in a drawing program.
             Rectangle hitbox = barFrame.GetInnerDimensions().ToRectangle();
             hitbox.X += 12;
@@ -75,13 +81,17 @@ namespace TF2.Content.UI
             int left = hitbox.Left;
             int right = hitbox.Right;
             int steps = (int)((right - left) * quotient);
-            for (int i = 0; i < steps; i++)
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.White);
+            for (int i = 0; i < steps; i += 1)
+            {
+                //float percent = (float)i / steps; // Alternate Gradient Approach
+                float percent = (float)i / (right - left);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.Lerp(gradientA, gradientB, percent));
+            }
         }
 
         public override void Update(GameTime gameTime)
         {
-            TF2Player modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
             if (!(modPlayer.currentClass == 6))
                 return;
 
