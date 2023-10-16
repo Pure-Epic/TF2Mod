@@ -2,12 +2,14 @@
 using System.Linq;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Common;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.NPCs;
-using TF2.Common;
+using TF2.Content.Projectiles.Pyro;
 
 namespace TF2.Content.NPCs
 {
@@ -46,11 +48,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Scout");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
-            NPCID.Sets.ActsLikeTownNPC[Type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 48;
@@ -86,23 +88,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 9) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -119,7 +120,7 @@ namespace TF2.Content.NPCs
                     float speed = 10f;
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(15 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -136,10 +137,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Soldier");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 56;
@@ -161,6 +163,7 @@ namespace TF2.Content.NPCs
                 new FlavorTextBestiaryInfoElement("Though he wanted desperately to fight in World War 2, the Soldier was rejected from every branch of the U.S. military. Undaunted, he bought his own ticket to Europe. After arriving and finally locating Poland, the Soldier taught himself how to load and fire a variety of weapons before embarking on a Nazi killing spree for which he was awarded several medals that he designed and made himself. His rampage ended immediately upon hearing about the end of the war in 1949."),
             });
         }
+
         public override void AI()
         {
             TF2Player p = Main.player[npcOwner].GetModPlayer<TF2Player>();
@@ -173,23 +176,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 48) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -206,7 +208,7 @@ namespace TF2.Content.NPCs
                     float speed = 25f;
                     int type = ModContent.ProjectileType<SentryRocket>();
                     int damage = (int)(90 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/rocket_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -223,10 +225,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Pyro");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 48;
@@ -261,23 +264,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 36) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -292,9 +294,9 @@ namespace TF2.Content.NPCs
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
                     float speed = 25f;
-                    int type = ModContent.ProjectileType<FlareNPC>();
+                    int type = ModContent.ProjectileType<Flare>();
                     int damage = (int)(30 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(SoundID.Item11, NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -311,10 +313,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Demoman");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 63;
@@ -349,23 +352,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 36) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -379,15 +381,15 @@ namespace TF2.Content.NPCs
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
-                    float speed = 12.5f;
+                    float speed = 0.125f;
                     int type = ModContent.ProjectileType<GrenadeNPC>();
                     int damage = (int)(100 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/grenade_launcher_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -399,10 +401,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Heavy");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 68;
@@ -437,23 +440,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 6) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -471,7 +473,7 @@ namespace TF2.Content.NPCs
                     Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(10f));
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(9 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(SoundID.Item11, NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -488,10 +490,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Engineer");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 55;
@@ -526,23 +529,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 38) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -559,7 +561,7 @@ namespace TF2.Content.NPCs
                     float speed = 10f;
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(6 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/shotgun_shoot"), NPC.Center);
                     for (int i = 0; i < 10; i++)
                     {
@@ -583,15 +585,15 @@ namespace TF2.Content.NPCs
     {
         private int ai;
         private int heal;
-
         public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Medic");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 100;
@@ -634,25 +636,25 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 96) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < activePlayers; i++)
+                foreach (Player targetPlayer in Main.player)
                 {
-                    ai = 0;
-                    Player targetPlayer = Main.player[i];
-
-                    float between = Vector2.Distance(targetPlayer.Center, NPC.Center);
-                    bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                    bool inRange = between < distanceFromTarget;
-                    bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetPlayer.position, targetPlayer.width, targetPlayer.height);
-                    // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-                    // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-                    bool closeThroughWall = between < 100f;
-                    if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
+                    if (targetPlayer.active)
                     {
-                        distanceFromTarget = between;
-                        targetCenter = targetPlayer.Center;
-                        foundTarget = true;
+                        ai = 0;
+                        float between = Vector2.Distance(targetPlayer.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
+                        bool inRange = between < distanceFromTarget;
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetPlayer.position, targetPlayer.width, targetPlayer.height);
+                        // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
+                        // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
+                        bool closeThroughWall = between < 100f;
+                        if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
+                        {
+                            distanceFromTarget = between;
+                            targetCenter = targetPlayer.Center;
+                            foundTarget = true;
+                        }
                     }
-
                 }
                 if (foundTarget)
                 {
@@ -666,7 +668,7 @@ namespace TF2.Content.NPCs
                     float speed = 20f;
                     int type = ModContent.ProjectileType<SyringeNPC>();
                     int damage = 75;
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/syringegun_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -683,10 +685,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Sniper");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 69;
@@ -722,23 +725,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 600) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -755,7 +757,7 @@ namespace TF2.Content.NPCs
                     float speed = 10f;
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(450 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -772,10 +774,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Spy");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.CountsAsCritter[NPC.type] = true;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 47;
@@ -810,23 +813,22 @@ namespace TF2.Content.NPCs
             if (!foundTarget && ai >= 48) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if (((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -843,14 +845,14 @@ namespace TF2.Content.NPCs
                     float speed = 0f;
                     int type = ModContent.ProjectileType<KnifeProjectileNPC>();
                     int damage = (int)(240 * p.classMultiplier);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/knife_swing"), NPC.Center);
                     if ((targetCenter - NPC.Center).Y >= 0f)
                         NPC.velocity = new Vector2(12.5f * NPC.direction, 12.5f);
                     if ((targetCenter - NPC.Center).Y <= 0f)
                         NPC.velocity = new Vector2(12.5f * NPC.direction, -12.5f);
                     int projectile = Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
-                    KnifeProjectileNPC spawnedModProjectile = Main.projectile[projectile].ModProjectile as KnifeProjectileNPC;
+                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)Main.projectile[projectile].ModProjectile;
                     spawnedModProjectile.owner = NPC;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
                 }

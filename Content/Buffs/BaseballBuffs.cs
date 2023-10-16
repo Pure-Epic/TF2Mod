@@ -9,11 +9,9 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Slugged!");
-            Description.SetDefault("Slowed");
             Main.debuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
-            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+            BuffID.Sets.IsATagBuff[Type] = true;
         }
 
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SluggedNPC>().slowDebuff = true;
@@ -44,8 +42,6 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Baseball Cooldown");
-            Description.SetDefault("You cannot throw baseballs");
             Main.debuff[Type] = true;
             Main.buffNoSave[Type] = true;
             TF2BuffBase.cooldownBuff[Type] = true;

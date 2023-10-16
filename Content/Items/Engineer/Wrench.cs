@@ -1,95 +1,78 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
-using Terraria.Audio;
-using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.NPCs;
 
 namespace TF2.Content.Items.Engineer
 {
-    public class Wrench : TF2WeaponMelee
+    public class Wrench : TF2Weapon
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Engineer's Starter Melee\n"
-                             + "Repairs buildings on hit.");
+            SetWeaponCategory(Engineer, Melee, Stock, Starter);
+            SetSwingUseStyle();
+            SetWeaponDamage(damage: 65);
+            SetWeaponAttackSpeed(0.8);
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/wrench_swing");
         }
 
-        public override void SafeSetDefaults()
-        {
-            Item.width = 50;
-            Item.height = 50;
-            Item.scale = 1f;
-            Item.useTime = 48;
-            Item.useAnimation = 48;
-            Item.useTurn = true;
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.noMelee = false;
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_swing");
-            Item.autoReuse = true;
-            Item.useTurn = true;
-            Item.shoot = ModContent.ProjectileType<WrenchHitbox>();
-            Item.rare = ModContent.RarityType<NormalRarity>();
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
 
-            Item.damage = 65;
-            Item.knockBack = 0;
-            Item.crit = 0;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        protected override bool? WeaponOnUse(Player player)
         {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
-
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
-        {
-            Projectile.NewProjectile(source, position, velocity, type, 1, knockback, player.whoAmI);
-            return false;
+            Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<WrenchHitbox>(), 1, 0f);
+            return true;
         }
     }
 
     public class WrenchHitbox : ModProjectile
     {
-        public override void SetStaticDefaults() => DisplayName.SetDefault("Wrench");
+        public override string Texture => "TF2/Content/Items/Engineer/Wrench";
 
         public override void SetDefaults()
         {
-            Projectile.width = 100;
-            Projectile.height = 100;
-            Projectile.friendly = false;
+            Projectile.width = 50;
+            Projectile.height = 50;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.hide = true;
             Projectile.hostile = true;
             Projectile.alpha = 255;
-            Projectile.damage = 0;
-            Projectile.timeLeft = 1;
+            Projectile.timeLeft = 48;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
         }
+
+        public override void ModifyDamageHitbox(ref Rectangle hitbox) => hitbox = TF2.MeleeHitbox(Main.player[Projectile.owner]);
 
         public override void AI()
         {
             if (Projectile.owner == Main.myPlayer)
-                Projectile.velocity = Main.player[Main.myPlayer].velocity;
+                Projectile.velocity = Main.player[Projectile.owner].velocity;
         }
 
         public override bool CanHitPlayer(Player player) => false;
 
         public override bool? CanHitNPC(NPC target) => target.GetGlobalNPC<TF2GlobalNPC>().building;
 
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (Main.netMode != NetmodeID.SinglePlayer) return;
-            NPCs.Sentry sentryNPC;
+            Main.player[Projectile.owner].GetModPlayer<TF2Player>().crit = false;
+            modifiers.HideCombatText();
+            modifiers.DisableCrit();
+        }
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            Sentry sentryNPC;
             float healMultiplier = 1f;
-            if (target.type == ModContent.NPCType<NPCs.SentryLevel1>() || target.type == ModContent.NPCType<NPCs.SentryLevel2>() || target.type == ModContent.NPCType<NPCs.SentryLevel3>() || target.type == ModContent.NPCType<NPCs.DispenserLevel1>() || target.type == ModContent.NPCType<NPCs.DispenserLevel2>() || target.type == ModContent.NPCType<NPCs.DispenserLevel3>())
+            if (target.type == ModContent.NPCType<SentryLevel1>() || target.type == ModContent.NPCType<SentryLevel2>() || target.type == ModContent.NPCType<SentryLevel3>() || target.type == ModContent.NPCType<MiniSentry>() || target.type == ModContent.NPCType<DispenserLevel1>() || target.type == ModContent.NPCType<DispenserLevel2>() || target.type == ModContent.NPCType<DispenserLevel3>())
             {
-                if (target.type == ModContent.NPCType<NPCs.SentryLevel1>() || target.type == ModContent.NPCType<NPCs.SentryLevel2>() || target.type == ModContent.NPCType<NPCs.SentryLevel3>())
+                if (target.type == ModContent.NPCType<SentryLevel1>() || target.type == ModContent.NPCType<SentryLevel2>() || target.type == ModContent.NPCType<SentryLevel3>())
                 {
-                    sentryNPC = target.ModNPC as NPCs.Sentry;
+                    sentryNPC = (Sentry)target.ModNPC;
                     if (sentryNPC.wrangled)
                         healMultiplier = 0.66f;
                     else
@@ -101,14 +84,14 @@ namespace TF2.Content.Items.Engineer
                     target.life = target.lifeMax;
                     return;
                 }
-                TF2Player p = Main.player[Main.myPlayer].GetModPlayer<TF2Player>();
+                TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
                 int cost = 102;
                 if (!(p.metal >= cost / 3)) return;
                 if (healMultiplier < 0) { healMultiplier = 0; }
                 target.life += (int)(cost * p.classMultiplier * healMultiplier);
                 p.metal -= cost / 3;
+                target.HealEffect((int)(cost * p.classMultiplier * healMultiplier));
             }
         }
-
     }
 }

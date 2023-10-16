@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent.Creative;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Items.Demoman;
 using TF2.Content.Items.Sniper;
 using TF2.Content.Tiles.Crafting;
@@ -13,42 +9,15 @@ namespace TF2.Content.Items.Soldier
 {
     public class Gunboats : TF2AccessorySecondary
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Soldier's Crafted Secondary");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Soldier, Secondary, Unique, Craft);
+            SetWeaponPrice(weapon: 2);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips) // needs System.Linq
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
+        protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);
 
-            var line = new TooltipLine(Mod, "Positive Attributes",
-                "-60% damage vulnerability")
-            {
-                OverrideColor = new Color(153, 204, 255)
-            };
-            tooltips.Add(line);
-        }
-
-        public override void SetDefaults()
-        {
-            Item.width = 50;
-            Item.height = 50;
-            Item.accessory = true;
-
-            Item.value = Item.buyPrice(platinum: 2);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-        }
-
-        public override void UpdateAccessory(Player player, bool hideVisual)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.gunboats = true;
-            player.GetModPlayer<TF2Player>().damageReduction += 0.6f;
-        }
+        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<GunboatsPlayer>().gunboatsEquipped = true;
 
         public override void AddRecipes()
         {
@@ -57,6 +26,19 @@ namespace TF2.Content.Items.Soldier
                 .AddIngredient<CharginTarge>()
                 .AddTile<CraftingAnvil>()
                 .Register();
+        }
+    }
+
+    public class GunboatsPlayer : ModPlayer
+    {
+        public bool gunboatsEquipped;
+
+        public override void ResetEffects() => gunboatsEquipped = false;
+
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
+        {
+            if (gunboatsEquipped)
+                modifiers.FinalDamage *= 0.4f;
         }
     }
 }

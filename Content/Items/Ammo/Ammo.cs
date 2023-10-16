@@ -3,7 +3,8 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
+using TF2.Content.Buffs;
+using TF2.Content.Items.Spy;
 
 namespace TF2.Content.Items.Ammo
 {
@@ -11,36 +12,31 @@ namespace TF2.Content.Items.Ammo
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Large Ammo Box");
-            Tooltip.SetDefault("Ammo for Primary Weapons");
             ItemID.Sets.gunProj[Item.type] = true;
+            Item.ResearchUnlockCount = 1000;
         }
 
         public override void SetDefaults()
         {
-            Item.damage = 0;
-            Item.width = 14;
-            Item.height = 14;
-            Item.maxStack = 9999;
+            Item.width = 38;
+            Item.height = 50;
             Item.consumable = true;
-            Item.knockBack = 0;
-            Item.rare = ItemRarityID.White;
+            Item.maxStack = Item.CommonMaxStack;
+            Item.ammo = Item.type;
             Item.shoot = ProjectileID.Bullet;
-            Item.ammo = Item.type; // The first item in an ammo class sets the AmmoID to it's type
             Item.value = Item.buyPrice(copper: 1);
+            Item.rare = ItemRarityID.White;
         }
 
         public override bool OnPickup(Player player)
         {
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/ammo_pickup"), player.Center);
-            if (player.GetModPlayer<TF2Player>().invisWatchEquipped)
-            {
-                player.GetModPlayer<Buffs.CloakPlayer>().cloakMeter = 600;
-            }
-            if (player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && !player.HasBuff<Buffs.CloakandDagger>())
-            {
-                player.GetModPlayer<Buffs.CloakandDaggerPlayer>().cloakMeter += 390;
-            }
+            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
+                player.GetModPlayer<CloakPlayer>().cloakMeter = 600;
+            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += 390;
+            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
+                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = 840;
             return true;
         }
 
@@ -51,36 +47,31 @@ namespace TF2.Content.Items.Ammo
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Small Ammo Box");
-            Tooltip.SetDefault("Ammo for Secondary Weapons");
             ItemID.Sets.gunProj[Item.type] = true;
+            Item.ResearchUnlockCount = 1000;
         }
 
         public override void SetDefaults()
         {
-            Item.damage = 0;
-            Item.width = 14;
-            Item.height = 14;
-            Item.maxStack = 9999;
+            Item.width = 30;
+            Item.height = 28;
             Item.consumable = true;
-            Item.knockBack = 0;
-            Item.rare = ItemRarityID.White;
+            Item.maxStack = Item.CommonMaxStack;
+            Item.ammo = Item.type;
             Item.shoot = ProjectileID.Bullet;
-            Item.ammo = Item.type; // The first item in an ammo class sets the AmmoID to it's type
             Item.value = Item.buyPrice(copper: 1);
+            Item.rare = ItemRarityID.White;
         }
 
         public override bool OnPickup(Player player)
         {
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/ammo_pickup"), player.Center);
-            if (player.GetModPlayer<TF2Player>().invisWatchEquipped)
-            {
-                player.GetModPlayer<Buffs.CloakPlayer>().cloakMeter = 600;
-            }
-            if (player.GetModPlayer<TF2Player>().cloakandDaggerEquipped && !player.HasBuff<Buffs.CloakandDagger>())
-            {
-                player.GetModPlayer<Buffs.CloakandDaggerPlayer>().cloakMeter += 390;
-            }
+            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
+                player.GetModPlayer<CloakPlayer>().cloakMeter = 600;
+            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += 390;
+            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
+                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = 840;
             return true;
         }
 

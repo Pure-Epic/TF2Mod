@@ -3,24 +3,23 @@ using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.Chat;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using TF2.Content.NPCs;
 
 namespace TF2.Content.Items.NPCSummoners
 {
     public class ScoutSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Scout");
-            Tooltip.SetDefault("Summons Scout");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;         
+            Item.height = 30;
             Item.useTime = 60;
             Item.useAnimation = 60;
             Item.useStyle = ItemUseStyleID.HoldUp;
@@ -29,10 +28,6 @@ namespace TF2.Content.Items.NPCSummoners
             Item.value = Item.buyPrice(gold: 50);
         }
 
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
-
         public override bool CanUseItem(Player player)
         {
             if (Main.netMode == NetmodeID.Server)
@@ -40,57 +35,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.ScoutNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<ScoutNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.ScoutNPC>(), player.whoAmI);
-                    NPCs.ScoutNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.ScoutNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<ScoutNPC>(), player.whoAmI);
+                    ScoutNPC spawnedModNPC = (ScoutNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.ScoutNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<ScoutNPC>()) > activePlayers;
     }
 
     public class SoldierSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Soldier");
-            Tooltip.SetDefault("Summons Soldier");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;            
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;           
-            Item.useStyle = ItemUseStyleID.HoldUp;           
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");          
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -99,57 +84,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.SoldierNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<SoldierNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.SoldierNPC>(), player.whoAmI);
-                    NPCs.SoldierNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.SoldierNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<SoldierNPC>(), player.whoAmI);
+                    SoldierNPC spawnedModNPC = (SoldierNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.SoldierNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<SoldierNPC>()) > activePlayers;
     }
 
     public class PyroSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Pyro");
-            Tooltip.SetDefault("Summons Pyro");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;           
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;            
-            Item.useStyle = ItemUseStyleID.HoldUp;       
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");           
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -158,57 +133,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.PyroNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<PyroNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.PyroNPC>(), player.whoAmI);
-                    NPCs.PyroNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.PyroNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<PyroNPC>(), player.whoAmI);
+                    PyroNPC spawnedModNPC = (PyroNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.PyroNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<PyroNPC>()) > activePlayers;
     }
 
     public class DemomanSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Demoman");
-            Tooltip.SetDefault("Summons Demoman");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;           
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;            
-            Item.useStyle = ItemUseStyleID.HoldUp;            
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");           
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -217,58 +182,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.DemomanNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<DemomanNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.DemomanNPC>(), player.whoAmI);
-                    NPCs.DemomanNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.DemomanNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<DemomanNPC>(), player.whoAmI);
+                    DemomanNPC spawnedModNPC = (DemomanNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
-                    Item.stack -= 1;
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.DemomanNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<DemomanNPC>()) > activePlayers;
     }
 
     public class HeavySummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Heavy");
-            Tooltip.SetDefault("Summons Heavy");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;           
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;           
-            Item.useStyle = ItemUseStyleID.HoldUp;           
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");           
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -277,57 +231,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.HeavyNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<HeavyNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.HeavyNPC>(), player.whoAmI);
-                    NPCs.HeavyNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.HeavyNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<HeavyNPC>(), player.whoAmI);
+                    HeavyNPC spawnedModNPC = (HeavyNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.HeavyNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<HeavyNPC>()) > activePlayers;
     }
 
     public class EngineerSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Engineer");
-            Tooltip.SetDefault("Summons Engineer");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;          
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;         
-            Item.useStyle = ItemUseStyleID.HoldUp;         
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");         
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -336,57 +280,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.EngineerNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<EngineerNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.EngineerNPC>(), player.whoAmI);
-                    NPCs.EngineerNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.EngineerNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<EngineerNPC>(), player.whoAmI);
+                    EngineerNPC spawnedModNPC = (EngineerNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.EngineerNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<EngineerNPC>()) > activePlayers;
     }
 
     public class MedicSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Medic");
-            Tooltip.SetDefault("Summons Medic");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;           
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;        
-            Item.useStyle = ItemUseStyleID.HoldUp;          
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");          
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -395,57 +329,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.MedicNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<MedicNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.MedicNPC>(), player.whoAmI);
-                    NPCs.MedicNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.MedicNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<MedicNPC>(), player.whoAmI);
+                    MedicNPC spawnedModNPC = (MedicNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.MedicNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<MedicNPC>()) > activePlayers;
     }
 
     public class SniperSummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Sniper");
-            Tooltip.SetDefault("Summons Sniper");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;            
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;         
-            Item.useStyle = ItemUseStyleID.HoldUp;          
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");          
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -454,57 +378,47 @@ namespace TF2.Content.Items.NPCSummoners
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Mercenaries are unsupported in multiplayer!"), Color.White);
                 return false;
             }
-            for (int i = 0; i < Main.maxNPCs; i++)
+            foreach (NPC npc in Main.npc)
             {
-                var npc = Main.npc[i];
                 if (npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return false;
             }
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.SniperNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<SniperNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.SniperNPC>(), player.whoAmI);
-                    NPCs.SniperNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.SniperNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<SniperNPC>(), player.whoAmI);
+                    SniperNPC spawnedModNPC = (SniperNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.SniperNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<SniperNPC>()) > activePlayers;
     }
 
     public class SpySummon : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Spy");
-            Tooltip.SetDefault("Summons Spy");
-        }
+        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
+        public int npc;
 
         public override void SetDefaults()
         {
             Item.width = 30;
-            Item.height = 30;            
+            Item.height = 30;
             Item.useTime = 60;
-            Item.useAnimation = 60;        
-            Item.useStyle = ItemUseStyleID.HoldUp;     
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");      
+            Item.useAnimation = 60;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/spawn_item");
             Item.noUseGraphic = true;
             Item.value = Item.buyPrice(gold: 50);
         }
-
-        public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
-        public int npc;
 
         public override bool CanUseItem(Player player)
         {
@@ -516,24 +430,21 @@ namespace TF2.Content.Items.NPCSummoners
 
             if (Main.netMode != NetmodeID.MultiplayerClient)
             {
-                if (NPC.CountNPCS(ModContent.NPCType<NPCs.SpyNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
+                if (NPC.CountNPCS(ModContent.NPCType<SpyNPC>()) < activePlayers + 1 && player.altFunctionUse != 2)
                 {
-                    var source = player.GetSource_FromThis();
-                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<NPCs.SpyNPC>(), player.whoAmI);
-                    NPCs.SpyNPC spawnedModNPC = Main.npc[npc].ModNPC as NPCs.SpyNPC;
+                    IEntitySource source = player.GetSource_FromThis();
+                    npc = NPC.NewNPC(source, (int)player.position.X, (int)player.position.Y, ModContent.NPCType<SpyNPC>(), player.whoAmI);
+                    SpyNPC spawnedModNPC = (SpyNPC)Main.npc[npc].ModNPC;
                     spawnedModNPC.npcOwner = player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
-                    Item.stack -= 1;
                 }
                 else if (player.altFunctionUse == 2)
-                {
                     Main.npc[npc].Center = new Vector2(player.Center.X, player.Center.Y - 100f);
-                }
                 return true;
             }
             return false;
         }
 
-        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<NPCs.SpyNPC>()) > activePlayers;
+        public override bool AltFunctionUse(Player player) => NPC.CountNPCS(ModContent.NPCType<SpyNPC>()) > activePlayers;
     }
 }

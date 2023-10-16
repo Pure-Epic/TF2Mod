@@ -9,8 +9,6 @@ namespace TF2.Content.Projectiles.Scout
     {
         public override string Texture => "TF2/Content/Projectiles/Demoman/ShieldHitbox";
 
-        public override void SetStaticDefaults() => DisplayName.SetDefault("Shove");
-
         public override void SetDefaults()
         {
             Projectile.Size = new Vector2(250); // This sets width and height to the same value (important when projectiles can rotate)
@@ -36,14 +34,14 @@ namespace TF2.Content.Projectiles.Scout
             return false;
         }
 
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            crit = false;
+            modifiers.DisableCrit();
             // Modified from Terraria's source code
-            float knockbackPower = 25f;
+            float knockbackPower = 12.5f;
             if (!target.friendly && target.type != NPCID.TargetDummy)
             {
-                if (hitDirection < 0 && target.velocity.X > 0f - knockbackPower)
+                if (modifiers.HitDirection < 0 && target.velocity.X > 0f - knockbackPower)
                 {
                     if (target.velocity.X > 0f)
                     {
@@ -55,7 +53,7 @@ namespace TF2.Content.Projectiles.Scout
                         target.velocity.X = 0f - knockbackPower;
                     }
                 }
-                else if (hitDirection > 0 && target.velocity.X < knockbackPower)
+                else if (modifiers.HitDirection > 0 && target.velocity.X < knockbackPower)
                 {
                     if (target.velocity.X < 0f)
                     {

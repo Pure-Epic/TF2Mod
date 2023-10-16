@@ -18,8 +18,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public int timer;
         public int direction;
 
-        public override void SetStaticDefaults() => DisplayName.SetDefault("Amagimi Hijiri's Air Scroll");
-
         public override void SetDefaults()
         {
             Projectile.width = 27;
@@ -53,8 +51,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
-            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
             projectileInitialized = true;
             return true;
         }
@@ -64,12 +62,13 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             timer++;
             if (timer >= 120)
             {
-                ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
-                Vector2 vector = npc.targetPlayer.Center - Projectile.Center;
+                ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+                Vector2 vector = npc.targetCenter - Projectile.Center;
                 Projectile.velocity = Vector2.Normalize(vector) * 10f;
             }
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
+            Projectile.netUpdate = true;
         }
     }
 }

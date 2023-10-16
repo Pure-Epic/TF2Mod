@@ -10,12 +10,11 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Afterburn");
-            Description.SetDefault("Losing life");
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+            BuffID.Sets.IsATagBuff[Type] = true;
+            TF2BuffBase.fireBuff[Type] = true;
         }
 
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<PyroFlamesPlayer>().lifeRegenDebuff = true;
@@ -42,7 +41,7 @@ namespace TF2.Content.Buffs
                 if (timer >= 30)
                 {
                     Player.statLife -= (int)(4 * damageMultiplier);
-                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegenNegative, (int)(4 * damageMultiplier), dramatic: false, dot: true);
+                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(4 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
                         Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " burnt to death."), (int)(4 * damageMultiplier), 0);
                     timer = 0;
@@ -75,6 +74,8 @@ namespace TF2.Content.Buffs
                     npc.life -= (int)(4 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height), CombatText.LifeRegenNegative, (int)(4 * damageMultiplier), dramatic: false, dot: true);
                     npc.checkDead();
+                    if (Main.netMode != NetmodeID.SinglePlayer)
+                        npc.netUpdate = true;
                     timer = 0;
                 }
                 int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Torch, 0f, 0f, 100, default, 3f);

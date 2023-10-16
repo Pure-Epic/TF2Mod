@@ -1,5 +1,4 @@
 ﻿using Terraria;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,29 +9,26 @@ namespace TF2.Content.Items.Consumables
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Plantera's Bulb");
-            Tooltip.SetDefault("Now portable!");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
-            ItemID.Sets.SortingPriorityBossSpawns[Type] = 12; // This helps sort inventory know that this is a boss summoning Item.
-
+            ItemID.Sets.SortingPriorityBossSpawns[Type] = 12;
             Item.DefaultToPlaceableTile(TileID.PlanteraBulb);
+            Item.ResearchUnlockCount = 3;
         }
 
         public override void SetDefaults()
         {
             Item.width = 20;
             Item.height = 20;
-            Item.maxStack = 999;
-            Item.useTurn = true;
-            Item.autoReuse = true;
-            Item.useAnimation = 15;
             Item.useTime = 10;
+            Item.useAnimation = 15;
             Item.useStyle = ItemUseStyleID.Swing;
+            Item.useTurn = true;
             Item.consumable = true;
-            Item.value = Item.buyPrice(gold: 35);
-            Item.rare = ItemRarityID.Blue;
+            Item.maxStack = Item.CommonMaxStack;
+            Item.autoReuse = true;
             Item.createTile = TileID.PlanteraBulb;
+
+            Item.value = Item.buyPrice(gold: 35);
+            Item.rare = ItemRarityID.Orange;
         }
     }
 }

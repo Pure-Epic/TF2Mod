@@ -1,12 +1,11 @@
 ﻿using Terraria;
 using Terraria.Audio;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
-using Terraria.ModLoader;
-using TF2.Gensokyo.Events;
-using TF2.Content.Items;
 using Terraria.Localization;
+using Terraria.ModLoader;
+using TF2.Content.Items;
 using TF2.Gensokyo.Common;
+using TF2.Gensokyo.Events;
 
 namespace TF2.Gensokyo.Content.Items.BossSummons
 {
@@ -15,11 +14,8 @@ namespace TF2.Gensokyo.Content.Items.BossSummons
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Disenchanted Sutra Scroll");
-            Tooltip.SetDefault("Starts Boss Rush");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
             ItemID.Sets.SortingPriorityBossSpawns[Type] = 12;
+            Item.ResearchUnlockCount = 3;
         }
 
         public override void SetDefaults()
