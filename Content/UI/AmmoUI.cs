@@ -16,14 +16,13 @@ namespace TF2.Content.UI
         // For this bar we'll be using a frame texture and then a gradient inside bar, as it's one of the more simpler approaches while still looking decent.
         // Once this is all set up make sure to go and do the required stuff for most UI's in the Mod class.
         private UIText text;
+
         private UIElement area;
         private UIImage barFrame;
-        private Color gradientA;
-        private Color gradientB;
 
         public override void OnInitialize()
         {
-            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element. 
+            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element.
             // UIElement is invisible and has no padding. You can use a UIPanel if you wish for a background.
             area = new UIElement();
             area.Left.Set(-area.Width.Pixels - 600, 1f); // Place the resource bar to the left of the hearts.
@@ -43,9 +42,6 @@ namespace TF2.Content.UI
             text.Top.Set(40, 0f);
             text.Left.Set(0, 0f);
 
-            gradientA = new Color(193, 161, 138); // #c1a18a
-            gradientB = new Color(218, 189, 171); // #dabdab
-
             area.Append(text);
             area.Append(barFrame);
             Append(area);
@@ -54,8 +50,7 @@ namespace TF2.Content.UI
         public override void Draw(SpriteBatch spriteBatch)
         {
             // This prevents drawing unless we are using an TF2Weapon
-            if (Main.LocalPlayer.HeldItem.ModItem is not TF2Weapon || Main.LocalPlayer.HeldItem.ModItem is TF2WeaponNoAmmo) // Change to any weapon class if UI is weapon exculsive
-                return;
+            if (Main.LocalPlayer.HeldItem.ModItem is not TF2Weapon weapon || weapon is TF2WeaponNoAmmo || weapon.noAmmoClip) return;
             base.Draw(spriteBatch);
         }
 
@@ -63,7 +58,7 @@ namespace TF2.Content.UI
         {
             base.DrawSelf(spriteBatch);
 
-            var modPlayer = Main.LocalPlayer.GetModPlayer<WeaponSystem>();
+            AmmoInterface modPlayer = Main.LocalPlayer.GetModPlayer<AmmoInterface>();
             // Calculate quotient
             float quotient = (float)modPlayer.ammoCurrent / modPlayer.ammoMax2; // Creating a quotient that represents the difference of your currentResource vs your maximumResource, resulting in a float of 0-1f.
             quotient = Utils.Clamp(quotient, 0f, 1f); // Clamping it to 0-1f so it doesn't go over that.
@@ -79,23 +74,21 @@ namespace TF2.Content.UI
             int left = hitbox.Left;
             int right = hitbox.Right;
             int steps = (int)((right - left) * quotient);
-            for (int i = 0; i < steps; i += 1)
-            {
-                //float percent = (float)i / steps; // Alternate Gradient Approach
-                float percent = (float)i / (right - left);
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.Lerp(gradientA, gradientB, percent));
-            }
+            for (int i = 0; i < steps; i++)
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.White);
         }
 
         public override void Update(GameTime gameTime)
         {
             if (Main.LocalPlayer.HeldItem.ModItem is not TF2Weapon)
                 return;
-
-            var modPlayer = Main.LocalPlayer.GetModPlayer<WeaponSystem>();
-            // Setting the text per tick to update and show our resource values.
-            text.SetText($"Ammo: {modPlayer.ammoCurrent} / {modPlayer.ammoMax2}");
-            base.Update(gameTime);
+            AmmoInterface modPlayer = Main.LocalPlayer.GetModPlayer<AmmoInterface>();
+            if (modPlayer.ammoMax2 > 0)
+            {
+                // Setting the text per tick to update and show our resource values.
+                text.SetText($"Ammo: {modPlayer.ammoCurrent} / {modPlayer.ammoMax2}");
+                base.Update(gameTime);
+            }
         }
     }
 }

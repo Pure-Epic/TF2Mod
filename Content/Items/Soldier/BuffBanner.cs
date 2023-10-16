@@ -1,94 +1,74 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 
 namespace TF2.Content.Items.Soldier
 {
     public class BuffBanner : TF2AccessorySecondary
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Buff Banner");
-            Tooltip.SetDefault("Soldier's Unlocked Secondary\n"
-                + "Provides an offensive buff that causes all team members to do mini-crits.\n"
-                + "Rage increases through damage done.");
-        }
+        protected override void WeaponStatistics() => SetWeaponCategory(Soldier, Secondary, Unique, Unlock);
 
-        public override void SetDefaults()
-        {
-            Item.width = 50;
-            Item.height = 50;
-            Item.accessory = true;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
+            p.hasBanner = true;
             p.bannerType = 1;
-            p.buffBanner = true;
         }
     }
 
-    public class BannerPlayer : ModPlayer
+    public abstract class BannerPlayer : ModPlayer
     {
+        public int bannerID;
         public int rage;
+        public int maxRage = 600;
         public bool buffActive;
         public int buffDuration;
 
-        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)
+        public override void ResetEffects() => buffActive = false;
+
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if ((!Player.GetModPlayer<TF2Player>().buffBanner) || buffActive) return;
-            rage += (int)(damage / Player.GetModPlayer<TF2Player>().classMultiplier);
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            if (Player.GetModPlayer<TF2Player>().hasBanner && bannerID == p.bannerType && !buffActive)
+            rage += (int)(damageDone / p.classMultiplier);
+            PostHitNPC(target, hit, damageDone);
         }
 
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit)
+        public override void OnHurt(Player.HurtInfo info)
         {
-            if (proj.GetGlobalProjectile<Projectiles.TF2ProjectileBase>().spawnedFromNPC) return;
-            if ((!Player.GetModPlayer<TF2Player>().buffBanner) || buffActive) return;
-            rage += (int)(damage / Player.GetModPlayer<TF2Player>().classMultiplier);
+            if (!info.PvP) return;
+            Player opponent = Main.player[info.DamageSource.SourcePlayerIndex];
+            TF2Player p = opponent.GetModPlayer<TF2Player>();
+            BannerPlayer banner = opponent.GetModPlayer<BannerPlayer>();
+            if (p.hasBanner && banner.bannerID == p.bannerType || banner.buffActive)
+            opponent.GetModPlayer<BannerPlayer>().rage += (int)(info.Damage / p.classMultiplier);
+            PostHitPlayer(info);
         }
 
-        public override void OnHitPvp(Item item, Player target, int damage, bool crit)
-        {
-            if ((!Player.GetModPlayer<TF2Player>().buffBanner) || buffActive) return;
-            rage += (int)(damage / Player.GetModPlayer<TF2Player>().classMultiplier);
-        }
+        protected virtual void PostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        { }
 
-        public override void OnHitPvpWithProj(Projectile proj, Player target, int damage, bool crit)
-        {
-            if (proj.GetGlobalProjectile<Projectiles.TF2ProjectileBase>().spawnedFromNPC) return;
-            if ((!Player.GetModPlayer<TF2Player>().buffBanner) || buffActive) return;
-            rage += (int)(damage / Player.GetModPlayer<TF2Player>().classMultiplier);
-        }
+        protected virtual void PostHitPlayer(Player.HurtInfo info)
+        { }
     }
 
     public class BuffBannerPlayer : BannerPlayer
     {
-        public override void ResetEffects()
-        {
-            buffActive = false;
-            rage = Utils.Clamp(rage, 0, 600);
-            if (!Player.GetModPlayer<TF2Player>().buffBanner)
-                rage = 0;
-        }
-
         public override void PostUpdate()
         {
-            if (buffActive && Player.HasBuff<Buffs.Rage>())
+            bannerID = 1;
+            maxRage = 600;
+            rage = Utils.Clamp(rage, 0, maxRage);
+            if (!Player.GetModPlayer<TF2Player>().hasBanner)
+                rage = 0;
+            if (buffActive && Player.HasBuff<Rage>())
             {
                 rage = 0;
-                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<Buffs.Rage>());
+                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<Rage>());
                 buffDuration = Player.buffTime[buffIndex];
             }
         }

@@ -1,203 +1,94 @@
 ﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent.Creative;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Ammo;
-using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Sniper;
 
 namespace TF2.Content.Items.Sniper
 {
-    public class Huntsman : SniperRifle
+    public class Huntsman : TF2Weapon
     {
-        public int fatigue;
-
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Sniper's Unlocked Primary");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Sniper, Primary, Unique, Unlock);
+            SetWeaponSize(11, 50);
+            SetGunUseStyle(focus: true);
+            SetWeaponDamage(damage: 50, projectile: ModContent.ProjectileType<Arrow>(), projectileSpeed: 12.5f, noRandomCriticalHits: true);
+            SetWeaponAttackSpeed(1.94);
+            SetWeaponAttackIntervals(noAmmo: true);
+            SetSniperRifle(chargeDamage: 70, maxChargeTime: 1, zoomDelay: 0, speed: 45);
         }
 
-        public override void SafeSetDefaults()
+        protected override bool WeaponCanConsumeAmmo(Player player) => ModContent.GetInstance<TF2ConfigClient>().Channel;
+
+        protected override void WeaponActiveUpdate(Player player)
         {
-            Item.width = 11;
-            Item.height = 50;
-            Item.useTime = 116;
-            Item.useAnimation = 116;
-            Item.useStyle = ItemUseStyleID.Shoot;
-            Item.noMelee = true;
-            Item.autoReuse = true;
-            Item.channel = true;
-
-            Item.damage = 50;
-            chargeUpDamage = Item.damage;
-            Item.shoot = ModContent.ProjectileType<Arrow>();
-            Item.shootSpeed = 12.5f;
-            Item.useAmmo = ModContent.ItemType<PrimaryAmmo>();
-            Item.GetGlobalItem<TF2ItemBase>().noRandomCrits = true;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
-
-        public override void UseStyle(Player player, Rectangle heldItemFrame)
-        {
+            Item.UseSound = ModContent.GetInstance<TF2ConfigClient>().Channel ? new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot") : null;
+            maxChargeUp = !ModContent.GetInstance<TF2ConfigClient>().Channel ? 60f : 60f + Item.useTime;
             TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.classAccessory && !p.classHideVanity)
-                Item.noUseGraphic = true;
-            else
-                Item.noUseGraphic = false;
-        }
-
-        public override void HoldItem(Player player)
-        {
-            if (ModContent.GetInstance<TF2ConfigClient>().Channel)
-                Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot");
-            else
-                Item.UseSound = null;
-            if (!ModContent.GetInstance<TF2ConfigClient>().Channel)
-                maxChargeUp = 60f;
-            else
-                maxChargeUp = 60f + Item.useTime;
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.sniperMaxCharge = maxChargeUp;
             p.sniperCharge = chargeTime;
-            p.sniperChargeTimer = sniperChargeInterval;
+            p.sniperMaxCharge = maxChargeUp;
             chargeTime = (int)Utils.Clamp(chargeTime, 0, maxChargeUp);
             if (ModContent.GetInstance<TF2ConfigClient>().Channel)
-                Charge();
+                SniperRifleCharge();
             if (chargeTime == maxChargeUp)
             {
                 p.crit = true;
-                fatigue++;
+                timer[0]++;
             }
 
-            if (Main.mouseLeftRelease && isCharging && !ModContent.GetInstance<TF2ConfigClient>().Channel && !player.dead)
+            if (!player.controlUseItem && isCharging && !ModContent.GetInstance<TF2ConfigClient>().Channel && !player.dead)
             {
-                Vector2 shootDirection = player.DirectionTo(Main.MouseWorld);
-                if (fatigue >= 300)
-                    shootDirection = shootDirection.RotatedByRandom(MathHelper.ToRadians(60f));
-                int proj = Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, shootDirection * Item.shootSpeed, ModContent.ProjectileType<Arrow>(), chargeUpDamage, 0f, player.whoAmI);
-                if (player.GetModPlayer<TF2Player>().focus)
-                {
-                    Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().homing = true;
-                    Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().shootSpeed = Item.shootSpeed;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: proj);
-                }
-                if (chargeTime == maxChargeUp)
-                {
-                    Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().sniperCrit = true;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: proj);
-                }
+                Vector2 shootDirection = timer[0] >= 300 ? player.DirectionTo(Main.MouseWorld).RotatedByRandom(MathHelper.ToRadians(60f)) : player.DirectionTo(Main.MouseWorld);
+                FocusShot(player, player.GetSource_ItemUse(Item), player.Center, shootDirection * Item.shootSpeed, ModContent.ProjectileType<Arrow>(), (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().classMultiplier), 0f);
+
+                SetCustomItemTime(player);
                 chargeUpDamage = Item.damage;
                 chargeTime = 0f;
-                fatigue = 0;
+                timer[0] = 0;
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot"), player.Center);
                 isCharging = false;
                 ChargeWeaponConsumeAmmo(player);
+            }
+
+            if (player.controlUseTile && timer[0] > 0)
+            {
+                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot_pull_reverse"), player.Center);
+                timer[0] = 0;
+                chargeTime = 0f;
+                isCharging = false;
+                player.itemTime = 116;
             }
 
             if (player.dead)
                 isCharging = false;
         }
 
-        public override void UpdateInventory(Player player)
+        protected override void WeaponAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.HeldItem.ModItem is SniperRifle && isCharging)
-            {
-                player.moveSpeed -= 0.55f;
-                player.GetModPlayer<TF2Player>().speedMultiplier -= 0.55f;
-                player.GetModPlayer<TF2Player>().disableFocusSlowdown = true;
-            }
-        }
+            if (!ModContent.GetInstance<TF2ConfigClient>().Channel) return;
+            Vector2 newVelocity = timer[0] >= 240 ? velocity.RotatedByRandom(MathHelper.ToRadians(60f)) : velocity;
+            WeaponFireProjectile(player, source, position, newVelocity, ModContent.ProjectileType<Arrow>(), (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().classMultiplier), knockback);
 
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
-        {
-            if (!ModContent.GetInstance<TF2ConfigClient>().Channel)
-                return false;
-            Vector2 newVelocity = velocity;
-            if (fatigue >= 240)
-                newVelocity = velocity.RotatedByRandom(MathHelper.ToRadians(60f));
-            int proj = Projectile.NewProjectile(source, position, newVelocity, ModContent.ProjectileType<Arrow>(), chargeUpDamage, knockback, player.whoAmI);
-            if (player.GetModPlayer<TF2Player>().focus)
-            {
-                Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().homing = true;
-                Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().shootSpeed = Item.shootSpeed;
-                NetMessage.SendData(MessageID.SyncProjectile, number: proj);
-            }
-            if (chargeTime == maxChargeUp)
-            {
-                Main.projectile[proj].GetGlobalProjectile<TF2ProjectileBase>().sniperCrit = true;
-                NetMessage.SendData(MessageID.SyncProjectile, number: proj);
-            }
             chargeUpDamage = Item.damage;
             chargeTime = 0f;
-            fatigue = 0;
-            return false;
+            timer[0] = 0;
         }
 
-        public override bool? UseItem(Player player)
+        protected override bool? WeaponOnUse(Player player)
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (player.controlUseItem && GetCustomItemTime(player) == 0 && !ModContent.GetInstance<TF2ConfigClient>().Channel)
             {
-                if (!ModContent.GetInstance<TF2ConfigClient>().Channel && player.controlUseItem)
-                {
-                    if (!isCharging)
-                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot_pull"), player.Center);
-                    isCharging = true;
-                    player.itemTime = 1;
-                    Charge();
-                    player.itemAnimation = Item.useTime;
-                    if (Main.mouseRight && fatigue > 0)
-                    {
-                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot_pull_reverse"), player.Center);
-                        fatigue = 0;
-                        chargeTime = 0f;
-                        isCharging = false;
-                        player.itemTime = 116;
-                    }
-                    return false;
-                }
-                else
-                    return true;
-            }
-            return null;
-        }
-
-        public override bool CanConsumeAmmo(Item ammo, Player player) => ModContent.GetInstance<TF2ConfigClient>().Channel;
-
-        public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            chargeUpDamage = (int)(Item.damage * p.classMultiplier) + (int)(70 * p.classMultiplier * (chargeTime / maxChargeUp));
-        }
-
-        public override bool AltFunctionUse(Player player)
-        {
-            if (ModContent.GetInstance<TF2ConfigClient>().Channel && fatigue > 0)
-            {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot_pull_reverse"), player.Center);
-                fatigue = 0;
-                chargeTime = 0f;
-                isCharging = false;
-                player.itemTime = 116;
-                return true;
-            }
-            else
+                if (!isCharging)
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/bow_shoot_pull"), player.Center);
+                isCharging = true;
+                SniperRifleCharge();
                 return false;
+            }
+            return base.WeaponOnUse(player);
         }
     }
 }

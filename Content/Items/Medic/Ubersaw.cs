@@ -1,64 +1,29 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent.Creative;
-using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace TF2.Content.Items.Medic
 {
-    public class Ubersaw : TF2WeaponMelee
+    public class Ubersaw : TF2Weapon
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Medic's Unlocked Melee");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Medic, Melee, Unique, Unlock);
+            SetSwingUseStyle();
+            SetWeaponDamage(damage: 65);
+            SetWeaponAttackSpeed(0.96);
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/melee_swing");
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            Item.width = 50;
-            Item.height = 50;
-            Item.scale = 1f;
-            Item.useTime = 58;
-            Item.useAnimation = 58;
-            Item.useTurn = true;
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.noMelee = false;
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/melee_swing");
-            Item.autoReuse = true;
-            Item.useTurn = true;
-
-            Item.damage = 65;
-            Item.knockBack = 0;
-            Item.crit = 0;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            AddPositiveAttribute(description);
+            AddNegativeAttribute(description);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
+        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) => player.GetModPlayer<UbersawPlayer>().ubersawHit = true;
 
-            var line = new TooltipLine(Mod, "Positive Attributes",
-                "On Hit: 25% ÜberCharge added")
-            {
-                OverrideColor = new Color(153, 204, 255)
-            };
-            tooltips.Add(line);
-
-            var line2 = new TooltipLine(Mod, "Negative Attributes",
-                "20% slower firing speed")
-            {
-                OverrideColor = new Color(255, 64, 64)
-            };
-            tooltips.Add(line2);
-        }
+        public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo) => player.GetModPlayer<UbersawPlayer>().ubersawHit = true;
     }
 
     public class UbersawPlayer : ModPlayer
@@ -71,18 +36,12 @@ namespace TF2.Content.Items.Medic
             if (ubersawHit)
             {
                 timer++;
-                if (timer >= 2) // MUST ALWAYS be 2!
+                if (timer >= 2) // MUST always be 2!
                 {
                     ubersawHit = false;
                     timer = 0;
                 }
             }
-        }
-
-        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)
-        {
-            if (item.type == ModContent.ItemType<Ubersaw>())
-                ubersawHit = true;
         }
     }
 }

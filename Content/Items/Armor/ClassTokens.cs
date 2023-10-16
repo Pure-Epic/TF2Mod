@@ -12,7 +12,7 @@ namespace TF2.Content.Items.Armor
 
     // First, we create an abstract class that all our exclusive accessories will be based on
     // This class won't be autoloaded by tModLoader, meaning it won't "exist" in the game, and we don't need to provide it a texture
-    // Further down below will be the actual items (Green/Yellow Exclusive Accessory)
+    // Further down below will be the actual items
     public abstract class ClassToken : ModItem
     {
         public override void SetDefaults()
@@ -86,12 +86,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Scout Class Token");
-            Tooltip.SetDefault("Change class to Scout");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -100,6 +96,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -107,7 +104,9 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 1;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
-            p.hasJumpOption_Scout = true;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             p.extraJumps += 1;
             player.statLifeMax2 += 25;
             player.moveSpeed += 0.33f;
@@ -144,12 +143,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Soldier Class Token");
-            Tooltip.SetDefault("Change class to Soldier");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -158,6 +153,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -165,9 +161,13 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 2;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.statLifeMax2 += 100;
             player.moveSpeed -= 0.20f;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -199,12 +199,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Pyro Class Token");
-            Tooltip.SetDefault("Change class to Pyro");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -213,6 +209,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -220,8 +217,12 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 3;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.statLifeMax2 += 75;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -253,12 +254,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Demoman Class Token");
-            Tooltip.SetDefault("Change class to Demoman");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -267,6 +264,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -274,9 +272,13 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 4;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.moveSpeed -= 0.07f;
             player.statLifeMax2 += 75;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -308,12 +310,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Heavy Class Token");
-            Tooltip.SetDefault("Change class to Heavy");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -322,6 +320,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -329,9 +328,13 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 5;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.moveSpeed -= 0.23f;
             player.statLifeMax2 += 200;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -363,12 +366,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Engineer Class Token");
-            Tooltip.SetDefault("Change class to Engineer");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -377,6 +376,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -384,8 +384,12 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 6;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.statLifeMax2 += 25;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -419,12 +423,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Medic Class Token");
-            Tooltip.SetDefault("Change class to Medic");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -442,21 +442,20 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 7;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.moveSpeed += 0.07f;
             player.statLifeMax2 += 50;
-            if (timer >= 60 && !(player.statLife >= player.statLifeMax2))
+            /*
+            if (timer >= 60 && player.statLife < player.statLifeMax2)
             {
-                if (!player.GetModPlayer<Medic.BlutsaugerPlayer>().blutsaugerEquipped)
-                {
-                    player.statLife += (int)(0.02f * player.statLifeMax2);
-                }
-                else
-                {
-                    player.statLife += (int)(0.006667f * player.statLifeMax2);
-                }
+                player.Heal(!player.GetModPlayer<BlutsaugerPlayer>().blutsaugerEquipped ? (int)(0.02f * player.statLifeMax2) : (int)(0.006667f * player.statLifeMax2));
                 timer = 0;
             }
+            */
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -488,12 +487,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Sniper Class Token");
-            Tooltip.SetDefault("Change class to Sniper");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -502,6 +497,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -509,8 +505,12 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 8;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.statLifeMax2 += 25;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side
@@ -542,12 +542,8 @@ namespace TF2.Content.Items.Armor
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Legs}", EquipType.Legs, this);
             EquipLoader.AddEquipTexture(Mod, $"{Texture}_{EquipType.Wings}", EquipType.Wings, this);
         }
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Spy Class Token");
-            Tooltip.SetDefault("Change class to Spy");
-            SetupDrawing();
-        }
+
+        public override void SetStaticDefaults() => SetupDrawing();
 
         public override void SetDefaults()
         {
@@ -556,6 +552,7 @@ namespace TF2.Content.Items.Armor
             Item.accessory = true;
             Item.rare = ItemRarityID.White;
         }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -563,9 +560,13 @@ namespace TF2.Content.Items.Armor
                 p.currentClass = 9;
             p.classAccessory = true;
             p.classHideVanity = hideVisual;
+            if (player.lifeRegen > 0)
+                player.lifeRegen = 0;
+            player.lifeRegenTime = 0;
             player.moveSpeed += 0.07f;
             player.statLifeMax2 += 25;
         }
+
         private void SetupDrawing()
         {
             // Since the equipment textures weren't loaded on the server, we can't have this code running server-side

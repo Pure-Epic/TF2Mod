@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Content.Projectiles.Sniper;
 
 namespace TF2.Content.Buffs
 {
@@ -9,12 +10,10 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Jarate");
-            Description.SetDefault("Crit vulnerability");
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+            BuffID.Sets.IsATagBuff[Type] = true;
         }
 
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<JaratePlayer>().jarateDebuff = true;
@@ -26,8 +25,6 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Jarate Cooldown");
-            Description.SetDefault("You need to restock on Jarate");
             Main.debuff[Type] = true;
             Main.buffNoSave[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
@@ -48,16 +45,16 @@ namespace TF2.Content.Buffs
             jarateCooldown = false;
         }
 
-        public override void ModifyHitByProjectile(Projectile proj, ref int damage, ref bool crit)
+        public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
         {
-            if (proj.type == ModContent.ProjectileType<Projectiles.Sniper.JarateProjectile>())
+            if (proj.type == ModContent.ProjectileType<JarateProjectile>())
             {
                 Player.noKnockback = true;
                 Player.statLife += 1;
                 for (int i = 0; i < Player.MaxBuffs; i++)
                 {
                     int buffTypes = Player.buffType[i];
-                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !Buffs.TF2BuffBase.cooldownBuff[buffTypes])
+                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
                     {
                         Player.DelBuff(i);
                         i = -1;

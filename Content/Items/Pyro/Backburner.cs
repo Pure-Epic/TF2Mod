@@ -1,118 +1,50 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent.Creative;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
-using TF2.Content.Items.Ammo;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Pyro;
 
 namespace TF2.Content.Items.Pyro
 {
-    public class Backburner : TF2WeaponNoAmmo
+    public class Backburner : TF2Weapon
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Pyro's Unlocked Primary");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Pyro, Primary, Unique, Unlock);
+            SetWeaponSize(50, 16);
+            SetGunUseStyle();
+            SetWeaponDamage(damage: 78, projectile: ModContent.ProjectileType<Fire>(), noRandomCriticalHits: true);
+            SetWeaponAttackSpeed(0.1, 0.5, hide: true);
+            SetWeaponAttackIntervals(altClick: true, noAmmo: true);
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            Item.width = 50;
-            Item.height = 16;
-            Item.useTime = 6;
-            Item.useAnimation = 30;
-            Item.useStyle = ItemUseStyleID.Shoot;
-            Item.noMelee = true;
-            Item.autoReuse = true;
-
-            Item.damage = 78;
-            Item.shoot = ModContent.ProjectileType<Fire>();
-            Item.shootSpeed = 10f;
-            Item.useAmmo = ModContent.ItemType<PrimaryAmmo>();
-            Item.mana = 50;
-            Item.GetGlobalItem<TF2ItemBase>().noRandomCrits = true;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            AddPositiveAttribute(description);
+            AddNegativeAttribute(description);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        public override bool WeaponCanBeUsed(Player player)
         {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-
-            var line = new TooltipLine(Mod, "Positive Attributes",
-                "100% critical hits when full health\n"
-                + "Extinguishing teammates restores 11% of max health")
-            {
-                OverrideColor = new Color(153, 204, 255)
-            };
-            tooltips.Add(line);
-
-            var line2 = new TooltipLine(Mod, "Negative Attributes",
-                "+150% airblast cost\n"
-                + "No random critical hits")
-            {
-                OverrideColor = new Color(255, 64, 64)
-            };
-            tooltips.Add(line2);
+            if (player.controlUseTile && !(airblastCooldown >= 45 && player.statMana >= 20)) return false;
+            Item.useTime = player.altFunctionUse != 2 ? 6 : 30;
+            return base.WeaponCanBeUsed(player);
         }
 
-        public override void UseStyle(Player player, Rectangle heldItemFrame)
+        protected override bool WeaponCanConsumeAmmo(Player player) => player.altFunctionUse != 2 && player.itemAnimation >= player.itemAnimationMax - 5;
+
+        protected override void WeaponActiveUpdate(Player player)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.classAccessory && !p.classHideVanity)
-                Item.noUseGraphic = true;
-            else
-                Item.noUseGraphic = false;
+            airblastCooldown++;
+            if (airblastCooldown >= 45)
+                airblastCooldown = 45;
         }
 
-        public override bool CanUseItem(Player player)
-        {
-            if (player.altFunctionUse == 2)
-            {
-                Item.useTime = 45;
-                Item.useAnimation = 45;
-                Item.damage = 1;
-                Item.shoot = ModContent.ProjectileType<Airblast>();
-                Item.shootSpeed = 25f;
-            }
-            else
-            {
-                Item.useTime = 6;
-                Item.useAnimation = 30;
-                Item.damage = 78;
-                Item.shoot = ModContent.ProjectileType<Fire>();
-                Item.shootSpeed = 10f;
-            }
-            return base.CanUseItem(player);
-        }
-
-        public override bool AltFunctionUse(Player player) => true;
-
-        public override void ModifyManaCost(Player player, ref float reduce, ref float mult)
-        {
-            if (player.altFunctionUse != 2)
-                reduce -= 50;
-        }
-
-        public override bool CanConsumeAmmo(Item ammo, Player player)
-        {
-            if (player.altFunctionUse != 2)               
-                return player.itemAnimation >= player.itemAnimationMax - 5;
-            else
-                return false;
-        }
-
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        protected override void WeaponFireProjectile(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
             if (player.altFunctionUse != 2)
             {
@@ -125,13 +57,13 @@ namespace TF2.Content.Items.Pyro
                     if (player.statLife == player.statLifeMax2)
                         Main.projectile[i].GetGlobalProjectile<TF2ProjectileBase>().crit = true;
                 }
-                return false;
             }
             else
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/flame_thrower_airblast"), player.Center);
-                Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<Airblast>(), damage, knockback, player.whoAmI);
-                return false;
+                Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<Airblast>(), 1, knockback, player.whoAmI);
+                player.statMana -= 50;
+                player.manaRegenDelay = 250;
             }
         }
     }

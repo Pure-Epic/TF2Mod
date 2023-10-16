@@ -1,47 +1,31 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent.Creative;
-using Terraria.ID;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using TF2.Common;
 
 namespace TF2.Content.Items.Soldier
 {
-    public class Equalizer : TF2WeaponMelee
+    public class Equalizer : TF2Weapon
     {
-        public int trueDamage;
-
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Soldier's Unlocked Melee\n"
-                + "When weapon is active:");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Soldier, Melee, Unlock, Unique);
+            SetSwingUseStyle();
+            SetWeaponDamage(damage: 33);
+            SetWeaponAttackSpeed(0.8);
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/shovel_swing");
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            Item.width = 50;
-            Item.height = 50;
-            Item.useTime = 48;
-            Item.useAnimation = 48;
-            Item.useTurn = true;
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/shovel_swing");
-            Item.autoReuse = true;
-
-            Item.damage = 33;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            AddHeader(description);
+            AddPositiveAttribute(description);
+            AddNegativeAttribute(description);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips) // needs System.Linq
+        /*
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Damage" && x.Mod == "Terraria");
             if (tt != null)
@@ -52,25 +36,44 @@ namespace TF2.Content.Items.Soldier
             TooltipLine tt2 = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
             tooltips.Remove(tt2);
 
-            var line = new TooltipLine(Mod, "Positive Attributes",
+            TooltipLine line = new TooltipLine(Mod, "Neutral Attributes",
+                "When weapon is active:")
+            {
+                OverrideColor = new Color(235, 226, 202)
+            };
+            tooltips.Add(line);
+
+            TooltipLine line2 = new TooltipLine(Mod, "Positive Attributes",
                 "Damage increases as the user becomes injured")
             {
                 OverrideColor = new Color(153, 204, 255)
             };
-            tooltips.Add(line);
+            tooltips.Add(line2);
 
-            var line2 = new TooltipLine(Mod, "Negative Attributes",
+            TooltipLine line3 = new TooltipLine(Mod, "Negative Attributes",
                 "-90% less healing from Medic sources")
             {
                 OverrideColor = new Color(255, 64, 64)
             };
-            tooltips.Add(line2);
+            tooltips.Add(line3);
         }
+        */
 
-        public override void HoldItem(Player player)
+        protected override void WeaponActiveUpdate(Player player) => Item.damage = Convert.ToInt32(107.25f - 0.37295f * player.statLife / player.statLifeMax2 * 200f);
+
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<EqualizerPlayer>().equalizerEquipped = true;
+    }
+
+    public class EqualizerPlayer : ModPlayer
+    {
+        public bool equalizerEquipped;
+
+        public override void ResetEffects() => equalizerEquipped = false;
+
+        public override void PostUpdate()
         {
-            player.GetModPlayer<TF2Player>().equalizer = true;
-            Item.damage = Convert.ToInt32(107.25f - 0.37295f * Main.LocalPlayer.statLife / Main.LocalPlayer.statLifeMax2 * 200f);
+            if (equalizerEquipped)
+                Player.GetModPlayer<TF2Player>().healReduction *= 0.1f;
         }
     }
 }
