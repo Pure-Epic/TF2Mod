@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
@@ -34,8 +33,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private bool startTimer;
         private int burstCounter;
 
-        public override void SetStaticDefaults() => DisplayName.SetDefault("Makai Butterfly");
-
         public override void SetDefaults()
         {
             Projectile.width = 104;
@@ -67,7 +64,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
+            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
             NPC npc = Main.npc[Owner];
             if (npc == null) return true;
             center = Projectile.Center;
@@ -94,31 +91,35 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             else if (maxRotation)
                 rotation -= 0.5f;
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(rotation);
-            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
+            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
 
-            if (npc.BossAI == 0 || !npc.NPC.active)
+            if (npc.State == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
-            switch (npc.SpellCard)
+            switch (npc.Stage)
             {
                 case 1:
-                    if (npc.attackType == 0 && timer % 45 == 0)
+                    if (npc.Phase == ByakurenHijiri.GetBasicAttackPhase && timer % 45 == 0)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/laser"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         Vector2 velocity = Projectile.DirectionTo(Main.player[npc.NPC.target].Center);
                         Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreMysticFragranceofaMakaiButterfly2>(), 35, 0f, npc.NPC.target);
                     }
                     break;
+
                 case 2:
                     if (timer >= 500 && timer % 60 == 0)
                     {
                         SoundEngine.PlaySound(SoundID.Item9, npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         Vector2 velocity = Projectile.DirectionTo(Main.player[npc.NPC.target].Center) * 5f;
                         Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<StarMaelstrom2>(), 40, 0f, npc.NPC.target);
                     }
                     break;
+
                 case 3:
-                    if (npc.attackType == 1)
+                    if (npc.Phase == ByakurenHijiri.SpellcardAttackPhase)
                     {
                         if (timer == 0)
                         {
@@ -135,6 +136,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                             if (timer % 15 == 0)
                             {
                                 SoundEngine.PlaySound(SoundID.Item9, npc.NPC.Center);
+                                if (Main.netMode == NetmodeID.MultiplayerClient) return;
                                 Vector2 velocity = Utils.RotatedBy(-Vector2.UnitY, MathHelper.ToRadians(angle + offset)) * 10f;
                                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<DevilsRecitation2>(), 25, 0f, npc.NPC.target);
                                 velocity = Utils.RotatedBy(-Vector2.UnitY, MathHelper.ToRadians(-angle + offset)) * 10f;
@@ -154,6 +156,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                                 if (timer % 15 == 0)
                                 {
                                     SoundEngine.PlaySound(SoundID.Item9, npc.NPC.Center);
+                                    if (Main.netMode == NetmodeID.MultiplayerClient) return;
                                     Vector2 velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(offset)) * 10f;
                                     Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<DevilsRecitation2>(), 25, 0f, npc.NPC.target);
                                 }
@@ -161,9 +164,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         }
                         if (timer == 1200)
                         {
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             int projectile = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.UnitY, ModContent.ProjectileType<DevilsRecitation6>(), 75, 0f, npc.NPC.target);
                             Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = npc.NPC.whoAmI;
-                            DevilsRecitation6 laser = Main.projectile[projectile].ModProjectile as DevilsRecitation6;
+                            DevilsRecitation6 laser = (DevilsRecitation6)Main.projectile[projectile].ModProjectile;
                             if (velocity == new Vector2(-2f, -2f))
                                 ProjectileAI = 0;
                             else if (velocity == new Vector2(2f, -2f))
@@ -182,6 +186,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         if ((center == npc.NPC.Center + new Vector2(-200f, -200f)) && (timer == 60 || timer == 300 || timer == 540 || timer == 780 || timer == 1020))
                         {
                             SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             for (int i = 0; i < 32; i++)
                             {
                                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 11.25f)) * 5f;
@@ -192,6 +197,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         else if ((center == npc.NPC.Center + new Vector2(200f, -200f)) && (timer == 120 || timer == 360 || timer == 600 || timer == 840 || timer == 1080))
                         {
                             SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             for (int i = 0; i < 32; i++)
                             {
                                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 11.25f)) * 5f;
@@ -202,6 +208,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         else if ((center == npc.NPC.Center + new Vector2(-500f, 375f)) && (timer == 180 || timer == 420 || timer == 660 || timer == 900 || timer == 1140))
                         {
                             SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             for (int i = 0; i < 32; i++)
                             {
                                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 11.25f)) * 5f;
@@ -212,6 +219,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         else if ((center == npc.NPC.Center + new Vector2(500f, 375f)) && (timer == 240 || timer == 480 || timer == 720 || timer == 960))
                         {
                             SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             for (int i = 0; i < 32; i++)
                             {
                                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 11.25f)) * 5f;
@@ -221,6 +229,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         }
                         if (startTimer && timer % 5 == 0 && burstCounter < 7)
                         {
+                            if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             Vector2 velocity = Projectile.DirectionTo(Main.player[npc.NPC.target].Center) * 15f;
                             Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<DevilsRecitation4>(), 40, 0f, npc.NPC.target);
                             burstCounter++;
@@ -232,11 +241,13 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         }
                     }
                     break;
+
                 case 5:
                     int damage = 50;
                     if (timer == 0 || timer == 300 || timer == 600)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         for (int i = 0; i < 25; i++)
                         {
                             Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 14.4f)) * 5f;
@@ -246,6 +257,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     else if (timer == 840)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         for (int i = 0; i < 25; i++)
                         {
                             Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 14.4f)) * 5f;
@@ -255,6 +267,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     else if (timer == 1080)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         for (int i = 0; i < 25; i++)
                         {
                             Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 14.4f)) * 5f;
@@ -264,6 +277,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     else if (timer == 1320 || timer == 1560 || timer == 1800)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         for (int i = 0; i < 25; i++)
                         {
                             Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 14.4f)) * 5f;
@@ -273,6 +287,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     else if (timer == 2040 || timer == 2280 || timer == 2520 || timer == 2760)
                     {
                         SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), npc.NPC.Center);
+                        if (Main.netMode == NetmodeID.MultiplayerClient) return;
                         for (int i = 0; i < 25; i++)
                         {
                             Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(i * 14.4f)) * 5f;
@@ -280,10 +295,12 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         }
                     }
                     break;
+
                 default:
                     break;
             }
             timer++;
+            Projectile.netUpdate = true;
         }
 
         public override bool ShouldUpdatePosition() => false;

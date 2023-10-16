@@ -2,26 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
-using Terraria.GameContent.Creative;
-using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Content.Items.Materials;
 
 namespace TF2.Content.Items.Consumables
 {
     public class MannCoSupplyCrateKey : ModItem
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Mann Co. Supply Crate Key");
-            Tooltip.SetDefault("Used to open locked supply crates.");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
-        }
+        public override void SetStaticDefaults() => Item.ResearchUnlockCount = 10;
 
         public override void SetDefaults()
         {
             Item.width = 25;
             Item.height = 16;
+            Item.maxStack = Item.CommonMaxStack;
             Item.rare = ModContent.RarityType<UniqueRarity>();
             Item.value = Item.buyPrice(platinum: 1);
         }
@@ -37,7 +31,7 @@ namespace TF2.Content.Items.Consumables
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient<Materials.RefinedMetal>(50)
+                .AddIngredient<RefinedMetal>(50)
                 .Register();
         }
     }

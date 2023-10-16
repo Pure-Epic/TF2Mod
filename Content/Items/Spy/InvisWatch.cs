@@ -1,38 +1,24 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 
 namespace TF2.Content.Items.Spy
 {
     public class InvisWatch : TF2Accessory
     {
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics() => SetWeaponCategory(Spy, PDA, Stock, Starter);
+
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            DisplayName.SetDefault("Invis Watch");
-            Tooltip.SetDefault("Set key to cloak\n"
-                             + "Cloaking gives temporary invincibility\n"
-                             + "Hitting reduces cloak duration");
+            List<string> currentCloakKey = KeybindSystem.Cloak.GetAssignedKeys(0);
+            if (currentCloakKey.Count <= 0 || currentCloakKey.Contains("None"))
+                AddNeutralAttribute(description);
+            else
+                AddOtherAttribute(description, currentCloakKey[0] + (string)this.GetLocalization("Notes2"));
         }
 
-        public override void SetDefaults()
-        {
-            Item.width = 50;
-            Item.height = 50;
-            Item.accessory = true;
-        }
-
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
-
-        public override void UpdateAccessory(Player player, bool hideVisual)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.invisWatchEquipped = true;
-        }
+        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<CloakPlayer>().invisWatchEquipped = true;
     }
 }

@@ -1,169 +1,65 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent.Creative;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 
 namespace TF2.Content.Items.Demoman
 {
-    public class Eyelander : TF2WeaponMelee
+    public class Eyelander : TF2Weapon
     {
-        public bool holdingItemForFirstTime;
-        public int thisItem;
-        public bool eyelanderInHotbar;
-
-        public override void SetStaticDefaults()
+        protected override void WeaponStatistics()
         {
-            Tooltip.SetDefault("Demoman's Unlocked Melee\n"
-                + "This weapon has a large melee range and deploys and holsters slower");
-
-            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+            SetWeaponCategory(Demoman, Melee, Unique, Unlock);
+            SetSwingUseStyle(sword: true);
+            SetWeaponDamage(damage: 65, noRandomCriticalHits: true);
+            SetWeaponAttackSpeed(0.8);
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/demo_sword_swing1");
+            SetWeaponAttackIntervals(deploy: 0.875, holster: 0.875);
         }
 
-        public override void SafeSetDefaults()
+        protected override void WeaponDescription(List<TooltipLine> description)
         {
-            deploySpeed = 53;
-            holsterSpeed = 53;
-
-            Item.width = 50;
-            Item.height = 50;
-            Item.scale = 2f;
-            Item.useTime = 48 + holsterSpeed;
-            Item.useAnimation = 48;
-            Item.useTurn = true;
-            Item.useStyle = ItemUseStyleID.Swing;
-            Item.noMelee = false;
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/melee_swing");
-            Item.autoReuse = true;
-            Item.useTurn = true;
-
-            Item.damage = 65;
-            Item.knockBack = 0;
-            Item.crit = 0;
-            Item.GetGlobalItem<TF2ItemBase>().noRandomCrits = true;
-
-            Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            AddSwordAttribute(description);
+            AddNegativeAttribute(description);
+            AddNeutralAttribute(description);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        protected override bool WeaponResetHolsterTimeCondition(Player player) => player.controlUseItem;
+
+        protected override void WeaponPassiveUpdate(Player player)
         {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-
-            var line = new TooltipLine(Mod, "Negative Attributes",
-                "No random critical hits\n"
-                + "-14% max health on wearer")
-            {
-                OverrideColor = new Color(255, 64, 64)
-            };
-            tooltips.Add(line);
-
-            var line2 = new TooltipLine(Mod, "Neutral Attributes",
-                "Gives increased speed and health with every head you take.")
-            {
-                OverrideColor = new Color(255, 255, 255)
-            };
-            tooltips.Add(line2);
-        }
-
-        public override bool CanUseItem(Player player) => deployTimer >= deploySpeed;
-
-        public override void HoldItem(Player player)
-        {
-            thisItem = player.selectedItem;
-            deployTimer++;
-            for (int i = 0; i < 10; i++)
-            {
-                if (player.inventory[i].type == Type && !eyelanderInHotbar)
-                    eyelanderInHotbar = true;
-            }
-            if (holdingItemForFirstTime)
-            {
-                if (eyelanderInHotbar)
-                    player.itemTime = holsterSpeed;
-                holdingItemForFirstTime = false;
-            }
-            if (player.controlUseItem)
-            {
-                if (player.itemTime <= holsterSpeed)
-                    player.itemTime = 0;
-                if (player.itemTime == 0)
-                    player.itemTime = Item.useTime;
-            }
-        }
-
-        public override void UpdateInventory(Player player)
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                if (player.inventory[i].type == Type && !inHotbar)
-                    inHotbar = true;
-            }
-            if (!inHotbar && !ModContent.GetInstance<TF2ConfigClient>().InventoryStats) return;
-            player.statLifeMax2 = (int)(player.statLifeMax2 * 0.85714285714f);
+            int baseLife = (int)(player.statLifeMax2 * 0.85714285714f);
+            player.statLifeMax2 = (int)(baseLife + (baseLife * player.GetModPlayer<EyelanderPlayer>().heads * 0.1f));
             player.GetModPlayer<EyelanderPlayer>().eyelanderInInventory = true;
-            if (player.GetModPlayer<EyelanderPlayer>().eyelanderInInventory)
-            {
-                player.statLifeMax2 += player.GetModPlayer<EyelanderPlayer>().heads * (int)(player.statLifeMax2 * 0.1f);
-                if (!player.controlMount)
-                {
-                    player.moveSpeed += player.GetModPlayer<EyelanderPlayer>().heads;
-                    player.GetModPlayer<TF2Player>().speedMultiplier += (int)(player.GetModPlayer<EyelanderPlayer>().heads * 0.05f);
-                }
-            }
-            else
-            {
-                player.statLifeMax2 = 0;
-                player.moveSpeed = 0;
-                player.GetModPlayer<TF2Player>().speedMultiplier = 1f;
-            }
-
-            if (player.HeldItem.ModItem is not Eyelander)
-            {
-                if (!player.ItemTimeIsZero && !holdingItemForFirstTime)
-                    player.selectedItem = thisItem;
-                else if (player.ItemTimeIsZero && !player.cursorItemIconEnabled)
-                {
-                    holdingItemForFirstTime = true;
-                    eyelanderInHotbar = false;
-                    deployTimer = 0;
-                }
-            }
-            inHotbar = false;
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit)
+        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            //Main.NewText(player.GetModPlayer<TF2Player>().heads);
-            if (player.GetModPlayer<TF2Player>().crit || player.GetModPlayer<TF2Player>().critMelee)
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.crit || p.critMelee)
             {
                 player.GetModPlayer<EyelanderPlayer>().heads += 1;
-                player.statLife += (int)(0.1f * player.statLifeMax2);
-                if (player.GetModPlayer<TF2Player>().critMelee)
-                    player.GetModPlayer<TF2Player>().crit = true;
-                player.ClearBuff(ModContent.BuffType<Buffs.MeleeCrit>());
+                player.Heal((int)(0.1f * player.statLifeMax2));
+                if (p.critMelee)
+                    p.crit = true;
+                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
             }
             else
-                crit = false;
+                modifiers.DisableCrit();
         }
 
-        public override void ModifyHitPvp(Player player, Player target, ref int damage, ref bool crit)
+        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
         {
-            if (player.GetModPlayer<TF2Player>().crit || player.GetModPlayer<TF2Player>().critMelee)
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.crit || p.critMelee)
             {
                 player.GetModPlayer<EyelanderPlayer>().heads += 1;
-                player.statLife += (int)(0.1f * player.statLifeMax2);
-                if (player.GetModPlayer<TF2Player>().critMelee)
-                    player.GetModPlayer<TF2Player>().crit = true;
-                player.ClearBuff(ModContent.BuffType<Buffs.MeleeCrit>());
+                player.Heal((int)(0.1f * player.statLifeMax2));
+                if (p.critMelee)
+                    p.crit = true;
+                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
             }
-            else
-                crit = false;
         }
     }
 
@@ -181,14 +77,15 @@ namespace TF2.Content.Items.Demoman
             heads = 0;
         }
 
-        public override void OnRespawn(Player player) => heads = 0;
+        public override void OnRespawn() => heads = 0;
 
-        public override void PreUpdateMovement() => Player.moveSpeed += heads * 10f;
-
-        public override void PreUpdate()
+        public override void PostUpdate()
         {
-            heads = Utils.Clamp(heads, 0, 4);
-            Player.statLifeMax2 += heads * (int)(Player.statLifeMax2 * 0.1f);
+            if (eyelanderInInventory)
+            {
+                heads = Utils.Clamp(heads, 0, 4);
+                TF2Weapon.SetPlayerSpeed(Player, 100 + (10 * heads));
+            }
         }
     }
 }

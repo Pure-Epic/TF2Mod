@@ -8,17 +8,21 @@ using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TF2.Content.Items;
-using TF2.Content.Items.Ammo;
-using TF2.Content.Items.Consumables;
-using TF2.Content.Items.Armor;
-using TF2.Content.Items.Currencies;
 using TF2.Content.Buffs;
 using TF2.Content.Dusts;
-using TF2.Content.Projectiles;
-using TF2.Content.Items.Soldier;
+using TF2.Content.Items;
+using TF2.Content.Items.Ammo;
+using TF2.Content.Items.Armor;
+using TF2.Content.Items.Consumables;
+using TF2.Content.Items.Currencies;
+using TF2.Content.Items.Medic;
+using TF2.Content.Items.Scout;
 using TF2.Content.Items.Sniper;
-using TF2.Gensokyo.Common;
+using TF2.Content.Items.Soldier;
+using TF2.Content.Items.Spy;
+using TF2.Content.Mounts;
+using TF2.Content.Projectiles;
+using TF2.Content.Projectiles.Scout;
 
 namespace TF2.Common
 {
@@ -26,13 +30,15 @@ namespace TF2.Common
     {
         public float classMultiplier = 0.5f;
         public float healthMultiplier = 1f;
-        public int pierce = 1;
         public float speedMultiplier = 1f;
+        public int pierce = 1;
         public float damageReduction;
+        public float healReduction = 1f;
         public bool focus;
         public bool disableFocusSlowdown;
         public int homingPower;
         public int mountSpeed;
+        public int classIconID;
 
         public bool initializedClass;
         public bool classAccessory;
@@ -41,52 +47,43 @@ namespace TF2.Common
         public bool classPower;
         public bool classSelected;
         public bool nullified;
-        public bool activateUbercharge = false;
+        public bool activateUberCharge = false;
 
-        public int extraJumps = 1;
+        public int extraJumps;
         public int jumpsLeft;
-        public bool allowExtraJumps;
-        public bool releaseJump;
-        public bool hasJumpOption_Scout;
-        public bool canJumpAgain_Scout;
-        public bool isPerformingJump_Scout;
 
-        public bool buffBanner;
-        public int bannerType = 0;
-        public bool equalizer;
-        public bool gunboats;
+        public bool hasBanner;
+        public int bannerType;
 
-        public float stickybombCharge = 0;
-        public float stickybombMaxCharge = 0;
-        public float stickybombChargeTimer = 0;
-        public int stickybombAmount = 0;
+        public float stickybombCharge;
+        public float stickybombMaxCharge;
+        public float stickybombChargeTimer;
+        public int stickybombAmount;
         public int stickybombMax;
-        public bool shield;
-        public int shieldTimer = 1;
-        public int shieldType = 0;
+        public bool hasShield;
+        public int shieldType;
 
         public int metal;
         public int maxMetal = 1000;
+        public float sentryCostReduction = 1f;
+        public float dispenserCostReduction = 1f;
 
-        public float ubercharge = 0;
-        public float maxUbercharge = 100;
-        public int uberchargeTime = 0;
-        public int organs = 0;
+        private int healTimer;
+        public float regenMultiplier = 1f;
+        public bool stopRegen;
+        public float uberCharge;
+        public float maxUberCharge = 100;
+        public int uberChargeTime;
+        public int uberChargeDuration;
+        public int organs;
 
-        public float sniperCharge = 0;
-        public float sniperMaxCharge = 0;
-        public float sniperChargeTimer = 0;
-        public bool sniperShield;
+        public float sniperCharge;
+        public float sniperMaxCharge;
 
         public bool backStab;
-        public bool invisWatchEquipped;
-        public bool cloakandDaggerEquipped;
-        public bool deadRingerEquipped;
         public bool brokenCloak;
         public int cloakImmuneTime;
-        public bool lEtrangerEquipped;
-        public bool yourEternalRewardEquipped;
-     
+
         public int currentClass; // Class selection
 
         public bool crit;
@@ -115,34 +112,49 @@ namespace TF2.Common
 
         public override void LoadData(TagCompound tag)
         {
+            classIconID = tag.GetInt("class");
             homingPower = tag.GetInt("homingPower");
             mountSpeed = tag.GetInt("mountSpeed");
         }
 
         public override void SaveData(TagCompound tag)
         {
+            tag["class"] = classIconID;
             tag["homingPower"] = homingPower;
             tag["mountSpeed"] = mountSpeed;
         }
-
-        // This is called before accessories' effects
-        public override void OnEnterWorld(Player player) => allowExtraJumps = true;
 
         public override void UpdateDead()
         {
             metal = 0;
             if (organs == 0)
-                ubercharge = 0;
+                uberCharge = 0;
+
+            for (int i = 0; i < Player.inventory.Length; i++)
+            {
+                if (Player.inventory[i].ModItem is TF2Weapon item)
+                    item.StopReload();
+            }
         }
 
-        public override void OnRespawn(Player player)
+        public override void OnRespawn()
         {
-            ubercharge = 0;
+            uberCharge = 0;
             initializedClass = false;
+
+            for (int i = 0; i < Player.inventory.Length; i++)
+            {
+                if (Player.inventory[i].ModItem is TF2Weapon item)
+                {
+                    item.ResetAmmo();
+                    item.ResetUseTime();
+                }
+            }
         }
 
         public override void ResetEffects()
         {
+            DoubleJump();
             CloakSound();
             Player.GetDamage<TF2DamageClass>() *= classMultiplier;
             classAccessory = classHideVanity = classForceVanity = classPower = false;
@@ -151,6 +163,7 @@ namespace TF2.Common
             healthMultiplier = 1f;
             speedMultiplier = 1f;
             damageReduction = 0f;
+            healReduction = 1f;
             focus = false;
             disableFocusSlowdown = false;
             miniCrit = false;
@@ -158,34 +171,27 @@ namespace TF2.Common
             critMelee = false;
             critMisc = false;
             maxMetal = 200;
+            sentryCostReduction = 1f;
+            dispenserCostReduction = 1f;
             pierce = 1;
             classSelected = false;
             extraJumps = 0;
-            hasJumpOption_Scout = false;
-            buffBanner = false;
+            hasBanner = false;
             bannerType = 0;
-            equalizer = false;
-            gunboats = false;
-            sniperShield = false;
-            shield = false;
-            shieldTimer = 1;
+            hasShield = false;
             shieldType = 0;
-            invisWatchEquipped = false;
-            cloakandDaggerEquipped = false;
-            deadRingerEquipped = false;
+            regenMultiplier = 1f;
             brokenCloak = false;
-            lEtrangerEquipped = false;
-            yourEternalRewardEquipped = false;
         }
 
-        // Checking for player velocity prevents wall jumping
+        // Checking player velocity prevents wall jumping
         public static bool Grounded(Player player) => player.TouchedTiles.Count >= 1 && (player.velocity.Y >= 0);
-        
+
         public void CloakSound()
         {
-            if ((Player.GetModPlayer<CloakPlayer>().cloakBuff && invisWatchEquipped && Player.GetModPlayer<CloakPlayer>().cloakMeter <= 0) ||
-                (Player.GetModPlayer<CloakandDaggerPlayer>().cloakandDaggerBuff && cloakandDaggerEquipped && Player.GetModPlayer<CloakandDaggerPlayer>().cloakMeter <= 0) ||
-                (Player.GetModPlayer<Content.Items.Spy.FeignDeathPlayer>().feignDeath && deadRingerEquipped && Player.GetModPlayer<Content.Items.Spy.FeignDeathPlayer>().cloakMeter <= 0)) // This namespace usage is necessary
+            if ((Player.GetModPlayer<CloakPlayer>().cloakBuff && Player.GetModPlayer<CloakPlayer>().invisWatchEquipped && Player.GetModPlayer<CloakPlayer>().cloakMeter <= 0) ||
+                (Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerBuff && Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && Player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter <= 0) ||
+                (Player.GetModPlayer<FeignDeathPlayer>().feignDeath && Player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped && Player.GetModPlayer<FeignDeathPlayer>().cloakMeter <= 0))
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
         }
 
@@ -211,22 +217,16 @@ namespace TF2.Common
             }
         }
 
-        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter)
-        {
-            damage -= (int)(damageReduction * damage);
-            return true;
-        }
-
         public override void FrameEffects()
         {
-            if (classAccessory && !classSelected) //classAccessory == true && classSelected == false
+            if (classAccessory && !classSelected)
             {
                 switch (currentClass)
                 {
                     case 1:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var scoutClass = ModContent.GetInstance<ScoutClass>();
+                        ScoutClass scoutClass = ModContent.GetInstance<ScoutClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, scoutClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, scoutClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, scoutClass.Name, EquipType.Head);
@@ -236,7 +236,7 @@ namespace TF2.Common
                     case 2:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var soldierClass = ModContent.GetInstance<SoldierClass>();
+                        SoldierClass soldierClass = ModContent.GetInstance<SoldierClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, soldierClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, soldierClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, soldierClass.Name, EquipType.Head);
@@ -246,7 +246,7 @@ namespace TF2.Common
                     case 3:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var pyroClass = ModContent.GetInstance<PyroClass>();
+                        PyroClass pyroClass = ModContent.GetInstance<PyroClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, pyroClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, pyroClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, pyroClass.Name, EquipType.Head);
@@ -256,7 +256,7 @@ namespace TF2.Common
                     case 4:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var demomanClass = ModContent.GetInstance<DemomanClass>();
+                        DemomanClass demomanClass = ModContent.GetInstance<DemomanClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, demomanClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, demomanClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, demomanClass.Name, EquipType.Head);
@@ -266,7 +266,7 @@ namespace TF2.Common
                     case 5:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var heavyClass = ModContent.GetInstance<HeavyClass>();
+                        HeavyClass heavyClass = ModContent.GetInstance<HeavyClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, heavyClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, heavyClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, heavyClass.Name, EquipType.Head);
@@ -276,7 +276,7 @@ namespace TF2.Common
                     case 6:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var engineerClass = ModContent.GetInstance<EngineerClass>();
+                        EngineerClass engineerClass = ModContent.GetInstance<EngineerClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, engineerClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, engineerClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, engineerClass.Name, EquipType.Head);
@@ -286,7 +286,7 @@ namespace TF2.Common
                     case 7:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var medicClass = ModContent.GetInstance<MedicClass>();
+                        MedicClass medicClass = ModContent.GetInstance<MedicClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, medicClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, medicClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, medicClass.Name, EquipType.Head);
@@ -296,7 +296,7 @@ namespace TF2.Common
                     case 8:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var sniperClass = ModContent.GetInstance<SniperClass>();
+                        SniperClass sniperClass = ModContent.GetInstance<SniperClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, sniperClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, sniperClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, sniperClass.Name, EquipType.Head);
@@ -306,7 +306,7 @@ namespace TF2.Common
                     case 9:
                         classSelected = true;
                         if (classHideVanity) return;
-                        var spyClass = ModContent.GetInstance<SpyClass>();
+                        SpyClass spyClass = ModContent.GetInstance<SpyClass>();
                         Player.legs = EquipLoader.GetEquipSlot(Mod, spyClass.Name, EquipType.Legs);
                         Player.body = EquipLoader.GetEquipSlot(Mod, spyClass.Name, EquipType.Body);
                         Player.head = EquipLoader.GetEquipSlot(Mod, spyClass.Name, EquipType.Head);
@@ -352,21 +352,24 @@ namespace TF2.Common
         {
             if (Player.statLife < 1)
                 Player.statLife = 0;
-            if (Player.mount.Type != ModContent.MountType<Content.Mounts.TF2Mount>())
+            if (Player.mount.Type != ModContent.MountType<TF2Mount>())
                 focus = false;
             if (metal < 0)
                 metal = 0;
             if (metal > maxMetal)
                 metal = maxMetal;
-            if (ubercharge >= maxUbercharge)
-                ubercharge = maxUbercharge;
+            if (uberCharge >= maxUberCharge)
+                uberCharge = maxUberCharge;
 
+            // if (Player.HasBuff(BuffID.VortexDebuff))
+            // Player.ClearBuff(BuffID.VortexDebuff);
+            Player.buffImmune[BuffID.VortexDebuff] = true;
             if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
             {
                 if (calamity.TryFind("WeakPetrification", out ModBuff weakPetrification))
                 {
-                    if (Player.HasBuff(weakPetrification.Type) && classSelected)
-                        Player.ClearBuff(weakPetrification.Type);
+                    // if (Player.HasBuff(weakPetrification.Type) && classSelected)
+                    // Player.ClearBuff(weakPetrification.Type);
                     Player.buffImmune[weakPetrification.Type] = true;
                 }
             }
@@ -374,14 +377,14 @@ namespace TF2.Common
             {
                 if (gensokyo.TryFind("Debuff_MovementInverted", out ModBuff movementInverted))
                 {
-                    if (Player.HasBuff(movementInverted.Type) && classSelected)
-                        Player.ClearBuff(movementInverted.Type);
+                    // if (Player.HasBuff(movementInverted.Type) && classSelected)
+                    // Player.ClearBuff(movementInverted.Type);
                     Player.buffImmune[movementInverted.Type] = true;
                 }
                 if (gensokyo.TryFind("Debuff_GravityInverted", out ModBuff gravityInverted))
                 {
-                    if (Player.HasBuff(gravityInverted.Type) && classSelected)
-                        Player.ClearBuff(gravityInverted.Type);
+                    // if (Player.HasBuff(gravityInverted.Type) && classSelected)
+                    // Player.ClearBuff(gravityInverted.Type);
                     Player.buffImmune[gravityInverted.Type] = true;
                 }
             }
@@ -389,201 +392,246 @@ namespace TF2.Common
 
         public override void PostUpdate()
         {
+            classIconID = currentClass;
+
             if (!initializedClass && classSelected)
             {
                 Player.statLife = Player.statLifeMax2;
                 metal = maxMetal;
                 initializedClass = true;
             }
+            else if (!initializedClass)
+                initializedClass = true;
+
+            if (currentClass < 0)
+                Player.lifeRegen = 0;
 
             if (cloakImmuneTime <= 0)
                 cloakImmuneTime = 0;
             else
                 cloakImmuneTime--;
 
-            if (Player.mount.Active && Player.mount.BlockExtraJumps)
-                canJumpAgain_Scout = false;
-            else if ((Player.velocity.Y == 0f || Player.sliding || (Player.autoJump && Player.justJumped)) && hasJumpOption_Scout)
-                canJumpAgain_Scout = true;
-            else if (!hasJumpOption_Scout)
-                canJumpAgain_Scout = false;
+            DoubleJump();
+            MedicHealthRegeneration();
+        }
 
-            if (Player.controlJump)
-            {
-                if (Player.sliding)
-                    Player.autoJump = false;
-                bool flag = false;
-                if (Player.mount.Active && Player.mount.IsConsideredASlimeMount && Player.wetSlime > 0)
-                {
-                    Player.wetSlime = 0;
-                    flag = true;
-                }
-                bool flag2 = Player.wet && Player.accFlipper;
-                bool flag3 = !Player.mount.Active || !Player.mount.Cart;
-                if (hasJumpOption_Scout && releaseJump && flag3)
-                {
-                    if (Player.sliding || Player.velocity.Y == 0f)
-                        Player.justJumped = true;
-                    if (canJumpAgain_Scout && !flag && !flag2)
-                        canJumpAgain_Scout = false;
-                    if ((Player.velocity.Y == 0f || Player.sliding || (Player.autoJump && Player.justJumped)) && hasJumpOption_Scout)
-                        canJumpAgain_Scout = true;
-
-                    if (Player.velocity.Y > 0f && jumpsLeft == extraJumps)
-                        allowExtraJumps = false;
-                    else if (jumpsLeft < extraJumps)
-                        allowExtraJumps = true;
-                    if (jumpsLeft >= 0 && allowExtraJumps)
-                    {
-                        isPerformingJump_Scout = true;
-                        Player.velocity.Y = (0f - Player.jumpSpeed * 20f) * Player.gravDir;
-                        Player.jump = Player.jumpHeight;
-                        jumpsLeft--;
-                    }
-                }
-                releaseJump = false;
-            }
+        private void DoubleJump()
+        {
+            if (currentClass == 1)
+                Player.GetJumpState<ScoutDoubleJump>().Enable();
             else
-                releaseJump = true;
-            if (Grounded(Player))
+                Player.GetJumpState<ScoutDoubleJump>().Disable();
+        }
+
+        private void MedicHealthRegeneration()
+        {
+            if (currentClass == 7)
             {
-                allowExtraJumps = true;
-                jumpsLeft = extraJumps;
+                if (stopRegen) return;
+                healTimer++;
+                if (healTimer >= 60 && Player.statLife < Player.statLifeMax2)
+                {
+                    if (Player.GetModPlayer<BlutsaugerPlayer>().blutsaugerEquipped)
+                        Player.GetModPlayer<TF2Player>().regenMultiplier *= 0.33f;
+                    int healAmount = (int)(0.02f * regenMultiplier * Player.statLifeMax2);
+                    if (Player.HeldItem.ModItem is Amputator)
+                        healAmount += (int)(0.02f * Player.statLifeMax2);
+                    Player.Heal(healAmount);
+                    healTimer = 0;
+                }
             }
         }
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (KeybindSystem.SoldierBuff.JustPressed && buffBanner && bannerType == 1 && Player.GetModPlayer<BuffBannerPlayer>().rage >= 600)
+            if (KeybindSystem.SoldierBuff.JustPressed && hasBanner)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/buff_banner_horn_red"), Player.Center);
-                if (Main.netMode == NetmodeID.SinglePlayer)
-                    Player.AddBuff(ModContent.BuffType<Rage>(), 600);
-                else
+                TF2Player p = Main.LocalPlayer.GetModPlayer<TF2Player>();
+                BannerPlayer bannerPlayer = p.bannerType switch
                 {
-                    for (int i = 0; i < activePlayers; i++)
+                    1 => Main.LocalPlayer.GetModPlayer<BuffBannerPlayer>(),
+                    2 => Main.LocalPlayer.GetModPlayer<BattalionsBackupPlayer>(),
+                    3 => Main.LocalPlayer.GetModPlayer<ConcherorPlayer>(),
+                    _ => Main.LocalPlayer.GetModPlayer<BuffBannerPlayer>()
+                };
+                if (bannerPlayer.rage >= bannerPlayer.maxRage)
+                {
+                    int buff = p.bannerType switch
                     {
-                        Player targetPlayer = Main.player[i];
-                        targetPlayer.AddBuff(ModContent.BuffType<Rage>(), 600);
+                        1 => ModContent.BuffType<Rage>(),
+                        2 => ModContent.BuffType<DefenseRage>(),
+                        3 => ModContent.BuffType<HealthRage>(),
+                        _ => 0
+                    };
+                    if (Main.netMode == NetmodeID.SinglePlayer)
+                        Player.AddBuff(buff, 600);
+                    else
+                    {
+                        foreach (Player targetPlayer in Main.player)
+                        {
+                            targetPlayer.AddBuff(buff, 600);
+                            NetMessage.SendData(MessageID.AddPlayerBuff, number: targetPlayer.whoAmI, number2: buff, number3: 600);
+                        }
                     }
                 }
             }
-            if (KeybindSystem.SoldierBuff.JustPressed && buffBanner && bannerType == 2 && Player.GetModPlayer<BattalionsBackupPlayer>().rage >= 600)
-            {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/buff_banner_horn_red"), Player.Center);
-                if (Main.netMode == NetmodeID.SinglePlayer)
-                    Player.AddBuff(ModContent.BuffType<DefenseRage>(), 600);
-                else
-                {
-                    for (int i = 0; i < activePlayers; i++)
-                    {
-                        Player targetPlayer = Main.player[i];
-                        targetPlayer.AddBuff(ModContent.BuffType<DefenseRage>(), 600);
-                    }
-                }
-            }
-
-            if (KeybindSystem.Cloak.JustPressed && invisWatchEquipped && !Player.HasBuff<Cloaked>())
+            if (KeybindSystem.Cloak.JustPressed && Player.GetModPlayer<CloakPlayer>().invisWatchEquipped && !Player.HasBuff<Cloaked>())
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
                 Player.AddBuff(ModContent.BuffType<Cloaked>(), 600);
             }
-            else if (KeybindSystem.Cloak.JustPressed && invisWatchEquipped && Player.HasBuff<Cloaked>())
+            else if (KeybindSystem.Cloak.JustPressed && Player.GetModPlayer<CloakPlayer>().invisWatchEquipped && Player.HasBuff<Cloaked>())
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
                 Player.ClearBuff(ModContent.BuffType<Cloaked>());
             }
-            if (KeybindSystem.Cloak.JustPressed && cloakandDaggerEquipped && !Player.HasBuff<CloakandDagger>() && !brokenCloak)
+            if (KeybindSystem.Cloak.JustPressed && Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !Player.HasBuff<CloakAndDaggerBuff>() && !brokenCloak)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
-                Player.AddBuff(ModContent.BuffType<CloakandDagger>(), 600);
+                Player.AddBuff(ModContent.BuffType<CloakAndDaggerBuff>(), 600);
             }
-            else if (KeybindSystem.Cloak.JustPressed && cloakandDaggerEquipped && Player.HasBuff<CloakandDagger>())
+            else if (KeybindSystem.Cloak.JustPressed && Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && Player.HasBuff<CloakAndDaggerBuff>())
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
-                Player.ClearBuff(ModContent.BuffType<CloakandDagger>());
+                Player.ClearBuff(ModContent.BuffType<CloakAndDaggerBuff>());
             }
         }
 
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit)
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (ModContent.GetInstance<TF2Config>().NoTF2Loot || currentClass == 0) return;
-            if (target.friendly || NPCID.Sets.CountsAsCritter[target.type] || target.type == NPCID.TargetDummy
-                || proj.type == ModContent.ProjectileType<Content.Projectiles.Medic.HealingBeam>())
-            return;
-
-            if (Main.rand.NextBool(100) && currentClass == 6)
+            damageReduction = Utils.Clamp(damageReduction, 0f, 1f);
+            modifiers.FinalDamage -= damageReduction;
+            if (!modifiers.PvP) return;
+            Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
+            if (opponent.HeldItem.ModItem is TF2Weapon)
             {
-                var metalSource = target.GetSource_FromAI();
-                int type = ModContent.ItemType<Metal>();
-                Item.NewItem(metalSource, target.Center, type);
-            }
-
-            if (ModContent.GetInstance<TF2Config>().FreeHealthPacks) return;
-
-            if (Main.rand.NextBool(100) && currentClass > 0)
-            {
-                var healthSource = target.GetSource_FromAI();
-                int type = ModContent.ItemType<SmallHealth>();
-                Item.NewItem(healthSource, target.Center, type);
-            }
-
-            if (Main.rand.NextBool(250) && currentClass > 0)
-            {
-                var healthSource = target.GetSource_FromAI();
-                int type = ModContent.ItemType<MediumHealth>();
-                Item.NewItem(healthSource, target.Center, type);
-            }
-
-            if (Main.rand.NextBool(500) && currentClass > 0)
-            {
-                var healthSource = target.GetSource_FromAI();
-                int type = ModContent.ItemType<LargeHealth>();
-                Item.NewItem(healthSource, target.Center, type);
+                TF2Weapon weapon = opponent.HeldItem.ModItem as TF2Weapon;
+                if (opponent.HeldItem.ModItem is TF2WeaponMelee || weapon.IsWeaponType(TF2Weapon.Melee))
+                {
+                    if (Main.rand.NextBool(6) && !weapon.noRandomCrits)
+                        opponent.GetModPlayer<TF2Player>().crit = true;
+                }
+                else
+                {
+                    if (Main.rand.NextBool(50) && !weapon.noRandomCrits)
+                        opponent.GetModPlayer<TF2Player>().crit = true;
+                }
             }
         }
 
-        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)
+        public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (ModContent.GetInstance<TF2Config>().NoTF2Loot || currentClass == 0) return;
+            if (ModContent.GetInstance<TF2Config>().NoTF2Loot || currentClass == 0 || item.ModItem?.Mod is not TF2) return;
             if (target.friendly || NPCID.Sets.CountsAsCritter[target.type] || target.type == NPCID.TargetDummy) return;
 
             if (Main.rand.NextBool(25) && currentClass == 6)
             {
-                var metalSource = target.GetSource_FromAI();
+                IEntitySource metalSource = target.GetSource_FromAI();
                 int type = ModContent.ItemType<Metal>();
-                Item.NewItem(metalSource, target.Center, type);
+                int loot = Item.NewItem(metalSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
             }
 
             if (ModContent.GetInstance<TF2Config>().FreeHealthPacks) return;
 
             if (Main.rand.NextBool(5) && currentClass > 0)
             {
-                var healthSource = target.GetSource_FromAI();
+                IEntitySource healthSource = target.GetSource_FromAI();
                 int type = ModContent.ItemType<SmallHealth>();
-                Item.NewItem(healthSource, target.Center, type);
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
             }
 
             if (Main.rand.NextBool(10) && currentClass > 0)
             {
-                var healthSource = target.GetSource_FromAI();
+                IEntitySource healthSource = target.GetSource_FromAI();
                 int type = ModContent.ItemType<MediumHealth>();
-                Item.NewItem(healthSource, target.Center, type);
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
             }
 
             if (Main.rand.NextBool(20) && currentClass > 0)
             {
-                var healthSource = target.GetSource_FromAI();
+                IEntitySource healthSource = target.GetSource_FromAI();
                 int type = ModContent.ItemType<LargeHealth>();
-                Item.NewItem(healthSource, target.Center, type);
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
             }
         }
 
-        // Rocket jumping won't instantly kill the player
-        public override void ModifyHitByProjectile(Projectile proj, ref int damage, ref bool crit)
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if ((proj.Name == "Rocket" || proj.Name == "Grenade" || proj.Name == "Stickybomb" || proj.Name == "Syringe") && proj.owner == Player.whoAmI)
-                damage = 0;
+            if (ModContent.GetInstance<TF2Config>().NoTF2Loot || currentClass == 0 || proj.ModProjectile?.Mod is not TF2) return;
+            if (target.friendly || NPCID.Sets.CountsAsCritter[target.type] || target.type == NPCID.TargetDummy)
+                return;
+
+            if (Main.rand.NextBool(100) && currentClass == 6)
+            {
+                IEntitySource metalSource = target.GetSource_FromAI();
+                int type = ModContent.ItemType<Metal>();
+                int loot = Item.NewItem(metalSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
+            }
+
+            if (ModContent.GetInstance<TF2Config>().FreeHealthPacks) return;
+
+            if (Main.rand.NextBool(100) && currentClass > 0)
+            {
+                IEntitySource healthSource = target.GetSource_FromAI();
+                int type = ModContent.ItemType<SmallHealth>();
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
+            }
+
+            if (Main.rand.NextBool(250) && currentClass > 0)
+            {
+                IEntitySource healthSource = target.GetSource_FromAI();
+                int type = ModContent.ItemType<MediumHealth>();
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
+            }
+
+            if (Main.rand.NextBool(500) && currentClass > 0)
+            {
+                IEntitySource healthSource = target.GetSource_FromAI();
+                int type = ModContent.ItemType<LargeHealth>();
+                int loot = Item.NewItem(healthSource, target.Center, type);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                    NetMessage.SendData(MessageID.SyncItem, number: loot);
+            }
+        }
+
+        public override bool CanBeHitByProjectile(Projectile proj)
+        {
+            // This is for the Mann's Anti Danmaku System
+            if (focus)
+                return proj.Colliding(proj.Hitbox, FocusShotHitbox());
+            else return base.CanBeHitByProjectile(proj);
+        }
+
+        public Rectangle FocusShotHitbox()
+        {
+            float scale = 1f;
+
+            if (TF2.gensokyoLoaded)
+                scale = (float)TF2.Gensokyo.Call("GetPlayerScale", Player.whoAmI);
+
+            int width = (int)(10 * scale);
+            int height = (int)(10 * scale);
+
+            return new Rectangle(
+                (int)Player.Center.X - width / 2,
+                (int)Player.Center.Y - height / 2,
+                width,
+                height);
         }
     }
 
@@ -609,19 +657,20 @@ namespace TF2.Common
             }
         }
 
-        public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit)
+        public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (target.GetGlobalNPC<JarateNPC>().jarateDebuff)
+            bool miniCritDebuff = target.GetGlobalNPC<MarkedForDeathNPC>().markedForDeath || target.GetGlobalNPC<JarateNPC>().jarateDebuff;
+            if (miniCritDebuff)
                 Player.GetModPlayer<TF2Player>().miniCrit = true;
-            if (target.GetGlobalNPC<JarateNPC>().jarateDebuff && Player.HeldItem.ModItem is Bushwacka)
+            if (miniCritDebuff && (item.ModItem is FanOWar || item.ModItem is Bushwacka))
                 Player.GetModPlayer<TF2Player>().crit = true;
 
             if (Player.GetModPlayer<TF2Player>().crit)
             {
-                crit = true;
+                modifiers.SetCrit();
                 if (item.ModItem?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.5f);
+                    modifiers.CritDamage *= 1.5f;
                     Dust.NewDust(target.Center, 50, 28, ModContent.DustType<CriticalHit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit"), Player.Center);
                 }
@@ -630,22 +679,36 @@ namespace TF2.Common
             {
                 if (item.ModItem?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.35f);
+                    modifiers.SourceDamage.Base *= 1.35f;
                     Dust.NewDust(target.Center, 40, 24, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
                 }
             }
         }
 
-        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
-            // NPCs affected
+            // Temporary solution
+            if (proj.ModProjectile is ShoveHitbox) return;
+
+            // NPCs can crit (with the right conditions)
+            if (target.GetGlobalNPC<MarkedForDeathNPC>().markedForDeath)
+            {
+                Player.GetModPlayer<TF2Player>().miniCrit = true;
+                if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC)
+                    npcProjectileCrit = true;
+            }
             if (target.GetGlobalNPC<JarateNPC>().jarateDebuff)
             {
                 Player.GetModPlayer<TF2Player>().miniCrit = true;
                 if (proj.GetGlobalProjectile<TF2ProjectileBase>().sniperCrit)
-                    damage = (int)(damage * 1.35f);
+                    modifiers.SourceDamage *= 1.35f;
                 npcProjectileCrit = true;
+            }
+            if (Player.HasBuff<KritzkriegUberCharge>())
+            {
+                if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC)
+                    npcProjectileCrit = true;
             }
             if (Player.GetModPlayer<BuffBannerPlayer>().buffActive)
             {
@@ -657,10 +720,10 @@ namespace TF2.Common
 
             if (Player.GetModPlayer<TF2Player>().crit)
             {
-                crit = true;
+                modifiers.SetCrit();
                 if (proj.ModProjectile?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.5f);
+                    modifiers.CritDamage *= 1.5f;
                     Dust.NewDust(target.Center, 50, 28, ModContent.DustType<CriticalHit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit"), Player.Center);
                 }
@@ -669,65 +732,63 @@ namespace TF2.Common
             {
                 if (proj.ModProjectile?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.5f);
+                    modifiers.SourceDamage *= 1.35f;
                     Dust.NewDust(target.Center, 50, 28, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
                 }
             }
         }
 
-        public override void ModifyHitPvp(Item item, Player target, ref int damage, ref bool crit)
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (target.GetModPlayer<JaratePlayer>().jarateDebuff)
-                Player.GetModPlayer<TF2Player>().miniCrit = true;
-            if (target.GetModPlayer<JaratePlayer>().jarateDebuff && Player.HeldItem.ModItem is Bushwacka)
-                Player.GetModPlayer<TF2Player>().crit = true;
+            if (!modifiers.PvP) return;
+            bool miniCritDebuff = Player.GetModPlayer<MarkedForDeathPlayer>().markedForDeath || Player.GetModPlayer<JaratePlayer>().jarateDebuff;
+            Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
+            if (miniCritDebuff)
+                opponent.GetModPlayer<TF2Player>().miniCrit = true;
+            if (miniCritDebuff && (Player.HeldItem.ModItem is FanOWar || Player.HeldItem.ModItem is Bushwacka))
+                opponent.GetModPlayer<TF2Player>().crit = true;
 
-            if (Player.GetModPlayer<TF2Player>().crit)
+            if (opponent.GetModPlayer<TF2Player>().crit)
             {
-                crit = true;
-                if (item.ModItem?.Mod is TF2)
+                if (opponent.HeldItem.ModItem?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.5f);
-                    Dust.NewDust(target.Center, 50, 28, ModContent.DustType<CriticalHit>(), 0 * 0.5f, 0);
+                    modifiers.SourceDamage *= 1.5f;
+                    Dust.NewDust(Player.Center, 50, 28, ModContent.DustType<CriticalHit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit"), Player.Center);
                 }
             }
             else if (Player.GetModPlayer<TF2Player>().miniCrit)
             {
-                if (item.ModItem?.Mod is TF2)
+                if (opponent.HeldItem.ModItem?.Mod is TF2)
                 {
-                    damage = (int)(damage * 1.35f);
-                    Dust.NewDust(target.Center, 40, 24, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
+                    modifiers.SourceDamage *= 1.35f;
+                    Dust.NewDust(Player.Center, 40, 24, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
                 }
             }
         }
+    }
 
-        public override void ModifyHitPvpWithProj(Projectile proj, Player target, ref int damage, ref bool crit)
+    public class ScoutDoubleJump : ExtraJump
+    {
+        public override Position GetDefaultPosition() => BeforeMountJumps;
+
+        public override float GetDurationMultiplier(Player player) => 1.5f;
+
+        public override void OnRefreshed(Player player)
         {
-            if (target.GetModPlayer<JaratePlayer>().jarateDebuff)
-                Player.GetModPlayer<TF2Player>().miniCrit = true;
-            if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
-            if (Player.GetModPlayer<TF2Player>().crit)
-            {
-                crit = true;
-                if (proj.ModProjectile?.Mod is TF2)
-                {
-                    damage = (int)(damage * 1.5f);
-                    Dust.NewDust(target.Center, 50, 28, ModContent.DustType<CriticalHit>(), 0 * 0.5f, 0);
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit"), Player.Center);
-                }
-            }
-            else if (Player.GetModPlayer<TF2Player>().miniCrit)
-            {
-                if (proj.ModProjectile?.Mod is TF2)
-                {
-                    damage = (int)(damage * 1.5f);
-                    Dust.NewDust(target.Center, 50, 28, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
-                }
-            }
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            p.jumpsLeft = p.extraJumps;
+        }
+
+        public override void OnStarted(Player player, ref bool playSound)
+        {
+            playSound = false;
+            ref int jumps = ref player.GetModPlayer<TF2Player>().jumpsLeft;
+            jumps--;
+            if (jumps > 0)
+                player.GetJumpState(this).Available = true;
         }
     }
 }

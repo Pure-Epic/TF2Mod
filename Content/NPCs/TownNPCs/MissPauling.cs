@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
+using TF2.Content.Items.Consumables;
 using TF2.Content.Projectiles;
 
 namespace TF2.Content.NPCs.TownNPCs
@@ -21,8 +23,6 @@ namespace TF2.Content.NPCs.TownNPCs
 
         public override void SetStaticDefaults()
         {
-            // DisplayName automatically assigned from localization files, but the commented line below is the normal approach.
-            DisplayName.SetDefault("Miss Pauling");
             Main.npcFrameCount[Type] = 25; // The amount of frames the NPC has
 
             NPCID.Sets.ExtraFramesCount[Type] = 9; // Generally for Town NPCs, but this is how the NPC does extra things such as sitting in a chair and talking to other NPCs.
@@ -34,10 +34,10 @@ namespace TF2.Content.NPCs.TownNPCs
             NPCID.Sets.HatOffsetY[Type] = 2; // For when a party is active, the party hat spawns at a Y offset.
 
             // Influences how the NPC looks in the Bestiary
-            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new(0)
+            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new()
             {
                 Velocity = 1f, // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
-                Direction = 1, // -1 is left and 1 is right. NPCs are drawn facing the left by default but ExamplePerson will be drawn facing the right       
+                Direction = 1, // -1 is left and 1 is right. NPCs are drawn facing the left by default but ExamplePerson will be drawn facing the right
             };
 
             NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, drawModifiers);
@@ -81,12 +81,11 @@ namespace TF2.Content.NPCs.TownNPCs
             });
         }
 
-        public override void HitEffect(int hitDirection, double damage)
+        public override void HitEffect(NPC.HitInfo hit)
         {
-
         }
 
-        public override bool CanTownNPCSpawn(int numTownNPCs, int money) => true;
+        public override bool CanTownNPCSpawn(int numTownNPCs) => true;
 
         public override ITownNPCProfile TownNPCProfile() => new MissPaulingProfile();
 
@@ -121,82 +120,37 @@ namespace TF2.Content.NPCs.TownNPCs
 
         public override void SetChatButtons(ref string button, ref string button2) => button = "Shop";
 
-        public override void OnChatButtonClicked(bool firstButton, ref bool shop)
+        public override void OnChatButtonClicked(bool firstButton, ref string shopName)
         {
             if (firstButton)
-                shop = true;
+                shopName = "Shop";
         }
 
-        public override void SetupShop(Chest shop, ref int nextSlot)
+        public override void AddShops()
         {
-            shop.item[nextSlot].SetDefaults(ItemID.SlimeCrown);
-            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 25);
-            nextSlot++;
-
-            shop.item[nextSlot].SetDefaults(ItemID.SuspiciousLookingEye);
-            shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 25);
-            nextSlot++;
-
-            if (NPC.downedBoss1)
-            {
-                shop.item[nextSlot].SetDefaults(ItemID.WormFood);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 35);
-                nextSlot++;
-
-                shop.item[nextSlot].SetDefaults(ItemID.BloodySpine);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 35);
-                nextSlot++;
-            }
-            if (NPC.downedBoss2)
-            {
-                shop.item[nextSlot].SetDefaults(ItemID.Abeemination);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 40);
-                nextSlot++;
-
-                shop.item[nextSlot++].SetDefaults(ItemID.ClothierVoodooDoll);
-            }
-            if (NPC.downedBoss3)
-                shop.item[nextSlot++].SetDefaults(ItemID.GuideVoodooDoll);
-            if (Main.hardMode)
-            {
-                shop.item[nextSlot++].SetDefaults(ItemID.QueenSlimeCrystal);
-
-                shop.item[nextSlot].SetDefaults(ItemID.MechanicalWorm);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 25);
-                nextSlot++;
-
-                shop.item[nextSlot].SetDefaults(ItemID.MechanicalEye);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 25);
-                nextSlot++;
-
-                shop.item[nextSlot].SetDefaults(ItemID.MechanicalSkull);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 25);
-                nextSlot++;
-            }
-            if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
-            {
-                shop.item[nextSlot].SetDefaults(ModContent.ItemType<Items.Consumables.PlanteraItem>());
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 35);
-                nextSlot++;
-            }
-            if (NPC.downedPlantBoss)
-            {
-                shop.item[nextSlot++].SetDefaults(ItemID.LihzahrdPowerCell);
-                shop.item[nextSlot++].SetDefaults(ItemID.EmpressButterfly);
-            }
-            if (NPC.downedGolemBoss)
-                shop.item[nextSlot++].SetDefaults(ItemID.TruffleWorm);
-            if (NPC.downedAncientCultist)
-            {
-                shop.item[nextSlot].SetDefaults(ItemID.CelestialSigil);
-                shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 50);
-                nextSlot++;
-            }
+            NPCShop npcShop = new NPCShop(Type, "Shop")
+                .Add(new Item(ItemID.SlimeCrown) { shopCustomPrice = Item.buyPrice(silver: 25) })
+                .Add(new Item(ItemID.SuspiciousLookingEye) { shopCustomPrice = Item.buyPrice(silver: 25) })
+                .Add(new Item(ItemID.WormFood) { shopCustomPrice = Item.buyPrice(silver: 35) }, new Condition("DownedBoss1", () => NPC.downedBoss1))
+                .Add(new Item(ItemID.BloodySpine) { shopCustomPrice = Item.buyPrice(silver: 35) }, new Condition("DownedBoss1", () => NPC.downedBoss1))
+                .Add(new Item(ItemID.Abeemination) { shopCustomPrice = Item.buyPrice(silver: 40) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
+                .Add(new Item(ItemID.ClothierVoodooDoll) { shopCustomPrice = Item.buyPrice(silver: 50) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
+                .Add(new Item(ItemID.DeerThing) { shopCustomPrice = Item.buyPrice(silver: 75) }, new Condition("DownedBoss3", () => NPC.downedBoss3))
+                .Add(new Item(ItemID.GuideVoodooDoll) { shopCustomPrice = Item.buyPrice(gold: 1) }, new Condition("DownedBoss3", () => NPC.downedBoss3))
+                .Add(new Item(ItemID.QueenSlimeCrystal) { shopCustomPrice = Item.buyPrice(gold: 10) }, new Condition("HardMode", () => Main.hardMode))
+                .Add(new Item(ItemID.MechanicalWorm) { shopCustomPrice = Item.buyPrice(gold: 25) }, new Condition("HardMode", () => Main.hardMode))
+                .Add(new Item(ItemID.MechanicalEye) { shopCustomPrice = Item.buyPrice(gold: 25) }, new Condition("HardMode", () => Main.hardMode))
+                .Add(new Item(ItemID.MechanicalSkull) { shopCustomPrice = Item.buyPrice(gold: 25) }, new Condition("HardMode", () => Main.hardMode))
+                .Add(new Item(ModContent.ItemType<PlanteraItem>()) { shopCustomPrice = Item.buyPrice(gold: 30) }, new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
+                .Add(new Item(ItemID.LihzahrdPowerCell) { shopCustomPrice = Item.buyPrice(gold: 40) }, new Condition("DownedPlantera", () => NPC.downedPlantBoss))
+                .Add(new Item(ItemID.EmpressButterfly) { shopCustomPrice = Item.buyPrice(gold: 35) }, new Condition("DownedPlantera", () => NPC.downedPlantBoss))
+                .Add(new Item(ItemID.TruffleWorm) { shopCustomPrice = Item.buyPrice(gold: 45) }, new Condition("DownedGolem", () => NPC.downedGolemBoss))
+                .Add(new Item(ItemID.CelestialSigil) { shopCustomPrice = Item.buyPrice(gold: 50) }, new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
+            npcShop.Register();
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
-
         }
 
         // Make this Town NPC teleport to the King and/or Queen statue when triggered.
@@ -235,23 +189,22 @@ namespace TF2.Content.NPCs.TownNPCs
             if (!foundTarget && ai >= 60) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy() && targetNpc.type != NPCID.TargetDummy)
+                    if (targetNPC.CanBeChasedBy() && targetNPC.type != NPCID.TargetDummy)
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNpc.Center;
+                            targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
                     }
@@ -268,7 +221,7 @@ namespace TF2.Content.NPCs.TownNPCs
                     float speed = 10f;
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = NPC.damage;
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);

@@ -1,12 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Common;
+using TF2.Content.Items.Engineer;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.NPCs;
-using TF2.Common;
 
 namespace TF2.Content.NPCs
 {
@@ -41,10 +43,8 @@ namespace TF2.Content.NPCs
                 lifeInitialized = true;
             }
 
-            if (Main.player[npcOwner].HeldItem.ModItem is Items.Engineer.Wrangler)
-            {
+            if (Main.player[npcOwner].HeldItem.ModItem is Wrangler)
                 wrangled = true;
-            }
             else if (wrangled)
             {
                 cooldown++;
@@ -60,9 +60,7 @@ namespace TF2.Content.NPCs
         public override void PostAI()
         {
             if (Main.netMode != NetmodeID.SinglePlayer)
-            {
                 NPC.life += (int)(5 * npcPower);
-            }
             if (NPC.life >= NPC.lifeMax)
             {
                 NPC.life = NPC.lifeMax;
@@ -70,19 +68,28 @@ namespace TF2.Content.NPCs
             }
         }
 
-        public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
+        public override void ModifyHitByProjectile(Projectile projectile, ref NPC.HitModifiers modifiers)
         {
             if (wrangled)
-                damage = (int)(damage * 0.66f);
+                modifiers.FinalDamage *= 0.66f;
         }
 
         public override void OnKill()
         {
             if (Main.netMode == NetmodeID.SinglePlayer)
-                Main.player[npcOwner].GetModPlayer<Items.Engineer.FrontierJusticePlayer>().revenge += 3;
+            {
+                FrontierJusticePlayer f = Main.player[npcOwner].GetModPlayer<FrontierJusticePlayer>();
+                f.revenge += 3;
+                AdvancedPopupRequest revengeText = new()
+                {
+                    Text = "Revenge count: " + f.revenge,
+                    Color = Color.Red,
+                    DurationInFrames = 30,
+                    Velocity = new Vector2(0f, -5f)
+                };
+                PopupText.NewText(revengeText, Main.player[npcOwner].position);
+            }
         }
-
-        public void Kill() => NPC.life = 0;
 
         public void MultiplayerScaling() // if else chain incoming
         {
@@ -115,11 +122,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Sentry Gun Level 1");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 50;
@@ -159,19 +166,18 @@ namespace TF2.Content.NPCs
             float distanceFromTarget = 700f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if ((!foundTarget && ai >= 12 && !wrangled) || (ai >= 6 && wrangled && Main.player[npcOwner].channel)) //&& Main.netMode != NetmodeID.MultiplayerClient
+            if ((!foundTarget && ai >= 12 && !wrangled) || (ai >= 6 && wrangled && Main.player[npcOwner].controlUseItem)) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
@@ -179,7 +185,7 @@ namespace TF2.Content.NPCs
                         {
                             distanceFromTarget = between;
                             if (!wrangled)
-                                targetCenter = targetNpc.Center;
+                                targetCenter = targetNPC.Center;
                             else
                                 targetCenter = Main.MouseWorld;
                             foundTarget = true;
@@ -202,7 +208,7 @@ namespace TF2.Content.NPCs
                         damage = (int)(16 * p.classMultiplier);
                     else
                         damage = (int)(16 * npcPower);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -219,11 +225,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Sentry Gun Level 2");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 60;
@@ -263,19 +269,18 @@ namespace TF2.Content.NPCs
             float distanceFromTarget = 700f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if ((!foundTarget && ai >= 6 && !wrangled) || (ai >= 3 && wrangled && Main.player[npcOwner].channel))
+            if ((!foundTarget && ai >= 6 && !wrangled) || (ai >= 3 && wrangled && Main.player[npcOwner].controlUseItem))
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
@@ -283,7 +288,7 @@ namespace TF2.Content.NPCs
                         {
                             distanceFromTarget = between;
                             if (!wrangled)
-                                targetCenter = targetNpc.Center;
+                                targetCenter = targetNPC.Center;
                             else
                                 targetCenter = Main.MouseWorld;
                             foundTarget = true;
@@ -306,7 +311,7 @@ namespace TF2.Content.NPCs
                         damage = (int)(16 * p.classMultiplier);
                     else
                         damage = (int)(16 * npcPower);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -324,11 +329,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Sentry Gun Level 3");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 60;
@@ -370,19 +375,18 @@ namespace TF2.Content.NPCs
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
             bool foundTarget2 = false;
-            if ((!foundTarget && ai >= 6 && !wrangled) || (ai >= 3 && wrangled && Main.player[npcOwner].channel && Main.player[npcOwner].altFunctionUse != 2))// && Main.netMode != NetmodeID.MultiplayerClient
+            if ((!foundTarget && ai >= 6 && !wrangled) || (ai >= 3 && wrangled && Main.player[npcOwner].controlUseItem && !Main.player[npcOwner].controlUseTile))// && Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
@@ -390,7 +394,7 @@ namespace TF2.Content.NPCs
                         {
                             distanceFromTarget = between;
                             if (!wrangled)
-                                targetCenter = targetNpc.Center;
+                                targetCenter = targetNPC.Center;
                             else
                                 targetCenter = Main.MouseWorld;
                             foundTarget = true;
@@ -414,30 +418,27 @@ namespace TF2.Content.NPCs
                         damage = (int)(16 * p.classMultiplier);
                     else
                         damage = (int)(16 * npcPower);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                 }
-
-
             }
 
-            if ((!foundTarget && ai2 >= 180 && !wrangled) || (ai2 >= 90 && wrangled && Main.player[npcOwner].channel && Main.player[npcOwner].altFunctionUse == 2))// && Main.netMode != NetmodeID.MultiplayerClient
+            if ((!foundTarget && ai2 >= 180 && !wrangled) || (ai2 >= 90 && wrangled && !Main.player[npcOwner].controlUseItem && Main.player[npcOwner].controlUseTile))// && Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai2 = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
@@ -445,7 +446,7 @@ namespace TF2.Content.NPCs
                         {
                             distanceFromTarget = between;
                             if (!wrangled)
-                                targetCenter = targetNpc.Center;
+                                targetCenter = targetNPC.Center;
                             else
                                 targetCenter = Main.MouseWorld;
                             foundTarget2 = true;
@@ -468,11 +469,10 @@ namespace TF2.Content.NPCs
                         damage = (int)(100 * p.classMultiplier);
                     else
                         damage = (int)(100 * npcPower);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_rocket"), NPC.Center);
                     for (int i = 0; i < 4; i++)
                     {
-                        //Main.NewText("Rocket", Color.White);
                         Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(15f));
                         if (Main.netMode == NetmodeID.SinglePlayer)
                             Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
@@ -490,11 +490,11 @@ namespace TF2.Content.NPCs
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Mini-Sentry Gun");
             Main.npcFrameCount[NPC.type] = 1;
             NPCID.Sets.ActsLikeTownNPC[Type] = true;
             NPCID.Sets.MPAllowedEnemies[Type] = true;
         }
+
         public override void SetDefaults()
         {
             NPC.width = 35;
@@ -535,19 +535,18 @@ namespace TF2.Content.NPCs
             float distanceFromTarget = 700f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if ((!foundTarget && ai >= 9 && !wrangled) || (ai >= 4 && wrangled && Main.player[npcOwner].channel)) //&& Main.netMode != NetmodeID.MultiplayerClient
+            if ((!foundTarget && ai >= 9 && !wrangled) || (ai >= 4 && wrangled && Main.player[npcOwner].controlUseItem)) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
-                    NPC targetNpc = Main.npc[i];
-                    if (targetNpc.CanBeChasedBy())
+                    if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
@@ -555,7 +554,7 @@ namespace TF2.Content.NPCs
                         {
                             distanceFromTarget = between;
                             if (!wrangled)
-                                targetCenter = targetNpc.Center;
+                                targetCenter = targetNPC.Center;
                             else
                                 targetCenter = Main.MouseWorld;
                             foundTarget = true;
@@ -578,7 +577,7 @@ namespace TF2.Content.NPCs
                         damage = (int)(8 * p.classMultiplier);
                     else
                         damage = (int)(8 * npcPower);
-                    var projectileSource = NPC.GetSource_FromAI();
+                    IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
