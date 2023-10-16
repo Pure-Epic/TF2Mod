@@ -1,27 +1,22 @@
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Common;
+using TF2.Content.Items.Ammo;
 using TF2.Content.Projectiles;
 
 namespace TF2.Content.Items.Scout
 {
     public class Scattergun : TF2Weapon
     {
-        protected override void WeaponStatistics()
-        {
-            SetWeaponCategory(Scout, Primary, Stock, Starter);
-            SetWeaponSize(50, 14);
-            SetGunUseStyle();
-            SetWeaponDamage(damage: 6, projectile: ModContent.ProjectileType<Bullet>(), projectileCount: 10, shootAngle: 12f);
-            SetWeaponAttackSpeed(0.625);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/scatter_gun_shoot");
-            SetWeaponAttackIntervals(maxAmmo: 6, reloadTime: 0.5, initialReloadTime: 0.7, reloadSoundPath: "TF2/Content/Sounds/SFX/scatter_gun_reload");
-        }
-    }
-}
+        public override void SetStaticDefaults() => Tooltip.SetDefault("Scout's Starter Primary");
 
-/*
-    public class Scattergun : TF2Weapon
-    {
-        protected override void WeaponStatistics()
+        public override void SafeSetDefaults()
         {
             Item.width = 50;
             Item.height = 14;
@@ -38,10 +33,10 @@ namespace TF2.Content.Items.Scout
             Item.useAmmo = ModContent.ItemType<PrimaryAmmo>();
 
             ammoCost = 1;
-            currentAmmoClip = 6;
             maxAmmoClip = 6;
-            reloadRate = 30;
-            initialReloadRate = 42;
+            ammoInClip = 6;
+            reloadRate = 30f;
+            initialReloadRate = 42f;
             reloadSound = new SoundStyle("TF2/Content/Sounds/SFX/scatter_gun_reload");
 
             Item.rare = ModContent.RarityType<NormalRarity>();
@@ -55,24 +50,32 @@ namespace TF2.Content.Items.Scout
 
         public override void HoldItem(Player player)
         {
-            AmmoInterface clip = player.GetModPlayer<AmmoInterface>();
-            clip.ammoCurrent = currentAmmoClip;
+            WeaponSystem clip = player.GetModPlayer<WeaponSystem>();
             clip.ammoMax = maxAmmoClip;
+            clip.ammoReloadRate = reloadRate;
+            clip.initialAmmoReloadRate = initialReloadRate;
+            clip.ammoCurrent = ammoInClip;
             if (clip.startReload)
             {
                 reload = true;
                 clip.startReload = false;
             }
-            UpdateAmmo(player);
+            UpdateResource();
         }
 
-        public override void UseStyle(Player player, Rectangle heldItemFrame) => Item.noUseGraphic = player.GetModPlayer<TF2Player>().classAccessory && !player.GetModPlayer<TF2Player>().classHideVanity;
+        public override void UseStyle(Player player, Rectangle heldItemFrame)
+        {
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.classAccessory && !p.classHideVanity)
+                Item.noUseGraphic = true;
+            else
+                Item.noUseGraphic = false;
+        }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (currentAmmoClip <= 0) return false;
             reload = false;
-            currentAmmoClip -= ammoCost;
+            ammoInClip -= ammoCost;
 
             for (int i = 0; i < 10; i++)
             {
@@ -80,9 +83,9 @@ namespace TF2.Content.Items.Scout
                 Projectile.NewProjectile(source, position, newVelocity, ModContent.ProjectileType<Bullet>(), damage, knockback, player.whoAmI);
             }
 
-            if (currentAmmoClip <= 0)
+            if (ammoInClip <= 0)
                 reload = true;
             return false;
         }
     }
- */
+}

@@ -14,16 +14,16 @@ namespace TF2.Content.Items.Accessories
     // Further down below will be the actual items (Green/Yellow Exclusive Accessory)
     public abstract class RankToken : ModItem
     {
-        public virtual void WeaponStatistics()
+        public virtual void SafeSetDefaults()
         {
-        }
 
-        public override sealed void SetDefaults()
+        }
+        public sealed override void SetDefaults()
         {
             Item.width = 14;
             Item.height = 14;
             Item.accessory = true;
-            WeaponStatistics();
+            SafeSetDefaults();
         }
 
         public override bool CanEquipAccessory(Player player, int slot, bool modded)
@@ -75,6 +75,13 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank1 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Mercenary I");
+            Tooltip.SetDefault("75% weapon damage\n"
+                             + "75% npc efficiency");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -84,6 +91,14 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank2 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Mercenary II");
+            Tooltip.SetDefault("125% health\n"
+                             + "100% weapon damage\n"
+                             + "100% npc efficiency");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -94,6 +109,15 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank3 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Mercenary III");
+            Tooltip.SetDefault("125% health\n"
+                             + "150% weapon damage\n"
+                             + "150% npc efficiency\n"
+                             + "+1 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -105,6 +129,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank4 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Contract Killer I");
+            Tooltip.SetDefault("125% health\n"
+                             + "350% weapon damage\n"
+                             + "350% npc efficiency\n"
+                             + "+200 metal capacity\n"
+                             + "+1 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -117,6 +151,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank5 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Contract Killer II");
+            Tooltip.SetDefault("150% health\n"
+                             + "500% weapon damage\n"
+                             + "500% npc efficiency\n"
+                             + "+200 metal capacity\n"
+                             + "+1 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -129,6 +173,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank6 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Contract Killer III");
+            Tooltip.SetDefault("150% health\n"
+                             + "750% weapon damage\n"
+                             + "750% npc efficiency\n"
+                             + "+200 metal capacity\n"
+                             + "+2 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -141,6 +195,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank7 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Executioner I");
+            Tooltip.SetDefault("150% health\n"
+                             + "1500% weapon damage\n"
+                             + "1500% npc efficiency\n"
+                             + "+200 metal capacity\n"
+                             + "+2 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -153,6 +217,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank8 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Executioner II");
+            Tooltip.SetDefault("200% health\n"
+                             + "5000% weapon damage\n"
+                             + "5000% npc efficiency\n"
+                             + "+400 metal capacity\n"
+                             + "+2 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -165,6 +239,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank9 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Executioner III");
+            Tooltip.SetDefault("300% health\n"
+                             + "10000% weapon damage\n"
+                             + "10000% npc efficiency\n"
+                             + "+400 metal capacity\n"
+                             + "+3 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -177,6 +261,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank10 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Expert Assassin I");
+            Tooltip.SetDefault("400% health\n"
+                             + "20000% weapon damage\n"
+                             + "20000% npc efficiency\n"
+                             + "+400 metal capacity\n"
+                             + "+3 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -189,6 +283,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank11 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Expert Assassin II");
+            Tooltip.SetDefault("500% health\n"
+                             + "50000% weapon damage\n"
+                             + "50000% npc efficiency\n"
+                             + "+400 metal capacity\n"
+                             + "+3 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -201,6 +305,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank12 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Expert Assassin III");
+            Tooltip.SetDefault("500% health\n"
+                             + "100000% weapon damage\n"
+                             + "100000% npc efficiency\n"
+                             + "+400 metal capacity\n"
+                             + "+4 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -213,6 +327,16 @@ namespace TF2.Content.Items.Accessories
 
     public class Rank13 : RankToken
     {
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Death Merchant");
+            Tooltip.SetDefault("1000% health\n"
+                             + "1000000% weapon damage\n"
+                             + "1000000% npc efficiency\n"
+                             + "+800 metal capacity\n"
+                             + "+5 bullet pierce");
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();

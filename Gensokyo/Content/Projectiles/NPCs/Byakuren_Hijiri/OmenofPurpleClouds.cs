@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
@@ -26,6 +26,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private int timer;
         private float distance;
         private int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Omen of Purple Clouds");
 
         public override void SetDefaults()
         {
@@ -59,7 +61,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 250;
             projectileInitialized = true;
@@ -68,10 +70,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             switch (ProjectileAI)
@@ -80,12 +82,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.position.X = npc.NPC.Center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = npc.NPC.Center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 1:
                     Projectile.position.X = npc.NPC.Center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed + 180f)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = npc.NPC.Center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed + 180f)) * distance) - Projectile.height / 2;
                     break;
-
                 default:
                     break;
             }
@@ -103,23 +103,19 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer + 90)) * -5f;
                         direction = 1;
                         break;
-
                     case 1:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer + 270)) * -5f;
                         direction = -1;
                         break;
-
                     default:
                         break;
                 }
-                if (Main.netMode == NetmodeID.MultiplayerClient) return;
                 int projectile = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<OmenofPurpleClouds2>(), 30, 0f, npc.NPC.target);
-                OmenofPurpleClouds2 omenofPurpleClouds2 = (OmenofPurpleClouds2)Main.projectile[projectile].ModProjectile;
+                OmenofPurpleClouds2 omenofPurpleClouds2 = Main.projectile[projectile].ModProjectile as OmenofPurpleClouds2;
                 omenofPurpleClouds2.startTimer = 240 - timer;
                 omenofPurpleClouds2.direction = direction;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
             }
-            Projectile.netUpdate = true;
         }
     }
 
@@ -130,6 +126,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public int timer;
         public int startTimer;
         public int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Omen of Purple Clouds");
 
         public override void SetDefaults()
         {
@@ -166,7 +164,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             Projectile.timeLeft += startTimer;
             projectileInitialized = true;
             return true;
@@ -197,6 +195,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         private float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Omen of Purple Clouds");
 
         public override void SetDefaults()
         {
@@ -230,7 +230,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 150;
             projectileInitialized = true;
@@ -239,10 +239,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             switch (ProjectileAI)
@@ -251,12 +251,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.position.X = npc.NPC.Center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed + 90f)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = npc.NPC.Center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed + 90f)) * distance) - Projectile.height / 2;
                     break;
-
                 case 1:
                     Projectile.position.X = npc.NPC.Center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed + 270f)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = npc.NPC.Center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed + 270f)) * distance) - Projectile.height / 2;
                     break;
-
                 default:
                     break;
             }
@@ -275,23 +273,19 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer)) * -5.25f;
                         direction = 1;
                         break;
-
                     case 1:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer + 180f)) * -5.25f;
                         direction = -1;
                         break;
-
                     default:
                         break;
                 }
-                if (Main.netMode == NetmodeID.MultiplayerClient) return;
                 int projectile = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<OmenofPurpleClouds4>(), 30, 0f, npc.NPC.target);
-                OmenofPurpleClouds4 omenofPurpleClouds4 = (OmenofPurpleClouds4)Main.projectile[projectile].ModProjectile;
+                OmenofPurpleClouds4 omenofPurpleClouds4 = Main.projectile[projectile].ModProjectile as OmenofPurpleClouds4;
                 omenofPurpleClouds4.startTimer = 240 - timer;
                 omenofPurpleClouds4.direction = direction;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
             }
-            Projectile.netUpdate = true;
         }
     }
 
@@ -302,6 +296,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public int timer;
         public int startTimer;
         public int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Omen of Purple Clouds");
 
         public override void SetDefaults()
         {
@@ -336,7 +332,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             Projectile.timeLeft += startTimer;
             projectileInitialized = true;
             return true;
@@ -349,7 +345,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.velocity = Utils.RotatedBy(Projectile.velocity, Projectile.ai[1] * MathHelper.ToRadians(15f * direction), default);
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 }

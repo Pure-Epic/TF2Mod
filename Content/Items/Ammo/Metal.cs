@@ -9,14 +9,13 @@ namespace TF2.Content.Items.Ammo
 {
     public class Metal : ModItem
     {
-        public override void SetStaticDefaults() => Item.ResearchUnlockCount = 0;
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Medium Ammo Box");
 
         public override void SetDefaults()
         {
-            Item.width = 38;
-            Item.height = 32;
+            Item.width = 14;
+            Item.height = 14;
             Item.rare = ItemRarityID.White;
-            Item.ResearchUnlockCount = 0;
         }
 
         public override bool OnPickup(Player player)

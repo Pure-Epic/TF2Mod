@@ -1,29 +1,31 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
-using TF2.Content.Buffs;
 using TF2.Content.Items;
+using TF2.Common;
 
 namespace TF2.Content.Projectiles.Sniper
 {
     public class SydneySleeperDart : ModProjectile
     {
+        //public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.BulletHighVelocity;
         public bool projectileInitialized;
-        public int jarateDuration;
 
         public override void SetStaticDefaults()
         {
-            ProjectileID.Sets.TrailingMode[Type] = 0;
-            ProjectileID.Sets.TrailCacheLength[Type] = 5;
+            DisplayName.SetDefault("Sydney Sleeper Dart"); // The English name of the projectile
+            ProjectileID.Sets.TrailingMode[Type] = 0; // Creates a trail behind the golf ball.
+            ProjectileID.Sets.TrailCacheLength[Type] = 5; // Sets the length of the trail.
         }
 
         public override void SetDefaults()
         {
             Projectile.CloneDefaults(ProjectileID.BulletHighVelocity);
-            Projectile.width = 50;
-            Projectile.height = 4;
+            Projectile.width = 50; // The width of projectile hitbox
+            Projectile.height = 4; // The height of projectile hitbox
             Projectile.DamageType = ModContent.GetInstance<TF2DamageClass>();
             Projectile.penetrate = 1;
             Projectile.friendly = true;
@@ -33,7 +35,22 @@ namespace TF2.Content.Projectiles.Sniper
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Main.instance.LoadProjectile(Projectile.type);
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+
+            // Redraw the projectile with the color not influenced by light
+            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, Projectile.height * 0.5f);
+            for (int i = 0; i < Projectile.oldPos.Length; i++)
+            {
+                Vector2 drawPos = Projectile.oldPos[i] - Main.screenPosition + drawOrigin + new Vector2(0f, Projectile.gfxOffY);
+                Color color = Projectile.GetAlpha(lightColor) * ((Projectile.oldPos.Length - i) / (float)Projectile.oldPos.Length);
+                Main.EntitySpriteDraw(texture, drawPos, null, color, Projectile.rotation, drawOrigin, Projectile.scale, SpriteEffects.None, 0);
+            }
+
+            return true;
+        }
 
         public override bool PreAI()
         {
@@ -44,35 +61,32 @@ namespace TF2.Content.Projectiles.Sniper
             return true;
         }
 
-        public override void AI() => Projectile.rotation = Projectile.velocity.ToRotation();
+        public override void AI() => Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
         {
-            Player player = Main.player[Projectile.owner];
-            target.AddBuff(BuffID.Ichor, jarateDuration);
-            target.AddBuff(ModContent.BuffType<JarateDebuff>(), jarateDuration);
+            target.AddBuff(BuffID.Ichor, Projectile.GetGlobalProjectile<TF2ProjectileBase>().jarateDuration, true);
+            target.AddBuff(ModContent.BuffType<Buffs.JarateDebuff>(), Projectile.GetGlobalProjectile<TF2ProjectileBase>().jarateDuration);
             if (Projectile.GetGlobalProjectile<TF2ProjectileBase>().miniCrit)
             {
                 for (int i = 0; i < Player.MaxBuffs; i++)
                 {
-                    if (player.buffType[i] == ModContent.BuffType<JarateCooldown>())
-                        player.buffTime[i] -= 60;
+                    if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<Buffs.JarateCooldown>())
+                        Main.player[Projectile.owner].buffTime[i] -= 60;
                 }
             }
         }
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        public override void OnHitPvp(Player target, int damage, bool crit)
         {
-            Player player = Main.player[Projectile.owner];
-            if (!info.PvP) return;
-            target.AddBuff(BuffID.Ichor, jarateDuration, true);
-            target.AddBuff(ModContent.BuffType<JarateDebuff>(), jarateDuration);
+            target.AddBuff(BuffID.Ichor, Projectile.GetGlobalProjectile<TF2ProjectileBase>().jarateDuration, true);
+            target.AddBuff(ModContent.BuffType<Buffs.JarateDebuff>(), Projectile.GetGlobalProjectile<TF2ProjectileBase>().jarateDuration);
             if (Projectile.GetGlobalProjectile<TF2ProjectileBase>().miniCrit)
             {
                 for (int i = 0; i < Player.MaxBuffs; i++)
                 {
-                    if (player.buffType[i] == ModContent.BuffType<JarateCooldown>())
-                        player.buffTime[i] -= 60;
+                    if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<Buffs.JarateCooldown>())
+                        Main.player[Projectile.owner].buffTime[i] -= 60;
                 }
             }
         }

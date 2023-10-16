@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -16,6 +17,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public bool projectileInitialized;
         public int timer;
         public int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -52,7 +55,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -70,6 +73,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public bool projectileInitialized;
         public int timer;
         public int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -104,7 +109,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -113,7 +118,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -123,6 +127,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public bool projectileInitialized;
         public int timer;
         public int direction;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -157,7 +163,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -166,7 +172,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -175,6 +180,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     {
         public bool projectileInitialized;
         public int timer;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -210,7 +217,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -222,7 +229,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.velocity = Vector2.UnitY * 10f;
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -233,7 +239,11 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         private int timer;
 
-        public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Byakuren Hijiri's Laser");
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        }
 
         public override void SetDefaults()
         {
@@ -332,7 +342,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.Opacity -= 0.05f;
                 Projectile.Opacity = Utils.Clamp(Projectile.Opacity, 0f, 1f);
             }
-            Projectile.netUpdate = true;
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -353,6 +362,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         private float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -387,7 +398,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 100;
             projectileInitialized = true;
@@ -396,10 +407,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             Projectile.position.X = npc.NPC.Center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
@@ -411,13 +422,11 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
             if (timer % 2 == 0)
             {
-                if (Main.netMode == NetmodeID.MultiplayerClient) return;
                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer * speed)) * -10f;
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreStarMaelstrom4>(), 35, 0f, npc.NPC.target);
             }
             if (Projectile.timeLeft <= 15)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -437,6 +446,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         private float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -471,7 +482,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 25;
             projectileInitialized = true;
@@ -480,10 +491,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             switch (ProjectileAI)
@@ -492,12 +503,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 1:
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.height / 2;
                     break;
-
                 default:
                     break;
             }
@@ -511,20 +520,16 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     case 0:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer * speed)) * -10f;
                         break;
-
                     case 1:
                         velocity = Utils.RotatedBy(Vector2.UnitY, -MathHelper.ToRadians(timer * speed)) * -10f;
                         break;
-
                     default:
                         break;
                 }
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreStarMaelstrom5>(), 35, 0f, npc.NPC.target);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreStarMaelstrom5>(), 35, 0f, npc.NPC.target);
             }
             if (Projectile.timeLeft <= 15)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -544,6 +549,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         private float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -578,7 +585,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 25;
             projectileInitialized = true;
@@ -587,10 +594,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             switch (ProjectileAI)
@@ -599,12 +606,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 1:
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.height / 2;
                     break;
-
                 default:
                     break;
             }
@@ -618,20 +623,16 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     case 0:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer * speed)) * -10f;
                         break;
-
                     case 1:
                         velocity = Utils.RotatedBy(Vector2.UnitY, -MathHelper.ToRadians(timer * speed)) * -10f;
                         break;
-
                     default:
                         break;
                 }
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreStarMaelstrom6>(), 35, 0f, npc.NPC.target);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<PreStarMaelstrom6>(), 35, 0f, npc.NPC.target);
             }
             if (Projectile.timeLeft <= 15)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -639,6 +640,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class PreStarMaelstrom4 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -674,7 +677,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -683,7 +686,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -691,6 +693,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class PreStarMaelstrom5 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -726,7 +730,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -735,7 +739,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -743,6 +746,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class PreStarMaelstrom6 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Byakuren Hijiri's Danmaku");
 
         public override void SetDefaults()
         {
@@ -778,7 +783,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -787,7 +792,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 }

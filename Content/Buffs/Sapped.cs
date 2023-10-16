@@ -10,10 +10,12 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults()
         {
+            DisplayName.SetDefault("Sapped!");
+            Description.SetDefault("Slow and painful death");
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
         }
 
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<SappedPlayer>().lifeRegenDebuff = true;
@@ -39,7 +41,7 @@ namespace TF2.Content.Buffs
                 if (timer >= 60)
                 {
                     Player.statLife -= (int)(25 * damageMultiplier);
-                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(25 * damageMultiplier), dramatic: false, dot: true);
+                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegenNegative, (int)(25 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
                         Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " got electrocuted."), (int)(4 * damageMultiplier), 0);
                     timer = 0;
@@ -71,8 +73,6 @@ namespace TF2.Content.Buffs
                     npc.life -= (int)(25 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height), CombatText.LifeRegenNegative, (int)(25 * damageMultiplier), dramatic: false, dot: true);
                     npc.checkDead();
-                    if (Main.netMode != NetmodeID.SinglePlayer)
-                        npc.netUpdate = true;
                     timer = 0;
                 }
                 int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Electric, 0f, 0f, 100, default, 3f);

@@ -2,10 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using Terraria.Localization;
 using Terraria.ModLoader;
-using TF2.Gensokyo.Content.Items.BossSummons;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
+using TF2.Gensokyo.Content.Items.BossSummons;
 
 namespace TF2.Gensokyo.Common
 {
@@ -78,46 +77,39 @@ namespace TF2.Gensokyo.Common
             };
 
             mod.Call(
-                "LogEvent",
+                "AddEvent",
                 Mod,
-                "BossRush",
-                18.99f,
-                new Func<bool>(() => DownedGensokyoBoss.downedBossRush),
+                "Boss Rush",
                 bossList,
-                new Dictionary<string, object>()
-                {
-                    ["displayName"] = Language.GetTextValue("Mods.TF2.BossChecklist.BossRush.DisplayName"),
-                    ["spawnInfo"] = Language.GetTextValue("Mods.TF2.BossChecklist.BossRush.SpawnInfo"),
-                    ["spawnItems"] = ModContent.ItemType<BossRushSummon>(),
-                    ["availability"] = new Func<bool>(() => modActive), // The boss will only show up if the Gensokyo Mod is enabled
-                    ["despawnMessage"] = Language.GetTextValue("Mods.TF2.BossChecklist.ByakurenHijiri.DespawnMessage"),
-                    ["overrideHeadTextures"] = "TF2/Gensokyo/Content/Events/BossRushIcon",
-                    ["customPortrait"] = (SpriteBatch sb, Rectangle rect, Color color) =>
-                    {
-                        Texture2D texture = ModContent.Request<Texture2D>("TF2/Gensokyo/Content/Textures/BossRushPortrait").Value;
-                        Vector2 centered = new Vector2(rect.X + (rect.Width / 2) - (texture.Width / 2), rect.Y + (rect.Height / 2) - (texture.Height / 2));
-                        sb.Draw(texture, centered, color);
-                    }
-                }                                           
+                20.99f,
+                new Func<bool>(() => DownedGensokyoBoss.downedBossRush),
+                new Func<bool>(() => modActive),
+                null,
+                ModContent.ItemType<BossRushSummon>(),
+                "Fight Gensokyo's greatest warriors and face the consequences...",
+                (SpriteBatch sb, Rectangle rect, Color color) => {
+                    Texture2D texture = ModContent.Request<Texture2D>("TF2/Gensokyo/Content/Textures/BossRushPortrait").Value;
+                    Vector2 centered = new Vector2(rect.X + (rect.Width / 2) - (texture.Width / 2), rect.Y + (rect.Height / 2) - (texture.Height / 2));
+                    sb.Draw(texture, centered, color);
+                },
+                "TF2/Gensokyo/Content/Events/BossRushIcon"
             );
         }
 
         private void ByakurenHijiri(Mod mod)
         {
             mod.Call(
-                "LogBoss",
+                "AddBoss",
                 Mod,
-                nameof(ByakurenHijiri),
-                19f, // Same weight as Providence
-                new Func<bool>(() => DownedGensokyoBoss.downedByakurenHijiri),
+                "Byakuren Hijiri",
                 ModContent.NPCType<ByakurenHijiri>(),
-                new Dictionary<string, object>()
-                {
-                    ["spawnInfo"] = Language.GetTextValue("Mods.TF2.BossChecklist.ByakurenHijiri.SpawnInfo"),
-                    ["spawnItems"] = ModContent.ItemType<BossRushSummon>(),
-                    ["availability"] = new Func<bool>(() => GensokyoDLC.gensokyoLoaded), // The boss will only show up if the Gensokyo Mod is enabled
-                    ["despawnMessage"] = Language.GetTextValue("Mods.TF2.BossChecklist.ByakurenHijiri.DespawnMessage")
-                }
+                21f, // Same weight as Providence
+                new Func<bool>(() => DownedGensokyoBoss.downedByakurenHijiri),
+                new Func<bool>(() => GensokyoDLC.gensokyoLoaded), // The boss will only show up if the Gensokyo Mod is enabled
+                null,
+                ModContent.ItemType<BossRushSummon>(),
+                "Complete the Boss Rush...",
+                "The protector of youkai remains victorious!"
             );
         }
     }

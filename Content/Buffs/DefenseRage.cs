@@ -1,13 +1,17 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using TF2.Content.Items.Soldier;
 
 namespace TF2.Content.Buffs
 {
     public class DefenseRage : ModBuff
     {
-        public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Soldier's Blessing");
+            Description.SetDefault("Damage reduction");
+            Main.buffNoSave[Type] = true;
+        }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BattalionsBackupPlayer>().buffActive = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<Items.Soldier.BattalionsBackupPlayer>().buffActive = true;
     }
 }

@@ -6,7 +6,7 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
-using TF2.Content.Buffs;
+using TF2.Common;
 
 namespace TF2.Content.UI
 {
@@ -16,13 +16,14 @@ namespace TF2.Content.UI
         // For this bar we'll be using a frame texture and then a gradient inside bar, as it's one of the more simpler approaches while still looking decent.
         // Once this is all set up make sure to go and do the required stuff for most UI's in the Mod class.
         private UIText text;
-
         private UIElement area;
         private UIImage barFrame;
+        private Color gradientA;
+        private Color gradientB;
 
         public override void OnInitialize()
         {
-            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element.
+            // Create a UIElement for all the elements to sit on top of, this simplifies the numbers as nested elements can be positioned relative to the top left corner of this element. 
             // UIElement is invisible and has no padding. You can use a UIPanel if you wish for a background.
             area = new UIElement();
             area.Left.Set(-area.Width.Pixels - 600, 1f); // Place the resource bar to the left of the hearts.
@@ -42,6 +43,9 @@ namespace TF2.Content.UI
             text.Top.Set(55, 0f);
             text.Left.Set(-20, 0f);
 
+            gradientA = new Color(157, 49, 47); // Red
+            gradientB = new Color(189, 59, 59); // Lighter red
+
             area.Append(text);
             area.Append(barFrame);
             Append(area);
@@ -49,8 +53,11 @@ namespace TF2.Content.UI
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            CloakPlayer modPlayer = Main.LocalPlayer.GetModPlayer<CloakPlayer>();
-            if (!modPlayer.invisWatchEquipped) return;
+            // This prevents drawing unless we are Engineer
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            if (!modPlayer.invisWatchEquipped)
+                return;
+
             base.Draw(spriteBatch);
         }
 
@@ -58,7 +65,7 @@ namespace TF2.Content.UI
         {
             base.DrawSelf(spriteBatch);
 
-            CloakPlayer modPlayer = Main.LocalPlayer.GetModPlayer<CloakPlayer>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<Buffs.CloakPlayer>();
             // Calculate quotient
             float quotient;
             quotient = (float)modPlayer.cloakMeter / modPlayer.cloakMeterMax;
@@ -74,13 +81,17 @@ namespace TF2.Content.UI
             int left = hitbox.Left;
             int right = hitbox.Right;
             int steps = (int)((right - left) * quotient);
-            for (int i = 0; i < steps; i++)
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.White);
+            for (int i = 0; i < steps; i += 1)
+            {
+                //float percent = (float)i / steps; // Alternate Gradient Approach
+                float percent = (float)i / (right - left);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left + i, hitbox.Y, 1, hitbox.Height), Color.Lerp(gradientA, gradientB, percent));
+            }
         }
 
         public override void Update(GameTime gameTime)
         {
-            CloakPlayer modPlayer = Main.LocalPlayer.GetModPlayer<CloakPlayer>();
+            var modPlayer = Main.LocalPlayer.GetModPlayer<TF2Player>();
             if (!modPlayer.invisWatchEquipped)
                 return;
 

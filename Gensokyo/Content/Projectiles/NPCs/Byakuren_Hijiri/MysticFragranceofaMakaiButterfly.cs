@@ -1,6 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -27,6 +27,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private float speed;
         private int timer;
         private float distance;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Mystic Fragrance of a Makai Butterfly");
 
         public override void SetDefaults()
         {
@@ -60,7 +62,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override bool PreAI()
         {
-            if ((ByakurenHijiri)Main.npc[Owner].ModNPC == null) return false;
+            if (Main.npc[Owner].ModNPC as ByakurenHijiri == null) return false;
             if (projectileInitialized) return true;
             distance = 25;
             projectileInitialized = true;
@@ -69,10 +71,10 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
-            if (npc.State == 0 || !npc.NPC.active)
+            if (npc.BossAI == 0 || !npc.NPC.active)
                 Projectile.Kill();
 
             switch (ProjectileAI)
@@ -81,22 +83,18 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 1:
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 2:
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * -speed)) * distance) - Projectile.height / 2;
                     break;
-
                 case 3:
                     Projectile.position.X = center.X - (int)(Math.Cos(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.width / 2;
                     Projectile.position.Y = center.Y - (int)(Math.Sin(MathHelper.ToRadians(timer * speed)) * distance) - Projectile.height / 2;
                     break;
-
                 default:
                     break;
             }
@@ -110,30 +108,24 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     case 0:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer + 180f)) * -5f;
                         break;
-
                     case 1:
                         velocity = Utils.RotatedBy(Vector2.UnitY, -MathHelper.ToRadians(timer + 180f)) * -5f;
                         break;
-
                     case 2:
                         velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(timer + 180f)) * -5f;
                         break;
-
                     case 3:
                         velocity = Utils.RotatedBy(Vector2.UnitY, -MathHelper.ToRadians(timer + 180f)) * -5f;
                         break;
-
                     default:
                         break;
                 }
                 SoundEngine.PlaySound(SoundID.Item9, Projectile.Center);
-                if (Main.netMode == NetmodeID.MultiplayerClient) return;
                 int projectile = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, velocity, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly2>(), 25, 0f, npc.NPC.target);
-                MysticFragranceofaMakaiButterfly2 mysticFragranceofaMakaiButterfly2 = (MysticFragranceofaMakaiButterfly2)Main.projectile[projectile].ModProjectile;
+                MysticFragranceofaMakaiButterfly2 mysticFragranceofaMakaiButterfly2 = Main.projectile[projectile].ModProjectile as MysticFragranceofaMakaiButterfly2;
                 mysticFragranceofaMakaiButterfly2.startTimer = 900 - timer;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
             }
-            Projectile.netUpdate = true;
         }
     }
 
@@ -142,6 +134,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     {
         public bool projectileInitialized;
         public int startTimer;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Mystic Fragrance of a Makai Butterfly");
 
         public override void SetDefaults()
         {
@@ -176,7 +170,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             Projectile.timeLeft += startTimer;
             projectileInitialized = true;
             return true;
@@ -186,7 +180,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -195,7 +188,11 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     {
         private int timer;
 
-        public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Mystic Fragrance of a Makai Butterfly");
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        }
 
         public override void SetDefaults()
         {
@@ -294,7 +291,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.Opacity -= 0.05f;
                 Projectile.Opacity = Utils.Clamp(Projectile.Opacity, 0f, 1f);
             }
-            Projectile.netUpdate = true;
         }
 
         public override bool ShouldUpdatePosition() => false;

@@ -26,7 +26,11 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private int pulseTimer;
         private bool maxPulse;
 
-        public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Devil's Recitation");
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        }
 
         public override void SetDefaults()
         {
@@ -115,19 +119,15 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 case 0:
                     velocity = new Vector2(-2f, -2f);
                     break;
-
                 case 1:
                     velocity = new Vector2(2f, -2f);
                     break;
-
                 case 2:
                     velocity = new Vector2(-5f, 3.75f);
                     break;
-
                 case 3:
                     velocity = new Vector2(5f, 3.75f);
                     break;
-
                 default:
                     break;
             }
@@ -137,7 +137,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
             if (Utils.HasNaNs(Projectile.velocity) || Projectile.velocity == Vector2.Zero)
                 Projectile.velocity = -Vector2.UnitY;
@@ -185,7 +185,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.Opacity -= 0.05f;
                 Projectile.Opacity = Utils.Clamp(Projectile.Opacity, 0f, 1f);
             }
-            Projectile.netUpdate = true;
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -195,6 +194,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class DevilsRecitation2 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Devil's Recitation");
 
         public override void SetDefaults()
         {
@@ -231,7 +232,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -240,7 +241,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -248,6 +248,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class DevilsRecitation3 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Devil's Recitation");
 
         public override void SetDefaults()
         {
@@ -284,7 +286,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -293,7 +295,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -301,6 +302,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     public class DevilsRecitation4 : ModProjectile
     {
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Devil's Recitation");
 
         public override void SetDefaults()
         {
@@ -335,7 +338,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -344,7 +347,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -353,6 +355,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
     {
         public bool projectileInitialized;
         public int timer;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Devil's Recitation");
 
         public override void SetDefaults()
         {
@@ -387,7 +391,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -400,7 +404,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.velocity = Vector2.UnitY * 10f;
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 
@@ -423,7 +426,11 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         private bool maxPulse;
         private int direction;
 
-        public override void SetStaticDefaults() => ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Devil's Recitation");
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 40000; // This makes lasers draw offscreen
+        }
 
         public override void SetDefaults()
         {
@@ -512,19 +519,15 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 case 0:
                     direction = 1;
                     break;
-
                 case 1:
                     direction = -1;
                     break;
-
                 case 2:
                     direction = -1;
                     break;
-
                 case 3:
                     direction = 1;
                     break;
-
                 default:
                     break;
             }
@@ -534,7 +537,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
 
         public override void AI()
         {
-            ByakurenHijiri npc = (ByakurenHijiri)Main.npc[Owner].ModNPC;
+            ByakurenHijiri npc = Main.npc[Owner].ModNPC as ByakurenHijiri;
 
             if (Utils.HasNaNs(Projectile.velocity) || Projectile.velocity == Vector2.Zero)
                 Projectile.velocity = -Vector2.UnitY;
@@ -588,7 +591,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                     Projectile.velocity = Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(pulseTimer * direction));
                 }
             }
-            Projectile.netUpdate = true;
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -600,6 +602,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override string Texture => "TF2/Gensokyo/Content/Projectiles/NPCs/Byakuren_Hijiri/DevilsRecitation5";
 
         public bool projectileInitialized;
+
+        public override void SetStaticDefaults() => DisplayName.SetDefault("Devil's Recitation");
 
         public override void SetDefaults()
         {
@@ -634,7 +638,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override bool PreAI()
         {
             if (projectileInitialized) return true;
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(0f);
             projectileInitialized = true;
             return true;
         }
@@ -643,7 +647,6 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         {
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
-            Projectile.netUpdate = true;
         }
     }
 }

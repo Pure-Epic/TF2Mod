@@ -1,5 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
+using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Demoman;
@@ -8,32 +14,69 @@ using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Sniper
 {
-    public class Bushwacka : TF2Weapon
+    public class Bushwacka : TF2WeaponMelee
     {
-        protected override void WeaponStatistics()
+        public override void SetStaticDefaults()
         {
-            SetWeaponCategory(Sniper, Melee, Unique, Craft);
-            SetSwingUseStyle();
-            SetWeaponDamage(damage: 65, noRandomCriticalHits: true);
-            SetWeaponAttackSpeed(0.8);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/melee_swing");
-            SetWeaponPrice(weapon: 1, reclaimed: 1);
+            Tooltip.SetDefault("Sniper's Crafted Melee");
+
+            CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
         }
 
-        protected override void WeaponDescription(List<TooltipLine> description)
+        public override void SafeSetDefaults()
         {
-            AddHeader(description);
-            AddPositiveAttribute(description);
-            AddNegativeAttribute(description);
+            Item.width = 50;
+            Item.height = 50;
+            Item.useTime = 48;
+            Item.useAnimation = 48;
+            Item.useTurn = true;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/melee_swing");
+            Item.autoReuse = true;
+
+            Item.damage = 65;
+            Item.GetGlobalItem<TF2ItemBase>().noRandomCrits = true;
+
+            Item.value = Item.buyPrice(platinum: 1, gold: 6);
+            Item.rare = ModContent.RarityType<UniqueRarity>();
         }
 
-        protected override void WeaponActiveBonus(Player player)
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            if (player.GetModPlayer<TF2Player>().miniCrit)
-                player.GetModPlayer<TF2Player>().crit = true;
+            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
+            tooltips.Remove(tt);
+
+            var line = new TooltipLine(Mod, "Neutral Attributes",
+                "When weapon is active:")
+            {
+                OverrideColor = new Color(255, 255, 255)
+            };
+            tooltips.Add(line);
+
+            var line2 = new TooltipLine(Mod, "Positive Attributes",
+                "Crits whenever it would normally mini-crit")
+            {
+                OverrideColor = new Color(153, 204, 255)
+            };
+            tooltips.Add(line2);
+
+            var line3 = new TooltipLine(Mod, "Negative Attributes",
+                "No random critical hits\n"
+                + "20% damage vulnerability on wearer")
+            {
+                OverrideColor = new Color(255, 64, 64)
+            };
+            tooltips.Add(line3);
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<BushwackaPlayer>().bushwackaEquipped = true;
+        public override void UpdateInventory(Player player)
+        {
+            if (player.HeldItem.ModItem is Bushwacka)
+            {
+                if (player.GetModPlayer<TF2Player>().miniCrit)
+                    player.GetModPlayer<TF2Player>().crit = true;
+            }
+        }
 
         public override void AddRecipes()
         {
@@ -47,14 +90,11 @@ namespace TF2.Content.Items.Sniper
 
     public class BushwackaPlayer : ModPlayer
     {
-        public bool bushwackaEquipped;
-
-        public override void ResetEffects() => bushwackaEquipped = false;
-
-        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
+        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter)
         {
-            if (bushwackaEquipped)
-                modifiers.FinalDamage *= 1.2f;
+            if (Player.HeldItem.ModItem is Bushwacka)
+                damage = (int)(damage * 1.2f);
+            return true;
         }
     }
 }

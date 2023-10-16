@@ -4,21 +4,20 @@ using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
-using TF2.Common;
+using TF2.Content.Items.Bundles;
 using TF2.Content.Items.Accessories;
 using TF2.Content.Items.Ammo;
-using TF2.Content.Items.Bundles;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Placeables.Crafting;
 using TF2.Content.Mounts;
 using TF2.Content.Projectiles.NPCs;
+using TF2.Common;
 
 namespace TF2.Content.NPCs.TownNPCs
 {
@@ -30,6 +29,8 @@ namespace TF2.Content.NPCs.TownNPCs
 
         public override void SetStaticDefaults()
         {
+            // DisplayName automatically assigned from localization files, but the commented line below is the normal approach.
+            DisplayName.SetDefault("Saxton Hale");
             Main.npcFrameCount[Type] = 25; // The amount of frames the NPC has
 
             NPCID.Sets.ExtraFramesCount[Type] = 9; // Generally for Town NPCs, but this is how the NPC does extra things such as sitting in a chair and talking to other NPCs.
@@ -42,7 +43,7 @@ namespace TF2.Content.NPCs.TownNPCs
             NPCID.Sets.MPAllowedEnemies[Type] = true;
 
             // Influences how the NPC looks in the Bestiary
-            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new()
+            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new(0)
             {
                 Velocity = 0f, // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
                 Direction = 1, // -1 is left and 1 is right. NPCs are drawn facing the left by default but ExamplePerson will be drawn facing the right
@@ -85,17 +86,31 @@ namespace TF2.Content.NPCs.TownNPCs
 				BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Jungle,
 
 				// Sets your NPC's flavor text in the bestiary.
-				new FlavorTextBestiaryInfoElement("Saxton Hale is the CEO of Mann Co. He loves destroying anime girls with his Australian power! He currently has 2764 confirmed kills."),
+				new FlavorTextBestiaryInfoElement("Saxton Hale is the CEO of Mann Co. He loves destorying anime girls with his Australian power! He currently has 2764 confirmed kills."),
             });
         }
 
-        public override void HitEffect(NPC.HitInfo hit)
+        public override void HitEffect(int hitDirection, double damage)
         {
+
         }
 
-        public override bool CanTownNPCSpawn(int numTownNPCs) => true;
+        public override bool CanTownNPCSpawn(int numTownNPCs, int money) => true;
 
         public override ITownNPCProfile TownNPCProfile() => new SaxtonHaleProfile();
+
+        public override void FindFrame(int frameHeight)
+        {
+            /*npc.frame.Width = 40;
+			if (((int)Main.time / 10) % 2 == 0)
+			{
+				npc.frame.X = 40;
+			}
+			else
+			{
+				npc.frame.X = 0;
+			}*/
+        }
 
         public override string GetChat()
         {
@@ -104,16 +119,17 @@ namespace TF2.Content.NPCs.TownNPCs
             int dryad = NPC.FindFirstNPC(NPCID.Dryad);
             if (dryad >= 0 && Main.rand.NextBool(10))
                 chat.Add("Get goofy ahh " + Main.npc[dryad].GivenName + " away from me! Also tell her to wear some clothes.");
+            // These are things that the NPC has a chance of telling you when you talk to it.
             chat.Add("Welcome to the Mann Co. Store! We sell products and get in fights!", 10.0);
             chat.Add("Browse, buy, design, sell and wear Mann Co.'s ever-growing catalog of fine products with your BARE HANDS--all without leaving the COMFORT OF YOUR CHAIRS!");
             chat.Add("If you aren't 100% satisfied with our product line, you can take it up with me!");
-            chat.Add("I love fighting! But do you know what I don't love? Reimu Hakurei.", 0.1);
+            chat.Add("I love fighting! But do you know what I don't love? Anime.");
             chat.Add("I beat up Touhou girls. I am wanted for my war crimes.", 0.1);
             if (!Main.rand.NextBool(100))
-                return chat;
+                return chat; // chat is implicitly cast to a string.
             else
             {
-                Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), ModContent.ItemType<MannCoStorePackage>(), 1);
+                Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), ModContent.ItemType<Items.Consumables.MannCoStorePackage>(), 1);
                 return "Seems like you need a little help. Have this package. It's on me!";
             }
         }
@@ -142,12 +158,13 @@ namespace TF2.Content.NPCs.TownNPCs
                 button2 = "Shop: More Potions";
         }
 
-        public override void OnChatButtonClicked(bool firstButton, ref string shopName)
+        public override void OnChatButtonClicked(bool firstButton, ref bool shop)
         {
             if (firstButton)
-                shopName = ((ShopType)Main.LocalPlayer.GetModPlayer<TF2Player>().shopRotation).ToString();
+                shop = true;
             else
             {
+                shop = false;
                 Player player = Main.LocalPlayer;
                 player.GetModPlayer<TF2Player>().shopRotation++;
                 if (player.GetModPlayer<TF2Player>().shopRotation > Enum.GetNames(typeof(ShopType)).Length - 1)
@@ -155,287 +172,527 @@ namespace TF2.Content.NPCs.TownNPCs
             }
         }
 
-        public override void AddShops()
+        public override void SetupShop(Chest shop, ref int nextSlot)
         {
-            NPCShop armory = new NPCShop(Type, "Armory")
-                .Add(new Item(ModContent.ItemType<MannCoSupplyCrateKey>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<ScoutBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SoldierBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<PyroBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<DemomanBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<HeavyBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<EngineerBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<MedicBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SniperBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SpyBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add<PrimaryAmmo>()
-                .Add<SecondaryAmmo>()
-                .Add<SmallHealthPotion>()
-                .Add<MediumHealthPotion>()
-                .Add<LargeHealthPotion>()
-                .Add(new Item(ModContent.ItemType<TF2MountItem>()) { shopCustomPrice = Item.buyPrice(gold: 1) })
-                .Add(new Item(ModContent.ItemType<CraftingAnvilItem>()), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ModContent.ItemType<TournamentStandard>()), new Condition("DownedBoss2", () => NPC.downedBoss2));
-            armory.Register();
+            switch (Main.LocalPlayer.GetModPlayer<TF2Player>().shopRotation)
+            {
+                case 0:
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<MannCoSupplyCrateKey>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop general = new NPCShop(Type, "General")
-                .Add(ItemID.LifeCrystal)
-                .Add(ItemID.TerrasparkBoots)
-                .Add(ItemID.Shellphone)
-                .Add(ItemID.FeralClaws)
-                .Add(ItemID.GoldenDelight)
-                .Add(new Item(ItemID.AlchemyTable), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.AnkhShield), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DiscountCard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.GreedyRing), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.RodofDiscord), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrossNecklace), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.StarCloak), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SliceOfCake), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrystalShard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.LifeFruit), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.AvengerEmblem), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.LihzahrdAltar), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.MasterNinjaGear), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.DestroyerEmblem), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.Picksaw), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.DestroyerEmblem), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.GoldenKey) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.ShadowKey), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.JungleKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CorruptionKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrimsonKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.HallowedKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.FrozenKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DungeonDesertKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode));
-            general.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<ScoutBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop ores = new NPCShop(Type, "Ores")
-                .Add(new Item(ItemID.CopperOre) { shopCustomPrice = Item.buyPrice(copper: 50) })
-                .Add(new Item(ItemID.TinOre) { shopCustomPrice = Item.buyPrice(copper: 75) })
-                .Add(new Item(ItemID.IronOre) { shopCustomPrice = Item.buyPrice(silver: 1) })
-                .Add(new Item(ItemID.LeadOre) { shopCustomPrice = Item.buyPrice(silver: 1, copper: 50) })
-                .Add(new Item(ItemID.SilverOre) { shopCustomPrice = Item.buyPrice(silver: 1, copper: 50) })
-                .Add(new Item(ItemID.TungstenOre) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 25) })
-                .Add(new Item(ItemID.GoldOre) { shopCustomPrice = Item.buyPrice(silver: 3) })
-                .Add(new Item(ItemID.PlatinumOre) { shopCustomPrice = Item.buyPrice(silver: 4, copper: 50) })
-                .Add(new Item(ItemID.DemoniteOre) { shopCustomPrice = Item.buyPrice(silver: 10) })
-                .Add(new Item(ItemID.CrimtaneOre) { shopCustomPrice = Item.buyPrice(silver: 13) })
-                .Add(new Item(ItemID.Meteorite) { shopCustomPrice = Item.buyPrice(silver: 2) })
-                .Add(new Item(ItemID.Obsidian) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 50) })
-                .Add(new Item(ItemID.Hellstone) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 50) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
-                .Add(new Item(ItemID.CobaltOre) { shopCustomPrice = Item.buyPrice(silver: 7) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.PalladiumOre) { shopCustomPrice = Item.buyPrice(silver: 9) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MythrilOre) { shopCustomPrice = Item.buyPrice(silver: 11) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.OrichalcumOre) { shopCustomPrice = Item.buyPrice(silver: 13) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.AdamantiteOre) { shopCustomPrice = Item.buyPrice(silver: 15) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TitaniumOre) { shopCustomPrice = Item.buyPrice(silver: 17) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.ChlorophyteOre) { shopCustomPrice = Item.buyPrice(silver: 15) }, new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.LunarOre) { shopCustomPrice = Item.buyPrice(silver: 30) }, new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.Amethyst) { shopCustomPrice = Item.buyPrice(silver: 3, copper: 75) })
-                .Add(new Item(ItemID.Topaz) { shopCustomPrice = Item.buyPrice(silver: 7, copper: 50) })
-                .Add(new Item(ItemID.Sapphire) { shopCustomPrice = Item.buyPrice(silver: 11, copper: 25) })
-                .Add(new Item(ItemID.Emerald) { shopCustomPrice = Item.buyPrice(silver: 15) })
-                .Add(new Item(ItemID.Ruby) { shopCustomPrice = Item.buyPrice(silver: 22, copper: 50) })
-                .Add(new Item(ItemID.Amber) { shopCustomPrice = Item.buyPrice(silver: 30) })
-                .Add(new Item(ItemID.Diamond) { shopCustomPrice = Item.buyPrice(silver: 30) });
-            ores.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<SoldierBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop bars = new NPCShop(Type, "Bars")
-                .Add(new Item(ItemID.CopperBar) { shopCustomPrice = Item.buyPrice(silver: 7, copper: 50) })
-                .Add(new Item(ItemID.TinBar) { shopCustomPrice = Item.buyPrice(silver: 11, copper: 25) })
-                .Add(new Item(ItemID.IronBar) { shopCustomPrice = Item.buyPrice(silver: 15) })
-                .Add(new Item(ItemID.LeadBar) { shopCustomPrice = Item.buyPrice(silver: 22, copper: 50) })
-                .Add(new Item(ItemID.SilverBar) { shopCustomPrice = Item.buyPrice(silver: 30) })
-                .Add(new Item(ItemID.TungstenBar) { shopCustomPrice = Item.buyPrice(silver: 45) })
-                .Add(new Item(ItemID.GoldBar) { shopCustomPrice = Item.buyPrice(silver: 60) })
-                .Add(new Item(ItemID.PlatinumBar) { shopCustomPrice = Item.buyPrice(silver: 90) })
-                .Add(new Item(ItemID.DemoniteBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 50) })
-                .Add(new Item(ItemID.CrimtaneBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 36) })
-                .Add(new Item(ItemID.MeteoriteBar) { shopCustomPrice = Item.buyPrice(silver: 70) })
-                .Add(new Item(ItemID.HellstoneBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 50) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
-                .Add(new Item(ItemID.CobaltBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 5) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.PalladiumBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 35) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MythrilBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 20) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.OrichalcumBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 60) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.AdamantiteBar) { shopCustomPrice = Item.buyPrice(gold: 3) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TitaniumBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 40) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.HallowedBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 75) }, new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ChlorophyteBar) { shopCustomPrice = Item.buyPrice(gold: 4, silver: 50) }, new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.ShroomiteBar) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.SpectreBar) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.LunarBar) { shopCustomPrice = Item.buyPrice(gold: 6) }, new Condition("DownedMoonLord", () => NPC.downedMoonlord));
-            bars.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<PyroBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop potions = new NPCShop(Type, "Potions")
-                .Add(ItemID.BottledWater)
-                .Add(ItemID.LesserHealingPotion)
-                .Add(ItemID.HealingPotion)
-                .Add(new Item(ItemID.GreaterHealingPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SuperHealingPotion), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist))
-                .Add(ItemID.LesserManaPotion)
-                .Add(ItemID.ManaPotion)
-                .Add(new Item(ItemID.GreaterManaPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SuperManaPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.LuckPotionLesser)
-                .Add(ItemID.LuckPotion)
-                .Add(ItemID.LuckPotionGreater)
-                .Add(ItemID.AmmoReservationPotion)
-                .Add(ItemID.ArcheryPotion)
-                .Add(ItemID.BattlePotion)
-                .Add(ItemID.BuilderPotion)
-                .Add(ItemID.CalmingPotion)
-                .Add(ItemID.CratePotion)
-                .Add(ItemID.TrapsightPotion)
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.FeatherfallPotion)
-                .Add(ItemID.FishingPotion)
-                .Add(ItemID.FlipperPotion)
-                .Add(ItemID.GenderChangePotion)
-                .Add(ItemID.GillsPotion)
-                .Add(ItemID.GravitationPotion)
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.HeartreachPotion)
-                .Add(ItemID.HunterPotion)
-                .Add(ItemID.InfernoPotion)
-                .Add(ItemID.InvisibilityPotion)
-                .Add(ItemID.IronskinPotion);
-            potions.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<DemomanBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop morePotions = new NPCShop(Type, "MorePotions")
-                .Add(ItemID.EndurancePotion)
-                .Add(new Item(ItemID.LifeforcePotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.MagicPowerPotion)
-                .Add(ItemID.ManaRegenerationPotion)
-                .Add(ItemID.MiningPotion)
-                .Add(ItemID.NightOwlPotion)
-                .Add(ItemID.ObsidianSkinPotion)
-                .Add(ItemID.RagePotion)
-                .Add(ItemID.RecallPotion)
-                .Add(ItemID.RegenerationPotion)
-                .Add(ItemID.ShinePotion)
-                .Add(ItemID.SonarPotion)
-                .Add(ItemID.SpelunkerPotion)
-                .Add(ItemID.SummoningPotion)
-                .Add(ItemID.SwiftnessPotion)
-                .Add(ItemID.TeleportationPotion)
-                .Add(ItemID.ThornsPotion)
-                .Add(ItemID.TitanPotion)
-                .Add(ItemID.WarmthPotion)
-                .Add(ItemID.WaterWalkingPotion)
-                .Add(ItemID.WormholePotion)
-                .Add(ItemID.WrathPotion);
-            morePotions.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<HeavyBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop enemies = new NPCShop(Type, "Enemies")
-                .Add(new Item(ItemID.CursedFlame), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Ichor), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofLight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofNight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofFlight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofMight), new Condition("DownedDestroyer", () => NPC.downedMechBoss1))
-                .Add(new Item(ItemID.SoulofSight), new Condition("DownedTwins", () => NPC.downedMechBoss2))
-                .Add(new Item(ItemID.SoulofFright), new Condition("DownedSkeletronPrime", () => NPC.downedMechBoss3))
-                .Add(new Item(ItemID.DarkShard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.LightShard), new Condition("HardMode", () => Main.hardMode));
-            enemies.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<EngineerBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop melee = new NPCShop(Type, "Melee")
-                .Add(ItemID.CopperShortsword)
-                .Add(ItemID.Starfury)
-                .Add(ItemID.EnchantedSword)
-                .Add(ItemID.BladeofGrass)
-                .Add(new Item(ItemID.BeeKeeper), new Condition("DownedQueenBee", () => NPC.downedQueenBee))
-                .Add(new Item(ItemID.Muramasa), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.Seedler), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.TheHorsemansBlade), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.InfluxWaver), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.Meowmere), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.StarWrath), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.BrokenHeroSword), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.ShadowFlameKnife), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.YoyoBag), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.BouncingShield), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.BerserkerGlove), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TurtleShell), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.FireGauntlet), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.BeetleHusk), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.CelestialShell), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(ItemID.SharpeningStation)
-                .Add(new Item(ItemID.FragmentSolar), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            melee.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<MedicBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop ranger = new NPCShop(Type, "Ranger")
-                .Add(new Item(ItemID.PhoenixBlaster), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.ZapinatorGray), new Condition("DownedAnyBoss", () => NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3 || NPC.downedQueenBee))
-                .Add(new Item(ItemID.ZapinatorOrange), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DaedalusStormbow), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Megashark), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Uzi), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SDMG), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.TacticalShotgun), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.Celeb2), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.MoltenQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.StalkersQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.ReconScope), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.EndlessQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.EndlessMusketPouch), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.AmmoBox)
-                .Add(new Item(ItemID.FragmentVortex), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            ranger.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<SniperBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop mage = new NPCShop(Type, "Mage")
-                .Add(ItemID.ManaCrystal)
-                .Add(ItemID.DemonScythe)
-                .Add(new Item(ItemID.WaterBolt), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.SkyFracture), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MeteorStaff), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrystalSerpent), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.UnholyTrident), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ShadowbeamStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.InfernoFork), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.SpectreStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.LastPrism), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.LunarFlareBook), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(ItemID.ManaFlower)
-                .Add(ItemID.CelestialMagnet)
-                .Add(ItemID.MagicCuffs)
-                .Add(new Item(ItemID.CrystalBall), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Ectoplasm), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.FragmentNebula), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            mage.Register();
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<SpyBundle>());
+                    shop.item[nextSlot].shopCustomPrice = 1;
+                    shop.item[nextSlot].shopSpecialCurrency = TF2.Australium;
+                    nextSlot++;
 
-            NPCShop summoner = new NPCShop(Type, "Summoner")
-                .Add(ItemID.SlimeStaff)
-                .Add(ItemID.FlinxStaff)
-                .Add(ItemID.VampireFrogStaff)
-                .Add(ItemID.AbigailsFlower)
-                .Add(new Item(ItemID.SanguineStaff), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Smolstar), new Condition("DownedQueenSlime", () => NPC.downedQueenSlime))
-                .Add(new Item(ItemID.OpticStaff), new Condition("DownedTwins", () => NPC.downedMechBoss2))
-                .Add(new Item(ItemID.PygmyStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.EmpressBlade), new Condition("DownedEmpressOfLight", () => NPC.downedEmpressOfLight))
-                .Add(new Item(ItemID.MoonlordTurretStaff), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.RainbowCrystalStaff), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(ItemID.ThornWhip)
-                .Add(new Item(ItemID.BoneWhip), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.FireWhip), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CoolWhip), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SwordWhip), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ScytheWhip), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.MaceWhip), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.RainbowWhip), new Condition("DownedEmpressOfLight", () => NPC.downedEmpressOfLight))
-                .Add(ItemID.PygmyNecklace)
-                .Add(new Item(ItemID.NecromanticScroll), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.PapyrusScarab), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.BewitchingTable), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.FragmentStardust), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            summoner.Register();
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<PrimaryAmmo>());
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<SecondaryAmmo>());
+
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<SmallHealthPotion>());
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<MediumHealthPotion>());
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<LargeHealthPotion>());
+
+                    shop.item[nextSlot].SetDefaults(ModContent.ItemType<TF2MountItem>());
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 1);
+                    nextSlot++;
+
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ModContent.ItemType<CraftingAnvilItem>());
+
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<TournamentStandard>());
+                    break;
+                case 1:
+                    shop.item[nextSlot++].SetDefaults(ItemID.LifeCrystal);
+                    shop.item[nextSlot++].SetDefaults(ItemID.TerrasparkBoots);
+                    shop.item[nextSlot++].SetDefaults(ItemID.CellPhone);
+                    if (NPC.downedBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.AlchemyTable);
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.AnkhShield);
+                        shop.item[nextSlot++].SetDefaults(ItemID.DiscountCard);
+                        shop.item[nextSlot++].SetDefaults(ItemID.GreedyRing);
+                        shop.item[nextSlot++].SetDefaults(ItemID.RodofDiscord);
+                        shop.item[nextSlot++].SetDefaults(ItemID.CrossNecklace);
+                        shop.item[nextSlot++].SetDefaults(ItemID.StarCloak);
+                        shop.item[nextSlot++].SetDefaults(ItemID.SliceOfCake);
+                        shop.item[nextSlot++].SetDefaults(ItemID.CrystalShard);
+                    }
+                    if (NPC.downedMechBossAny)
+                        shop.item[nextSlot++].SetDefaults(ItemID.LifeFruit);
+                    if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.AvengerEmblem);
+                    if (NPC.downedPlantBoss)
+                        shop.item[nextSlot++].SetDefaults(ItemID.LihzahrdAltar);
+                    if (NPC.downedGolemBoss)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.DestroyerEmblem);
+                        shop.item[nextSlot++].SetDefaults(ItemID.MasterNinjaGear);
+                        shop.item[nextSlot++].SetDefaults(ItemID.Picksaw);
+                    }
+                    if (NPC.downedBoss3)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.GoldenKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 5);
+                        nextSlot++;
+                        shop.item[nextSlot++].SetDefaults(ItemID.ShadowKey);
+                    }
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.JungleKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.CorruptionKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.CrimsonKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.HallowedKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.FrozenKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.DungeonDesertKey);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(platinum: 1);
+                        nextSlot++;
+                    }
+                    break;
+                case 2:
+                    shop.item[nextSlot].SetDefaults(ItemID.CopperOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.TinOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(copper: 75);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.IronOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 1);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.LeadOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 1, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.SilverOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 1, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.TungstenOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 2, copper: 25);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.GoldOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 3);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.PlatinumOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 4, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.DemoniteOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 10);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.CrimtaneOre);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 13);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Meteorite);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 2);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Obsidian);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 2, copper: 50);
+                    nextSlot++;
+                    if (NPC.downedBoss2)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.Hellstone);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 2, copper: 50);
+                        nextSlot++;
+                    }
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.CobaltOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 7);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.PalladiumOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 9);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.MythrilOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 11);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.OrichalcumOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 13);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.AdamantiteOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 15);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.TitaniumOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 17);
+                        nextSlot++;
+                    }
+                    if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.ChlorophyteOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 15);
+                        nextSlot++;
+                    }
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.LunarOre);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 30);
+                        nextSlot++;
+                    }
+                    shop.item[nextSlot].SetDefaults(ItemID.Amethyst);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 3, copper: 75);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Topaz);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 7, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Sapphire);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 11, copper: 25);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Emerald);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 15);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Ruby);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 22, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Amber);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 30);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.Diamond);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 30);
+                    nextSlot++;
+                    break;
+                case 3:
+                    shop.item[nextSlot].SetDefaults(ItemID.CopperBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 7, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.TinBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 11, copper: 25);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.IronBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 15);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.LeadBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 22, copper: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.SilverBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 30);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.TungstenBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 45);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.GoldBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 60);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.PlatinumBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 90);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.DemoniteBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 1, silver: 50);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.CrimtaneBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 2, silver: 36);
+                    nextSlot++;
+                    shop.item[nextSlot].SetDefaults(ItemID.MeteoriteBar);
+                    shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 70);
+                    nextSlot++;
+                    if (NPC.downedBoss2)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.HellstoneBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(silver: 2, copper: 40);
+                        nextSlot++;
+                    }
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.CobaltBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 1, silver: 5);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.PalladiumBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 1, silver: 35);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.MythrilBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 2, silver: 20);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.OrichalcumBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 2, silver: 60);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.AdamantiteBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 3);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.TitaniumBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 3, silver: 40);
+                        nextSlot++;
+                    }
+                    if (NPC.downedMechBossAny)
+                        shop.item[nextSlot++].SetDefaults(ItemID.HallowedBar);
+                    if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.ChlorophyteBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 4, silver: 50);
+                        nextSlot++;
+                    }
+                    if (NPC.downedPlantBoss)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.ShroomiteBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 5);
+                        nextSlot++;
+                        shop.item[nextSlot].SetDefaults(ItemID.SpectreBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 5);
+                        nextSlot++;
+                    }
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot].SetDefaults(ItemID.LunarBar);
+                        shop.item[nextSlot].shopCustomPrice = Item.buyPrice(gold: 6);
+                        nextSlot++;
+                    }
+                    break;
+                case 4:
+                    shop.item[nextSlot++].SetDefaults(ItemID.BottledWater);
+                    shop.item[nextSlot++].SetDefaults(ItemID.LesserHealingPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.HealingPotion);
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ItemID.GreaterHealingPotion);
+                    if (NPC.downedAncientCultist)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SuperHealingPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.LesserManaPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ManaPotion);
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.GreaterManaPotion);
+                        shop.item[nextSlot++].SetDefaults(ItemID.SuperManaPotion);
+                    }
+                    shop.item[nextSlot++].SetDefaults(ItemID.LuckPotionLesser);
+                    shop.item[nextSlot++].SetDefaults(ItemID.LuckPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.LuckPotionGreater);
+                    shop.item[nextSlot++].SetDefaults(ItemID.AmmoReservationPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ArcheryPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.BattlePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.BuilderPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.CalmingPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.CratePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.TrapsightPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.EndurancePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.FeatherfallPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.FishingPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.FlipperPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.GenderChangePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.GillsPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.GravitationPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.EndurancePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.HeartreachPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.HunterPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.InfernoPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.InvisibilityPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.IronskinPotion);
+                    break;
+                case 5:
+                    shop.item[nextSlot++].SetDefaults(ItemID.EndurancePotion);
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ItemID.LifeforcePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.EndurancePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.MagicPowerPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ManaRegenerationPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.MiningPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.NightOwlPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ObsidianSkinPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.RagePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.RecallPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.RegenerationPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ShinePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.SonarPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.SpelunkerPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.SummoningPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.SwiftnessPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.TeleportationPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.ThornsPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.TitanPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.WarmthPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.WaterWalkingPotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.WormholePotion);
+                    shop.item[nextSlot++].SetDefaults(ItemID.WrathPotion);
+                    break;
+                case 6:
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.CursedFlame);
+                        shop.item[nextSlot++].SetDefaults(ItemID.Ichor);
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofLight);
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofNight);
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofFlight);
+                    }
+                    if (NPC.downedMechBoss1)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofMight);
+                    if (NPC.downedMechBoss2)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofSight);
+                    if (NPC.downedMechBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SoulofFright);
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.LightShard);
+                        shop.item[nextSlot++].SetDefaults(ItemID.DarkShard);
+                    }
+                    break;
+                case 7:
+                    shop.item[nextSlot++].SetDefaults(ItemID.CopperShortsword);
+                    shop.item[nextSlot++].SetDefaults(ItemID.Starfury);
+                    shop.item[nextSlot++].SetDefaults(ItemID.EnchantedSword);
+                    shop.item[nextSlot++].SetDefaults(ItemID.BladeofGrass);
+                    if (NPC.downedQueenBee)
+                        shop.item[nextSlot++].SetDefaults(ItemID.BeeKeeper);
+                    if (NPC.downedBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.Muramasa);
+                    if (NPC.downedPlantBoss)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.Seedler);
+                        shop.item[nextSlot++].SetDefaults(ItemID.TheHorsemansBlade);
+                    }
+                    if (NPC.downedGolemBoss)
+                        shop.item[nextSlot++].SetDefaults(ItemID.InfluxWaver);
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.Meowmere);
+                        shop.item[nextSlot++].SetDefaults(ItemID.StarWrath);
+                    }
+                    if (NPC.downedPlantBoss)
+                        shop.item[nextSlot++].SetDefaults(ItemID.BrokenHeroSword);
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.ShadowFlameKnife);
+                        shop.item[nextSlot++].SetDefaults(ItemID.YoyoBag);
+                        shop.item[nextSlot++].SetDefaults(ItemID.BouncingShield);
+                        shop.item[nextSlot++].SetDefaults(ItemID.BerserkerGlove);
+                    }
+                    if (NPC.downedPlantBoss)
+                        shop.item[nextSlot++].SetDefaults(ItemID.TurtleShell);
+                    if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.FireGauntlet);
+                    if (NPC.downedGolemBoss)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.BeetleHusk);
+                        shop.item[nextSlot++].SetDefaults(ItemID.CelestialShell);
+                    }
+                    shop.item[nextSlot++].SetDefaults(ItemID.SharpeningStation);
+                    if (NPC.downedAncientCultist)
+                        shop.item[nextSlot++].SetDefaults(ItemID.FragmentSolar);
+                    break;
+                case 8:
+                    if (NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3 || NPC.downedQueenBee)
+                        shop.item[nextSlot++].SetDefaults(ItemID.ZapinatorGray);
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.ZapinatorOrange);
+                        shop.item[nextSlot++].SetDefaults(ItemID.DaedalusStormbow);
+                        shop.item[nextSlot++].SetDefaults(ItemID.Megashark);
+                    }
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.SDMG);
+                        shop.item[nextSlot++].SetDefaults(ItemID.Celeb2);
+                    }
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.MoltenQuiver);
+                        shop.item[nextSlot++].SetDefaults(ItemID.StalkersQuiver);
+                    }
+                    if (NPC.downedGolemBoss)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.ReconScope);
+                    }
+                    if (Main.hardMode)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.EndlessQuiver);
+                        shop.item[nextSlot++].SetDefaults(ItemID.EndlessMusketPouch);
+                    }
+                    shop.item[nextSlot++].SetDefaults(ItemID.AmmoBox);
+                    if (NPC.downedAncientCultist)
+                        shop.item[nextSlot++].SetDefaults(ItemID.FragmentVortex);
+                    break;
+                case 9:
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SkyFracture);
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.LastPrism);
+                        shop.item[nextSlot++].SetDefaults(ItemID.LunarFlareBook);
+                    }
+                    shop.item[nextSlot++].SetDefaults(ItemID.ManaFlower);
+                    shop.item[nextSlot++].SetDefaults(ItemID.CelestialMagnet);
+                    shop.item[nextSlot++].SetDefaults(ItemID.MagicCuffs);
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ItemID.CrystalBall);
+                    if (NPC.downedPlantBoss)
+                        shop.item[nextSlot++].SetDefaults(ItemID.Ectoplasm);
+                    if (NPC.downedAncientCultist)
+                        shop.item[nextSlot++].SetDefaults(ItemID.FragmentNebula);
+                    break;
+                case 10:
+                    shop.item[nextSlot++].SetDefaults(ItemID.SlimeStaff);
+                    if (Main.hardMode)
+                        shop.item[nextSlot++].SetDefaults(ItemID.SanguineStaff);
+                    if (NPC.downedEmpressOfLight)
+                        shop.item[nextSlot++].SetDefaults(ItemID.EmpressBlade);
+                    if (NPC.downedMoonlord)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.MoonlordTurretStaff);
+                        shop.item[nextSlot++].SetDefaults(ItemID.RainbowCrystalStaff);
+                    }
+                    shop.item[nextSlot++].SetDefaults(ItemID.PygmyNecklace);
+                    if (NPC.downedPlantBoss)
+                    {
+                        shop.item[nextSlot++].SetDefaults(ItemID.NecromanticScroll);
+                        shop.item[nextSlot++].SetDefaults(ItemID.PapyrusScarab);
+                    }
+                    if (NPC.downedBoss3)
+                        shop.item[nextSlot++].SetDefaults(ItemID.BewitchingTable);
+                    if (NPC.downedAncientCultist)
+                        shop.item[nextSlot++].SetDefaults(ItemID.FragmentStardust);
+                    break;
+                default:
+                    break;
+            }
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
+
         }
 
         // Make this Town NPC teleport to the King and/or Queen statue when triggered.
@@ -474,22 +731,23 @@ namespace TF2.Content.NPCs.TownNPCs
             if (!foundTarget && ai >= 60) //&& Main.netMode != NetmodeID.MultiplayerClient
             {
                 // This code is required either way, used for finding a target
-                foreach (NPC targetNPC in Main.npc)
+                for (int i = 0; i < Main.maxNPCs; i++)
                 {
                     ai = 0;
-                    if (targetNPC.CanBeChasedBy() && targetNPC.type != NPCID.TargetDummy)
+                    NPC targetNpc = Main.npc[i];
+                    if (targetNpc.CanBeChasedBy() && targetNpc.type != NPCID.TargetDummy)
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        float between = Vector2.Distance(targetNpc.Center, NPC.Center);
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
-                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
+                        bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNpc.position, targetNpc.width, targetNpc.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
                             distanceFromTarget = between;
-                            targetCenter = targetNPC.Center;
+                            targetCenter = targetNpc.Center;
                             foundTarget = true;
                         }
                     }
@@ -506,14 +764,14 @@ namespace TF2.Content.NPCs.TownNPCs
                     float speed = 10f;
                     int type = ModContent.ProjectileType<KnifeProjectileNPC>();
                     int damage = NPC.damage;
-                    IEntitySource projectileSource = NPC.GetSource_FromAI();
+                    var projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/melee_swing"), NPC.Center);
                     if ((targetCenter - NPC.Center).Y >= 0f)
                         NPC.velocity = new Vector2(25f * NPC.direction, 15f);
                     if ((targetCenter - NPC.Center).Y <= 0f)
                         NPC.velocity = new Vector2(25f * NPC.direction, -15f);
                     int projectile = Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
-                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)Main.projectile[projectile].ModProjectile;
+                    KnifeProjectileNPC spawnedModProjectile = Main.projectile[projectile].ModProjectile as KnifeProjectileNPC;
                     spawnedModProjectile.owner = NPC;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
                 }

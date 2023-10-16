@@ -1,15 +1,7 @@
 ﻿using Terraria;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Items.Demoman;
-using TF2.Content.Items.Engineer;
-using TF2.Content.Items.Heavy;
-using TF2.Content.Items.Medic;
-using TF2.Content.Items.Pyro;
-using TF2.Content.Items.Scout;
-using TF2.Content.Items.Sniper;
-using TF2.Content.Items.Soldier;
-using TF2.Content.Items.Spy;
 
 namespace TF2.Content.Items.Consumables
 {
@@ -17,23 +9,31 @@ namespace TF2.Content.Items.Consumables
     {
         public bool keyFound;
 
-        public override void SetStaticDefaults() => Item.ResearchUnlockCount = 50;
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Mann Co. Supply Crate");
+            Tooltip.SetDefault("You need a Mann Co. Supply Crate Key to open this.\n"
+                + "You can pick one up at the Mann Co. Store.\n"
+                + "Contains 3 random weapons\n"
+                + "{$CommonItemTooltip.RightClickToOpen}");
+        }
 
         public override void SetDefaults()
         {
             Item.damage = 0;
             Item.width = 50;
             Item.height = 50;
-            Item.maxStack = Item.CommonMaxStack;
             Item.consumable = true;
+            Item.knockBack = 0f;
             Item.rare = ModContent.RarityType<UniqueRarity>();
         }
 
         public override bool CanRightClick()
         {
             keyFound = false; ;
-            foreach (Item item in Main.LocalPlayer.inventory)
+            for (int i = 0; i < Main.LocalPlayer.inventory.Length; i++)
             {
+                var item = Main.LocalPlayer.inventory[i];
                 if (item.type == ModContent.ItemType<MannCoSupplyCrateKey>())
                 {
                     item.stack -= 1;
@@ -49,33 +49,33 @@ namespace TF2.Content.Items.Consumables
             for (int i = 0; i < 3; i++)
             {
                 IItemDropRule[] weapons = new IItemDropRule[] {
-                ItemDropRule.Common(ModContent.ItemType<ForceANature>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Sandman>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<BonkAtomicPunch>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Equalizer>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<DirectHit>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<BuffBanner>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<FlareGun>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Backburner>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Axtinguisher>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<CharginTarge>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Eyelander>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<ScottishResistance>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Sandvich>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Natascha>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<KillingGlovesOfBoxing>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<FrontierJustice>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Gunslinger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Wrangler>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Blutsauger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Kritzkrieg>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Ubersaw>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Huntsman>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Jarate>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Razorback>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Ambassador>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<CloakAndDagger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<DeadRinger>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Scout.ForceANature>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Scout.Sandman>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Scout.BonkAtomicPunch>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Soldier.Equalizer>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Soldier.DirectHit>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Soldier.BuffBanner>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Pyro.FlareGun>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Pyro.Backburner>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Pyro.Axtinguisher>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Demoman.CharginTarge>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Demoman.Eyelander>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Demoman.ScottishResistance>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Heavy.Sandvich>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Heavy.Natascha>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Heavy.KillingGlovesofBoxing>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Engineer.FrontierJustice>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Engineer.Gunslinger>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Engineer.Wrangler>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Medic.Blutsauger>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Medic.Kritzkrieg>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Medic.Ubersaw>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Sniper.Huntsman>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Sniper.Jarate>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Sniper.Razorback>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Spy.Ambassador>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Spy.CloakandDagger>(), 1),
+                ItemDropRule.Common(ModContent.ItemType<Spy.DeadRinger>(), 1),
             };
                 itemLoot.Add(new OneFromRulesRule(1, weapons));
             }

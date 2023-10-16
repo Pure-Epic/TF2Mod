@@ -10,13 +10,13 @@ using Terraria.ModLoader;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Projectiles;
 using TF2.Gensokyo.Common;
-using TF2.Gensokyo.Content.Items.Consumables;
-using TF2.Gensokyo.Content.Items.Pyro;
-using TF2.Gensokyo.Content.Items.Scout;
-using TF2.Gensokyo.Content.Items.Sniper;
-using TF2.Gensokyo.Content.Items.Soldier;
-using TF2.Gensokyo.Content.Items.Spy;
 using TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri;
+using TF2.Gensokyo.Content.Items.Consumables;
+using TF2.Gensokyo.Content.Items.Scout;
+using TF2.Gensokyo.Content.Items.Soldier;
+using TF2.Gensokyo.Content.Items.Pyro;
+using TF2.Gensokyo.Content.Items.Sniper;
+using TF2.Gensokyo.Content.Items.Spy;
 
 namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 {
@@ -24,39 +24,15 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
     [AutoloadBossHead]
     public class ByakurenHijiri : GensokyoBoss
     {
-
-        public new int State
-        {
-            get => base.State;
-            set => base.State = value;
-        }
-
-        public new int Phase
-        {
-            get => base.Phase;
-            set => base.Phase = value;
-        }
-
-        public new int Stage => base.Stage;
-
-        public static int GetBasicAttackPhase => Phase_BasicAttackPhase;
-
-        public static int SpellcardAttackPhase => Phase_DefaultStageAttack;
-
-        private const int Phase_BasicAttackPhase = 100;
-
         private static Asset<Texture2D> spriteSheet;
         private int horizontalFrame;
         private int verticalFrame;
-        private int[] BasicAttackDuration;
         private bool startTimer;
         private int burstCounter;
         private int burstDirection = 1;
         private float angleOffset;
         private bool maxOffset;
-        public Vector2 targetCenter;
         private int preOmenofPurpleCloudsCounter;
-        private bool usedBasicAttack;
 
         public override void Load()
         {
@@ -71,7 +47,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             NPC npc = NPC;
             double index = npc.frameCounter + 1.0;
             npc.frameCounter = index;
-            if (index >= 12.0)
+            if (index >= 7.0)
             {
                 NPC.frameCounter = 0.0;
                 int index2 = horizontalFrame + 1;
@@ -81,7 +57,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                     horizontalFrame = 0;
                 }
             }
-            verticalFrame = Stage == 6 ? 1 : 0;
+            verticalFrame = BossAI == 6 ? 1 : 0;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
@@ -89,7 +65,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             Texture2D sprite = spriteSheet.Value;
             int width = sprite.Width / 4;
             int height = sprite.Height / 2;
-            float frameWidth = NPC.direction == 1 ? width - NPC.width : 0;
+            float frameWidth = (NPC.direction == 1) ? (width - NPC.width) : 0;
             float frameHeight = height - NPC.height;
             spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(horizontalFrame * width, verticalFrame * height, width, height)), Color.Lerp(drawColor, Color.White, 0.3f), 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)((NPC.direction == 1) ? 1 : 0), 0f);
             return false;
@@ -117,9 +93,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             NPC.lavaImmune = true;
             NPC.value = Item.buyPrice(platinum: 1); // Touhou girl for only one platinum?
             NPC.boss = true;
-            NPC.npcSlots = 25f; // Take up open spawn slots, preventing random NPCs from spawning during the fight
+            NPC.npcSlots = 25f; // Take up open spawn slots, preventing random NPCs from spawning during the fight			
             NPC.aiStyle = -1; // Custom AI, 0 is "bound town NPC" AI which slows the NPC down and changes sprite orientation towards the target
-            Tier = 8;
+            tier = 8;
 
             // Custom boss bar
             NPC.BossBar = ModContent.GetInstance<GensokyoBossHealthBar>();
@@ -131,9 +107,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 SceneEffectPriority = (SceneEffectPriority)9;
             }
 
-            MovespeedMax = 100f;
-            NumStages = 6;
-            MovePhaseDuration = new int[]
+            speed = 100;
+            spellCardAmount = 6;
+            movementDuration = new int[]
             {
                 60,
                 240,
@@ -142,7 +118,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 120,
                 120
             };
-            BasicAttackDuration = new int[]
+            attackDuration = new int[]
             {
                 120,
                 1200,
@@ -151,7 +127,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 0,
                 0
             };
-            AttackPhaseDuration = new int[]
+            spellCardDuration = new int[]
             {
                 240,
                 900,
@@ -172,7 +148,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             });
         }
 
-        public override void ApplyDifficultyAndPlayerScaling(int numPlayers, float balance, float bossAdjustment)
+        public override void ScaleExpertStats(int numPlayers, float bossLifeScale)
         {
             if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
             {
@@ -215,115 +191,76 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             }
         }
 
-        public override void ModifyHitByItem(Player player, Item item, ref NPC.HitModifiers modifiers)
+        public override void ModifyHitByItem(Player player, Item item, ref int damage, ref float knockback, ref bool crit)
         {
-            /*
             if (CheckFinalSpellCardDamageResistance())
-                modifiers.SourceDamage.Base *= 0.8f;
+                damage = (int)(damage * 0.8f);
             if (Overkill())
-                modifiers.SourceDamage.Base *= 0.2f;
+                damage /= 5;
             else if (attackType == 0 && SpellCard == 0 && preOmenofPurpleCloudsCounter < 5)
-                modifiers.SourceDamage.Base *= 0.2f;
+                damage /= 5;
             else if (!usedNonSpellCardDanmaku && attackType == 0 && SpellCard > 0)
-                modifiers.SourceDamage.Base *= 0.2f;
-            */
+                damage /= 5;
         }
 
-        public override void ModifyHitByProjectile(Projectile projectile, ref NPC.HitModifiers modifiers)
+        public override void ModifyHitByProjectile(Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection)
         {
-            /*
             if (projectile.Name == "Boss Tester_ Projectile")
                 return;
             if (CheckFinalSpellCardDamageResistance())
-                modifiers.SourceDamage.Base *= 0.8f;
+                damage = (int)(damage * 0.8f);
             if (Overkill())
-                modifiers.SourceDamage.Base *= 0.2f;
+                damage /= 5;
             else if (attackType == 0 && SpellCard == 0 && preOmenofPurpleCloudsCounter < 5)
-                modifiers.SourceDamage.Base *= 0.2f;
+                damage /= 5;
             else if (!usedNonSpellCardDanmaku && attackType == 0 && SpellCard > 0)
-                modifiers.SourceDamage.Base *= 0.2f;
-            */
+                damage /= 5;
         }
 
-        protected override void Decision()
-        {
-            if (NewStage)
-                usedBasicAttack = false;
-
-            if (JustSpawned)
-            {
-                PhaseQueue.Add(Phase_SpawnMove);
-                PhaseQueue.Add(SwitchAttack() ? Phase_DefaultStageAttack : Phase_BasicAttackPhase);
-            }
-
-            if (NewStage && !JustSpawned)
-            {
-                MoveRetryCounter = 0;
-                PhaseQueue.Clear();
-            }
-
-            if (PhaseQueue.Count == 0)
-            {
-                PhaseQueue.Add(Phase_DefaultStageMove);
-                PhaseQueue.Add(SwitchAttack() ? Phase_DefaultStageAttack : Phase_BasicAttackPhase);
-            }
-
-            if (NewStage && NPC.velocity.Length() > 0f)
-                PhaseQueue.Insert(0, Phase_NewStageSlowdown);
-
-            NewStage = false;
-            JustSpawned = false;
-        }
-
-        protected override bool HasSpellCardAnnouncement() => usedBasicAttack;
-
-        protected override void AnnounceSpellCard()
+        public override void GetSpellCardName()
         {
             string text;
-            switch (Stage)
+            switch (SpellCard)
             {
                 case 0:
                     text = "Magic \"Omen of Purple Clouds\"";
                     break;
-
                 case 1:
                     text = "Magic \"Mystic Fragrance of a Makai Butterfly\"";
                     break;
-
                 case 2:
                     text = "Light Magic \"Star Maelstrom\"";
                     break;
-
                 case 3:
                     text = "Great Magic \"Devil's Recitation\"";
                     break;
-
                 case 4:
                     text = "\"Amagimi Hijiri's Air Scroll\"";
                     break;
-
                 case 5:
                     text = "Flying Bowl \"Flying Fantastica\"";
                     break;
-
                 default:
                     return;
             }
             Main.NewText(text, Color.DarkMagenta);
         }
 
-        protected override int GetAttackPhaseDuration() => State == State_Attack && Phase != Phase_BasicAttackPhase ? AttackPhaseDuration[Stage] : BasicAttackDuration[Stage];
-
-        private bool SwitchAttack()
+        public override void SwitchAttack()
         {
-            if (usedBasicAttack && Stage >= 0 && Stage <= 3 && !Overkill())
-                return true;
-            else if (Stage >= 4)
-                return true;
-            return false;
+            if (usedNonSpellCardDanmaku && attackType == 0 && SpellCard == 0 && preOmenofPurpleCloudsCounter >= 5 && !Overkill())
+                attackType = 1;
+            else if (usedNonSpellCardDanmaku && attackType == 0 && SpellCard == 1 && !Overkill())
+                attackType = 1;
+            else if (usedNonSpellCardDanmaku && attackType == 0 && SpellCard == 2 && !Overkill())
+                attackType = 1;
+            else if (usedNonSpellCardDanmaku && attackType == 0 && SpellCard == 3 && !Overkill())
+                attackType = 1;
+            else if (SpellCard >= 4)
+                attackType = 1;
+            return;
         }
 
-        /*
         public override void BasicAttack()
         {
             switch (SpellCard)
@@ -331,94 +268,57 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 case 0:
                     PreOmenofPurpleClouds();
                     return;
-
                 case 1:
                     PreMysticFragranceofaMakaiButterfly();
                     return;
-
                 case 2:
                     PreStarMaelstrom();
                     return;
-
                 case 3:
                     PreDevilsRecitation();
                     return;
-
                 case 4:
                     return;
-
                 case 5:
                     return;
-
                 default:
                     return;
             }
         }
-        */
 
-        protected override bool HasAttack()
+        public override void SpellCardAttack()
         {
-            return Phase switch
-            {
-                Phase_BasicAttackPhase => true,
-                Phase_DefaultStageAttack => true,
-                _ => base.HasAttack(),
-            };
-        }
-
-        protected override void Attack()
-        {
-            switch (Stage)
+            switch (SpellCard)
             {
                 case 0:
-                    if (Phase == Phase_BasicAttackPhase)
-                        PreOmenofPurpleClouds();
-                    else
-                        OmenofPurpleClouds();
+                    OmenofPurpleClouds();
                     return;
-
                 case 1:
-                    if (Phase == Phase_BasicAttackPhase)
-                        PreMysticFragranceofaMakaiButterfly();
-                    else
-                        MysticFragranceofaMakaiButterfly();
+                    MysticFragranceofaMakaiButterfly();
                     return;
-
                 case 2:
-                    if (Phase == Phase_BasicAttackPhase)
-                        PreStarMaelstrom();
-                    else
-                        StarMaelstrom();
+                    StarMaelstrom();
                     return;
-
                 case 3:
-                    if (Phase == Phase_BasicAttackPhase)
-                        PreDevilsRecitation();
-                    else
-                        DevilsRecitation();
+                    DevilsRecitation();
                     return;
-
                 case 4:
                     AmagimiHijirisAirScroll();
                     return;
-
                 case 5:
                     FlyingFantastica();
                     return;
-
                 default:
                     return;
             }
         }
-
-        #region Attacks
 
         private void PreOmenofPurpleClouds()
         {
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(30 * damageScale);
-            if (Timer % 10 == 0)
+            if (AttackTimer % 10 == 0)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), NPC.Center);
                 for (int i = 0; i < 14; i++)
@@ -445,9 +345,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(30 * damageScale);
-            if (Timer == 0)
+            if (AttackTimer == 0)
                 CreateWings();
-            if (Timer % 15 == 0)
+            if (AttackTimer % 15 == 0)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/shoot"), NPC.Center);
                 for (int i = 0; i < 12; i++)
@@ -464,11 +364,11 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(30 * damageScale);
-            if (Timer == 0)
+            if (AttackTimer == 0)
                 CreateWings();
-            if (Timer % 2 == 0)
+            if (AttackTimer % 2 == 0)
                 SoundEngine.PlaySound(SoundID.Item9, NPC.Center);
-            if (Timer % 60 == 0)
+            if (AttackTimer % 60 == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<PreStarMaelstrom1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
@@ -476,26 +376,26 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom2>(), damage, 0f, NPC.target);
                 Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                PreStarMaelstrom2 butterflyWing = (PreStarMaelstrom2)Main.projectile[projectile2].ModProjectile;
+                PreStarMaelstrom2 butterflyWing = Main.projectile[projectile2].ModProjectile as PreStarMaelstrom2;
                 butterflyWing.center = NPC.Center + new Vector2(-200f, -200f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
                 int projectile3 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom2>(), damage, 0f, NPC.target);
                 Main.projectile[projectile3].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                PreStarMaelstrom2 butterflyWing2 = (PreStarMaelstrom2)Main.projectile[projectile3].ModProjectile;
+                PreStarMaelstrom2 butterflyWing2 = Main.projectile[projectile3].ModProjectile as PreStarMaelstrom2;
                 butterflyWing2.center = NPC.Center + new Vector2(200f, -200f);
                 butterflyWing2.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile3);
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom3>(), damage, 0f, NPC.target);
                 Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                PreStarMaelstrom3 butterflyWing3 = (PreStarMaelstrom3)Main.projectile[projectile4].ModProjectile;
+                PreStarMaelstrom3 butterflyWing3 = Main.projectile[projectile4].ModProjectile as PreStarMaelstrom3;
                 butterflyWing3.center = NPC.Center + new Vector2(-500f, 375f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile4);
 
                 int projectile5 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom3>(), damage, 0f, NPC.target);
                 Main.projectile[projectile5].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                PreStarMaelstrom3 butterflyWing4 = (PreStarMaelstrom3)Main.projectile[projectile5].ModProjectile;
+                PreStarMaelstrom3 butterflyWing4 = Main.projectile[projectile5].ModProjectile as PreStarMaelstrom3;
                 butterflyWing4.center = NPC.Center + new Vector2(500f, 375f);
                 butterflyWing4.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile5);
@@ -506,7 +406,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
         {
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
-            if (Timer == 0)
+            if (AttackTimer == 0)
                 CreateWings();
         }
 
@@ -515,9 +415,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(50 * damageScale);
-            if (Timer % 5 == 0)
+            if (AttackTimer % 5 == 0)
                 SoundEngine.PlaySound(SoundID.Item9, NPC.Center);
-            if (Timer == 0)
+            if (AttackTimer == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
@@ -525,7 +425,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                OmenofPurpleClouds1 omenofPurpleClouds1 = (OmenofPurpleClouds1)Main.projectile[projectile2].ModProjectile;
+                OmenofPurpleClouds1 omenofPurpleClouds1 = Main.projectile[projectile2].ModProjectile as OmenofPurpleClouds1;
                 omenofPurpleClouds1.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
@@ -535,7 +435,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds3>(), damage, 0f, NPC.target);
                 Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                OmenofPurpleClouds3 omenofPurpleClouds3 = (OmenofPurpleClouds3)Main.projectile[projectile4].ModProjectile;
+                OmenofPurpleClouds3 omenofPurpleClouds3 = Main.projectile[projectile4].ModProjectile as OmenofPurpleClouds3;
                 omenofPurpleClouds3.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile4);
             }
@@ -546,39 +446,39 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(35 * damageScale);
-            if (Timer == 0)
+            if (AttackTimer == 0)
             {
                 CreateWings();
 
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                MysticFragranceofaMakaiButterfly1 makaiButterflyWing = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile].ModProjectile;
+                MysticFragranceofaMakaiButterfly1 makaiButterflyWing = Main.projectile[projectile].ModProjectile as MysticFragranceofaMakaiButterfly1;
                 makaiButterflyWing.center = NPC.Center + new Vector2(-200f, -200f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                MysticFragranceofaMakaiButterfly1 makaiButterflyWing2 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile2].ModProjectile;
+                MysticFragranceofaMakaiButterfly1 makaiButterflyWing2 = Main.projectile[projectile2].ModProjectile as MysticFragranceofaMakaiButterfly1;
                 makaiButterflyWing2.center = NPC.Center + new Vector2(200f, -200f);
                 makaiButterflyWing2.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
                 int projectile3 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile3].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                MysticFragranceofaMakaiButterfly1 makaiButterflyWing3 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile3].ModProjectile;
+                MysticFragranceofaMakaiButterfly1 makaiButterflyWing3 = Main.projectile[projectile3].ModProjectile as MysticFragranceofaMakaiButterfly1;
                 makaiButterflyWing3.center = NPC.Center + new Vector2(-500f, 375f);
                 makaiButterflyWing3.ProjectileAI = 2;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile3);
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
                 Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                MysticFragranceofaMakaiButterfly1 makaiButterflyWing4 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile4].ModProjectile;
+                MysticFragranceofaMakaiButterfly1 makaiButterflyWing4 = Main.projectile[projectile4].ModProjectile as MysticFragranceofaMakaiButterfly1;
                 makaiButterflyWing4.center = NPC.Center + new Vector2(500f, 375f);
                 makaiButterflyWing4.ProjectileAI = 3;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile4);
             }
 
-            if (Timer % 90 == 0)
+            if (AttackTimer % 90 == 0)
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/laser"), NPC.Center);
                 float offset = Main.rand.Next(-5, 6);
@@ -595,7 +495,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(35 * damageScale);
-            if (Timer == 0)
+            if (AttackTimer == 0)
             {
                 CreateWings();
                 for (int i = 0; i < 5; i++)
@@ -608,19 +508,15 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                             distance = 500;
                             center = NPC.Center;
                             break;
-
                         case 1:
                             center = NPC.Center + new Vector2(-200f, -200f);
                             break;
-
                         case 2:
                             center = NPC.Center + new Vector2(200f, -200f);
                             break;
-
                         case 3:
                             center = NPC.Center + new Vector2(-500f, 375f);
                             break;
-
                         case 4:
                             center = NPC.Center + new Vector2(500f, 375f);
                             break;
@@ -629,7 +525,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                     {
                         int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<StarMaelstrom1>(), damage, 0f, NPC.target);
                         Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                        StarMaelstrom1 starMaelstrom = (StarMaelstrom1)Main.projectile[projectile].ModProjectile;
+                        StarMaelstrom1 starMaelstrom = Main.projectile[projectile].ModProjectile as StarMaelstrom1;
                         starMaelstrom.center = center;
                         starMaelstrom.angleOffset = 30f * j;
                         starMaelstrom.distance = distance;
@@ -644,7 +540,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(75 * damageScale);
-            if (Timer == 0)
+            if (AttackTimer == 0)
             {
                 CreateWings();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/charge"), NPC.Center);
@@ -656,44 +552,41 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                         case 0:
                             center = NPC.Center + new Vector2(-200f, -200f);
                             break;
-
                         case 1:
                             center = NPC.Center + new Vector2(200f, -200f);
                             break;
-
                         case 2:
                             center = NPC.Center + new Vector2(-500f, 375f);
                             break;
-
                         case 3:
                             center = NPC.Center + new Vector2(500f, 375f);
                             break;
                     }
                     int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), center, Vector2.UnitY, ModContent.ProjectileType<DevilsRecitation1>(), damage * 2, 0f, NPC.target);
                     Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
-                    DevilsRecitation1 laser = (DevilsRecitation1)Main.projectile[projectile].ModProjectile;
+                    DevilsRecitation1 laser = Main.projectile[projectile].ModProjectile as DevilsRecitation1;
                     laser.ProjectileAI = i;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
                 }
             }
 
-            if (Timer == 120)
+            if (AttackTimer == 120)
                 SoundEngine.PlaySound(new SoundStyle("TF2/Gensokyo/Content/Sounds/SFX/superlaser"), NPC.Center);
-            if (Timer >= 120 && Timer <= 210)
+            if (AttackTimer >= 120 && AttackTimer <= 210)
                 NPC.position.Y -= 5f;
 
-            if (Timer >= 150 && Timer % 120 == 0)
+            if (AttackTimer >= 150 && AttackTimer % 120 == 0)
             {
                 SoundEngine.PlaySound(SoundID.Item9, NPC.Center);
                 for (int i = -1; i < 2; i++)
                 {
-                    Vector2 velocity = NPC.DirectionTo(TargetCenter);
+                    Vector2 velocity = NPC.DirectionTo(targetPlayer.Center);
                     velocity = Utils.RotatedBy(velocity, MathHelper.ToRadians(i * 45f));
                     Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity * 5f, ModContent.ProjectileType<DevilsRecitation3>(), 50, 0f, NPC.target);
                 }
             }
 
-            if (Timer >= 270 && Timer % 30 == 0)
+            if (AttackTimer >= 270 && AttackTimer % 30 == 0)
             {
                 Vector2 offset = NPC.Center;
                 offset.X = Main.rand.Next((int)(NPC.Center.X - 1500), (int)(NPC.Center.X + 1501));
@@ -701,19 +594,19 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 Projectile.NewProjectile(NPC.GetSource_FromAI(), offset, Vector2.UnitY * 5f, ModContent.ProjectileType<DevilsRecitation4>(), 35, 0f, NPC.target);
             }
 
-            if (Timer == 840 || Timer == 1080 || Timer == 1320 || Timer == 1560 || Timer == 1800)
+            if (AttackTimer == 840 || AttackTimer == 1080 || AttackTimer == 1320 || AttackTimer == 1560 || AttackTimer == 1800)
             {
                 burstDirection = 1;
                 startTimer = true;
             }
-            else if (Timer == 960 || Timer == 1200 || Timer == 1440 || Timer == 1680 || Timer == 1920)
+            else if (AttackTimer == 960 || AttackTimer == 1200 || AttackTimer == 1440 || AttackTimer == 1680 || AttackTimer == 1920)
             {
                 burstDirection = -1;
                 startTimer = true;
             }
             DevilsRecitationSideAttack(burstDirection);
 
-            if (Timer >= 1560 && Timer % 3 == 0)
+            if (AttackTimer >= 1560 && AttackTimer % 3 == 0)
             {
                 Vector2 velocity = Utils.RotatedBy(Vector2.UnitX, MathHelper.ToRadians(angleOffset * 10f)) * 10f;
                 Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<DevilsRecitation7>(), 30, 0f, NPC.target);
@@ -726,12 +619,12 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
             int damage = (int)(40 * damageScale);
-            if (Timer % 120 == 0)
+            if (AttackTimer % 120 == 0)
             {
                 SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
-                Dash(TargetCenter, 25f);
+                Dash(targetPlayer.Center, 25f);
             }
-            if (Timer % 2 == 0)
+            if (AttackTimer % 2 == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.Zero, ModContent.ProjectileType<AmagimiHijirisAirScroll>(), damage, 0f, NPC.target);
                 Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
@@ -743,11 +636,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
         {
             if (Main.netMode == NetmodeID.MultiplayerClient)
                 return;
-            if (Timer == 0)
+            if (AttackTimer == 0)
                 CreateWings();
         }
-
-        #endregion
 
         private void CreateWings()
         {
@@ -759,15 +650,12 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                     case 0:
                         center = NPC.Center + new Vector2(-200, -200f);
                         break;
-
                     case 1:
                         center = NPC.Center + new Vector2(200, -200f);
                         break;
-
                     case 2:
                         center = NPC.Center + new Vector2(-500, 375f);
                         break;
-
                     case 3:
                         center = NPC.Center + new Vector2(500, 375f);
                         break;
@@ -792,7 +680,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
         private void DevilsRecitationSideAttack(int direction)
         {
-            if (startTimer && Timer % 5 == 0 && burstCounter < 8)
+            if (startTimer && AttackTimer % 5 == 0 && burstCounter < 8)
             {
                 Vector2 velocity = Utils.RotatedBy(-Vector2.UnitX * direction, MathHelper.ToRadians(burstCounter * 22.5f * direction)) * 5f;
                 Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, velocity, ModContent.ProjectileType<DevilsRecitation5>(), 30, 0f, NPC.target);
@@ -807,27 +695,18 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
         private void Dash(Vector2 targetPosition, float speed)
         {
-            targetCenter = TargetCenter;
-            NPC.direction = TargetCenter.X >= NPC.Center.X ? 1 : -1;
+            NPC.direction = FacePlayer();
             Vector2 vector = targetPosition - NPC.Center;
             NPC.velocity = Vector2.Normalize(vector) * speed;
         }
 
-        protected override bool HasExtraAttackPreparations() => true;
-
-        protected override void ExtraAttackPreparations()
-        {
-            if ((Phase == Phase_BasicAttackPhase && Stage > 0) || Phase == Phase_BasicAttackPhase && preOmenofPurpleCloudsCounter >= 4)
-                usedBasicAttack = true;
-        }
-
-        protected override void PostAttack()
+        public override void PostSpellCardAttack()
         {
             angleOffset = 0f;
             burstCounter = 0;
-            if (Stage == 0 && preOmenofPurpleCloudsCounter < 4 && Phase == Phase_BasicAttackPhase)
+            if (SpellCard == 0 && attackType == 0)
                 preOmenofPurpleCloudsCounter++;
-            else if (Stage > 0)
+            else
                 preOmenofPurpleCloudsCounter = 0;
         }
 
@@ -839,9 +718,9 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
         public override void BossLoot(ref string name, ref int potionType)
         {
-            if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
+            if (ModLoader.TryGetMod("Calamity", out Mod Calamity))
             {
-                calamity.TryFind("SupremeHealingPotion", out ModItem potion);
+                Calamity.TryFind("SupremeHealingPotion", out ModItem potion);
                 potionType = potion.Type;
             }
             else
