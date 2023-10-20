@@ -170,7 +170,7 @@ namespace TF2.Content.Buffs
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (cloakAndDaggerBuff && Player.HasBuff<Cloaked>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0) // Prevents index out of range exceptions
+            if (cloakAndDaggerBuff && Player.HasBuff<CloakAndDaggerBuff>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0) // Prevents index out of range exceptions
             {
                 cloakMeter -= 60;
                 Player.GetModPlayer<TF2Player>().cloakImmuneTime += 30;

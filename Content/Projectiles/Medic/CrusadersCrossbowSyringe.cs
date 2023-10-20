@@ -37,7 +37,7 @@ namespace TF2.Content.Projectiles.Medic
             Projectile.rotation = Projectile.velocity.ToRotation();
             foreach (NPC npc in Main.npc)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && !healedNPC[npc.whoAmI])
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && !healedNPC[npc.whoAmI] && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
                 {
                     int healingAmount = (int)(npc.lifeMax * 0.25f);
                     npc.life += healingAmount;
@@ -47,16 +47,17 @@ namespace TF2.Content.Projectiles.Medic
                     Projectile.penetrate--;
                 }
             }
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
             foreach (Player player in Main.player)
             {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !healedPlayer[player.whoAmI])
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !healedPlayer[player.whoAmI] && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
                 {
                     TF2Player p = player.GetModPlayer<TF2Player>();
                     int healingAmount = (int)(75 * player.statLifeMax2 / 500 * p.healReduction);
                     player.Heal(healingAmount);
                     healedPlayer[player.whoAmI] = true;
                     if (Main.netMode != NetmodeID.SinglePlayer)
-                        NetMessage.SendData(MessageID.PlayerHeal, number: player.whoAmI, number2: healingAmount);
+                        NetMessage.SendData(MessageID.SpiritHeal, number: player.whoAmI, number2: healingAmount);
                     Projectile.penetrate--;
                 }
             }

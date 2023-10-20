@@ -13,7 +13,7 @@ namespace TF2.Content.Items.Medic
             SetWeaponCategory(Medic, Secondary, Unique, Unlock);
             SetWeaponSize(50, 50);
             SetWeaponOffset(-10f);
-            SetGunUseStyle(focus: true);
+            SetGunUseStyle(mediGun: true);
             SetWeaponDamage(projectile: ModContent.ProjectileType<HealingBeamKritzkrieg>());
             SetWeaponAttackSpeed(0.01666, hide: true);
             SetWeaponAttackSound(SoundID.Item15);

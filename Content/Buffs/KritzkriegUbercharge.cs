@@ -8,7 +8,11 @@ namespace TF2.Content.Buffs
     {
         public override string Texture => "TF2/Content/Buffs/UberCharge";
 
-        public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
+        public override void SetStaticDefaults()
+        {
+            Main.buffNoSave[Type] = true;
+            Main.pvpBuff[Type] = true;
+        }
 
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<KritzkriegUberChargeNPC>().uberCharge = true;
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -91,8 +92,8 @@ namespace TF2.Common
         public bool critMelee;
         public bool critMisc; // For if crits are created elsewhere instead of CritPlayer;
 
+        public int multiplayerHealCooldown;
         public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
-
         public int shopRotation;
 
         public override IEnumerable<Item> AddStartingItems(bool mediumCoreDeath) => !(ModLoader.TryGetMod("Gensokyo", out Mod _) && Mod.TryFind("GensokyoDLC_StarterBox", out ModItem starterBox))
@@ -402,7 +403,6 @@ namespace TF2.Common
             }
             else if (!initializedClass)
                 initializedClass = true;
-
             if (currentClass < 0)
                 Player.lifeRegen = 0;
 
@@ -410,7 +410,8 @@ namespace TF2.Common
                 cloakImmuneTime = 0;
             else
                 cloakImmuneTime--;
-
+            multiplayerHealCooldown--;
+            multiplayerHealCooldown = Math.Clamp(multiplayerHealCooldown, 0, 5);
             DoubleJump();
             MedicHealthRegeneration();
         }
@@ -470,8 +471,8 @@ namespace TF2.Common
                     {
                         foreach (Player targetPlayer in Main.player)
                         {
-                            targetPlayer.AddBuff(buff, 600);
-                            NetMessage.SendData(MessageID.AddPlayerBuff, number: targetPlayer.whoAmI, number2: buff, number3: 600);
+                            targetPlayer.AddBuff(buff, 600, false);
+                            // NetMessage.SendData(MessageID.AddPlayerBuff, number: targetPlayer.whoAmI, number2: buff, number3: 600);
                         }
                     }
                 }

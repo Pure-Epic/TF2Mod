@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace TF2.Content.Buffs
 {
@@ -24,14 +26,8 @@ namespace TF2.Content.Buffs
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<PyroFlamesDegreaserNPC>().lifeRegenDebuff = true;
     }
 
-    public class PyroFlamesDegreaserPlayer : ModPlayer
+    public class PyroFlamesDegreaserPlayer : PyroFlamesPlayer
     {
-        public bool lifeRegenDebuff;
-        public float damageMultiplier = 1f;
-        public int timer;
-
-        public override void ResetEffects() => lifeRegenDebuff = false;
-
         public override void UpdateBadLifeRegen()
         {
             if (lifeRegenDebuff)
@@ -54,16 +50,8 @@ namespace TF2.Content.Buffs
         }
     }
 
-    public class PyroFlamesDegreaserNPC : GlobalNPC
+    public class PyroFlamesDegreaserNPC : PyroFlamesNPC
     {
-        public override bool InstancePerEntity => true;
-
-        public bool lifeRegenDebuff;
-        public float damageMultiplier = 1f;
-        public int timer;
-
-        public override void ResetEffects(NPC npc) => lifeRegenDebuff = false;
-
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
             if (lifeRegenDebuff)

@@ -1,15 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
     public class UberCharge : ModBuff
     {
-        public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
+        public override void SetStaticDefaults()
+        {
+            Main.buffNoSave[Type] = true;
+            Main.pvpBuff[Type] = true;
+        }
 
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<UberChargeNPC>().uberCharge = true;
 
@@ -98,6 +104,10 @@ namespace TF2.Content.Buffs
             }
             npc.netUpdate = true;
         }
+
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => timer = binaryReader.ReadInt32();
 
         protected static void SpawnDusts(NPC npc)
         {

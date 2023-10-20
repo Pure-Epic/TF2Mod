@@ -7,7 +7,11 @@ namespace TF2.Content.Buffs
 {
     public class HealthRage : ModBuff
     {
-        public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
+        public override void SetStaticDefaults()
+        {
+            Main.buffNoSave[Type] = true;
+            Main.pvpBuff[Type] = true;
+        }
 
         public override void Update(Player player, ref int buffIndex)
         {

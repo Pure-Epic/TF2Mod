@@ -19,7 +19,7 @@ using static TF2.TF2;
 namespace TF2.Content.Items
 {
     public abstract class TF2Weapon : TF2Item
-    {       
+    {
         protected float decimalDamage;
         protected int projectileAmount;
         protected float projectileAngle;
@@ -249,7 +249,7 @@ namespace TF2.Content.Items
                 {
                     Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().homing = true;
                     Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().shootSpeed = Item.shootSpeed;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
+                    Main.projectile[projectile].netUpdate = true;
                 }
                 if (isSniperRifle && chargeTime == maxChargeUp)
                 {
@@ -257,7 +257,7 @@ namespace TF2.Content.Items
                         Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().sniperCrit = true;
                     else
                         Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().sniperMiniCrit = true;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
+                    Main.projectile[projectile].netUpdate = true;
                 }
                 WeaponPostFireProjectile(player, projectile);
             }
@@ -275,7 +275,7 @@ namespace TF2.Content.Items
 
         protected void SetWeaponOffset(float x = 0f, float y = 0f) => offset = new Vector2(x, y);
 
-        protected void SetGunUseStyle(bool focus = false, bool automatic = false, bool grenadeLauncher = false, bool stickybombLauncher = false, bool minigun = false)
+        protected void SetGunUseStyle(bool focus = false, bool automatic = false, bool grenadeLauncher = false, bool stickybombLauncher = false, bool minigun = false, bool mediGun = false)
         {
             Item.useStyle = ItemUseStyleID.Shoot;
             Item.noMelee = true;
@@ -285,10 +285,16 @@ namespace TF2.Content.Items
             isGrenadeLauncher = grenadeLauncher;
             isStickybombLauncher = stickybombLauncher;
             isMinigun = minigun;
+            isMediGun = mediGun;
             if (isStickybombLauncher || isMinigun)
                 usesAltClick = true;
             if (isMinigun)
                 autoUseAltClick = true;
+            if (isMediGun)
+            {
+                noAmmoConsumption = true;
+                noAmmoClip = true;
+            }
         }
 
         protected void SetSwingUseStyle(bool focus = false, bool sword = false)
@@ -333,12 +339,16 @@ namespace TF2.Content.Items
             Item.useStyle = ItemUseStyleID.DrinkLiquid;
             Item.noMelee = true;
             Item.autoReuse = true;
+            noAmmoConsumption = true;
+            noAmmoClip = true;
         }
 
         protected void SetPDAUseStyle()
         {
             Item.useStyle = ItemUseStyleID.Thrust;
             Item.noMelee = true;
+            noAmmoConsumption = true;
+            noAmmoClip = true;
         }
 
         protected void SetWeaponDamage(double damage = 0, int projectile = ProjectileID.None, float projectileSpeed = StandardBulletSpeed, int projectileCount = 1, float shootAngle = 0f, float knockback = 0f, bool noRandomCriticalHits = false)
@@ -437,6 +447,7 @@ namespace TF2.Content.Items
             uberChargeBuff = buff;
             uberChargeDuration = Time(duration);
             uberChargeCapacity = capacity;
+            noAmmoClip = true;
         }
 
         protected void SetSniperRifle(double chargeDamage = 100, double maxChargeTime = 2, double zoomDelay = 1.3, double speed = 27, float chargeRate = 1f, float interval = 1f)
@@ -956,7 +967,7 @@ namespace TF2.Content.Items
 
         public override sealed bool CanUseItem(Player player)
         {
-            if (Item == player.inventory[58]) return false;
+            if (Item == player.inventory[58] || player.whoAmI != Main.myPlayer) return false;
             if (reload && !noAmmoClip && !ModContent.GetInstance<TF2ConfigClient>().SingleReload) return false;
             if (!noAmmoClip && ModContent.GetInstance<TF2ConfigClient>().SingleReload)
             {

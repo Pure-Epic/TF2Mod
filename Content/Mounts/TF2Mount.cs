@@ -70,165 +70,167 @@ namespace TF2.Content.Mounts
 
         public override void UpdateEffects(Player player)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (KeybindSystem.HomingPower.JustPressed)
+            if (player.whoAmI == Main.myPlayer)
             {
-                AdvancedPopupRequest homingText = new()
+                TF2Player p = player.GetModPlayer<TF2Player>();
+                if (KeybindSystem.HomingPower.JustPressed)
                 {
-                    Color = Color.MediumOrchid,
-                    DurationInFrames = 30,
-                    Velocity = new Vector2(0, -5)
-                };
+                    AdvancedPopupRequest homingText = new()
+                    {
+                        Color = Color.MediumOrchid,
+                        DurationInFrames = 30,
+                        Velocity = new Vector2(0, -5)
+                    };
 
-                int maximumPower;
-                if (NPC.downedMoonlord)
-                    maximumPower = 2;
-                else if (Main.hardMode)
-                    maximumPower = 1;
-                else
-                    maximumPower = 0;
-                if (Main.hardMode)
-                {
-                    if (p.homingPower == maximumPower)
-                    {
-                        p.homingPower = 0;
-                        homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
-                        PopupText.NewText(homingText, player.position);
-                    }
+                    int maximumPower;
+                    if (NPC.downedMoonlord)
+                        maximumPower = 2;
+                    else if (Main.hardMode)
+                        maximumPower = 1;
                     else
+                        maximumPower = 0;
+                    if (Main.hardMode)
                     {
-                        p.homingPower++;
-                        homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
-                        PopupText.NewText(homingText, player.position);
+                        if (p.homingPower == maximumPower)
+                        {
+                            p.homingPower = 0;
+                            homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
+                            PopupText.NewText(homingText, player.position);
+                        }
+                        else
+                        {
+                            p.homingPower++;
+                            homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
+                            PopupText.NewText(homingText, player.position);
+                        }
                     }
                 }
-            }
-            if (KeybindSystem.MountSpeed.JustPressed)
-            {
-                AdvancedPopupRequest speedText = new()
+                if (KeybindSystem.MountSpeed.JustPressed)
                 {
-                    Color = Color.Aquamarine,
-                    DurationInFrames = 30,
-                    Velocity = new Vector2(0f, -5f)
-                };
-                if (NPC.downedMoonlord)
-                {
-                    if (p.mountSpeed == 1)
+                    AdvancedPopupRequest speedText = new()
                     {
-                        p.mountSpeed = 0;
-                        speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
-                        PopupText.NewText(speedText, player.position);
-                    }
-                    else
+                        Color = Color.Aquamarine,
+                        DurationInFrames = 30,
+                        Velocity = new Vector2(0f, -5f)
+                    };
+                    if (NPC.downedMoonlord)
                     {
-                        p.mountSpeed++;
-                        speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
-                        PopupText.NewText(speedText, player.position);
+                        if (p.mountSpeed == 1)
+                        {
+                            p.mountSpeed = 0;
+                            speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
+                            PopupText.NewText(speedText, player.position);
+                        }
+                        else
+                        {
+                            p.mountSpeed++;
+                            speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
+                            PopupText.NewText(speedText, player.position);
+                        }
                     }
                 }
-            }
 
-            player.controlMount = true;
-            if (player.controlJump)
-            {
-                if (!player.controlDown)
-                    player.maxFallSpeed = 0f;
-                if (!player.GetModPlayer<TF2Player>().disableFocusSlowdown)
-                    speed = 0.5f * p.speedMultiplier;
-                else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 0)
-                    speed = p.speedMultiplier;
-                else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 1)
+                player.controlMount = true;
+                player.noKnockback = true;
+                if (player.controlJump)
+                {
+                    if (!player.controlDown)
+                        player.maxFallSpeed = 0f;
+                    if (!player.GetModPlayer<TF2Player>().disableFocusSlowdown)
+                        speed = 0.5f * p.speedMultiplier;
+                    else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 0)
+                        speed = p.speedMultiplier;
+                    else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 1)
+                        speed = p.currentClass switch
+                        {
+                            1 => 1.5f * p.speedMultiplier,
+                            _ => 2f * p.speedMultiplier
+                        };
+                    p.focus = true;
+                }
+                else if (p.mountSpeed == 1)
+                {
                     speed = p.currentClass switch
                     {
                         1 => 1.5f * p.speedMultiplier,
                         _ => 2f * p.speedMultiplier
                     };
-                p.focus = true;
-            }
-            else if (p.mountSpeed == 1)
-            {
-                speed = p.currentClass switch
+                    p.focus = false;
+                }
+                else
                 {
-                    1 => 1.5f * p.speedMultiplier,
-                    _ => 2f * p.speedMultiplier
-                };
-                p.focus = false;
-            }
-            else
-            {
-                speed = p.speedMultiplier;
-                p.focus = false;
-            }
+                    speed = p.speedMultiplier;
+                    p.focus = false;
+                }
 
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
-            {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>()
-            };
+                ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
+                {
+                    1 => player.GetModPlayer<CharginTargePlayer>(),
+                    _ => player.GetModPlayer<CharginTargePlayer>()
+                };
 
-            if (player.controlUp)
-            {
-                if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
-                    player.velocity.X = 0f;
-                player.velocity = p.currentClass switch
+                if (player.controlUp)
                 {
-                    1 => new Vector2(player.velocity.X, -(speed * 15f)),
-                    5 => new Vector2(player.velocity.X, -(speed * 10f)),
-                    _ => new Vector2(player.velocity.X, -(speed * 12.5f))
-                };
-            }
-            else if (player.controlDown)
-            {
-                if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
-                    player.velocity.X = 0f;
-                player.maxFallSpeed = p.currentClass switch
+                    if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
+                        player.velocity.X = 0f;
+                    player.velocity = p.currentClass switch
+                    {
+                        1 => new Vector2(player.velocity.X, -(speed * 15f)),
+                        5 => new Vector2(player.velocity.X, -(speed * 10f)),
+                        _ => new Vector2(player.velocity.X, -(speed * 12.5f))
+                    };
+                }
+                else if (player.controlDown)
                 {
-                    1 => speed * 15f,
-                    5 => speed * 10f,
-                    _ => speed * 12.5f
-                };
-                player.velocity = p.currentClass switch
+                    if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
+                        player.velocity.X = 0f;
+                    player.maxFallSpeed = p.currentClass switch
+                    {
+                        1 => speed * 15f,
+                        5 => speed * 10f,
+                        _ => speed * 12.5f
+                    };
+                    player.velocity = p.currentClass switch
+                    {
+                        1 => new Vector2(player.velocity.X, speed * 15f),
+                        5 => new Vector2(player.velocity.X, speed * 10f),
+                        _ => new Vector2(player.velocity.X, speed * 12.5f)
+                    };
+                }
+                if (player.controlLeft)
                 {
-                    1 => new Vector2(player.velocity.X, speed * 15f),
-                    5 => new Vector2(player.velocity.X, speed * 10f),
-                    _ => new Vector2(player.velocity.X, speed * 12.5f)
-                };
-            }
-            if (player.controlLeft)
-            {
-                if (!player.controlUseItem || player.HeldItem.useTurn)
-                    player.direction = -1;
-                if (!player.controlUp && !player.controlDown)
-                    player.velocity.Y = 0f;
-                player.velocity = p.currentClass switch
+                    if (!player.controlUseItem || player.HeldItem.useTurn)
+                        player.direction = -1;
+                    if (!player.controlUp && !player.controlDown)
+                        player.velocity.Y = 0f;
+                    player.velocity = p.currentClass switch
+                    {
+                        1 => new Vector2(-(speed * 15f), player.velocity.Y),
+                        5 => new Vector2(-(speed * 10f), player.velocity.Y),
+                        _ => new Vector2(-(speed * 12.5f), player.velocity.Y)
+                    };
+                }
+                else if (player.controlRight)
                 {
-                    1 => new Vector2(-(speed * 15f), player.velocity.Y),
-                    5 => new Vector2(-(speed * 10f), player.velocity.Y),
-                    _ => new Vector2(-(speed * 12.5f), player.velocity.Y)
-                };
-            }
-            else if (player.controlRight)
-            {
-                if (!player.controlUseItem || player.HeldItem.useTurn)
-                    player.direction = 1;
-                if (!player.controlUp && !player.controlDown)
-                    player.velocity.Y = 0f;
-                player.velocity = p.currentClass switch
-                {
-                    1 => new Vector2(speed * 15f, player.velocity.Y),
-                    5 => new Vector2(speed * 10f, player.velocity.Y),
-                    _ => new Vector2(speed * 12.5f, player.velocity.Y)
-                };
-            }
-            idle = !player.controlUp && !player.controlDown && !player.controlLeft && !player.controlRight! && !p.backStab && !shield.chargeActive;
+                    if (!player.controlUseItem || player.HeldItem.useTurn)
+                        player.direction = 1;
+                    if (!player.controlUp && !player.controlDown)
+                        player.velocity.Y = 0f;
+                    player.velocity = p.currentClass switch
+                    {
+                        1 => new Vector2(speed * 15f, player.velocity.Y),
+                        5 => new Vector2(speed * 10f, player.velocity.Y),
+                        _ => new Vector2(speed * 12.5f, player.velocity.Y)
+                    };
+                }
+                idle = !player.controlUp && !player.controlDown && !player.controlLeft && !player.controlRight! && !p.backStab && !shield.chargeActive;
 
-            if (idle)
-            {
-                player.velocity = new Vector2(0f, 0f);
-                player.maxFallSpeed = 0f;
+                if (idle)
+                {
+                    player.velocity = new Vector2(0f, 0f);
+                    player.maxFallSpeed = 0f;
+                }
             }
-            else if (Main.netMode != NetmodeID.SinglePlayer)
-                NetMessage.SendData(MessageID.PlayerControls, number: player.whoAmI);
         }
 
         public override void SetMount(Player player, ref bool skipDust) => skipDust = true;

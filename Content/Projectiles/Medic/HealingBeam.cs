@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -13,10 +14,19 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Items/Medic/MediGun";
 
-        protected int[] npcHealCooldown = new int[Main.maxNPCs];
-        protected int[] playerHealCooldown = new int[Main.maxPlayers];
-        protected const int healCooldown = 5;
-        protected Player player;
+        protected virtual float Heal => 1f;
+
+        protected virtual int UberCharge => ModContent.BuffType<UberCharge>();
+
+        protected int HealCooldown
+        {
+            get => Main.player[Projectile.owner].GetModPlayer<TF2Player>().multiplayerHealCooldown;
+            set => Main.player[Projectile.owner].GetModPlayer<TF2Player>().multiplayerHealCooldown = value;
+        }
+
+        // protected int[] npcHealCooldown = new int[Main.maxNPCs];
+        // protected int[] playerHealCooldown = new int[Main.maxPlayers];
+        protected const int maxHealCooldown = 5;
 
         public override void SetDefaults()
         {
@@ -52,70 +62,86 @@ namespace TF2.Content.Projectiles.Medic
                 player.ChangeDir(Projectile.direction);
                 if (!player.controlUseItem)
                     Projectile.Kill();
-
-                for (int i = 0; i < Main.maxNPCs; i++)
+                foreach (NPC npc in Main.npc)
                 {
-                    NPC npc = Main.npc[i];
-                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active)
-                        HealNPC(npc);
-                    npcHealCooldown[npc.whoAmI]--;
-                    npcHealCooldown[npc.whoAmI] = Utils.Clamp(npcHealCooldown[npc.whoAmI], 0, healCooldown);
+                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
+                    {
+                        if (!player.GetModPlayer<TF2Player>().activateUberCharge)
+                            AddUberCharge(player.HeldItem);
+                        else
+                            npc.AddBuff(UberCharge, 480);
+                        if (Main.netMode != NetmodeID.SinglePlayer)
+                            HealCooldown = 5;
+                    }
                 }
                 foreach (Player targetPlayer in Main.player)
                 {
-                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && targetPlayer.active)
+                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && targetPlayer.active && !targetPlayer.dead && HealCooldown <= 0)
+                    {
+                        if (!player.GetModPlayer<TF2Player>().activateUberCharge)
+                            AddUberCharge(player.HeldItem);
+                        else
+                            targetPlayer.AddBuff(UberCharge, 480, false);
+                        if (Main.netMode != NetmodeID.SinglePlayer)
+                            HealCooldown = 5;
+                    }
+                }
+            }
+            foreach (NPC npc in Main.npc)
+            {
+                if (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server)
+                {
+                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && HealCooldown <= 0)
+                        HealNPC(npc);
+                }
+            }
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
+            foreach (Player targetPlayer in Main.player)
+            {
+                if (Main.netMode == NetmodeID.Server)
+                {
+                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && targetPlayer.active && HealCooldown <= 0)
                         HealPlayer(targetPlayer);
-                    playerHealCooldown[targetPlayer.whoAmI]--;
-                    playerHealCooldown[targetPlayer.whoAmI] = Utils.Clamp(playerHealCooldown[targetPlayer.whoAmI], 0, healCooldown);
                 }
             }
         }
 
         public override bool ShouldUpdatePosition() => false;
 
-        protected virtual void HealNPC(NPC npc)
+        protected void HealNPC(NPC npc)
         {
             Player player = Main.player[Projectile.owner];
             TF2Player p = player.GetModPlayer<TF2Player>();
-            if (npc.life <= npc.lifeMax * 1.5f && npcHealCooldown[npc.whoAmI] <= 0)
+            if (npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
             {
                 int healingAmount = (int)(2 * p.classMultiplier) <= 1 ? 2 : (int)(2 * p.classMultiplier);
                 npc.life += healingAmount;
                 npc.HealEffect(healingAmount);
                 npc.GetGlobalNPC<UberChargeNPC>().timer = 0;
+                HealCooldown = 5;
                 npc.netUpdate = true;
-                npcHealCooldown[npc.whoAmI] = 5;
-                if (!p.activateUberCharge)
-                    AddUberCharge(player.HeldItem);
+                Projectile.netUpdate = true;
             }
-            if (p.activateUberCharge)
-                npc.AddBuff(ModContent.BuffType<UberCharge>(), 480);
-            Projectile.netUpdate = true;
         }
 
-        protected virtual void HealPlayer(Player targetPlayer)
+        protected void HealPlayer(Player targetPlayer)
         {
-            Player player = Main.player[Projectile.owner];
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (playerHealCooldown[targetPlayer.whoAmI] <= 0)
+            if (HealCooldown <= 0)
             {
                 int healingAmount = (int)(Main.player[Projectile.owner].statLifeMax2 * 0.004f);
                 targetPlayer.Heal(healingAmount);
-                playerHealCooldown[targetPlayer.whoAmI] = 5;
+                targetPlayer.HealEffect(healingAmount);
                 if (Main.netMode != NetmodeID.SinglePlayer)
-                    NetMessage.SendData(MessageID.PlayerHeal, number: player.whoAmI, number2: healingAmount);
+                    NetMessage.SendData(MessageID.SpiritHeal, number: targetPlayer.whoAmI, number2: healingAmount);
+                HealCooldown = 5;
+                Projectile.netUpdate = true;
             }
-            if (!p.activateUberCharge)
-                AddUberCharge(player.HeldItem);
-            else
-                targetPlayer.AddBuff(ModContent.BuffType<UberCharge>(), 480);
-            Projectile.netUpdate = true;
         }
 
-        protected static void AddUberCharge(Item item, float rate = 1)
+        protected void AddUberCharge(Item item)
         {
             TF2Weapon mediGun = item.ModItem as TF2Weapon;
-            mediGun.AddUberCharge(rate);
+            mediGun.AddUberCharge(Heal);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace TF2
                 HEROsMod.Call("AddItemCategory", "Mercenary", "Weapons",
                 (Predicate<Item>)((Item item) =>
                 {
-                    return item.ModItem is TF2Weapon || item.ModItem is TF2Accessory;
+                    return item.ModItem is TF2Item;
                 }));
             }
 
@@ -74,7 +74,6 @@ namespace TF2
 
         public override void PostSetupContent() => gensokyoLoaded = ModLoader.TryGetMod("Gensokyo", out Gensokyo);
 
-        // Call() cannot be in the GensokyoDLC class
         public override object Call(params object[] args)
         {
             try

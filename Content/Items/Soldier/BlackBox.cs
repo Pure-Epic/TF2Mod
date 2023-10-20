@@ -17,7 +17,7 @@ namespace TF2.Content.Items.Soldier
             SetWeaponDamage(damage: 90, projectile: ModContent.ProjectileType<BlackBoxRocket>(), projectileSpeed: 25f, knockback: 5f);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/rocket_blackbox_shoot");
-            SetWeaponAttackIntervals(maxAmmo: 4, reloadTime: 0.8, initialReloadTime: 0.92, reloadSoundPath: "TF2/Content/Sounds/SFX/rocket_reload");
+            SetWeaponAttackIntervals(maxAmmo: 3, reloadTime: 0.8, initialReloadTime: 0.92, reloadSoundPath: "TF2/Content/Sounds/SFX/rocket_reload");
             SetWeaponPrice(weapon: 1, reclaimed: 1);
         }
 

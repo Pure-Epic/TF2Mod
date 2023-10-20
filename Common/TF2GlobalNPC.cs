@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using Terraria;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Accessories;
@@ -52,17 +54,6 @@ namespace TF2.Common
         {
             if (npc.life > npc.lifeMax * 1.5f)
                 npc.life = (int)(npc.lifeMax * 1.5f);
-
-            /*
-            if (ModLoader.TryGetMod("Gensokyo", out Mod gensokyo))
-            {
-                if (gensokyo.TryFind("UtsuhoReiuji", out ModNPC okuuNPC) && npc.type == okuuNPC.Type && !Main.player[npc.target].ZoneUnderworldHeight && !Main.player[npc.target].dead)
-                {
-                    // Moved to IL editing
-                    // DO NOT modify modded bosses like this
-                }
-            }
-            */
         }
 
         public override void ModifyActiveShop(NPC npc, string shopName, Item[] items)

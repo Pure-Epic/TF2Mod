@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -62,15 +63,17 @@ namespace TF2.Content.Items.Medic
                 timer[2]++;
                 if (timer[2] >= Time(1))
                 {
-                    foreach (Player healedPlayer in Main.player)
+                    for (int i = 0; i < Main.maxPlayers; i++)
                     {
-                        if (healedPlayer.statLife < healedPlayer.statLifeMax2)
+                        Player healedPlayer = Main.player[i];
+                        if (healedPlayer.statLife < healedPlayer.statLifeMax2 && healedPlayer.active && !healedPlayer.dead)
                         {
                             TF2Player p = healedPlayer.GetModPlayer<TF2Player>();
                             int healingAmount = (int)(25 * healedPlayer.statLifeMax2 / 500 * p.regenMultiplier);
                             healedPlayer.Heal(healingAmount);
-                            if (Main.netMode != NetmodeID.SinglePlayer)
-                                NetMessage.SendData(MessageID.PlayerHeal, number: healedPlayer.whoAmI, number2: healingAmount);
+                            if (Main.netMode != NetmodeID.SinglePlayer && healedPlayer != player)
+                                healedPlayer.HealEffect(healingAmount);
+                            NetMessage.SendData(MessageID.SpiritHeal, number: healedPlayer.whoAmI, number2: healingAmount);
                         }
                     }
                     timer[2] = 0;
@@ -95,6 +98,29 @@ namespace TF2.Content.Items.Medic
                 .AddIngredient<VitaSaw>()
                 .AddTile<CraftingAnvil>()
                 .Register();
+        }
+    }
+
+    public class AmputatorPlayer : ModPlayer
+    {
+        public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
+        {
+            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+            packet.Write(TF2Multiplayer.HealPlayer);
+            packet.Write((byte)Player.whoAmI);
+            packet.Send(toWho, fromWho);
+        }
+
+        public static void ReceivePlayerSync(BinaryReader reader)
+        {
+            int player = reader.ReadInt32();
+            Player healedPlayer = Main.player[player];
+            if (healedPlayer.statLife < healedPlayer.statLifeMax2)
+            {
+                TF2Player p = healedPlayer.GetModPlayer<TF2Player>();
+                int healingAmount = (int)(25 * healedPlayer.statLifeMax2 / 500 * p.regenMultiplier);
+                healedPlayer.Heal(healingAmount);
+            }
         }
     }
 }

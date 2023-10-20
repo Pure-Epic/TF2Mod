@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TF2.Common;
 
 // Purposely part of Content, not Common because it only affects TF2 projectiles
@@ -145,5 +147,29 @@ namespace TF2.Content.Projectiles
         public override void OnHitPlayer(Projectile projectile, Player target, Player.HurtInfo info) => homing = false;
 
         public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone) => homing = false;
+
+        public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(timer);
+            bitWriter.WriteBit(homing);
+            bitWriter.WriteBit(spawnedFromNPC);
+            bitWriter.WriteBit(crit);
+            bitWriter.WriteBit(miniCrit);
+            bitWriter.WriteBit(sniperCrit);
+            bitWriter.WriteBit(sniperMiniCrit);
+            bitWriter.WriteBit(lEtrangerProjectile);
+        }
+
+        public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader)
+        {
+            timer = binaryReader.ReadInt32();
+            homing = bitReader.ReadBit();
+            spawnedFromNPC = bitReader.ReadBit();
+            crit = bitReader.ReadBit();
+            miniCrit = bitReader.ReadBit();
+            sniperCrit = bitReader.ReadBit();
+            sniperMiniCrit = bitReader.ReadBit();
+            sniperMiniCrit = bitReader.ReadBit();
+        }
     }
 }
