@@ -1,10 +1,8 @@
 using Microsoft.Xna.Framework;
-using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 
 namespace TF2.Content.Buffs
 {
@@ -41,7 +39,7 @@ namespace TF2.Content.Buffs
                     Player.statLife -= (int)MathHelper.Max(1.33f * damageMultiplier, 1f);
                     CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(4 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
-                        Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " burnt to death."), (int)(4 * damageMultiplier), 0);
+                        Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[4]), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
             }

@@ -5,7 +5,6 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Projectiles;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
@@ -19,7 +18,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             set => Projectile.ai[0] = value;
         }
 
-        private int Owner => Projectile.GetGlobalProjectile<TF2ProjectileBase>().owner;
+        private int Owner => Projectile.owner;
 
         public bool projectileInitialized;
         private int timer;
@@ -166,7 +165,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                         {
                             if (Main.netMode == NetmodeID.MultiplayerClient) return;
                             int projectile = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.UnitY, ModContent.ProjectileType<DevilsRecitation6>(), 75, 0f, npc.NPC.target);
-                            Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = npc.NPC.whoAmI;
+                            Main.projectile[projectile].owner = npc.NPC.whoAmI;
                             DevilsRecitation6 laser = (DevilsRecitation6)Main.projectile[projectile].ModProjectile;
                             if (velocity == new Vector2(-2f, -2f))
                                 ProjectileAI = 0;

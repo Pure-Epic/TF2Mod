@@ -1,34 +1,25 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
-using Terraria.Audio;
+﻿using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
+using TF2.Common;
 using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Pyro
 {
-    public class Airblast : ModProjectile
+    public class Airblast : TF2Projectile
     {
         private bool allowHeal;
 
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.width = 25;
-            Projectile.height = 29;
-            Projectile.aiStyle = 1;
-            Projectile.timeLeft = 600;
-            Projectile.alpha = 64;
-            Projectile.light = 0.5f;
-            Projectile.ignoreWater = false;
-            Projectile.tileCollide = true;
-            Projectile.damage = 1;
-            Projectile.knockBack = 20f;
-            AIType = ProjectileID.Bullet;
+            SetProjectileSize(100, 100);
+            AIType = ProjectileID.WoodenArrowFriendly;
+            Projectile.penetrate = -1;
+            Projectile.friendly = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
             foreach (Projectile projectile in Main.projectile)
             {
@@ -48,7 +39,7 @@ namespace TF2.Content.Projectiles.Pyro
             }
             foreach (Player player in Main.player)
             {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !player.hostile)
                 {
                     HitPlayer(player);
                     if (Main.netMode != NetmodeID.SinglePlayer)
@@ -56,15 +47,6 @@ namespace TF2.Content.Projectiles.Pyro
                     Projectile.Kill();
                 }
             }
-        }
-
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override void OnKill(int timeLeft)
-        {
-            // This code and the similar code above in OnTileCollide spawn dust from the tiles collided with. SoundID.Item10 is the bounce sound you hear.
-            Collision.HitTiles(Projectile.position + Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height);
-            SoundEngine.PlaySound(SoundID.Item10, Projectile.position);
         }
 
         protected virtual void HitNPC(NPC npc)
@@ -82,8 +64,8 @@ namespace TF2.Content.Projectiles.Pyro
                     }
                 }
                 Player player = Main.player[Projectile.owner];
-                if (player.statLife == player.statLifeMax2 || !allowHeal) return;
-                player.Heal((int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428));
+                if (TF2Player.IsHealthFull(player) || !allowHeal) return;
+                player.Heal(TF2.GetHealth(player, 20));
             }
             else if (!npc.friendly || npc.boss)
             {
@@ -114,7 +96,7 @@ namespace TF2.Content.Projectiles.Pyro
                         npc.velocity.X = knockbackPower;
                     }
                 }
-                knockbackPower = (npc.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f));
+                knockbackPower = npc.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f);
                 if (npc.velocity.Y > knockbackPower)
                 {
                     npc.velocity.Y += knockbackPower;
@@ -139,8 +121,8 @@ namespace TF2.Content.Projectiles.Pyro
                 }
             }
             Player player = Main.player[Projectile.owner];
-            if (player.statLife == player.statLifeMax2 || !allowHeal) return;
-            player.Heal((int)(Main.player[Projectile.owner].statLifeMax2 * 0.11428571428));
+            if (TF2Player.IsHealthFull(player) || !allowHeal) return;
+            player.Heal(TF2.GetHealth(player, 20));
         }
     }
 }

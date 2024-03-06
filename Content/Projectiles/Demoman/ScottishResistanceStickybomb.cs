@@ -1,35 +1,33 @@
-﻿using Terraria;
-using TF2.Content.Items.Demoman;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
+using TF2.Content.Items.Weapons.Demoman;
 
 namespace TF2.Content.Projectiles.Demoman
 {
     public class ScottishResistanceStickybomb : Stickybomb
     {
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Timer++;
+            if (Timer >= TF2.Time(5))
+                noDistanceModifier = true;
             if (Timer >= 103 && TF2.FindNPC(Projectile, 50f))
             {
                 Projectile.timeLeft = 0;
                 Timer = 0;
-                Main.player[Projectile.owner].GetModPlayer<ScottishResistancePlayer>().stickybombsReturned++;
-                for (int i = 0; i < Main.player[Projectile.owner].inventory.Length; i++)
+                Player.GetModPlayer<ScottishResistancePlayer>().stickybombsReturned++;
+                for (int i = 0; i < Player.inventory.Length; i++)
                 {
-                    if (Main.player[Projectile.owner].inventory[i].ModItem is ScottishResistance weapon && owner == weapon)
-                    {
-                        ScottishResistance scottishResistance = weapon;
-                        scottishResistance.ReturnStickybombs(Main.player[Projectile.owner]);
-                    }
+                    if (Player.inventory[i].ModItem is ScottishResistance thisWeapon && weapon == thisWeapon)
+                        (weapon as ScottishResistance).ReturnStickybombs(Player);
                 }
             }
             if (Projectile.timeLeft == 0)
             {
-                Projectile.friendly = true;
-                Projectile.tileCollide = false;
-                Projectile.alpha = 255;
                 Projectile.position = Projectile.Center;
-                Projectile.width = 250;
-                Projectile.height = 250;
+                Projectile.Size = new Vector2(250, 250);
+                Projectile.friendly = true;
+                Projectile.hide = true;
+                Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
                 StickyJump(velocity);
             }

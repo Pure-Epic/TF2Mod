@@ -1,17 +1,14 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using ReLogic.Content;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
-using TF2.Gensokyo.Content.UI;
 
 namespace TF2.Gensokyo.Common
 {
@@ -126,42 +123,6 @@ namespace TF2.Gensokyo.Common
             {
                 Left = new StyleDimension(4f, 0f)
             };
-        }
-    }
-
-    [ExtendsFromMod("Gensokyo")]
-    public class GensokyoDLC_UI : ModSystem
-    {
-        private UserInterface _harshPunisherChargeInterface;
-        internal HarshPunisherChargeUI HarshPunisherChargeUI;
-
-        public override void Load()
-        {
-            if (!Main.dedServ)
-            {
-                HarshPunisherChargeUI = new HarshPunisherChargeUI();
-                _harshPunisherChargeInterface = new UserInterface();
-                _harshPunisherChargeInterface.SetState(HarshPunisherChargeUI);
-            }
-        }
-
-        public override void UpdateUI(GameTime gameTime) => _harshPunisherChargeInterface?.Update(gameTime);
-
-        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
-        {
-            int buffBannerIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Resource Bars"));
-            if (buffBannerIndex != -1)
-            {
-                layers.Insert(buffBannerIndex, new LegacyGameInterfaceLayer(
-                    "TF2: Harsh Punisher Charge",
-                    delegate
-                    {
-                        _harshPunisherChargeInterface.Draw(Main.spriteBatch, new GameTime());
-                        return true;
-                    },
-                    InterfaceScaleType.UI)
-                );
-            }
         }
     }
 }

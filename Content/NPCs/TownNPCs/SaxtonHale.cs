@@ -12,12 +12,11 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
 using TF2.Common;
-using TF2.Content.Items.Accessories;
-using TF2.Content.Items.Ammo;
 using TF2.Content.Items.Bundles;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Placeables.Crafting;
 using TF2.Content.Mounts;
+using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.NPCs;
 
 namespace TF2.Content.NPCs.TownNPCs
@@ -168,14 +167,14 @@ namespace TF2.Content.NPCs.TownNPCs
                 .Add(new Item(ModContent.ItemType<MedicBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
                 .Add(new Item(ModContent.ItemType<SniperBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
                 .Add(new Item(ModContent.ItemType<SpyBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add<PrimaryAmmo>()
-                .Add<SecondaryAmmo>()
+                .Add<SmallAmmoPotion>()
+                .Add<MediumAmmoPotion>()
+                .Add<LargeAmmoPotion>()
                 .Add<SmallHealthPotion>()
                 .Add<MediumHealthPotion>()
                 .Add<LargeHealthPotion>()
                 .Add(new Item(ModContent.ItemType<TF2MountItem>()) { shopCustomPrice = Item.buyPrice(gold: 1) })
-                .Add(new Item(ModContent.ItemType<CraftingAnvilItem>()), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ModContent.ItemType<TournamentStandard>()), new Condition("DownedBoss2", () => NPC.downedBoss2));
+                .Add(new Item(ModContent.ItemType<CraftingAnvilItem>()), new Condition("HardMode", () => Main.hardMode));                
             armory.Register();
 
             NPCShop general = new NPCShop(Type, "General")
@@ -355,6 +354,7 @@ namespace TF2.Content.NPCs.TownNPCs
                 .Add(new Item(ItemID.StarWrath), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
                 .Add(new Item(ItemID.BrokenHeroSword), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
                 .Add(new Item(ItemID.ShadowFlameKnife), new Condition("HardMode", () => Main.hardMode))
+                .Add(new Item(ItemID.DripplerFlail), new Condition("HardMode", () => Main.hardMode))
                 .Add(new Item(ItemID.YoyoBag), new Condition("HardMode", () => Main.hardMode))
                 .Add(new Item(ItemID.BouncingShield), new Condition("HardMode", () => Main.hardMode))
                 .Add(new Item(ItemID.BerserkerGlove), new Condition("HardMode", () => Main.hardMode))
@@ -496,9 +496,7 @@ namespace TF2.Content.NPCs.TownNPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -507,15 +505,15 @@ namespace TF2.Content.NPCs.TownNPCs
                     int type = ModContent.ProjectileType<KnifeProjectileNPC>();
                     int damage = NPC.damage;
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/melee_swing"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/melee_swing"), NPC.Center);
                     if ((targetCenter - NPC.Center).Y >= 0f)
                         NPC.velocity = new Vector2(25f * NPC.direction, 15f);
                     if ((targetCenter - NPC.Center).Y <= 0f)
                         NPC.velocity = new Vector2(25f * NPC.direction, -15f);
-                    int projectile = Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
-                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)Main.projectile[projectile].ModProjectile;
-                    spawnedModProjectile.owner = NPC;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
+                    TF2Projectile projectile = TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
+                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)projectile;
+                    spawnedModProjectile.thisNPC = NPC;
+                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile.Projectile.whoAmI);
                 }
             }
         }

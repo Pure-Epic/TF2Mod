@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TF2.Common;
+using TF2.Content.Projectiles.Medic;
 
 namespace TF2.Content.Buffs
 {
@@ -89,20 +90,12 @@ namespace TF2.Content.Buffs
 
         public override void AI(NPC npc)
         {
-            if (Main.netMode == NetmodeID.MultiplayerClient) return;
-
-            timer++;
-            if (npc.life > npc.lifeMax && timer > 50)
-            {
-                npc.life--;
-                timer = 0;
-            }
             if (uberCharge)
             {
-                npc.immortal = true;
+                if (npc.HasBuff<UberCharge>())
+                    npc.immortal = true;
                 SpawnDusts(npc);
             }
-            npc.netUpdate = true;
         }
 
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);

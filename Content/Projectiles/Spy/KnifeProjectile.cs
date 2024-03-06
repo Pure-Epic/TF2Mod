@@ -1,66 +1,53 @@
 using Microsoft.Xna.Framework;
 using Terraria;
-using Terraria.ModLoader;
+using Terraria.DataStructures;
+using Terraria.ID;
 using TF2.Common;
 
 namespace TF2.Content.Projectiles.Spy
 {
-    public class KnifeProjectile : ModProjectile
+    public class KnifeProjectile : TF2Projectile
     {
-        public override string Texture => "TF2/Content/Items/Spy/Knife";
-
-        public int Timer
-        {
-            get => (int)Projectile.ai[0];
-            set => Projectile.ai[0] = value;
-        }
+        public override string Texture => "TF2/Content/Items/Weapons/Spy/Knife";
 
         public float CollisionWidth => 10f * Projectile.scale;
 
         public const int TotalDuration = 48;
 
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.Size = new Vector2(18);
+            SetProjectileSize(18, 18);
             Projectile.aiStyle = -1;
+            Projectile.penetrate = 1;
             Projectile.friendly = true;
-            Projectile.penetrate = -1;
+            Projectile.timeLeft = TF2.Time(6);
             Projectile.tileCollide = false;
-            Projectile.scale = 1f;
+            Projectile.ignoreWater = true;
             Projectile.ownerHitCheck = true;
-            Projectile.extraUpdates = 1;
-            Projectile.timeLeft = 360;
             Projectile.hide = true;
+            Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Player player = Main.player[Projectile.owner];
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            Timer++;
             if (Timer >= TotalDuration)
             {
                 Projectile.Kill();
-                p.backStab = false;
                 return;
             }
             else
             {
-                player.heldProj = Projectile.whoAmI;
-                if (p.backStab)
-                    player.GetModPlayer<TF2Player>().crit = true;
+                Player.heldProj = Projectile.whoAmI;
+                if (Player.GetModPlayer<TF2Player>().backStab)
+                    Player.GetModPlayer<TF2Player>().crit = true;
             }
-
-            Vector2 playerCenter = player.RotatedRelativePoint(player.MountedCenter, reverseRotation: false, addGfxOffY: false);
+            Vector2 playerCenter = Player.RotatedRelativePoint(Player.MountedCenter, reverseRotation: false, addGfxOffY: false);
             if (Timer <= 8)
                 Projectile.Center = playerCenter + Projectile.velocity * 2f * (Timer - 1f);
             else
                 Projectile.Center = playerCenter + Projectile.velocity * 16f;
-
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2 - MathHelper.PiOver4 * Projectile.spriteDirection;
             SetVisualOffsets();
@@ -70,10 +57,8 @@ namespace TF2.Content.Projectiles.Spy
         {
             const int HalfSpriteWidth = 32 / 2;
             const int HalfSpriteHeight = 32 / 2;
-
             int HalfProjWidth = Projectile.width / 2;
             int HalfProjHeight = Projectile.height / 2;
-
             DrawOriginOffsetX = 0;
             DrawOffsetX = -(HalfSpriteWidth - HalfProjWidth);
             DrawOriginOffsetY = -(HalfSpriteHeight - HalfProjHeight);
@@ -89,42 +74,35 @@ namespace TF2.Content.Projectiles.Spy
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, CollisionWidth, ref collisionPoint);
         }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => target.immune[Projectile.owner] = 48;
-
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
-        {
-            if (!info.PvP) return;
-            target.immuneTime = 48;
-        }
-
-        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
             if (!modifiers.PvP) return;
-            Main.player[Projectile.owner].GetModPlayer<TF2Player>().crit = false;
+            target.KillMe(PlayerDeathReason.ByCustomReason(target.name + " " + TF2.TF2DeathMessagesLocalization[6] + " " + Player.name), target.statLife, 0);
         }
+
+        protected override void ProjectileDestroy(int timeLeft) => Player.GetModPlayer<TF2Player>().backStab = false;
     }
 
     public class YourEternalRewardProjectile : KnifeProjectile
     {
-        public override string Texture => "TF2/Content/Items/Spy/YourEternalReward";
+        public override string Texture => "TF2/Content/Items/Weapons/Spy/YourEternalReward";
     }
 
     public class ConniversKunaiProjectile : KnifeProjectile
     {
-        public override string Texture => "TF2/Content/Items/Spy/ConniversKunai";
+        public override string Texture => "TF2/Content/Items/Weapons/Spy/ConniversKunai";
 
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            Player player = Main.player[Projectile.owner];
-            player.Heal((int)((float)target.life / target.lifeMax * player.statLifeMax2));
-        }
-
-        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
             if (!modifiers.PvP) return;
-            Player player = Main.player[Projectile.owner];
-            player.Heal(target.statLife);
-            player.GetModPlayer<TF2Player>().crit = false;
+            TF2.Overheal(Player, target.statLife, 2f);
+            target.KillMe(PlayerDeathReason.ByCustomReason(target.name + " " + TF2.TF2DeathMessagesLocalization[6] + " " + Player.name), target.statLife, 0);
+        }
+
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (target.type != NPCID.TargetDummy)
+                TF2.Overheal(Player, Utils.Clamp(TF2.Round((float)((float)target.life / target.lifeMax * TF2.GetHealth(Player, 210))), TF2.GetHealth(Player, 75), TF2.GetHealth(Player, 210)), 2f);
         }
     }
 }

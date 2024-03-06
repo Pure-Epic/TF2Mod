@@ -5,7 +5,6 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Projectiles;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
@@ -19,7 +18,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             set => Projectile.ai[0] = value;
         }
 
-        private int Owner => Projectile.GetGlobalProjectile<TF2ProjectileBase>().owner;
+        private int Owner => Projectile.owner;
 
         public bool projectileInitialized;
         private float speed;
@@ -191,7 +190,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             set => Projectile.ai[0] = value;
         }
 
-        private int Owner => Projectile.GetGlobalProjectile<TF2ProjectileBase>().owner;
+        private int Owner => Projectile.owner;
 
         public bool projectileInitialized;
         private float speed;

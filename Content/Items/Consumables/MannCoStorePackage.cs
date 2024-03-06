@@ -1,15 +1,15 @@
 ﻿using Terraria;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ModLoader;
-using TF2.Content.Items.Demoman;
-using TF2.Content.Items.Engineer;
-using TF2.Content.Items.Heavy;
-using TF2.Content.Items.Medic;
-using TF2.Content.Items.Pyro;
-using TF2.Content.Items.Scout;
-using TF2.Content.Items.Sniper;
-using TF2.Content.Items.Soldier;
-using TF2.Content.Items.Spy;
+using TF2.Content.Items.Weapons.Demoman;
+using TF2.Content.Items.Weapons.Sniper;
+using TF2.Content.Items.Weapons.Pyro;
+using TF2.Content.Items.Weapons.Scout;
+using TF2.Content.Items.Weapons.Spy;
+using TF2.Content.Items.Weapons.Medic;
+using TF2.Content.Items.Weapons.Heavy;
+using TF2.Content.Items.Weapons.Soldier;
+using TF2.Content.Items.Weapons.Engineer;
 
 namespace TF2.Content.Items.Consumables
 {

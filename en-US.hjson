@@ -45,11 +45,6 @@ Mods: {
 					CustomMusic: Custom Music
 				}
 
-				Explosions: {
-					Label: Destructive Explosions
-					Tooltip: Can explosives from weapons destroy tiles?
-				}
-
 				BossMusic: {
 					Label: Goofy Ahh Boss Music
 					Tooltip: Replace boss music with Fruity Robo 2 Theme?
@@ -110,6 +105,17 @@ Mods: {
 		}
 
 		Currencies.AustraliumCurrency: australium
+		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
+
+		DeathMessages: {
+			Bleeding: bled to death.
+			BostonBasher: bashed his own skull open.
+			Explosion: blew themself to smithereens.
+			HalfZatoichi: was a coward.
+			Fire: burnt to death.
+			Sapper: got electrocuted.
+			Backstab: was backstabbed by
+		}
 
 		GameTips: {
 			OneOfTheGamesEver: Team Fortress 2 is one of the games ever.
@@ -163,66 +169,7 @@ Mods: {
 			ByakurenTeaser: The Gensokyo mod includes a boss that her power prohibits her from being added to that mod.
 		}
 
-		#This is what displays during all of an NPC's happiness levels. Note that the localization key for these should always be "TownNPCMood.*NPCName*.*Mood*" or else it won't display properly.
-		TownNPCMood: {
-			SaxtonHale: {
-				Content: This place is like Australia!
-				NoHome: Where home?
-				LoveSpace: Not too many people, just how I like it!
-				FarFromHome: I want to go home!
-				DislikeCrowded: Too many folks. Saxton Hale no likey!
-				HateCrowded: Everyone else is ugly and cringe. Saxton Hale very no likey!
-				LikeBiome: "{BiomeName} is the perfect place to fight animals."
-				LoveBiome: RED and BLU should fight over {BiomeName} instead of useless gravel pits.
-				DislikeBiome: Australians, like me, are unfit for {BiomeName}.
-				HateBiome: "{BiomeName} is more useless than gravel pit."
-				LikeNPC: "{NPCName} is based!"
-				LoveNPC: "{NPCName} is giga chad!"
-				DislikeNPC: "{NPCName} is cringe"
-				HateNPC: "{NPCName} is the enemy of Mann Co."
-			}
-
-			Administrator: {
-				Content: Flawless victory!
-				NoHome: Flawless defeat!
-				LoveSpace: Time has been added.
-				FarFromHome: The bomb is nearing the checkpoint!
-				DislikeCrowded: Alert! The enemy has taken our intelligence!
-				HateCrowded: You've failed. The enemy has captured our intelligence.
-				LikeBiome: Control point enabled.
-				LoveBiome: Control point enabled, get moving!
-				DislikeBiome: Alert! The control point is being captured.
-				HateBiome: We have lost the control point!
-				LikeNPC: "{NPCName} is the least disappointing."
-				LoveNPC: You're all winners! Now, {NPCName}'s an actual winner.
-				DislikeNPC: I am dumbstruck by your mediocrity, {NPCName}.
-				HateNPC: Humiliating defeat, {NPCName}!
-			}
-
-			MissPauling: {
-				Content: I like it here.
-				NoHome: I don't have anywhere to go, do I?
-				LoveSpace: Perfect vacation spot!
-				FarFromHome: Where am I?
-				DislikeCrowded: A little too crowded here?
-				HateCrowded: Definitely too crowded here.
-				LikeBiome: "{BiomeName} is pretty nice."
-				LoveBiome: "{BiomeName} is very nice. Sad that I only have one day off."
-				DislikeBiome: "{BiomeName} is a bit uncomfortable. I could stay here a little longer though."
-				HateBiome: "{BiomeName} is not where I want to spend my one day off."
-				LikeNPC: "{NPCName} is a cool person."
-				LoveNPC: "{NPCName} is the best boss ever!"
-				DislikeNPC: "{NPCName} might not be the person I can get along with."
-				HateNPC: Yeah no. I'm not staying with {NPCName}.
-			}
-		}
-
 		Buffs: {
-			BaseballCooldown: {
-				DisplayName: Baseball Cooldown
-				Description: You cannot throw baseballs
-			}
-
 			BaseballDebuff: {
 				DisplayName: Slugged!
 				Description: Slowed
@@ -263,19 +210,9 @@ Mods: {
 				Description: Damage reduction
 			}
 
-			DrinkCooldown: {
-				DisplayName: Drink Cooldown
-				Description: You cannot drink
-			}
-
 			FeignDeath: {
 				DisplayName: Cloaked
 				Description: Invincible and invisible
-			}
-
-			FoodCooldown: {
-				DisplayName: Heavylicious
-				Description: You cannot eat
 			}
 
 			HealthRage: {
@@ -288,11 +225,6 @@ Mods: {
 				Description: Grants crits
 			}
 
-			JarateCooldown: {
-				DisplayName: Jarate Cooldown
-				Description: You need to restock on Jarate
-			}
-
 			JarateDebuff: {
 				DisplayName: Jarate
 				Description: Crit vulnerability
@@ -301,11 +233,6 @@ Mods: {
 			KritzkriegUberCharge: {
 				DisplayName: ÜberCharge
 				Description: Crits everything
-			}
-
-			MadMilkCooldown: {
-				DisplayName: Mad Milk Cooldown
-				Description: You need to restock on Mad Milk
 			}
 
 			MadMilkDebuff: {
@@ -535,21 +462,6 @@ Mods: {
 					'''
 			}
 
-			Metal: {
-				DisplayName: Medium Ammo Box
-				Tooltip: ""
-			}
-
-			PrimaryAmmo: {
-				DisplayName: Large Ammo Box
-				Tooltip: Ammo for Primary Weapons
-			}
-
-			SecondaryAmmo: {
-				DisplayName: Small Ammo Box
-				Tooltip: Ammo for Secondary Weapons
-			}
-
 			DemomanClass: {
 				DisplayName: Demoman Class Token
 				Tooltip: Change class to Demoman
@@ -640,8 +552,28 @@ Mods: {
 				Tooltip: Contains Revolver, Knife, Sapper, Invis Watch, and Spy Class Token
 			}
 
+			LargeAmmoBox: {
+				DisplayName: Large Ammo Box
+				Tooltip: ""
+			}
+
+			LargeAmmoPoint: {
+				DisplayName: Large Ammo Point
+				Tooltip: ""
+			}
+
+			LargeAmmoPotion: {
+				DisplayName: Large Ammo Potion
+				Tooltip: Restores all of ammo reserve on all weapons
+			}
+
 			LargeHealth: {
 				DisplayName: Large Health Kit
+				Tooltip: ""
+			}
+
+			LargeHealthPoint: {
+				DisplayName: Large Health Point
 				Tooltip: ""
 			}
 
@@ -675,8 +607,28 @@ Mods: {
 				Tooltip: Used to open locked supply crates.
 			}
 
+			MediumAmmoBox: {
+				DisplayName: Medium Ammo Box
+				Tooltip: ""
+			}
+
+			MediumAmmoPoint: {
+				DisplayName: Medium Ammo Point
+				Tooltip: Restores 50% of ammo reserve on all weapons
+			}
+
+			MediumAmmoPotion: {
+				DisplayName: Medium Ammo Potion
+				Tooltip: ""
+			}
+
 			MediumHealth: {
 				DisplayName: Medium Health Kit
+				Tooltip: ""
+			}
+
+			MediumHealthPoint: {
+				DisplayName: Medium Health Point
 				Tooltip: ""
 			}
 
@@ -695,8 +647,28 @@ Mods: {
 				Tooltip: Summons Saxton Hale
 			}
 
+			SmallAmmoBox: {
+				DisplayName: Small Ammo Box
+				Tooltip: ""
+			}
+
+			SmallAmmoPoint: {
+				DisplayName: Small Ammo Point
+				Tooltip: ""
+			}
+
+			SmallAmmoPotion: {
+				DisplayName: Small Ammo Potion
+				Tooltip: Restores 20% of ammo reserve on all weapons
+			}
+
 			SmallHealth: {
 				DisplayName: Small Health Kit
+				Tooltip: ""
+			}
+
+			SmallHealthPoint: {
+				DisplayName: Small Health Point
 				Tooltip: ""
 			}
 
@@ -705,14 +677,102 @@ Mods: {
 				Tooltip: ""
 			}
 
+			SoulItem: {
+				DisplayName: Soul Item
+				Tooltip: ""
+			}
+
 			Australium: {
 				DisplayName: Australium
 				Tooltip: Use it at Mann Co. Store
 			}
 
+			HauntedMetalScrap: {
+				DisplayName: Haunted Metal Scrap
+				Tooltip: ""
+			}
+
+			ReclaimedMetal: {
+				DisplayName: Reclaimed Metal
+				Tooltip: ""
+			}
+
+			RefinedMetal: {
+				DisplayName: Refined Metal
+				Tooltip: ""
+			}
+
+			ScrapMetal: {
+				DisplayName: Scrap Metal
+				Tooltip: ""
+			}
+
+			DemomanSummon: {
+				DisplayName: Demoman
+				Tooltip: Summons Demoman
+			}
+
+			EngineerSummon: {
+				DisplayName: Engineer
+				Tooltip: Summons Engineer
+			}
+
+			HeavySummon: {
+				DisplayName: Heavy
+				Tooltip: Summons Heavy
+			}
+
+			MedicSummon: {
+				DisplayName: Medic
+				Tooltip: Summons Medic
+			}
+
+			PyroSummon: {
+				DisplayName: Pyro
+				Tooltip: Summons Pyro
+			}
+
+			ScoutSummon: {
+				DisplayName: Scout
+				Tooltip: Summons Scout
+			}
+
+			SniperSummon: {
+				DisplayName: Sniper
+				Tooltip: Summons Sniper
+			}
+
+			SoldierSummon: {
+				DisplayName: Soldier
+				Tooltip: Summons Soldier
+			}
+
+			SpySummon: {
+				DisplayName: Spy
+				Tooltip: Summons Spy
+			}
+
+			CraftingAnvilItem: {
+				DisplayName: Crafting Anvil
+				Tooltip:
+					'''
+					For years you have been able
+					to create weapons with your bare hands,
+					using raw steel, in real life.
+					What if we were to tell you
+					there’s now a way to SIMULATE that in-game?
+					Because we just did!
+					'''
+			}
+
+			AustraliumDrill: {
+				DisplayName: Australium Drill
+				Tooltip: ""
+			}
+
 			Bottle: {
 				DisplayName: Bottle
-				Tooltip: Demoman's Starter Melee
+				Tooltip: ""
 			}
 
 			CharginTarge: {
@@ -758,12 +818,12 @@ Mods: {
 			Eyelander: {
 				DisplayName: Eyelander
 				Tooltip: ""
-				Sword: This weapon has a large melee range and deploys and holsters slower
 				Downsides:
 					'''
 					No random critical hits
-					-14% max health on wearer
+					-25 max health on wearer
 					'''
+				Sword: This weapon has a large melee range and deploys and holsters slower
 				Notes: Gives increased speed and health with every head you take.
 			}
 
@@ -806,6 +866,7 @@ Mods: {
 				Upsides:
 					'''
 					+25% faster firing speed
+					+50% max secondary ammo on wearer
 					+6 max pipebombs out
 					Stickybombs can collide with enemies
 					'''
@@ -823,7 +884,7 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					50% chance to not consume ammo
+					+200% max secondary ammo on wearer
 					No self inflicted blast damage taken
 					'''
 				Downsides:
@@ -832,11 +893,7 @@ Mods: {
 					No random critical hits
 					-6 max stickybombs out
 					'''
-				Notes:
-					'''
-					A special no-damage stickybomb launcher for learning
-					stickybomb jump tricks and patterns.
-					'''
+				Notes: A special no-damage stickybomb launcher for learning stickybomb jump tricks and patterns.
 			}
 
 			UllapoolCaber: {
@@ -865,10 +922,10 @@ Mods: {
 					'''
 					Left click to build a sentry gun
 					Right click to build a dispenser
-					Sentry guns target the closest enemy
-					Sentry gun level depends on the amount of metal the player currently has
-					Dispensers produce health kits, ammo, and metal
-					Dispenser level depends on the amount of metal the player currently has
+					Sentry guns target the closest enemy.
+					Sentry gun level depends on the amount of metal the player currently has.
+					Dispensers produce health kits, ammo, and metal.
+					Dispenser level depends on the amount of metal the player currently has.
 					'''
 			}
 
@@ -888,8 +945,7 @@ Mods: {
 				Upsides:
 					'''
 					Gain 3 revenge crits when your sentry is destroyed
-					Gain a revenge crit every third time you get 
-					hit by a hostile npc or projectile
+					Gain a revenge crit every third time you get hit by a hostile NPC or projectile
 					Has focus shot
 					'''
 				Downsides:
@@ -905,7 +961,7 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					+20% max health on wearer
+					+25 max health on wearer
 					-23% sentry cost
 					Third successful punch in a row always crits.
 					'''
@@ -994,11 +1050,8 @@ Mods: {
 				Tooltip: ""
 				Notes:
 					'''
-					After consuming, move speed is increased,
-					attacks mini-crit, and the player may only
-					use melee weapons. Lasts 16 seconds.
-					Alt-fire: Share with a friend
-					(Medium Health Kit)
+					After consuming, move speed is increased, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds.
+					Alt-fire: Share with a friend (Medium Health Kit)
 					Who needs bread?
 					'''
 			}
@@ -1006,12 +1059,11 @@ Mods: {
 			DalokohsBar: {
 				DisplayName: Dalokohs Bar
 				Tooltip: ""
-				Upsides: Adds 16% max health for 30 seconds
+				Upsides: Adds 50 max health for 30 seconds
 				Notes:
 					'''
-					Eat to gain up to 33% of max health.
-					Alt-fire: Share chocolate with a friend
-					(Small Health Kit)
+					Eat to gain up to 100 health.
+					Alt-fire: Share chocolate with a friend (Small Health Kit)
 					'''
 			}
 
@@ -1028,6 +1080,7 @@ Mods: {
 					'''
 					+100% damage from contact damage while active
 					This weapon holsters 100% slower
+					-40% maximum overheal on wearer
 					-40% health from healers on wearer
 					'''
 			}
@@ -1076,8 +1129,7 @@ Mods: {
 				Notes:
 					'''
 					Eat to regain full health.
-					Alt-fire: Share a Sandvich with a friend
-					(Medium Health Kit)
+					Alt-fire: Share a Sandvich with a friend (Medium Health Kit)
 					'''
 			}
 
@@ -1088,29 +1140,9 @@ Mods: {
 				Upsides:
 					'''
 					+30% damage bonus
-					+16% of maximum health restored on critical hits
+					+50 health restored on critical hits
 					'''
 				Downsides: 30% damage vulnerability on wearer
-			}
-
-			HauntedMetalScrap: {
-				DisplayName: Haunted Metal Scrap
-				Tooltip: ""
-			}
-
-			ReclaimedMetal: {
-				DisplayName: Reclaimed Metal
-				Tooltip: ""
-			}
-
-			RefinedMetal: {
-				DisplayName: Refined Metal
-				Tooltip: ""
-			}
-
-			ScrapMetal: {
-				DisplayName: Scrap Metal
-				Tooltip: ""
 			}
 
 			Amputator: {
@@ -1119,7 +1151,7 @@ Mods: {
 				Header: When weapon is active:
 				Upsides:
 					'''
-					+2% of maximum health regenerated per second on wearer
+					+3 regenerated per second on wearer
 					Alt-Fire: Applies a healing effect to teammates
 					'''
 				Downsides: -20% damage penalty
@@ -1128,8 +1160,12 @@ Mods: {
 			Blutsauger: {
 				DisplayName: Blutsauger
 				Tooltip: ""
-				Upsides: On Hit: Gain up to 2% of maximum health.
-				Downsides: -66% health regenerated per second on wearer
+				Upsides: On Hit: Gain up to +3 health.
+				Downsides:
+					'''
+					-66% health regenerated per second on wearer
+					No random health kits
+					'''
 			}
 
 			Bonesaw: {
@@ -1140,7 +1176,11 @@ Mods: {
 			CrusadersCrossbow: {
 				DisplayName: Crusader's Crossbow
 				Tooltip: ""
-				Downsides: No headshots
+				Downsides:
+					'''
+					No headshots
+					-75% max primary ammo on wearer
+					'''
 				Notes:
 					'''
 					Fires special bolts that heal teammates and deal damage
@@ -1169,37 +1209,30 @@ Mods: {
 				DisplayName: Ubersaw
 				Tooltip: ""
 				Upsides: On Hit: 25% ÜberCharge added
-				Downsides: 20% slower firing speed
+				Downsides:
+					'''
+					20% slower firing speed
+					No random health kits
+					'''
 			}
 
 			VitaSaw: {
 				DisplayName: Vita-Saw
 				Tooltip: ""
 				Upsides: Collect the organs of people you hit
-				Downsides: -7% max health on wearer
-				Notes:
-					'''
-					A percentage of your ÜberCharge level is retained on death,
-					based on the number of organs harvested (15% per).
-					Total ÜberCharge retained on spawn caps at 60%.
-					'''
+				Downsides: -10 max health on wearer
+				Notes: A percentage of your ÜberCharge level is retained on death, based on the number of organs harvested (15% per). Total ÜberCharge retained on spawn caps at 60%.
 			}
 
 			HalfZatoichi: {
 				DisplayName: Half-Zatoichi
 				Tooltip: ""
-				Sword:
-					'''
-					This weapon has a large melee range and
-					deploys and holsters slower
-					'''
+				Sword: This weapon has a large melee range and deploys and holsters slower
 				Upsides: Gain 50% of base health on critcal hits or mini-crits
 				Downsides:
 					'''
 					No random critical hits
-					Honorbound: Once drawn sheathing deals
-					25% of maximum health damage to yourself
-					unless it crits
+					Honorbound: Once drawn sheathing deals 50 damage to yourself unless it crits.
 					'''
 				Notes:
 					'''
@@ -1226,64 +1259,6 @@ Mods: {
 				Tooltip: ""
 			}
 
-			DemomanSummon: {
-				DisplayName: Demoman
-				Tooltip: Summons Demoman
-			}
-
-			EngineerSummon: {
-				DisplayName: Engineer
-				Tooltip: Summons Engineer
-			}
-
-			HeavySummon: {
-				DisplayName: Heavy
-				Tooltip: Summons Heavy
-			}
-
-			MedicSummon: {
-				DisplayName: Medic
-				Tooltip: Summons Medic
-			}
-
-			PyroSummon: {
-				DisplayName: Pyro
-				Tooltip: Summons Pyro
-			}
-
-			ScoutSummon: {
-				DisplayName: Scout
-				Tooltip: Summons Scout
-			}
-
-			SniperSummon: {
-				DisplayName: Sniper
-				Tooltip: Summons Sniper
-			}
-
-			SoldierSummon: {
-				DisplayName: Soldier
-				Tooltip: Summons Soldier
-			}
-
-			SpySummon: {
-				DisplayName: Spy
-				Tooltip: Summons Spy
-			}
-
-			CraftingAnvilItem: {
-				DisplayName: Crafting Anvil
-				Tooltip:
-					'''
-					For years you have been able
-					to create weapons with your bare hands,
-					using raw steel, in real life.
-					What if we were to tell you
-					there’s now a way to SIMULATE that in-game?
-					Because we just did!
-					'''
-			}
-
 			Axtinguisher: {
 				DisplayName: Axtinguisher
 				Tooltip: ""
@@ -1306,7 +1281,7 @@ Mods: {
 				Upsides:
 					'''
 					100% critical hits at full health
-					Extinguishing teammates restores 11% of max health
+					Extinguishing teammates restores 20 health
 					'''
 				Downsides:
 					'''
@@ -1331,8 +1306,9 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					+50% range
-					Extinguishing teammates restores 11% of max health
+					This weapon holsters 30% faster
+					This weapon deploys 60% faster
+					Extinguishing teammates restores 20 health
 					'''
 				Downsides:
 					'''
@@ -1349,12 +1325,8 @@ Mods: {
 			FlameThrower: {
 				DisplayName: Flame Thrower
 				Tooltip: ""
-				Upsides: Extinguishing teammates restores 11% of max health
-				Notes:
-					'''
-					Alt-Fire: Release a blast of air that pushes enemies
-					and projectiles and extinguish teammates that have debuffs.
-					'''
+				Upsides: Extinguishing teammates restores 20 health
+				Notes: Alt-Fire: Release a blast of air that pushes enemies and projectiles and extinguish teammates that have debuffs.
 			}
 
 			FlareGun: {
@@ -1382,7 +1354,7 @@ Mods: {
 				Upsides:
 					'''
 					+15% faster move speed on wearer.
-					+14% of maximum health restored on critical hits
+					+25 health restored on critical hits
 					'''
 				Downsides: 20% damage vulnerability on wearer
 			}
@@ -1402,13 +1374,7 @@ Mods: {
 			BonkAtomicPunch: {
 				DisplayName: Bonk! Atomic Punch
 				Tooltip: ""
-				Notes:
-					'''
-					Drink to become invulnerable for 8
-					seconds. Cannot attack during this time.
-					Damage absorbed will slow you when the
-					effect ends.
-					'''
+				Notes: Drink to become invulnerable for 8 seconds. Cannot attack during this time. Damage absorbed will slow you when the effect ends.
 			}
 
 			BostonBasher: {
@@ -1428,12 +1394,7 @@ Mods: {
 			CritaCola: {
 				DisplayName: Crit-a-Cola
 				Tooltip: ""
-				Notes:
-					'''
-					While effect is active:
-					Each attack mini-crits
-					and sets Marked-For-Death for 5 seconds.
-					'''
+				Notes: While effect is active: Each attack mini-crits and sets Marked-For-Death for 5 seconds.
 			}
 
 			FanOWar: {
@@ -1441,15 +1402,10 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					50% faster firing speed
-					Knockback on the target
-					20% bullets per shot
+					Crits whenever it would normally mini-crit
+					On Hit: Sets Marked-For-Death, causing all damage taken to be mini-crits
 					'''
-				Downsides:
-					'''
-					-10% damage penalty
-					-66% clip size
-					'''
+				Downsides: -75% damage penalty
 				Notes:
 					'''
 					Winds of Gravel Pit
@@ -1463,10 +1419,15 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					Crits whenever it would normally mini-crit
-					On Hit: Sets Marked-For-Death, causing all damage taken to be mini-crits
+					50% faster firing speed
+					Knockback on the target
+					20% bullets per shot
 					'''
-				Downsides: -75% damage penalty
+				Downsides:
+					'''
+					-10% damage penalty
+					-66% clip size
+					'''
 				Notes: This weapon reloads its entire clip at once
 			}
 
@@ -1479,35 +1440,20 @@ Mods: {
 			MadMilk: {
 				DisplayName: Mad Milk
 				Tooltip: ""
-				Upsides:
-					'''
-					Extinguishing teammates reduces
-					cooldown by -20%
-					'''
+				Upsides: Extinguishing teammates reduces cooldown by -20%
 				Notes:
 					'''
-					Players heal 60% of the damage done
-					to an enemy covered with milk.
+					Players heal 60% of the damage done to an enemy covered with milk.
 					Can be used to remove debuffs.
 					'''
-				Notes2:
-					'''
-					Apparently, Scout was in a secret
-					relationship with Yuuka Kazami.
-					Knowing that calamity would strike
-					if everyone else discovered the
-					affair, the couple gave their final
-					farewell. The only remant of their
-					love: A suspicious liquid assumed
-					to been extracted from Yuuka.
-					'''
+				Lore: Apparently, Scout was in a secret relationship with Yuuka Kazami. Knowing that calamity would strike if everyone else discovered the affair, the couple gave their final farewell. The only remant of their love: A suspicious liquid assumed to be extracted from Yuuka.
 			}
 
 			Sandman: {
 				DisplayName: Sandman
 				Tooltip: ""
 				Upsides: Alt-Fire: Launches a ball that slows opponents
-				Downsides: -12% max health on wearer
+				Downsides: -15 max health on wearer
 			}
 
 			Scattergun: {
@@ -1571,7 +1517,7 @@ Mods: {
 			Jarate: {
 				DisplayName: Jarate
 				Tooltip: ""
-				Header:
+				Notes:
 					'''
 					Coated enemies take mini-crits
 					and 35% more damage from headshots
@@ -1582,13 +1528,7 @@ Mods: {
 					Extinguishing teammates reduces
 					cooldown by -20%
 					'''
-				Notes:
-					'''
-					Sniper realized that throwing
-					his own bodily fluids won't
-					be suited for a danmaku battle.
-					The solution? Use ichor instead!
-					'''
+				Lore: Sniper realized that throwing his own bodily fluids won't be suited for a danmaku battle. The solution? Use ichor instead!
 			}
 
 			Kukri: {
@@ -1600,6 +1540,7 @@ Mods: {
 				DisplayName: Razorback
 				Tooltip: ""
 				Upsides: Blocks a single enemy hit attempt
+				Downsides: -100% maximum overheal on wearer
 			}
 
 			SMG: {
@@ -1619,8 +1560,7 @@ Mods: {
 					'''
 					+25% charge rate
 					On Scoped Hit: Apply Jarate for 2 to 5 seconds based on charge level.
-					Nature's Call: Scoped headshots always mini-crit
-					and reduce the remaining cooldown of Jarate by 1 second.
+					Nature's Call: Scoped headshots always mini-crit and reduce the remaining cooldown of Jarate by 1 second.
 					'''
 				Downsides: No random critical hits
 			}
@@ -1635,41 +1575,38 @@ Mods: {
 			BattalionsBackup: {
 				DisplayName: Battalion's Backup
 				Tooltip: ""
-				Upsides: +10% max health on wearer
+				Upsides: +20 max health on wearer
 				Notes:
 					'''
-					Provides a defensive buff that protects
-					team members from incoming projectile 
-					damage by 50% and 35% from melee damage.
+					Provides a defensive buff that protects team members from incoming projectile damage by 50% and 35% from melee damage.
+					Rage increases through damage done.
 					'''
 			}
 
 			BlackBox: {
 				DisplayName: Black Box
 				Tooltip: ""
-				Upsides: On Hit: Gain up to 10% of maximum health per attack
-				Downsides: -25% clip size
+				Upsides: On Hit: Gain up to +20 health per attack
+				Downsides:
+					'''
+					-25% clip size
+					No random health kits
+					'''
 			}
 
 			BuffBanner: {
 				DisplayName: Buff Banner
 				Tooltip: ""
-				Notes:
-					'''
-					Provides an offensive buff that causes
-					team members to do mini-crits.
-					Rage increases through damage done.
-					'''
+				Notes: Provides an offensive buff that causes team members to do mini-crits. Rage increases through damage done.
 			}
 
 			Concheror: {
 				DisplayName: Concheror
 				Tooltip: ""
-				Upsides: +2% of maximum health regenerated per second on wearer
+				Upsides: +4 health regenerated per second on wearer
 				Notes:
 					'''
-					Provides group speed buff
-					with damage done giving health.
+					Provides group speed buff with damage done giving health.
 					Gain rage with damage.
 					'''
 			}
@@ -1681,8 +1618,13 @@ Mods: {
 					'''
 					+25% damage bonus
 					+80% projectile speed
+					Mini-crits Touhou girls
 					'''
-				Downsides: -70% explosion radius
+				Downsides:
+					'''
+					-70% explosion radius
+					No focus shot
+					'''
 			}
 
 			Equalizer: {
@@ -1697,6 +1639,7 @@ Mods: {
 				DisplayName: Gunboats
 				Tooltip: ""
 				Upsides: -60% damage vulnerability
+				Downsides: No random health kits
 			}
 
 			RocketJumper: {
@@ -1704,7 +1647,7 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					50% chance to not consume ammo
+					+200% max primary ammo on wearer
 					No self inflicted blast damage taken
 					'''
 				Downsides:
@@ -1748,14 +1691,12 @@ Mods: {
 				Header: Cloak Type: Motion Sensitive.
 				Header2:
 					'''
-					Assign key to turn invisible. Cannot be damaged while invisible.
-					Attacking while invisible temporarily disables cloaking.
+					Assign key to turn invisible. Cannot be damaged while invisible. Attacking while invisible temporarily disables cloaking.
 					Cloak drain rate based on movement speed.
 					'''
 				Header3:
 					'''
-					: Turn invisible. Cannot be damaged while invisible.
-					Attacking while invisible temporarily disables cloaking.
+					: Turn invisible. Cannot be damaged while invisible. Attacking while invisible temporarily disables cloaking.
 					Cloak drain rate based on movement speed.
 					'''
 				Upsides: +100% cloak regen rate
@@ -1771,7 +1712,11 @@ Mods: {
 				DisplayName: Conniver's Kunai
 				Tooltip: ""
 				Upsides: On Backstab: Absorbs the health from your victim
-				Downsides: -44% of max health on wearer
+				Downsides:
+					'''
+					-55 max health on wearer
+					No random health kits
+					'''
 				Notes:
 					'''
 					Start off with low health
@@ -1786,9 +1731,7 @@ Mods: {
 				Header:
 					'''
 					Cloak Type: Feign Death.
-					Leave a fake clone on taking damage
-					and temporarily gain invisibility, speed
-					and damage resistance.
+					Leave a fake clone on taking damage and temporarily gain invisibility, speed and damage resistance.
 					'''
 				Upsides:
 					'''
@@ -1801,26 +1744,14 @@ Mods: {
 			InvisWatch: {
 				DisplayName: Invis Watch
 				Tooltip: ""
-				Notes:
-					'''
-					Assign key to turn invisible.
-					Cannot be damaged while invisible.
-					'''
-				Notes2:
-					'''
-					: Turn invisible.
-					Cannot be damaged while invisible.
-					'''
+				Notes: Assign key to turn invisible. Cannot be damaged while invisible.
+				Notes2: ": Turn invisible. Cannot be damaged while invisible."
 			}
 
 			Knife: {
 				DisplayName: Knife
 				Tooltip: ""
-				Notes:
-					'''
-					Alt-Fire: Does a backstab that lunges the player
-					and deals critical damage.
-					'''
+				Notes: Alt-Fire: Does a backstab that lunges the player and deals critical damage.
 			}
 
 			LEtranger: {
@@ -1842,11 +1773,7 @@ Mods: {
 			Sapper: {
 				DisplayName: Sapper
 				Tooltip: ""
-				Notes:
-					'''
-					Throw onto enemies to electrocute them
-					and slowly drain away their health.
-					'''
+				Notes: Throw onto enemies to electrocute them and slowly drain away their health.
 			}
 
 			YourEternalReward: {
@@ -1867,18 +1794,15 @@ Mods: {
 				Downsides:
 					'''
 					No random critical hits
-					-14% max health on wearer
+					-25 max health on wearer
 					'''
-				Notes:
-					'''
-					Cursed by dark spirits similar to
-					those that dwell within the Eyelander.
-					'''
+				Notes: Cursed by dark spirits similar to those that dwell within the Eyelander.
 			}
 
 			TF2MountItem: {
 				DisplayName: Mann's Anti Danmaku System
-				Tooltip:
+				Tooltip: ""
+				Notes:
 					'''
 					Dodge danmaku like you dodge child support!
 					Jump to focus, slowing movement, decreasing hitbox size against danmaku, and enabling homing shots for some weapons.
@@ -1917,7 +1841,7 @@ Mods: {
 				Upsides:
 					'''
 					+200% afterburn damage bonus
-					Extinguishing teammates restores 11% of max health
+					Extinguishing teammates restores 20 health
 					'''
 				Downsides: Reloading required
 			}
@@ -1961,7 +1885,11 @@ Mods: {
 					50% faster reload time
 					Fires a burst of 3 rockets
 					'''
-				Downsides: -50% damage penalty
+				Downsides:
+					'''
+					-50% damage penalty
+					-10% max primary ammo on wearer
+					'''
 			}
 
 			HeadhunterPistols: {
@@ -1976,98 +1904,20 @@ Mods: {
 					'''
 					100% slower firing speed
 					100% slower reload time
+					-44% max secondary ammo on wearer
 					No random critical hits
 					'''
 			}
 		}
 
-		Projectiles: {
-			WrenchHitbox.DisplayName: Wrench
-			Bullet.DisplayName: Bullet
-			Grenade.DisplayName: Grenade
-			LochnLoadGrenade.DisplayName: Grenade
-			ScottishResistanceStickybomb.DisplayName: Stickybomb
-			ShieldHitbox.DisplayName: Shield Bash
-			Stickybomb.DisplayName: Stickybomb
-			StickyJumperStickybomb.DisplayName: Stickybomb
-			UllapoolCaberHitbox.DisplayName: Ullapool Caber Hitbox
-			WranglerBeam.DisplayName: Wrangler Beam
-			FistProjectile.DisplayName: Fists
-			FistsOfSteelProjectile.DisplayName: Fists
-			GlovesOfRunningUrgentlyProjectile.DisplayName: Fists
-			KillingGlovesOfBoxingProjectile.DisplayName: Fists
-			WarriorsSpiritProjectile.DisplayName: Fists
-			NataschaBullet.DisplayName: Bullet
-			BlutsaugerSyringe.DisplayName: Syringe
-			CrusadersCrossbowSyringe.DisplayName: Syringe
-			HealingBeam.DisplayName: Healing Beam
-			HealingBeamKritzkrieg.DisplayName: Healing Beam
-			Syringe.DisplayName: Syringe
-			FlareNPC.DisplayName: Flare
-			GrenadeNPC.DisplayName: Grenade
-			KnifeProjectileNPC.DisplayName: Knife
-			SentryRocket.DisplayName: Rocket
-			SyringeNPC.DisplayName: Healing Syringe
-			Airblast.DisplayName: Air blast
-			DegreaserFire.DisplayName: Fire
-			Fire.DisplayName: Fire
-			Flare.DisplayName: Flare
-			Baseball.DisplayName: Baseball
-			BostonBasherHitbox.DisplayName: Boston Basher
-			ForceANatureBullet.DisplayName: Bullet
-			MadMilkProjectile.DisplayName: Mad Milk
-			ShoveHitbox.DisplayName: Shove
-			Arrow.DisplayName: Arrow
-			JarateProjectile.DisplayName: Jarate
-			SydneySleeperDart.DisplayName: Sydney Sleeper Dart
-			BlackBoxRocket.DisplayName: Rocket
-			DirectHitRocket.DisplayName: Rocket
-			Rocket.DisplayName: Rocket
-			RocketJumperRocket.DisplayName: Rocket
-			KnifeProjectile.DisplayName: Knife
-			SapperProjectile.DisplayName: Sapper
-			YourEternalRewardBeam.DisplayName: Your Eternal Reward
-			YourEternalRewardProjectile.DisplayName: Knife
-			AmagimiHijirisAirScroll.DisplayName: Amagimi Hijiri's Air Scroll
-			ButterflyWing.DisplayName: Makai Butterfly
-			DevilsRecitation1.DisplayName: Devil's Recitation
-			DevilsRecitation2.DisplayName: Devil's Recitation
-			DevilsRecitation3.DisplayName: Devil's Recitation
-			DevilsRecitation4.DisplayName: Devil's Recitation
-			DevilsRecitation5.DisplayName: Devil's Recitation
-			DevilsRecitation6.DisplayName: Devil's Recitation
-			DevilsRecitation7.DisplayName: Devil's Recitation
-			FlyingFantastica1.DisplayName: Flying Fantastica
-			FlyingFantastica2.DisplayName: Flying Fantastica
-			FlyingFantastica3.DisplayName: Flying Fantastica
-			FlyingFantastica4.DisplayName: Flying Fantastica
-			FlyingFantastica5.DisplayName: Flying Fantastica
-			MysticFragranceofaMakaiButterfly1.DisplayName: Mystic Fragrance of a Makai Butterfly
-			MysticFragranceofaMakaiButterfly2.DisplayName: Mystic Fragrance of a Makai Butterfly
-			MysticFragranceofaMakaiButterfly3.DisplayName: Mystic Fragrance of a Makai Butterfly
-			OmenofPurpleClouds1.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds2.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds3.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds4.DisplayName: Omen of Purple Clouds
-			PreMysticFragranceofaMakaiButterfly1.DisplayName: Byakuren Hijiri's Danmaku
-			PreMysticFragranceofaMakaiButterfly2.DisplayName: Byakuren Hijiri's Laser
-			PreOmenofPurpleClouds1.DisplayName: Byakuren Hijiri's Danmaku
-			PreOmenofPurpleClouds2.DisplayName: Byakuren Hijiri's Danmaku
-			PreOmenofPurpleClouds3.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom1.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom2.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom3.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom4.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom5.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom6.DisplayName: Byakuren Hijiri's Danmaku
-			StarMaelstrom1.DisplayName: Star Maelstrom
-			StarMaelstrom2.DisplayName: Star Maelstrom
-			HellFire.DisplayName: Fire
-			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
-			ConniversKunaiProjectile.DisplayName: Connivers Kunai Projectile
+		Keybinds: {
+			Cloak.DisplayName: Cloak
+			Reload.DisplayName: Reload
+			"Buff Banner.DisplayName": Buff Banner
+			"Shield Charge.DisplayName": Shield Charge
+			"Homing Distance.DisplayName": Homing Distance
+			"Mount Speed.DisplayName": Mount Speed
 		}
-
-		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
 
 		NPCs: {
 			DemomanNPC.DisplayName: Demoman
@@ -2152,22 +2002,265 @@ Mods: {
 			}
 		}
 
+		Projectiles: {
+			Bullet.DisplayName: Bullet
+			Grenade.DisplayName: Grenade
+			LochnLoadGrenade.DisplayName: Grenade
+			ScottishResistanceStickybomb.DisplayName: Stickybomb
+			ShieldHitbox.DisplayName: Shield Bash
+			Stickybomb.DisplayName: Stickybomb
+			StickyJumperStickybomb.DisplayName: Stickybomb
+			UllapoolCaberHitbox.DisplayName: Ullapool Caber Hitbox
+			WranglerBeam.DisplayName: Wrangler Beam
+			WrenchHitbox.DisplayName: Wrench
+			FistProjectile.DisplayName: Fists
+			FistsOfSteelProjectile.DisplayName: Fists
+			GlovesOfRunningUrgentlyProjectile.DisplayName: Fists
+			KillingGlovesOfBoxingProjectile.DisplayName: Fists
+			WarriorsSpiritProjectile.DisplayName: Fists
+			NataschaBullet.DisplayName: Bullet
+			BlutsaugerSyringe.DisplayName: Syringe
+			CrusadersCrossbowSyringe.DisplayName: Syringe
+			HealingBeam.DisplayName: Healing Beam
+			HealingBeamKritzkrieg.DisplayName: Healing Beam
+			Syringe.DisplayName: Syringe
+			FlareNPC.DisplayName: Flare
+			GrenadeNPC.DisplayName: Grenade
+			KnifeProjectileNPC.DisplayName: Knife
+			SentryRocket.DisplayName: Rocket
+			SyringeNPC.DisplayName: Healing Syringe
+			Airblast.DisplayName: Air blast
+			DegreaserFire.DisplayName: Fire
+			Fire.DisplayName: Fire
+			Flare.DisplayName: Flare
+			Baseball.DisplayName: Baseball
+			BostonBasherHitbox.DisplayName: Boston Basher
+			ForceANatureBullet.DisplayName: Bullet
+			MadMilkProjectile.DisplayName: Mad Milk
+			ShoveHitbox.DisplayName: Shove
+			Arrow.DisplayName: Arrow
+			JarateProjectile.DisplayName: Jarate
+			SydneySleeperDart.DisplayName: Sydney Sleeper Dart
+			BlackBoxRocket.DisplayName: Rocket
+			DirectHitRocket.DisplayName: Rocket
+			Rocket.DisplayName: Rocket
+			RocketJumperRocket.DisplayName: Rocket
+			KnifeProjectile.DisplayName: Knife
+			SapperProjectile.DisplayName: Sapper
+			YourEternalRewardBeam.DisplayName: Your Eternal Reward
+			YourEternalRewardProjectile.DisplayName: Knife
+			AmagimiHijirisAirScroll.DisplayName: Amagimi Hijiri's Air Scroll
+			ButterflyWing.DisplayName: Makai Butterfly
+			DevilsRecitation1.DisplayName: Devil's Recitation
+			DevilsRecitation2.DisplayName: Devil's Recitation
+			DevilsRecitation3.DisplayName: Devil's Recitation
+			DevilsRecitation4.DisplayName: Devil's Recitation
+			DevilsRecitation5.DisplayName: Devil's Recitation
+			DevilsRecitation6.DisplayName: Devil's Recitation
+			DevilsRecitation7.DisplayName: Devil's Recitation
+			FlyingFantastica1.DisplayName: Flying Fantastica
+			FlyingFantastica2.DisplayName: Flying Fantastica
+			FlyingFantastica3.DisplayName: Flying Fantastica
+			FlyingFantastica4.DisplayName: Flying Fantastica
+			FlyingFantastica5.DisplayName: Flying Fantastica
+			MysticFragranceofaMakaiButterfly1.DisplayName: Mystic Fragrance of a Makai Butterfly
+			MysticFragranceofaMakaiButterfly2.DisplayName: Mystic Fragrance of a Makai Butterfly
+			MysticFragranceofaMakaiButterfly3.DisplayName: Mystic Fragrance of a Makai Butterfly
+			OmenofPurpleClouds1.DisplayName: Omen of Purple Clouds
+			OmenofPurpleClouds2.DisplayName: Omen of Purple Clouds
+			OmenofPurpleClouds3.DisplayName: Omen of Purple Clouds
+			OmenofPurpleClouds4.DisplayName: Omen of Purple Clouds
+			PreMysticFragranceofaMakaiButterfly1.DisplayName: Byakuren Hijiri's Danmaku
+			PreMysticFragranceofaMakaiButterfly2.DisplayName: Byakuren Hijiri's Laser
+			PreOmenofPurpleClouds1.DisplayName: Byakuren Hijiri's Danmaku
+			PreOmenofPurpleClouds2.DisplayName: Byakuren Hijiri's Danmaku
+			PreOmenofPurpleClouds3.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom1.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom2.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom3.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom4.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom5.DisplayName: Byakuren Hijiri's Danmaku
+			PreStarMaelstrom6.DisplayName: Byakuren Hijiri's Danmaku
+			StarMaelstrom1.DisplayName: Star Maelstrom
+			StarMaelstrom2.DisplayName: Star Maelstrom
+			HellFire.DisplayName: Fire
+			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
+			ConniversKunaiProjectile.DisplayName: Connivers Kunai Projectile
+			AustraliumDrillProjectile.DisplayName: Australium Drill Projectile
+		}
+
 		Tiles.CraftingAnvil.MapEntry: Crafting Anvil
 
-		Keybinds: {
-			Cloak.DisplayName: Cloak
-			Reload.DisplayName: Reload
-			"Buff Banner.DisplayName": Buff Banner
-			"Shield Charge.DisplayName": Shield Charge
-			"Homing Distance.DisplayName": Homing Distance
-			"Mount Speed.DisplayName": Mount Speed
-		}
+		TownNPCMood: {
+			SaxtonHale: {
+				Content: This place is like Australia!
+				NoHome: Where home?
+				LoveSpace: Not too many people, just how I like it!
+				FarFromHome: I want to go home!
+				DislikeCrowded: Too many folks. Saxton Hale no likey!
+				HateCrowded: Everyone else is ugly and cringe. Saxton Hale very no likey!
+				LikeBiome: "{BiomeName} is the perfect place to fight animals."
+				LoveBiome: RED and BLU should fight over {BiomeName} instead of useless gravel pits.
+				DislikeBiome: Australians, like me, are unfit for {BiomeName}.
+				HateBiome: "{BiomeName} is more useless than gravel pit."
+				LikeNPC: "{NPCName} is based!"
+				LoveNPC: "{NPCName} is giga chad!"
+				DislikeNPC: "{NPCName} is cringe"
+				HateNPC: "{NPCName} is the enemy of Mann Co."
+			}
 
-		BossChecklistIntegration: {
-			BossRush: {
-				EntryName: Boss Rush
-				SpawnInfo: Fight Gensokyo's greatest warriors and face the consequences...
+			Administrator: {
+				Content: Flawless victory!
+				NoHome: Flawless defeat!
+				LoveSpace: Time has been added.
+				FarFromHome: The bomb is nearing the checkpoint!
+				DislikeCrowded: Alert! The enemy has taken our intelligence!
+				HateCrowded: You've failed. The enemy has captured our intelligence.
+				LikeBiome: Control point enabled.
+				LoveBiome: Control point enabled, get moving!
+				DislikeBiome: Alert! The control point is being captured.
+				HateBiome: We have lost the control point!
+				LikeNPC: "{NPCName} is the least disappointing."
+				LoveNPC: You're all winners! Now, {NPCName}'s an actual winner.
+				DislikeNPC: I am dumbstruck by your mediocrity, {NPCName}.
+				HateNPC: Humiliating defeat, {NPCName}!
+			}
+
+			MissPauling: {
+				Content: I like it here.
+				NoHome: I don't have anywhere to go, do I?
+				LoveSpace: Perfect vacation spot!
+				FarFromHome: Where am I?
+				DislikeCrowded: A little too crowded here?
+				HateCrowded: Definitely too crowded here.
+				LikeBiome: "{BiomeName} is pretty nice."
+				LoveBiome: "{BiomeName} is very nice. Sad that I only have one day off."
+				DislikeBiome: "{BiomeName} is a bit uncomfortable. I could stay here a little longer though."
+				HateBiome: "{BiomeName} is not where I want to spend my one day off."
+				LikeNPC: "{NPCName} is a cool person."
+				LoveNPC: "{NPCName} is the best boss ever!"
+				DislikeNPC: "{NPCName} might not be the person I can get along with."
+				HateNPC: Yeah no. I'm not staying with {NPCName}.
 			}
 		}
+
+		UI: {
+			TF2MercenaryCreation: {
+				Mercenary: Mercenary
+				Classless: Terrarian
+				Offense: Offense
+				Defense: Defense
+				Support: Support
+				SelectClassText: Select A Class
+				RandomClass: Random Class
+				Next: Next
+				Scout:
+					'''
+					• You run faster than other classes!
+					• Double jump while in the air!
+					'''
+				Soldier:
+					'''
+					• Shoot your rocket launcher at bosses!
+					• Use your rocket launcher to rocket jump.
+					'''
+				Pyro:
+					'''
+					• Scorch everything alive!
+					• Airblast with your flamethrower to extinguish allies!
+					'''
+				Demoman:
+					'''
+					• Remote detonate your stickybombs when enemies are near them!
+					• Stickybomb jump by standing on a stickybomb and jumping as your detonate.
+					'''
+				Heavy: • Spin your minigun without firing to be ready for approaching enemies!
+				Engineer:
+					'''
+					• Collect metal from enemies to build with!
+					• Build sentry guns to defend yourself!
+					• Build dispensers to resupply your team!
+					'''
+				Medic:
+					'''
+					• Fill your ÜberCharge by healing your teammates!
+					• Use a full ÜberCharge to gain invulnerability for you and your teammates.
+					'''
+				Sniper:
+					'''
+					• Your sniper rifle will power up to do more damage while you are zoomed in!
+					• Fully charge your sniper rifle to do critical hits!
+					'''
+				Spy:
+					'''
+					• Cloak yourself to become invulnerable!
+					• Backstab your enemies with your knife to do critical hits!
+					• Throw sappers on enemies to stun them!
+					'''
+			}
+
+			HUD: {
+				Scout: {
+					Ball: Ball
+					Drink: Drink
+				}
+
+				Soldier: {
+					Rage: Rage
+					Mangler: Mangler
+				}
+
+				Demoman: {
+					Charge: Charge
+					Heads: Heads
+				}
+
+				Heavy.Food: Food
+
+				Engineer: {
+					Revenge: Revenge
+					Crikey: Crikey
+				}
+
+				Medic: {
+					Ubercharge: ÜberCharge
+					Organs: Organs
+				}
+
+				Sniper: {
+					Jar: Jar
+					Razorback: Razorback
+					Crikey: Crikey
+				}
+
+				Spy: {
+					Cloak: Cloak
+					Motion: Motion
+					Feign: Feign
+				}
+			}
+
+			Items: {
+				Drill: Drill
+				DrillDescription:
+					'''
+					Mines through ores, wood, and walls
+					Drill power:
+					'''
+				Mount: Mount
+				MountInstruction: Assign keybind to change homing power
+				MountInstruction2: Press
+				MountInstruction3: to change homing power
+				MountInstruction4: Assign keybind to change to change speed
+				MountInstruction5: to change speed
+				MultiClass: Multi-Class
+				Owner: "'s"
+				SoulItem: Usable Item
+				SoulItemDescription: Increases attack power to
+				SoulItemDescription2: and health to
+			}
+		}
+
+		BossChecklistIntegration.BossRush.EntryName: Boss Rush
 	}
 }

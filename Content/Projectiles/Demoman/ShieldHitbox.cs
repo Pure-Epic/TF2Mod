@@ -4,79 +4,66 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items;
-using TF2.Content.Items.Demoman;
+using TF2.Content.Items.Weapons;
+using TF2.Content.Items.Weapons.Demoman;
 
 namespace TF2.Content.Projectiles.Demoman
 {
-    public class ShieldHitbox : ModProjectile
+    public class ShieldHitbox : TF2Projectile
     {
-        public int Timer
-        {
-            get => (int)Projectile.ai[0];
-            set => Projectile.ai[0] = value;
-        }
-
         public float CollisionWidth => 10f * Projectile.scale;
 
         public int totalDuration = 90;
 
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.Size = new Vector2(10); // This sets width and height to the same value (important when projectiles can rotate)
-            Projectile.aiStyle = -1; // Use our own AI to customize how it behaves, if you don't want that, keep this at ProjAIStyleID.ShortSword. You would still need to use the code in SetVisualOffsets() though
-            Projectile.friendly = true;
+            SetProjectileSize(10, 10);
+            Projectile.aiStyle = -1;
             Projectile.penetrate = 1;
+            Projectile.friendly = true;
+            Projectile.timeLeft = TF2.Time(12);
             Projectile.tileCollide = false;
-            Projectile.scale = 1f;
-            Projectile.ownerHitCheck = true; // Prevents hits through tiles. Most melee weapons that use projectiles have this
-            Projectile.extraUpdates = 1; // Update 1+extraUpdates times per tick
-            Projectile.timeLeft = 720; // This value does not matter since we manually kill it earlier, it just has to be higher than the duration we use in AI
-            Projectile.hide = false; // Important when used alongside player.heldProj. "Hidden" projectiles have special draw conditions
-            Projectile.alpha = 255;
+            Projectile.ignoreWater = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.hide = true;
             Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Player player = Main.player[Projectile.owner];
-            if (player.GetModPlayer<ClaidheamhMorPlayer>().claidheamhMorInInventory)
-                totalDuration = 120;
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
+            if (Player.GetModPlayer<ClaidheamhMorPlayer>().claidheamhMorInInventory)
+                totalDuration = TF2.Time(2);
+            ShieldPlayer shield = Player.GetModPlayer<TF2Player>().shieldType switch
             {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>(),
+                1 => Player.GetModPlayer<CharginTargePlayer>(),
+                _ => Player.GetModPlayer<CharginTargePlayer>(),
             };
             shield.chargeLeft = totalDuration - Timer;
             shield.chargeDuration = totalDuration;
-            TF2Weapon weapon = player.HeldItem.ModItem as TF2Weapon;
-            if (player.controlUseItem && player.HeldItem.ModItem is TF2WeaponMelee && weapon.WeaponCanBeUsed(player))
+            TF2Weapon weapon = Player.HeldItem.ModItem as TF2Weapon;
+            if (Player.controlUseItem && weapon.IsWeaponType(TF2Item.Melee) && weapon.WeaponCanBeUsed(Player))
             {
                 shield.activateGracePeriod = true;
                 shield.chargeActive = false;
                 shield.chargeProjectileCreated = false;
-                player.velocity = new Vector2(0f, 0f);
+                Player.velocity = new Vector2(0f, 0f);
                 Projectile.Kill();
                 return;
             }
-
-            Timer++;
-
             if (Timer >= totalDuration)
             {
                 shield.chargeActive = false;
                 shield.chargeProjectileCreated = false;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-                player.velocity = new Vector2(0f, 0f);
+                Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+                Player.velocity = new Vector2(0f, 0f);
                 Projectile.Kill();
                 return;
             }
-
             if (Timer >= 30)
-                player.AddBuff(ModContent.BuffType<MeleeCrit>(), 600);
-
-            Projectile.Center = player.Center;
+                Player.AddBuff(ModContent.BuffType<MeleeCrit>(), TF2.Time(10));
+            Projectile.Center = Player.Center;
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
-            Projectile.rotation = 0f;
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -89,60 +76,57 @@ namespace TF2.Content.Projectiles.Demoman
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, CollisionWidth, ref collisionPoint);
         }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Player player = Main.player[Projectile.owner];
-            player.immuneTime += 60;
-            Timer = totalDuration;
-
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
-            {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>(),
-            };
-
-            shield.activateGracePeriod = false;
-            shield.buffDelay = 0;
-            shield.chargeActive = false;
-            shield.chargeProjectileCreated = false;
-            player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            player.velocity = new Vector2(0f, 0f);
-            Projectile.Kill();
-        }
-
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             if (!info.PvP) return;
-            Player player = Main.player[Projectile.owner];
-            player.immuneTime += 60;
+            Player.immuneTime += 60;
             Timer = totalDuration;
 
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
+            ShieldPlayer shield = Player.GetModPlayer<TF2Player>().shieldType switch
             {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>(),
+                1 => Player.GetModPlayer<CharginTargePlayer>(),
+                _ => Player.GetModPlayer<CharginTargePlayer>(),
             };
 
             shield.activateGracePeriod = false;
             shield.buffDelay = 0;
             shield.chargeActive = false;
             shield.chargeProjectileCreated = false;
-            player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            player.velocity = new Vector2(0f, 0f);
+            Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+            Player.velocity = new Vector2(0f, 0f);
             Projectile.Kill();
         }
 
-        public override void OnKill(int timeLeft)
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            Player player = Main.player[Projectile.owner];
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
+            Player.immuneTime += 60;
+            Timer = totalDuration;
+
+            ShieldPlayer shield = Player.GetModPlayer<TF2Player>().shieldType switch
             {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>(),
+                1 => Player.GetModPlayer<CharginTargePlayer>(),
+                _ => Player.GetModPlayer<CharginTargePlayer>(),
+            };
+
+            shield.activateGracePeriod = false;
+            shield.buffDelay = 0;
+            shield.chargeActive = false;
+            shield.chargeProjectileCreated = false;
+            Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+            Player.velocity = new Vector2(0f, 0f);
+            Projectile.Kill();
+        }
+
+        protected override void ProjectileDestroy(int timeLeft)
+        {
+            ShieldPlayer shield = Player.GetModPlayer<TF2Player>().shieldType switch
+            {
+                1 => Player.GetModPlayer<CharginTargePlayer>(),
+                _ => Player.GetModPlayer<CharginTargePlayer>(),
             };
 
             shield.chargeLeft = 0;
-            shield.chargeDuration = 90;
+            shield.chargeDuration = TF2.Time(1.5);
         }
     }
 }

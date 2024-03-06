@@ -8,14 +8,13 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Items.Consumables;
-using TF2.Content.Projectiles;
 using TF2.Gensokyo.Common;
 using TF2.Gensokyo.Content.Items.Consumables;
-using TF2.Gensokyo.Content.Items.Pyro;
-using TF2.Gensokyo.Content.Items.Scout;
-using TF2.Gensokyo.Content.Items.Sniper;
-using TF2.Gensokyo.Content.Items.Soldier;
-using TF2.Gensokyo.Content.Items.Spy;
+using TF2.Gensokyo.Content.Items.Weapons.Pyro;
+using TF2.Gensokyo.Content.Items.Weapons.Scout;
+using TF2.Gensokyo.Content.Items.Weapons.Sniper;
+using TF2.Gensokyo.Content.Items.Weapons.Soldier;
+using TF2.Gensokyo.Content.Items.Weapons.Spy;
 using TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
@@ -471,30 +470,30 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Timer % 60 == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<PreStarMaelstrom1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile].owner = NPC.whoAmI;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom2>(), damage, 0f, NPC.target);
-                Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile2].owner = NPC.whoAmI;
                 PreStarMaelstrom2 butterflyWing = (PreStarMaelstrom2)Main.projectile[projectile2].ModProjectile;
                 butterflyWing.center = NPC.Center + new Vector2(-200f, -200f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
                 int projectile3 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom2>(), damage, 0f, NPC.target);
-                Main.projectile[projectile3].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile3].owner = NPC.whoAmI;
                 PreStarMaelstrom2 butterflyWing2 = (PreStarMaelstrom2)Main.projectile[projectile3].ModProjectile;
                 butterflyWing2.center = NPC.Center + new Vector2(200f, -200f);
                 butterflyWing2.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile3);
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom3>(), damage, 0f, NPC.target);
-                Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile4].owner = NPC.whoAmI;
                 PreStarMaelstrom3 butterflyWing3 = (PreStarMaelstrom3)Main.projectile[projectile4].ModProjectile;
                 butterflyWing3.center = NPC.Center + new Vector2(-500f, 375f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile4);
 
                 int projectile5 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<PreStarMaelstrom3>(), damage, 0f, NPC.target);
-                Main.projectile[projectile5].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile5].owner = NPC.whoAmI;
                 PreStarMaelstrom3 butterflyWing4 = (PreStarMaelstrom3)Main.projectile[projectile5].ModProjectile;
                 butterflyWing4.center = NPC.Center + new Vector2(500f, 375f);
                 butterflyWing4.ProjectileAI = 1;
@@ -520,21 +519,21 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Timer == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile].owner = NPC.whoAmI;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile2].owner = NPC.whoAmI;
                 OmenofPurpleClouds1 omenofPurpleClouds1 = (OmenofPurpleClouds1)Main.projectile[projectile2].ModProjectile;
                 omenofPurpleClouds1.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
                 int projectile3 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds3>(), damage, 0f, NPC.target);
-                Main.projectile[projectile3].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile3].owner = NPC.whoAmI;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile3);
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX * 15f, ModContent.ProjectileType<OmenofPurpleClouds3>(), damage, 0f, NPC.target);
-                Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile4].owner = NPC.whoAmI;
                 OmenofPurpleClouds3 omenofPurpleClouds3 = (OmenofPurpleClouds3)Main.projectile[projectile4].ModProjectile;
                 omenofPurpleClouds3.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile4);
@@ -551,27 +550,27 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                 CreateWings();
 
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile].owner = NPC.whoAmI;
                 MysticFragranceofaMakaiButterfly1 makaiButterflyWing = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile].ModProjectile;
                 makaiButterflyWing.center = NPC.Center + new Vector2(-200f, -200f);
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
 
                 int projectile2 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile2].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile2].owner = NPC.whoAmI;
                 MysticFragranceofaMakaiButterfly1 makaiButterflyWing2 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile2].ModProjectile;
                 makaiButterflyWing2.center = NPC.Center + new Vector2(200f, -200f);
                 makaiButterflyWing2.ProjectileAI = 1;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile2);
 
                 int projectile3 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile3].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile3].owner = NPC.whoAmI;
                 MysticFragranceofaMakaiButterfly1 makaiButterflyWing3 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile3].ModProjectile;
                 makaiButterflyWing3.center = NPC.Center + new Vector2(-500f, 375f);
                 makaiButterflyWing3.ProjectileAI = 2;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile3);
 
                 int projectile4 = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<MysticFragranceofaMakaiButterfly1>(), damage, 0f, NPC.target);
-                Main.projectile[projectile4].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile4].owner = NPC.whoAmI;
                 MysticFragranceofaMakaiButterfly1 makaiButterflyWing4 = (MysticFragranceofaMakaiButterfly1)Main.projectile[projectile4].ModProjectile;
                 makaiButterflyWing4.center = NPC.Center + new Vector2(500f, 375f);
                 makaiButterflyWing4.ProjectileAI = 3;
@@ -628,7 +627,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                     for (int j = 0; j < 12; j++)
                     {
                         int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.UnitX, ModContent.ProjectileType<StarMaelstrom1>(), damage, 0f, NPC.target);
-                        Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                        Main.projectile[projectile].owner = NPC.whoAmI;
                         StarMaelstrom1 starMaelstrom = (StarMaelstrom1)Main.projectile[projectile].ModProjectile;
                         starMaelstrom.center = center;
                         starMaelstrom.angleOffset = 30f * j;
@@ -670,7 +669,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                             break;
                     }
                     int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), center, Vector2.UnitY, ModContent.ProjectileType<DevilsRecitation1>(), damage * 2, 0f, NPC.target);
-                    Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                    Main.projectile[projectile].owner = NPC.whoAmI;
                     DevilsRecitation1 laser = (DevilsRecitation1)Main.projectile[projectile].ModProjectile;
                     laser.ProjectileAI = i;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
@@ -734,7 +733,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             if (Timer % 2 == 0)
             {
                 int projectile = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center, Vector2.Zero, ModContent.ProjectileType<AmagimiHijirisAirScroll>(), damage, 0f, NPC.target);
-                Main.projectile[projectile].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[projectile].owner = NPC.whoAmI;
                 NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
             }
         }
@@ -773,7 +772,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
                         break;
                 }
                 int wing = Projectile.NewProjectile(NPC.GetSource_FromAI(), center, Vector2.UnitX, ModContent.ProjectileType<ButterflyWing>(), 0, 0f, NPC.target);
-                Main.projectile[wing].GetGlobalProjectile<TF2ProjectileBase>().owner = NPC.whoAmI;
+                Main.projectile[wing].owner = NPC.whoAmI;
                 NetMessage.SendData(MessageID.SyncProjectile, number: wing);
             }
         }

@@ -211,9 +211,7 @@ namespace TF2.Content.NPCs.TownNPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -222,9 +220,9 @@ namespace TF2.Content.NPCs.TownNPCs
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = NPC.damage;
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f));
                 }

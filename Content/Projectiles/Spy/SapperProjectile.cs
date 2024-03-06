@@ -10,14 +10,8 @@ using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Spy
 {
-    public class SapperProjectile : ModProjectile
+    public class SapperProjectile : TF2Projectile
     {
-        public bool StickOnEnemy
-        {
-            get => Projectile.ai[0] == 1f;
-            set => Projectile.ai[0] = value ? 1f : 0f;
-        }
-
         public int TargetWhoAmI
         {
             get => (int)Projectile.ai[1];
@@ -36,32 +30,39 @@ namespace TF2.Content.Projectiles.Spy
             set => Projectile.localAI[0] = value;
         }
 
-        private const int GravityDelay = 45;
-
-        public override void SetDefaults()
+        public bool StickOnEnemy
         {
-            Projectile.width = 32;                  // The width of Projectile hitbox
-            Projectile.height = 32;                 // The height of Projectile hitbox
-            Projectile.aiStyle = 0;                 // The ai style of the Projectile, please reference the source code of Terraria
-            Projectile.friendly = true;             // Can the Projectile deal damage to enemies?
-            Projectile.hostile = false;             // Can the Projectile deal damage to the player?
-            Projectile.penetrate = 2;               // How many monsters the Projectile can penetrate. (OnTileCollide below also decrements penetrate for bounces as well)
-            Projectile.timeLeft = 600;              // The live time for the Projectile (60 = 1 second, so 600 is 10 seconds)
-            Projectile.alpha = 255;                 // The transparency of the Projectile, 255 for completely transparent. (aiStyle 1 quickly fades the Projectile in) Make sure to delete this if you aren't using an aiStyle that fades in. You'll wonder why your Projectile is invisible.
-            Projectile.ignoreWater = true;          // Does the Projectile's speed be influenced by water?
-            Projectile.tileCollide = true;          // Can the Projectile collide with tiles?
-            Projectile.hide = true;                 // Makes the Projectile completely invisible. We need this to draw our Projectile behind enemies/tiles in DrawBehind()
+            get => Projectile.localAI[0] == 1f;
+            set => Projectile.localAI[0] = value ? 1f : 0f;
+        }
+
+
+        private const int maxSappers = 1;
+        private readonly Point[] activeSappers = new Point[maxSappers];
+        private const int GravityDelay = 45;
+        private const int stickTime = 600;
+        private const int AlphaFadeInSpeed = 25;
+
+        protected override void ProjectileStatistics()
+        {
+            SetProjectileSize(10, 10);
+            Projectile.aiStyle = -1;
+            Projectile.penetrate = 1;
+            Projectile.friendly = true;
+            Projectile.timeLeft = TF2.Time(10);
+            Projectile.tileCollide = false;
+            Projectile.ignoreWater = true;
+            Projectile.ownerHitCheck = true;
+            Projectile.alpha = 255;
+            Projectile.hide = true;
+            Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override void AI()
+        protected override void ProjectileAI()
         {
             UpdateAlpha();
-            // Run either the sapping AI or passive AI
-            // Separating into different methods helps keeps your AI clean
             if (!StickOnEnemy)
                 StartingAI();
             else
@@ -70,7 +71,7 @@ namespace TF2.Content.Projectiles.Spy
 
         private void StartingAI()
         {
-            if (Projectile.GetGlobalProjectile<TF2ProjectileBase>().homing)
+            if (homing)
             {
                 float ProjectileSqrt = (float)Math.Sqrt(Projectile.velocity.X * Projectile.velocity.X + Projectile.velocity.Y * Projectile.velocity.Y);
                 float ai = Projectile.localAI[0];
@@ -85,7 +86,7 @@ namespace TF2.Content.Projectiles.Spy
                     Projectile.alpha = 0;
                 float ProjectileX = Projectile.position.X;
                 float ProjectileY = Projectile.position.Y;
-                float maxDetectRadius = Main.player[Projectile.owner].GetModPlayer<TF2Player>().homingPower switch
+                float maxDetectRadius = Player.GetModPlayer<TF2Player>().homingPower switch
                 {
                     0 => 250f,
                     1 => 1250f,
@@ -150,61 +151,62 @@ namespace TF2.Content.Projectiles.Spy
                 }
             }
             Projectile.netUpdate = true;
-
-            GravityDelayTimer++; // Doesn't make sense.
-
-            // For a little while, the sapper will travel with the same speed, but after this, the javelin drops velocity very quickly.
+            GravityDelayTimer++;
             if (GravityDelayTimer >= GravityDelay)
             {
                 GravityDelayTimer = GravityDelay;
-
-                // Wind resistance
                 Projectile.velocity.X *= 0.98f;
-                // Gravity
                 Projectile.velocity.Y += 0.12f;
             }
-
-            // Offset the rotation by 90 degrees because the sprite is oriented vertiacally.
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            SetRotation();
         }
-
-        private const int stickTime = 600;
 
         private void SapAI()
         {
-            Projectile.ignoreWater = true; // Make sure the Projectile ignores water
-            Projectile.tileCollide = false; // Make sure the Projectile doesn't collide with tiles anymore
+            Projectile.tileCollide = false;
             StickTimer += 1f;
-
             int npcTarget = TargetWhoAmI;
             if (StickTimer >= stickTime || npcTarget < 0 || npcTarget >= 200)
-                Projectile.Kill(); // If the index is past its limits, kill it
+                Projectile.Kill();
             else if (Main.npc[npcTarget].active && !Main.npc[npcTarget].dontTakeDamage)
             {
-                // If the target is active and can take damage
-                // Set the Projectile's position relative to the target's center
                 Projectile.Center = Main.npc[npcTarget].Center - Projectile.velocity * 2f;
                 Projectile.gfxOffY = Main.npc[npcTarget].gfxOffY;
-
-                // The damage and stun comes from the debuff, not the Projectile
             }
             else
-                Projectile.Kill(); // Otherwise, kill the Projectile
+                Projectile.Kill();
         }
 
-        public override void OnKill(int timeLeft)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
+        {
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            SappedPlayer sappedPlayer = target.GetModPlayer<SappedPlayer>();
+            sappedPlayer.damageMultiplier = p.classMultiplier;
+            target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10));
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            SappedNPC npc = target.GetGlobalNPC<SappedNPC>();
+            npc.damageMultiplier = p.classMultiplier;
+            target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10));
+            StickOnEnemy = true;
+            TargetWhoAmI = target.whoAmI;
+            Projectile.netUpdate = true;
+            Projectile.damage = 0;
+            Projectile.KillOldestJavelin(Projectile.whoAmI, Type, target.whoAmI, activeSappers);
+        }
+
+        protected override void ProjectileDestroy(int timeLeft)
         {
             if (StickTimer < stickTime) return;
-            SoundEngine.PlaySound(SoundID.Item14, Projectile.position); // Play a death sound
-            Vector2 usePos = Projectile.position; // Position to use for dusts
-
+            SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
+            Vector2 usePos = Projectile.position;
             Vector2 rotationVector = (Projectile.rotation - MathHelper.ToRadians(0f)).ToRotationVector2(); // rotation vector to use for dust velocity
             usePos += rotationVector * 16f;
-
-            // Spawn some dusts upon javelin death
             for (int i = 0; i < 20; i++)
             {
-                // Create a new dust
                 Dust dust = Dust.NewDustDirect(usePos, Projectile.width, Projectile.height, DustID.Electric);
                 dust.position = (dust.position + Projectile.Center) / 2f;
                 dust.velocity += rotationVector * 2f;
@@ -214,33 +216,8 @@ namespace TF2.Content.Projectiles.Spy
             }
         }
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
-        {
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            SappedPlayer sappedPlayer = target.GetModPlayer<SappedPlayer>();
-            sappedPlayer.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<Sapped>(), 600);
-        }
-
-        private const int maxSappers = 1; // This is the max. amount of sappers being able to attach
-        private readonly Point[] activeSappers = new Point[maxSappers]; // The point array holding for sticking sappers
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            SappedNPC npc = target.GetGlobalNPC<SappedNPC>();
-            npc.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<Sapped>(), 600);
-            StickOnEnemy = true;
-            TargetWhoAmI = target.whoAmI; // Set the target whoAmI
-            Projectile.netUpdate = true;
-            Projectile.damage = 0;
-            Projectile.KillOldestJavelin(Projectile.whoAmI, Type, target.whoAmI, activeSappers);
-        }
-
         public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI)
         {
-            // If attached to an NPC, draw behind tiles (and the npc) if that NPC is behind tiles, otherwise just behind the NPC.
             if (StickOnEnemy)
             {
                 int npcIndex = TargetWhoAmI;
@@ -253,20 +230,13 @@ namespace TF2.Content.Projectiles.Spy
                     return;
                 }
             }
-            // Since we aren't attached, add to this list
             behindNPCsAndTiles.Add(index);
         }
 
-        // Change this number if you want to alter how the alpha changes
-        private const int AlphaFadeInSpeed = 25;
-
         private void UpdateAlpha()
         {
-            // Slowly remove alpha as it is present
             if (Projectile.alpha > 0)
                 Projectile.alpha -= AlphaFadeInSpeed;
-
-            // If alpha gets lower than 0, set it to 0
             if (Projectile.alpha < 0)
                 Projectile.alpha = 0;
         }

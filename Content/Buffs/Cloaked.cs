@@ -2,7 +2,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Spy;
+using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.Projectiles;
 
 namespace TF2.Content.Buffs
@@ -27,8 +27,8 @@ namespace TF2.Content.Buffs
     {
         public bool invisWatchEquipped;
         public bool cloakBuff;
-        public int cloakMeter;
-        public int cloakMeterMax = 600;
+        public int cloakMeter = TF2.Time(10);
+        public int cloakMeterMax = TF2.Time(10);
         public int timer;
         private bool playDecloakingSound;
         public bool fullCloak;
@@ -42,20 +42,20 @@ namespace TF2.Content.Buffs
             invisWatchEquipped = false;
             cloakBuff = false;
             Player.opacityForAnimation = 1f;
-            cloakMeterMax = 600;
+            cloakMeterMax = TF2.Time(10);
         }
 
         public override void PostUpdate()
         {
             if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped)
-                cloakMeterMax += 240;
+                cloakMeterMax += TF2.Time(4);
             if (Player.GetModPlayer<YourEternalRewardPlayer>().yourEternalRewardEquipped)
-                cloakMeterMax -= 200;
+                cloakMeterMax -= TF2.Time(3.333);
             if (!Player.GetModPlayer<TF2Player>().initializedClass)
                 cloakMeter = cloakMeterMax;
             if (playDecloakingSound && invisWatchEquipped && cloakMeter <= 0)
             {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/spy_cloak"), Player.Center);
+                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/spy_cloak"), Player.Center);
                 playDecloakingSound = false;
             }
             fullCloak = cloakMeter == cloakMeterMax;
@@ -90,16 +90,16 @@ namespace TF2.Content.Buffs
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (cloakBuff && Player.HasBuff<Cloaked>())
-                cloakMeter -= 150;
+                cloakMeter -= TF2.Time(2.5);
         }
 
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC) return;
+            if (proj.ModProjectile is not TF2Projectile projectile || projectile.spawnedFromNPC) return;
             if (cloakBuff && Player.HasBuff<Cloaked>())
-                cloakMeter -= 150;
-            else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
-                cloakMeter += 126;
+                cloakMeter -= TF2.Time(2.5);
+            else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
+                cloakMeter += TF2.Time(2.1);
         }
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
@@ -107,7 +107,7 @@ namespace TF2.Content.Buffs
             if (!modifiers.PvP) return;
             Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
             if (opponent.GetModPlayer<CloakPlayer>().cloakBuff && opponent.HasBuff<Cloaked>())
-                opponent.GetModPlayer<CloakPlayer>().cloakMeter -= 150;
+                opponent.GetModPlayer<CloakPlayer>().cloakMeter -= TF2.Time(2.5);
         }
 
         public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
@@ -115,9 +115,9 @@ namespace TF2.Content.Buffs
             if (!hurtInfo.PvP) return;
             Player opponent = Main.player[proj.owner];
             if (opponent.GetModPlayer<CloakPlayer>().cloakBuff && opponent.HasBuff<Cloaked>())
-                opponent.GetModPlayer<CloakPlayer>().cloakMeter -= 150;
-            else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.GetGlobalProjectile<TF2ProjectileBase>().lEtrangerProjectile)
-                opponent.GetModPlayer<CloakPlayer>().cloakMeter += 126;
+                opponent.GetModPlayer<CloakPlayer>().cloakMeter -= TF2.Time(2.5);
+            else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
+                opponent.GetModPlayer<CloakPlayer>().cloakMeter += TF2.Time(2.1);
         }
 
         #endregion Cloak Drain On Attack
@@ -126,9 +126,9 @@ namespace TF2.Content.Buffs
         {
             if (cloakBuff && Player.HasBuff<Cloaked>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0)
             {
-                cloakMeter -= 60;
-                Player.GetModPlayer<TF2Player>().cloakImmuneTime += 30;
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/cloak_hit"), Player.Center);
+                cloakMeter -= TF2.Time(1);
+                Player.GetModPlayer<TF2Player>().cloakImmuneTime += TF2.Time(0.5);
+                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/cloak_hit"), Player.Center);
             }
             return cloakBuff;
         }

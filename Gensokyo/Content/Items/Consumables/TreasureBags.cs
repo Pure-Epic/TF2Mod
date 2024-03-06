@@ -8,11 +8,11 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Items;
 using TF2.Gensokyo.Common;
-using TF2.Gensokyo.Content.Items.Pyro;
-using TF2.Gensokyo.Content.Items.Scout;
-using TF2.Gensokyo.Content.Items.Sniper;
-using TF2.Gensokyo.Content.Items.Soldier;
-using TF2.Gensokyo.Content.Items.Spy;
+using TF2.Gensokyo.Content.Items.Weapons.Pyro;
+using TF2.Gensokyo.Content.Items.Weapons.Scout;
+using TF2.Gensokyo.Content.Items.Weapons.Sniper;
+using TF2.Gensokyo.Content.Items.Weapons.Soldier;
+using TF2.Gensokyo.Content.Items.Weapons.Spy;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.Items.Consumables

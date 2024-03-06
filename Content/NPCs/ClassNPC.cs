@@ -63,8 +63,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 125;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/scout_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/scout_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/scout_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/scout_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -110,9 +110,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -121,11 +119,11 @@ namespace TF2.Content.NPCs
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(15 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -151,8 +149,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 200;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/soldier_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/soldier_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/soldier_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/soldier_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -198,9 +196,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -209,11 +205,11 @@ namespace TF2.Content.NPCs
                     int type = ModContent.ProjectileType<SentryRocket>();
                     int damage = (int)(90 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/rocket_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/rocket_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -239,8 +235,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 175;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/pyro_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/pyro_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/pyro_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/pyro_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -286,9 +282,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -299,9 +293,9 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(SoundID.Item11, NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -327,8 +321,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 175;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/demoman_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/demoman_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/demoman_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/demoman_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -374,20 +368,18 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
-                    float speed = 0.125f;
+                    float speed = 12.5f;
                     int type = ModContent.ProjectileType<GrenadeNPC>();
                     int damage = (int)(100 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/grenade_launcher_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/grenade_launcher_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
@@ -415,8 +407,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 300;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/heavy_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/heavy_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/heavy_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/heavy_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -462,9 +454,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -476,9 +466,9 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(SoundID.Item11, NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -504,8 +494,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 125;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/engineer_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/engineer_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -551,9 +541,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -562,18 +550,18 @@ namespace TF2.Content.NPCs
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(6 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/shotgun_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/shotgun_shoot"), NPC.Center);
                     for (int i = 0; i < 10; i++)
                     {
                         if (Main.netMode == NetmodeID.SinglePlayer)
                         {
                             Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(12f));
-                            Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                            TF2.CreateProjectile(null, projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner);
                         }
                         else
                         {
                             Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(12f));
-                            NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                            NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner));
                         }
                     }
                 }
@@ -603,8 +591,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 150;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/medic_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/medic_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/medic_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/medic_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -658,22 +646,20 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
-                    float speed = 20f;
+                    float speed = 25f;
                     int type = ModContent.ProjectileType<SyringeNPC>();
                     int damage = 75;
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/syringegun_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/syringegun_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -700,8 +686,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 125;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/sniper_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/sniper_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/sniper_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/sniper_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -747,9 +733,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -758,11 +742,11 @@ namespace TF2.Content.NPCs
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage = (int)(450 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/pistol_shoot"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/pistol_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
                     else
-                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
+                        NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner));
                 }
             }
         }
@@ -788,8 +772,8 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 125;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/spy_painsharp01");
-            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/spy_paincrticialdeath01");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/spy_painsevere01");
+            NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/spy_paincriticaldeath01");
             NPC.friendly = true;
         }
 
@@ -835,9 +819,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -846,15 +828,15 @@ namespace TF2.Content.NPCs
                     int type = ModContent.ProjectileType<KnifeProjectileNPC>();
                     int damage = (int)(240 * p.classMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/knife_swing"), NPC.Center);
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/knife_swing"), NPC.Center);
                     if ((targetCenter - NPC.Center).Y >= 0f)
                         NPC.velocity = new Vector2(12.5f * NPC.direction, 12.5f);
                     if ((targetCenter - NPC.Center).Y <= 0f)
                         NPC.velocity = new Vector2(12.5f * NPC.direction, -12.5f);
-                    int projectile = Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
-                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)Main.projectile[projectile].ModProjectile;
-                    spawnedModProjectile.owner = NPC;
-                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
+                    TF2Projectile projectile = TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner);
+                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)projectile;
+                    spawnedModProjectile.thisNPC = NPC;
+                    NetMessage.SendData(MessageID.SyncProjectile, number: projectile.Projectile.whoAmI);
                 }
             }
         }

@@ -1,7 +1,7 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Soldier;
+using TF2.Content.Items.Weapons.Soldier;
 
 namespace TF2.Content.Buffs
 {

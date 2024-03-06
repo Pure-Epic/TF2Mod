@@ -23,8 +23,13 @@ namespace TF2.Content.Buffs
         {
             if (penalty && !radiationBuff)
             {
-                Player.AddBuff(BuffID.Slow, 300);
+                Player.AddBuff(BuffID.Slow, TF2.Time(5));
                 penalty = false;
+            }
+            if (radiationBuff && Player.HeldItem.type != ModContent.ItemType<TF2MountItem>() && Player.GetModPlayer<RadioactivePlayer>().radiationBuff)
+            {
+                Player.controlUseItem = false;
+                Player.controlUseTile = false;
             }
         }
 
@@ -33,17 +38,6 @@ namespace TF2.Content.Buffs
             if (radiationBuff)
                 penalty = true;
             return radiationBuff;
-        }
-    }
-
-    public class DrinkCooldown : ModBuff
-    {
-        public override void SetStaticDefaults()
-        {
-            Main.debuff[Type] = true;
-            Main.buffNoSave[Type] = true;
-            BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
-            TF2BuffBase.cooldownBuff[Type] = true;
         }
     }
 
@@ -58,8 +52,7 @@ namespace TF2.Content.Buffs
             if (player.GetModPlayer<RadioactivePlayer>().radiationBuff)
             {
                 player.controlUseItem = false;
-                Main.mouseLeft = false;
-                Main.mouseRight = false;
+                player.controlUseTile = false;
                 return false;
             }
             else

@@ -45,7 +45,7 @@ namespace TF2.Content.Buffs
                     Player.statLife -= (int)(4 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(4 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
-                        Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " burnt to death."), (int)(4 * damageMultiplier), 0);
+                        Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[4]), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
             }

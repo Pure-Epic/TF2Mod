@@ -7,39 +7,28 @@ using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Heavy
 {
-    public class FistProjectile : ModProjectile
+    public class FistProjectile : TF2Projectile
     {
-        public int Timer
-        {
-            get => (int)Projectile.ai[0];
-            set => Projectile.ai[0] = value;
-        }
-
         public float CollisionWidth => 10f * Projectile.scale;
 
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.Size = new Vector2(50);
+            SetProjectileSize(50, 50);
             Projectile.aiStyle = -1;
+            Projectile.penetrate = 1;
             Projectile.friendly = true;
-            Projectile.penetrate = -1;
+            Projectile.timeLeft = TF2.Time(6);
             Projectile.tileCollide = false;
-            Projectile.scale = 1f;
-            Projectile.alpha = 128;
+            Projectile.ignoreWater = true;
             Projectile.ownerHitCheck = true;
+            Projectile.alpha = 128;
             Projectile.extraUpdates = 1;
-            Projectile.timeLeft = 360;
-            Projectile.hide = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Player player = Main.player[Projectile.owner];
-
             Timer += 1;
             if (Timer >= 16)
             {
@@ -47,13 +36,11 @@ namespace TF2.Content.Projectiles.Heavy
                 return;
             }
             else
-                player.heldProj = Projectile.whoAmI;
-
-            Vector2 playerCenter = player.RotatedRelativePoint(player.MountedCenter, reverseRotation: false, addGfxOffY: false);
+                Player.heldProj = Projectile.whoAmI;
+            Vector2 playerCenter = Player.RotatedRelativePoint(Player.MountedCenter, reverseRotation: false, addGfxOffY: false);
             Projectile.Center = playerCenter + Projectile.velocity * 2f * (Timer - 1f);
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2 - MathHelper.PiOver4 * Projectile.spriteDirection;
-
             SetVisualOffsets();
         }
 
@@ -83,7 +70,9 @@ namespace TF2.Content.Projectiles.Heavy
 
     public class KillingGlovesOfBoxingProjectile : FistProjectile
     {
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Main.player[Projectile.owner].AddBuff(ModContent.BuffType<HeavyCrit>(), 300);
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Player.AddBuff(ModContent.BuffType<HeavyCrit>(), TF2.Time(5));
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Player.AddBuff(ModContent.BuffType<HeavyCrit>(), TF2.Time(5));
     }
 
     public class GlovesOfRunningUrgentlyProjectile : FistProjectile
@@ -94,19 +83,17 @@ namespace TF2.Content.Projectiles.Heavy
 
     public class WarriorsSpiritProjectile : FistProjectile
     {
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Player player = Main.player[Projectile.owner];
-            if (hit.Crit && target.type != NPCID.TargetDummy && player.statLife < player.statLifeMax2)
-                player.Heal((int)(player.statLifeMax2 * 0.16666666667f));
-        }
-
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             if (!info.PvP) return;
-            Player player = Main.player[Projectile.owner];
-            if (player.GetModPlayer<TF2Player>().crit && player.statLife < player.statLifeMax2)
-                player.Heal((int)(player.statLifeMax2 * 0.16666666667f));
+            if ((Player.GetModPlayer<TF2Player>().crit || crit) && !TF2Player.IsHealthFull(Player))
+                Player.Heal(TF2.GetHealth(Player, 50));
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (hit.Crit && target.type != NPCID.TargetDummy && !TF2Player.IsHealthFull(Player))
+                Player.Heal(TF2.GetHealth(Player, 50));
         }
     }
 }

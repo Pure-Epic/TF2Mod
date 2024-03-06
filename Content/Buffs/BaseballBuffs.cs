@@ -14,6 +14,8 @@ namespace TF2.Content.Buffs
             BuffID.Sets.IsATagBuff[Type] = true;
         }
 
+        public override void Update(Player player, ref int buffIndex) => player.slow = true;
+
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SluggedNPC>().slowDebuff = true;
     }
 
@@ -36,24 +38,5 @@ namespace TF2.Content.Buffs
             else
                 timer = 0;
         }
-    }
-
-    public class BaseballCooldown : ModBuff
-    {
-        public override void SetStaticDefaults()
-        {
-            Main.debuff[Type] = true;
-            Main.buffNoSave[Type] = true;
-            TF2BuffBase.cooldownBuff[Type] = true;
-        }
-
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BaseballPlayer>().baseballCooldown = true;
-    }
-
-    public class BaseballPlayer : ModPlayer
-    {
-        public bool baseballCooldown;
-
-        public override void ResetEffects() => baseballCooldown = false;
     }
 }

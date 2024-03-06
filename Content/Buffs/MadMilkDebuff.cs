@@ -22,19 +22,6 @@ namespace TF2.Content.Buffs
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<MadMilkNPC>().madMilkDebuff = true;
     }
 
-    public class MadMilkCooldown : ModBuff
-    {
-        public override void SetStaticDefaults()
-        {
-            Main.debuff[Type] = true;
-            Main.buffNoSave[Type] = true;
-            BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
-            TF2BuffBase.cooldownBuff[Type] = true;
-        }
-
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<MadMilkPlayer>().madMilkCooldown = true;
-    }
-
     public class MadMilkPlayer : ModPlayer
     {
         public bool madMilkDebuff;
@@ -99,10 +86,9 @@ namespace TF2.Content.Buffs
         {
             if (madMilkDebuff)
             {
-                if (player.statLife == player.statLifeMax2) return;
+                if (TF2Player.IsHealthFull(player)) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
-                int healthDifference = player.statLifeMax2 / player.statLifeMax;
-                player.Heal((int)(damageDone * 0.6f / classMultiplier * healthDifference));
+                player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
         }
 
@@ -111,10 +97,9 @@ namespace TF2.Content.Buffs
             if (madMilkDebuff)
             {
                 Player player = Main.player[projectile.owner];
-                if (player.statLife == player.statLifeMax2) return;
+                if (TF2Player.IsHealthFull(player)) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
-                int healthDifference = player.statLifeMax2 / player.statLifeMax;
-                player.Heal((int)(damageDone * 0.6f / classMultiplier * healthDifference));
+                player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
         }
 

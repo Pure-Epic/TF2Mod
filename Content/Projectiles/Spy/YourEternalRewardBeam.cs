@@ -2,46 +2,37 @@
 using System;
 using Terraria;
 using Terraria.ID;
-using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items;
 
 namespace TF2.Content.Projectiles.Spy
 {
-    public class YourEternalRewardBeam : ModProjectile
+    public class YourEternalRewardBeam : TF2Projectile
     {
-        public bool projectileInitialized;
-        public bool homing;
-
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
             Projectile.CloneDefaults(ProjectileID.Bullet);
-            Projectile.width = 69; // The width of projectile hitbox
-            Projectile.height = 16; // The height of projectile hitbox
-            Projectile.DamageType = ModContent.GetInstance<TF2DamageClass>();
+            Projectile.width = 69;
+            Projectile.height = 16;
             Projectile.penetrate = 1;
             Projectile.friendly = true;
-            Projectile.hostile = false;
             AIType = ProjectileID.Bullet;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override bool PreAI()
+        protected override bool ProjectilePreAI()
         {
             if (projectileInitialized) return true;
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
+            TF2Player p = Player.GetModPlayer<TF2Player>();
             Projectile.penetrate = p.pierce;
             homing = true;
             projectileInitialized = true;
             return true;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            SetRotation();
             for (int num178 = 0; num178 < 10; num178++)
             {
                 float x2 = Projectile.Center.X - Projectile.velocity.X / 10f * num178;
@@ -128,8 +119,8 @@ namespace TF2.Content.Projectiles.Spy
             }
         }
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info) => homing = false;
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => homing = false;
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => homing = false;
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => homing = false;
     }
 }

@@ -6,10 +6,14 @@ using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.UI;
 using TF2.Common;
-using TF2.Content.Items.Demoman;
+using TF2.Content.Items;
+using TF2.Content.Items.Weapons.Demoman;
 
 namespace TF2.Content.Mounts
 {
@@ -72,6 +76,7 @@ namespace TF2.Content.Mounts
         {
             if (player.whoAmI == Main.myPlayer)
             {
+                player.legFrame.Y = player.legFrame.Height;
                 TF2Player p = player.GetModPlayer<TF2Player>();
                 if (KeybindSystem.HomingPower.JustPressed)
                 {
@@ -146,7 +151,8 @@ namespace TF2.Content.Mounts
                             1 => 1.5f * p.speedMultiplier,
                             _ => 2f * p.speedMultiplier
                         };
-                    p.focus = true;
+                    if (Main.netMode == NetmodeID.SinglePlayer)
+                        p.focus = true;
                 }
                 else if (p.mountSpeed == 1)
                 {
@@ -155,12 +161,14 @@ namespace TF2.Content.Mounts
                         1 => 1.5f * p.speedMultiplier,
                         _ => 2f * p.speedMultiplier
                     };
-                    p.focus = false;
+                    if (Main.netMode == NetmodeID.SinglePlayer)
+                        p.focus = false;
                 }
                 else
                 {
                     speed = p.speedMultiplier;
-                    p.focus = false;
+                    if (Main.netMode == NetmodeID.SinglePlayer)
+                        p.focus = false;
                 }
 
                 ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
@@ -179,6 +187,7 @@ namespace TF2.Content.Mounts
                         5 => new Vector2(player.velocity.X, -(speed * 10f)),
                         _ => new Vector2(player.velocity.X, -(speed * 12.5f))
                     };
+                    SendMountMessage(player);
                 }
                 else if (player.controlDown)
                 {
@@ -196,6 +205,7 @@ namespace TF2.Content.Mounts
                         5 => new Vector2(player.velocity.X, speed * 10f),
                         _ => new Vector2(player.velocity.X, speed * 12.5f)
                     };
+                    SendMountMessage(player);
                 }
                 if (player.controlLeft)
                 {
@@ -209,6 +219,7 @@ namespace TF2.Content.Mounts
                         5 => new Vector2(-(speed * 10f), player.velocity.Y),
                         _ => new Vector2(-(speed * 12.5f), player.velocity.Y)
                     };
+                    SendMountMessage(player);
                 }
                 else if (player.controlRight)
                 {
@@ -222,6 +233,7 @@ namespace TF2.Content.Mounts
                         5 => new Vector2(speed * 10f, player.velocity.Y),
                         _ => new Vector2(speed * 12.5f, player.velocity.Y)
                     };
+                    SendMountMessage(player);
                 }
                 idle = !player.controlUp && !player.controlDown && !player.controlLeft && !player.controlRight! && !p.backStab && !shield.chargeActive;
 
@@ -229,54 +241,38 @@ namespace TF2.Content.Mounts
                 {
                     player.velocity = new Vector2(0f, 0f);
                     player.maxFallSpeed = 0f;
+                    SendMountMessage(player);
                 }
             }
         }
 
         public override void SetMount(Player player, ref bool skipDust) => skipDust = true;
 
-        public override void Dismount(Player player, ref bool skipDust) => player.controlMount = false;
-
-        public override bool Draw(List<DrawData> playerDrawData, int drawType, Player drawPlayer, ref Texture2D texture, ref Texture2D glowTexture, ref Vector2 drawPosition, ref Rectangle frame, ref Color drawColor, ref Color glowColor, ref float rotation, ref SpriteEffects spriteEffects, ref Vector2 drawOrigin, ref float drawScale, float shadow) => false;
-    }
-
-    public class TF2MountItem : ModItem
-    {
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        public override void Dismount(Player player, ref bool skipDust)
         {
-            List<string> currentHomingPowerKey = KeybindSystem.HomingPower.GetAssignedKeys(0);
-            if (currentHomingPowerKey.Count <= 0 || currentHomingPowerKey.Contains("None"))
-            {
-                TooltipLine line = new TooltipLine(Mod, "Homing Attribute",
-                "Assign keybind to change homing power");
-                if (Main.hardMode)
-                    tooltips.Add(line);
-            }
-            else
-            {
-                TooltipLine line = new TooltipLine(Mod, "Homing Attribute",
-                "Press " + currentHomingPowerKey[0] + " to change homing power");
-                if (Main.hardMode)
-                    tooltips.Add(line);
-            }
-
-            List<string> currentMountSpeedKey = KeybindSystem.MountSpeed.GetAssignedKeys(0);
-            if (currentMountSpeedKey.Count <= 0 || currentMountSpeedKey.Contains("None"))
-            {
-                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes",
-                    "Assign keybind to change to change speed");
-                if (NPC.downedMoonlord)
-                    tooltips.Add(line2);
-            }
-            else
-            {
-                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes",
-                    "Press " + currentMountSpeedKey[0] + " to change speed");
-                if (NPC.downedMoonlord)
-                    tooltips.Add(line2);
-            }
+            skipDust = true;
+            player.controlMount = false;
         }
 
+        public override bool Draw(List<DrawData> playerDrawData, int drawType, Player drawPlayer, ref Texture2D texture, ref Texture2D glowTexture, ref Vector2 drawPosition, ref Rectangle frame, ref Color drawColor, ref Color glowColor, ref float rotation, ref SpriteEffects spriteEffects, ref Vector2 drawOrigin, ref float drawScale, float shadow) => false;
+
+        public static void SendMountMessage(Player player)
+        {
+            if (Main.netMode != NetmodeID.SinglePlayer)
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)TF2.MessageType.SyncMount);
+                packet.Write((byte)player.whoAmI);
+                packet.Write(player.Center.X);
+                packet.Write(player.Center.Y);
+                packet.Write(player.direction);
+                packet.Send(ignoreClient: player.whoAmI);
+            }
+        }
+    }
+
+    public class TF2MountItem : TF2Item
+    {
         public override void SetDefaults()
         {
             Item.width = 1000;
@@ -287,9 +283,101 @@ namespace TF2.Content.Mounts
             Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/horror");
             Item.noUseGraphic = true;
             Item.mountType = ModContent.MountType<TF2Mount>();
-            Item.rare = ItemRarityID.Master;
-            Item.value = Item.sellPrice(gold: 1);
+            Item.rare = ModContent.RarityType<NormalRarity>();
+            qualityHashSet.Add(Stock);
+            availability = Starter;
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
+            AddName(tooltips);
+            tooltips.Remove(nameTooltip);
+            RemoveDefaultTooltips(tooltips);         
+            TooltipLine category = new TooltipLine(Mod, "Weapon Category", ((Availability)availability).ToString() + " " + Language.GetTextValue("Mods.TF2.UI.Items.Mount"))
+            {
+                OverrideColor = new Color(117, 107, 94, 255)
+            };
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
+            AddNeutralAttribute(tooltips);
+            List<string> currentHomingPowerKey = KeybindSystem.HomingPower.GetAssignedKeys(0);
+            if (currentHomingPowerKey.Count <= 0 || currentHomingPowerKey.Contains("None"))
+            {
+                TooltipLine line = new TooltipLine(Mod, "Homing Attribute", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction"))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                if (Main.hardMode)
+                    tooltips.Add(line);
+            }
+            else
+            {
+                TooltipLine line = new TooltipLine(Mod, "Homing Attribute", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction2") + " " + currentHomingPowerKey[0] + " " + Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction3"))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                if (Main.hardMode)
+                    tooltips.Add(line);
+            }
+            List<string> currentMountSpeedKey = KeybindSystem.MountSpeed.GetAssignedKeys(0);
+            if (currentMountSpeedKey.Count <= 0 || currentMountSpeedKey.Contains("None"))
+            {
+                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction4"))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                if (NPC.downedMoonlord)
+                    tooltips.Add(line2);
+            }
+            else
+            {
+                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction2") + " " + currentMountSpeedKey[0] + " " + Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction5"))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                if (NPC.downedMoonlord)
+                    tooltips.Add(line2);
+            }
+            if (Item.favorited)
+            {
+                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202, 255)
+                };
+                tooltips.Add(favorite);
+                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202, 255)
+                };
+                tooltips.Add(favoriteDescription);
+                if (Main.LocalPlayer.chest != -1)
+                {
+                    ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
+                    if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
+                    {
+                        TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202, 255)
+                        };
+                        tooltips.Add(favorite);
+                    }
+                }
+            }
+            TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
+            TooltipLine price = priceTooltip;
+            tooltips.Add(price);
+            tooltips.Remove(priceTooltip);
+            TooltipLine specialPriceTooltip = tooltips.FirstOrDefault(x => x.Name == "SpecialPrice" && x.Mod == "Terraria");
+            TooltipLine specialPrice = specialPriceTooltip;
+            tooltips.Add(specialPrice);
+            tooltips.Remove(specialPriceTooltip);
+            TooltipLine journeyResearchTooltip = tooltips.FirstOrDefault(x => x.Name == "JourneyResearch" && x.Mod == "Terraria");
+            TooltipLine journeyModeTooltip = journeyResearchTooltip;
+            tooltips.Add(journeyModeTooltip);
+            tooltips.Remove(journeyResearchTooltip);
+        }
+
+        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => false;
     }
 
     public class TF2MountBuff : ModBuff
@@ -303,6 +391,8 @@ namespace TF2.Content.Mounts
         public override void Update(Player player, ref int buffIndex)
         {
             player.mount.SetMount(ModContent.MountType<TF2Mount>(), player);
+            player.noKnockback = true;
+            player.gravity = 0f;
             player.buffTime[buffIndex] = 10;
         }
     }
@@ -311,39 +401,18 @@ namespace TF2.Content.Mounts
     {
         private Asset<Texture2D> focusModeTexture;
 
-        // Returning true in this property makes this layer appear on the minimap player head icon.
-        // public override bool IsHeadLayer => true;
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => true;
 
-        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus;
-
-        // This layer will be a 'child' of the head layer, and draw before (beneath) it.
-        // If the Head layer is hidden, this layer will also be hidden.
-        // If the Head layer is moved, this layer will move with it.
         public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.Wings);
-
-        // If you want to make a layer which isn't a child of another layer, use `new Between(Layer1, Layer2)` to specify the position.
-        // If you want to make a 'mobile' layer which can render in different locations depending on the drawInfo, use a `Multiple` position.
 
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
+            if (!drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus) return;
             if (focusModeTexture == null)
                 focusModeTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/Focus");
-
             Vector2 position = drawInfo.Center - Main.screenPosition;
-            position = new Vector2((int)position.X, (int)position.Y); // You'll sometimes want to do this, to avoid quivering.
-
-            // Queues a drawing of a sprite. Do not use SpriteBatch in drawlayers!
-            drawInfo.DrawDataCache.Add(new DrawData(
-                focusModeTexture.Value, // The texture to render.
-                position, // Position to render at.
-                null, // Source rectangle.
-                Color.White, // Color.
-                0f, // Rotation.
-                focusModeTexture.Size() * 0.5f, // Origin. Uses the texture's center.
-                1f, // Scale.
-                SpriteEffects.None, // SpriteEffects.
-                0 // 'Layer'. This is always 0 in Terraria.
-            ));
+            position = new Vector2((int)position.X, (int)position.Y);
+            drawInfo.DrawDataCache.Add(new DrawData(focusModeTexture.Value, position, null, Color.White, 0f, focusModeTexture.Size() * 0.5f, 1f, SpriteEffects.None, 0));
         }
     }
 
@@ -351,12 +420,13 @@ namespace TF2.Content.Mounts
     {
         private Asset<Texture2D> focusModeHitboxTexture;
 
-        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus;
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => true;
 
         public override Position GetDefaultPosition() => new Between();
 
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
+            if (!drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus) return;
             if (focusModeHitboxTexture == null)
                 focusModeHitboxTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/Hitbox");
 

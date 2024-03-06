@@ -36,20 +36,8 @@ namespace TF2.Content.UI
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            int icon = playerReference.GetModPlayer<TF2Player>().classIconID;
-            texture = icon switch
-            {
-                1 => ModContent.Request<Texture2D>("TF2/Content/Textures/ScoutIcon"),
-                2 => ModContent.Request<Texture2D>("TF2/Content/Textures/SoldierIcon"),
-                3 => ModContent.Request<Texture2D>("TF2/Content/Textures/PyroIcon"),
-                4 => ModContent.Request<Texture2D>("TF2/Content/Textures/DemomanIcon"),
-                5 => ModContent.Request<Texture2D>("TF2/Content/Textures/HeavyIcon"),
-                6 => ModContent.Request<Texture2D>("TF2/Content/Textures/EngineerIcon"),
-                7 => ModContent.Request<Texture2D>("TF2/Content/Textures/MedicIcon"),
-                8 => ModContent.Request<Texture2D>("TF2/Content/Textures/SniperIcon"),
-                9 => ModContent.Request<Texture2D>("TF2/Content/Textures/SpyIcon"),
-                _ => Main.Assets.Request<Texture2D>("Images/UI/PlayerBackground", AssetRequestMode.ImmediateLoad)
-            };
+            int icon = playerReference.GetModPlayer<TF2Player>().currentClass;
+            texture = ModContent.Request<Texture2D>(icon != 0 ? $"TF2/Content/Textures/{(TF2Player.ClassName)icon}Icon" : "Images/UI/PlayerBackground", AssetRequestMode.ImmediateLoad);
             CalculatedStyle dimensions = GetDimensions();
             spriteBatch.Draw(texture.Value, dimensions.Position(), Color.White);
         }

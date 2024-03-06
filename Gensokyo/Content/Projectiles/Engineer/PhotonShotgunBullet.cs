@@ -11,20 +11,20 @@ namespace TF2.Gensokyo.Content.Projectiles.Engineer
     {
         public override string Texture => "TF2/Content/Projectiles/Bullet";
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
-            npc.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), 300);
-        }
-
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
-        {
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
+            TF2Player p = Player.GetModPlayer<TF2Player>();
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
             burntPlayer.damageMultiplier = p.classMultiplier;
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), 300);
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(5));
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
+            npc.damageMultiplier = p.classMultiplier;
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(5));
         }
     }
 }

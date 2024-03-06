@@ -1,36 +1,89 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Common;
 using TF2.Content.Buffs;
+using TF2.Content.Items;
+using TF2.Content.Items.Weapons.Scout;
 
 namespace TF2.Content.Projectiles.Scout
 {
-    public class Baseball : ModProjectile
+    public class Baseball : TF2Projectile
     {
-        public override void SetDefaults()
+        public bool moonShot;
+        private bool grounded;
+
+        protected override void ProjectileStatistics()
         {
-            Projectile.width = 30; // The width of projectile hitbox
-            Projectile.height = 30; // The height of projectile hitbox
-            Projectile.aiStyle = 1; // The ai style of the projectile, please reference the source code of Terraria
-            Projectile.friendly = true; // Can the projectile deal damage to enemies?
-            Projectile.hostile = false; // Can the projectile deal damage to the player?
-            Projectile.penetrate = 1; // How many monsters the projectile can penetrate. (OnTileCollide below also decrements penetrate for bounces as well)
-            Projectile.timeLeft = 600; // The live time for the projectile (60 = 1 second, so 600 is 10 seconds)
-            Projectile.ignoreWater = true; // Does the projectile's speed be influenced by water?
-            Projectile.tileCollide = true; // Can the projectile collide with tiles?
-            Projectile.extraUpdates = 1; // Set to above 0 if you want the projectile to update multiple time in a frame
+            SetProjectileSize(30, 30);
             AIType = ProjectileID.WoodenArrowFriendly;
+            Projectile.penetrate = -1;
+            Projectile.friendly = true;
+            Projectile.timeLeft = TF2.Time(3);
+            Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
+        protected override bool ProjectilePreAI()
+        {
+            if (projectileInitialized) return true;
+            noDistanceModifier = false;
+            projectileInitialized = true;
+            return true;
+        }
 
-        public override void AI() => Projectile.rotation = Projectile.velocity.ToRotation();
+        protected override void ProjectileAI()
+        {
+            if (!grounded)
+                Projectile.timeLeft = TF2.Time(3);
+            else
+                Projectile.velocity.Y += 0.2f;
+            if (Projectile.Hitbox.Intersects(Player.Hitbox) && Player.GetModPlayer<TF2Player>().currentClass == TF2Item.Scout && grounded && Timer >= TF2.Time(1))
+            {
+                for (int i = 0; i < Player.inventory.Length; i++)
+                {
+                    Item item = Player.inventory[i];
+                    if (item.ModItem is Sandman weapon)
+                        weapon.timer[0] = TF2.Time(10);
+                }
+                Projectile.Kill();
+            }
+            if (grounded)
+                homing = false;
+            SetRotation();
+        }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => target.AddBuff(ModContent.BuffType<BaseballDebuff>(), 420);
+        public override bool CanHitPlayer(Player target) => !grounded;
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info) => target.AddBuff(BuffID.Slow, 420);
+        public override bool? CanHitNPC(NPC target) => !grounded;
+
+        protected override bool ProjectileTileCollide(Vector2 oldVelocity)
+        {
+            if (!grounded)
+                Projectile.velocity = -oldVelocity * 0.1f;
+            grounded = true;
+            return false;
+        }
+
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
+        {
+            SoundEngine.PlaySound(new SoundStyle(!moonShot ? "TF2/Content/Sounds/SFX/Weapons/sandman_stun" : "TF2/Content/Sounds/SFX/Weapons/sandman_stun_moonshot"), target.Center);
+            int buffDuration = TF2.Round(Vector2.Distance(Player.Center, target.Center) / 1000f * TF2.Time(7));
+            target.AddBuff(ModContent.BuffType<BaseballDebuff>(), !moonShot ? (buffDuration >= TF2.Time(1) ? buffDuration : 0) : TF2.Time(7));
+            Projectile.velocity *= -0.1f;
+            grounded = true;
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            SoundEngine.PlaySound(new SoundStyle(!moonShot ? "TF2/Content/Sounds/SFX/Weapons/sandman_stun" : "TF2/Content/Sounds/SFX/Weapons/sandman_stun_moonshot"), target.Center);
+            int buffDuration = TF2.Round(Vector2.Distance(Player.Center, target.Center) / 1000f * TF2.Time(7));
+            target.AddBuff(ModContent.BuffType<BaseballDebuff>(), !moonShot ? (buffDuration >= TF2.Time(1) ? buffDuration : 0) : TF2.Time(7));
+            Projectile.velocity *= -0.1f;
+            grounded = true;
+        }
     }
 }

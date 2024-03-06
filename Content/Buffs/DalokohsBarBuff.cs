@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
+using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
@@ -19,7 +20,7 @@ namespace TF2.Content.Buffs
         public override void PostUpdate()
         {
             if (dalokohsBarBuff)
-                Player.statLifeMax2 = (int)(Player.statLifeMax2 * 1.1666666666f);
+                TF2Player.SetPlayerHealth(Player, 50);
         }
     }
 }

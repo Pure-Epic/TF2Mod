@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 using TF2.Common;
 
 namespace TF2.Content.Projectiles.Medic
@@ -8,57 +9,57 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Projectiles/Medic/Syringe";
 
-        public int Timer
+        protected override void ProjectileStatistics()
         {
-            get => (int)Projectile.ai[0];
-            set => Projectile.ai[0] = value;
-        }
-
-        public bool[] healedNPC = new bool[Main.maxNPCs];
-        public bool[] healedPlayer = new bool[Main.maxPlayers];
-
-        public override void SetDefaults()
-        {
-            Projectile.width = 50;
-            Projectile.height = 8;
-            Projectile.aiStyle = 1;
-            Projectile.friendly = true;
-            Projectile.timeLeft = 600;
-            Projectile.ignoreWater = true;
-            Projectile.extraUpdates = 1;
+            SetProjectileSize(50, 8);
             AIType = ProjectileID.WoodenArrowFriendly;
+            Projectile.penetrate = 1;
+            Projectile.friendly = true;
+            Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
-            Projectile.GetGlobalProjectile<TF2ProjectileBase>().healingProjectile = true;
+            healingProjectile = true;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            SetRotation();
             foreach (NPC npc in Main.npc)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && !healedNPC[npc.whoAmI] && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
                 {
-                    int healingAmount = (int)(npc.lifeMax * 0.25f);
+                    int healingAmount = TF2.Round(75 * Player.GetModPlayer<TF2Player>().classMultiplier);
                     npc.life += healingAmount;
                     npc.HealEffect(healingAmount);
-                    healedNPC[npc.whoAmI] = true;
                     npc.netUpdate = true;
-                    Projectile.penetrate--;
+                    if (Main.netMode == NetmodeID.Server)
+                    {
+                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                        packet.Write((byte)TF2.MessageType.KillProjectile);
+                        packet.Write((byte)Projectile.whoAmI);
+                        packet.Send();
+                    }
+                    Projectile.Kill();
                 }
             }
             if (Main.netMode == NetmodeID.SinglePlayer) return;
             foreach (Player player in Main.player)
             {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !healedPlayer[player.whoAmI] && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !player.dead && !player.hostile && Main.netMode == NetmodeID.Server)
                 {
                     TF2Player p = player.GetModPlayer<TF2Player>();
-                    int healingAmount = (int)(75 * player.statLifeMax2 / 500 * p.healReduction);
+                    int healingAmount = TF2.Round(TF2.GetHealth(player, 75) * p.healReduction);
                     player.Heal(healingAmount);
-                    healedPlayer[player.whoAmI] = true;
-                    if (Main.netMode != NetmodeID.SinglePlayer)
-                        NetMessage.SendData(MessageID.SpiritHeal, number: player.whoAmI, number2: healingAmount);
-                    Projectile.penetrate--;
+                    if (Main.netMode == NetmodeID.Server)
+                    {
+                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                        packet.Write((byte)TF2.MessageType.SyncSyringe);
+                        packet.Write((byte)Projectile.whoAmI);
+                        packet.Write((byte)player.whoAmI);
+                        packet.Write(healingAmount);
+                        packet.Send();
+                    }
+                    Projectile.Kill();
                 }
             }
         }

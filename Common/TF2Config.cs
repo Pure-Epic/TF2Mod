@@ -19,10 +19,6 @@ namespace TF2.Common
         [ReloadRequired]
         public bool NoTF2Loot;
 
-        [Header("Soldier&Demoman")]
-        [DefaultValue(false)]
-        public bool Explosions;
-
         [Header("CustomMusic")]
         [DefaultValue(false)]
         public bool BossMusic;
@@ -34,19 +30,7 @@ namespace TF2.Common
 
         [Header("Weapons")]
         [DefaultValue(false)]
-        public bool EnableWeaponSwitch;
-
-        [DefaultValue(false)]
         public bool SingleReload;
-
-        [DefaultValue(false)]
-        public bool InventoryStats;
-
-        [DefaultValue(false)]
-        public bool Channel;
-
-        [DefaultValue(false)]
-        public bool SniperAutoCharge;
 
         [Header("MainMenu")]
         [DefaultValue(false)]

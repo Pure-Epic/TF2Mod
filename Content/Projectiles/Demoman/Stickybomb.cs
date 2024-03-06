@@ -1,26 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.ModLoader;
-using TF2.Content.Items;
 
 namespace TF2.Content.Projectiles.Demoman
 {
-    public class Stickybomb : ModProjectile
+    public class Stickybomb : TF2Projectile
     {
         public bool Stick
         {
-            get => Projectile.ai[0] == 1f;
-            set => Projectile.ai[0] = value ? 1f : 0f;
-        }
-
-        public int Timer
-        {
-            get => (int)Projectile.ai[1];
-            set => Projectile.ai[1] = value;
+            get => (int)Projectile.ai[1] == 1f;
+            set => Projectile.ai[1] = value ? 1f : 0f;
         }
 
         public int TargetWhoAmI
@@ -36,56 +27,37 @@ namespace TF2.Content.Projectiles.Demoman
         }
 
         public const int maxPower = 5;
-        public Vector2 velocity;
-        public TF2Weapon owner;
 
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.width = 25;                  // The width of projectile hitbox
-            Projectile.height = 25;                 // The height of projectile hitbox
-            Projectile.aiStyle = 0;                 // The ai style of the projectile, please reference the source code of Terraria
-            Projectile.friendly = false;            // Can the projectile deal damage to enemies?
-            Projectile.hostile = false;             // Can the projectile deal damage to the player?
-            Projectile.penetrate = -1;              // How many monsters the projectile can penetrate. (OnTileCollide below also decrements penetrate for bounces as well)
-            Projectile.timeLeft = 3600;             // The live time for the projectile (60 = 1 second, so 600 is 10 seconds)
-            Projectile.alpha = 0;                   // The transparency of the projectile, 255 for completely transparent. (aiStyle 1 quickly fades the projectile in) Make sure to delete this if you aren't using an aiStyle that fades in. You'll wonder why your projectile is invisible.
-            Projectile.light = 0f;                  // How much light emit around the projectile
-            Projectile.ignoreWater = true;          // Does the projectile's speed be influenced by water?
-            Projectile.tileCollide = true;          // Can the projectile collide with tiles?
-            Projectile.extraUpdates = 1;            // Set to above 0 if you want the projectile to update multiple times in a frame
+            SetProjectileSize(25, 25);
+            Projectile.penetrate = -1;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
             Stick = false;
         }
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
-        {
-            velocity = Projectile.velocity;
-            Projectile.velocity = Vector2.Zero;
-            Stick = true;
-            return false;
-        }
-
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override bool PreAI()
+        protected override bool ProjectilePreAI()
         {
             if (!Stick)
-                Projectile.velocity.Y = Projectile.velocity.Y + 0.2f;
+                Projectile.velocity.Y += 0.2f;
             return true;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Timer++;
+            if (Timer >= TF2.Time(5))
+                noDistanceModifier = true;
             if (Projectile.timeLeft == 0)
             {
-                Projectile.friendly = true;
-                Projectile.tileCollide = false;
-                Projectile.alpha = 255;
                 Projectile.position = Projectile.Center;
-                Projectile.width = 250;
-                Projectile.height = 250;
+                Projectile.Size = new Vector2(250, 250);
+                Projectile.friendly = true;
+                Projectile.hide = true;
+                Projectile.tileCollide = false;
+                Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
                 StickyJump(velocity);
             }
@@ -105,6 +77,16 @@ namespace TF2.Content.Projectiles.Demoman
             }
         }
 
+        protected override bool ProjectileTileCollide(Vector2 oldVelocity)
+        {
+            velocity = Projectile.velocity;
+            Projectile.velocity = Vector2.Zero;
+            Stick = true;
+            return false;
+        }
+
+        protected override void ProjectileDestroy(int timeLeft) => TF2.Explode(Projectile, new SoundStyle("TF2/Content/Sounds/SFX/explode"));
+
         public void StartingAI()
         {
             if (!Stick)
@@ -114,7 +96,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Stick = true;
                 Projectile.velocity = Vector2.Zero;
             }
-            Projectile.rotation = Projectile.position.ToRotation() + MathHelper.ToRadians(90f);
+            SetRotation();
         }
 
         public void GroundAI()
@@ -165,20 +147,17 @@ namespace TF2.Content.Projectiles.Demoman
             behindNPCsAndTiles.Add(index);
         }
 
-        public override void OnKill(int timeLeft) => TF2.Explode(Projectile, new SoundStyle("TF2/Content/Sounds/SFX/explode1"), 5);
-
         public virtual void StickyJump(Vector2 velocity)
         {
             if (TF2.FindPlayer(Projectile, 50f))
             {
-                Player player = Main.player[Projectile.owner];
                 velocity *= 2.5f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                 velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
-                Main.player[Projectile.owner].velocity -= velocity;
-                if (player.immuneNoBlink) return;
-                int selfDamage = Convert.ToInt32(Math.Floor(player.statLifeMax2 * 0.25f));
-                player.Hurt(PlayerDeathReason.ByCustomReason(player.name + " blew themself to smithereens."), selfDamage, 0);
+                Player.velocity -= velocity;
+                if (Player.immuneNoBlink) return;
+                int selfDamage = TF2.GetHealth(Player, 80);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[2]), selfDamage, 0);
             }
         }
     }

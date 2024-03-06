@@ -5,7 +5,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using TF2.Content.Items;
 using TF2.Gensokyo.Common;
-using TF2.Gensokyo.Events;
+using TF2.Gensokyo.Content.Events;
 
 namespace TF2.Gensokyo.Content.Items.BossSummons
 {

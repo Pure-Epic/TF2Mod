@@ -1078,7 +1078,7 @@ namespace TF2.Gensokyo.Content.NPCs
                                             OrbitRotationAmount = (float)Math.Abs(OrbitCurrentRotation - OrbitTargetRotation);
                                     }
                                     else
-                                        OrbitRotationAmount = (180f - (float)Math.Abs(OrbitTargetRotation)) + (180f - (float)Math.Abs(OrbitCurrentRotation));
+                                        OrbitRotationAmount = 180f - (float)Math.Abs(OrbitTargetRotation) + (180f - (float)Math.Abs(OrbitCurrentRotation));
 
                                     // Add the amount of extra revolutions
                                     OrbitRotationAmount += MoveOrbitRevolutions() * 360f;
@@ -1230,7 +1230,7 @@ namespace TF2.Gensokyo.Content.NPCs
                                     Vector2 currentDirection = Vector2.Normalize(newVelocity);
                                     float turnRate = MoveTurnRate();
                                     if (newVelocity.Length() > 0f && MoveMaximumSpeed() > 0f)
-                                        turnRate = (MoveMaximumSpeed() / (newVelocity.Length() + 1f)) * turnRate;
+                                        turnRate = MoveMaximumSpeed() / (newVelocity.Length() + 1f) * turnRate;
 
                                     // Set the new direction
                                     newDirection = Vector2.Normalize(Vector2.Lerp(currentDirection, newDirection, turnRate));
@@ -1271,7 +1271,7 @@ namespace TF2.Gensokyo.Content.NPCs
                                     Vector2 newRotation = currentRotation.RotatedBy(addedRotation * Math.Sign(TargetSpeed));
 
                                     // Calculate the new position
-                                    MoveDestination += (newRotation * MoveOrbitDistance());
+                                    MoveDestination += newRotation * MoveOrbitDistance();
 
                                     // Direction towards the new position
                                     Vector2 newDirection = NPC.Center.DirectionTo(MoveDestination);
@@ -1526,7 +1526,7 @@ namespace TF2.Gensokyo.Content.NPCs
                             float turnRate = MoveTurnRate();
                             if (newVelocity.Length() > 0f && MoveMaximumSpeed() > 0f)
                             {
-                                turnRate = (MoveMaximumSpeed() / (newVelocity.Length() + 1f)) * turnRate;
+                                turnRate = MoveMaximumSpeed() / (newVelocity.Length() + 1f) * turnRate;
                             }
 
                             // Set the new velocity
@@ -1699,7 +1699,7 @@ namespace TF2.Gensokyo.Content.NPCs
         #region Movement_Helpers
         protected float GetRandomOffsetAngle(float minRange, float maxRange) => minRange * (1f - (NPC.position.Y % 1f)) + maxRange * (NPC.position.Y % 1f);
 
-        protected float GetRandomOffsetDistance(float minRange, float maxRange) => minRange + (NPC.position.X % 1f) * (maxRange - minRange);
+        protected float GetRandomOffsetDistance(float minRange, float maxRange) => minRange + NPC.position.X % 1f * (maxRange - minRange);
 
         protected void CalculateSlowdown()
         {

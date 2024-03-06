@@ -9,49 +9,45 @@ namespace TF2.Content.Projectiles.Soldier
     {
         public override string Texture => "TF2/Content/Projectiles/Soldier/Rocket";
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        protected override void ProjectileAI()
         {
-            Projectile.tileCollide = false;
-            Projectile.alpha = 255;
-            Projectile.position = Projectile.Center;
-            Projectile.width = 30;
-            Projectile.height = 30;
-            Projectile.Center = Projectile.position;
-            Projectile.timeLeft = 0;
+            foreach (NPC npc in Main.npc)
+            {
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
+                    Projectile.timeLeft = 0;
+
+            }
+            foreach (Player player in Main.player)
+            {
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
+                    Projectile.timeLeft = 0;
+            }
+            if (Projectile.timeLeft == 0)
+            {
+                Projectile.position = Projectile.Center;
+                Projectile.Size = new Vector2(100, 100);
+                Projectile.hide = true;
+                Projectile.tileCollide = false;
+                Projectile.Center = Projectile.position;
+            }
+            SetRotation();
         }
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
+        protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
             if (TF2.FindPlayer(Projectile, 50f))
             {
                 oldVelocity *= 5f;
                 oldVelocity.X = Utils.Clamp(oldVelocity.X, -25f, 25f);
                 oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -25f, 25f);
-                Main.player[Projectile.owner].velocity -= oldVelocity;
+                Player.velocity -= oldVelocity;
             }
-            prime = true;
             return false;
-        }
-
-        public override void AI()
-        {
-            if (prime)
-                Projectile.timeLeft = 0;
-            if (Projectile.timeLeft == 0)
-            {
-                Projectile.tileCollide = false;
-                Projectile.alpha = 255;
-                Projectile.position = Projectile.Center;
-                Projectile.width = 30;
-                Projectile.height = 30;
-                Projectile.Center = Projectile.position;
-            }
-            Projectile.rotation = Projectile.velocity.ToRotation();
         }
 
         public void Explode()
         {
-            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/rocket_jumper_explode1"), Projectile.Center);
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/rocket_jumper_explode"), Projectile.Center);
             for (int i = 0; i < 50; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 100, default, 2f);
@@ -67,7 +63,5 @@ namespace TF2.Content.Projectiles.Soldier
                 dust.velocity *= 3f;
             }
         }
-
-        public override void RocketJump(Vector2 velocity) => base.RocketJump(velocity);
     }
 }

@@ -2,6 +2,7 @@
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items;
+using TF2.Content.Items.Weapons;
 using TF2.Content.Mounts;
 
 namespace TF2.Content.Buffs
@@ -26,7 +27,7 @@ namespace TF2.Content.Buffs
         public override void PostUpdate()
         {
             if (buffaloSteakSandvichBuff)
-                TF2Weapon.SetPlayerSpeed(Player, 130);
+                TF2Player.SetPlayerSpeed(Player, 130);
         }
     }
 
@@ -38,12 +39,10 @@ namespace TF2.Content.Buffs
         {
             if (item.type == ModContent.ItemType<TF2MountItem>())
                 return true;
-            TF2Weapon weapon = item.ModItem as TF2Weapon;
-            if (player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff && (item.ModItem is not TF2WeaponMelee && weapon.weaponType != 3))
+            if (player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff && item.ModItem is TF2Weapon weapon && !weapon.IsWeaponType(TF2Item.Melee))
             {
                 player.controlUseItem = false;
-                Main.mouseLeft = false;
-                Main.mouseRight = false;
+                player.controlUseTile = false;
                 return false;
             }
             else

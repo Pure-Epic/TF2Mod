@@ -13,7 +13,7 @@ using Terraria.UI;
 using TF2.Gensokyo.Common;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
-namespace TF2.Gensokyo.Events
+namespace TF2.Gensokyo.Content.Events
 {
     [ExtendsFromMod("Gensokyo")]
     public class GensokyoBossRush : ModSystem
@@ -105,7 +105,7 @@ namespace TF2.Gensokyo.Events
             }
         }
 
-        public static bool FailCheck() => (targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer) || (Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.netMode == NetmodeID.Server);
+        public static bool FailCheck() => targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer || Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.netMode == NetmodeID.Server;
 
         public static void NextBoss()
         {
@@ -156,7 +156,7 @@ namespace TF2.Gensokyo.Events
                         {
                             if (!Main.tile[num20, num22].IsActuated && Main.tileSolid[Main.tile[num20, num22].TileType])
                             {
-                                if ((num20 < num16 || num20 > num17 || num22 < num18 || num22 > num19 || m == 999) && ((num20 >= num12 && num20 <= num13 && num22 >= num14 && num22 <= num15) || m == 999))
+                                if ((num20 < num16 || num20 > num17 || num22 < num18 || num22 > num19 || m == 999) && (num20 >= num12 && num20 <= num13 && num22 >= num14 && num22 <= num15 || m == 999))
                                 {
                                     _ = Main.tile[num20, num22].TileType;
                                     num10 = num20;
@@ -373,7 +373,7 @@ namespace TF2.Gensokyo.Events
             Vector2 vector3 = new Vector2(Main.screenWidth - 120, Main.screenHeight - 40);
             Utils.DrawInvBG(R: new Rectangle((int)vector3.X - num7 / 2, (int)vector3.Y - num8 / 2, num7, num8), sb: Main.spriteBatch, c: new Color(63, 65, 151, 255) * 0.785f);
             string text3;
-            text3 = ((totalBosses != 0) ? ((int)(bossesDefeated * 100f / totalBosses) + "%") : bossesDefeated.ToString());
+            text3 = totalBosses != 0 ? (int)(bossesDefeated * 100f / totalBosses) + "%" : bossesDefeated.ToString();
             text3 = Language.GetTextValue("Game.WaveCleared", text3);
             Texture2D value3 = TextureAssets.ColorBar.Value;
             // TextureAssets.ColorBlip.Value;

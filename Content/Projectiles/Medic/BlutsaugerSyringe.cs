@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using TF2.Common;
 
 namespace TF2.Content.Projectiles.Medic
 {
@@ -7,19 +8,17 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Projectiles/Medic/Syringe";
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
-            Player player = Main.player[Projectile.owner];
-            if (!(player.statLife >= player.statLifeMax2) && target.type != NPCID.TargetDummy)
-                player.Heal((int)(player.statLifeMax2 * 0.02f));
+            if (!info.PvP) return;
+            if (!TF2Player.IsHealthFull(Player))
+                Player.Heal(TF2.GetHealth(Player, 3));
         }
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            Player player = Main.player[Projectile.owner];
-            if (!info.PvP) return;
-            if (!(player.statLife >= player.statLifeMax2))
-                player.Heal((int)(player.statLifeMax2 * 0.02f));
+            if (!TF2Player.IsHealthFull(Player) && target.type != NPCID.TargetDummy)
+                Player.Heal(TF2.GetHealth(Player, 3));
         }
     }
 }

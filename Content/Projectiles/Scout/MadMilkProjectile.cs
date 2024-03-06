@@ -1,48 +1,48 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Buffs;
+using TF2.Content.Items.Weapons.Scout;
 
 namespace TF2.Content.Projectiles.Scout
 {
-    public class MadMilkProjectile : ModProjectile
+    public class MadMilkProjectile : TF2Projectile
     {
-        public override void SetDefaults()
+        protected override void ProjectileStatistics()
         {
-            Projectile.width = 32;
-            Projectile.height = 32;
-            Projectile.aiStyle = 1;
-            Projectile.timeLeft = 600;
+            SetProjectileSize(32, 32);
+            Projectile.aiStyle = ProjAIStyleID.Arrow;
+            Projectile.penetrate = 1;
+            Projectile.friendly = true;
             Projectile.ignoreWater = true;
-            Projectile.tileCollide = true;
             Projectile.extraUpdates = 1;
-            AIType = ProjectileID.ToxicFlask;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override bool OnTileCollide(Vector2 oldVelocity)
+        protected override void ProjectileAI()
         {
-            Projectile.velocity = Vector2.Zero;
-            Projectile.tileCollide = false;
-            Projectile.alpha = 255;      
+            CheckCollision();
+            Projectile.rotation += (Math.Abs(Projectile.velocity.X) * 0.04f - MathHelper.ToRadians(90f)) * Projectile.direction;
+        }
+
+        protected override bool ProjectileTileCollide(Vector2 oldVelocity)
+        {
             Projectile.position = Projectile.Center;
-            Projectile.width = 250;
-            Projectile.height = 250;
+            Projectile.Size = new Vector2(250, 250);
+            Projectile.hide = true;
+            Projectile.tileCollide = false;
             Projectile.Center = Projectile.position;
             FinalCollision();
-            Projectile.timeLeft = 0;
             return false;
         }
 
-        public override void AI() => CheckCollision();
-
-        public override void OnKill(int timeLeft)
+        protected override void ProjectileDestroy(int timeLeft)
         {
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/jar_explode"), Projectile.Center);
             for (int i = 0; i < 25; i++)
             {
                 int dustIndex = Dust.NewDust(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.CursedTorch, 0f, 0f, 100, default, 3f);
@@ -79,10 +79,7 @@ namespace TF2.Content.Projectiles.Scout
             foreach (NPC npc in Main.npc)
             {
                 if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                {
                     HitNPC(npc);
-                    Projectile.Kill();
-                }
             }
             foreach (Player player in Main.player)
             {
@@ -91,14 +88,13 @@ namespace TF2.Content.Projectiles.Scout
                     HitPlayer(player);
                     if (Main.netMode != NetmodeID.SinglePlayer)
                         NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
-                    Projectile.Kill();
                 }
             }
+            Projectile.Kill();
         }
 
         protected virtual void HitNPC(NPC npc)
-        {
-            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/jar_explode"), Main.player[Projectile.owner].Center);
+        {           
             if (npc.friendly)
             {
                 for (int i = 0; i < NPC.maxBuffs; i++)
@@ -110,32 +106,38 @@ namespace TF2.Content.Projectiles.Scout
                         i = -1;
                     }
                 }
-                for (int i = 0; i < Player.MaxBuffs; i++)
+                for (int i = 0; i < Player.inventory.Length; i++)
                 {
-                    if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<MadMilkCooldown>())
-                        Main.player[Projectile.owner].buffTime[i] -= 240;
+                    Item item = Player.inventory[i];
+                    if (item.ModItem is MadMilk weapon)
+                        weapon.timer[0] -= TF2.Time(4);
                 }
             }
             else
-                npc.AddBuff(ModContent.BuffType<MadMilkDebuff>(), 600);
-            Projectile.Kill();
+                npc.AddBuff(ModContent.BuffType<MadMilkDebuff>(), TF2.Time(10));
         }
 
         protected virtual void HitPlayer(Player targetPlayer)
         {
-            for (int i = 0; i < Player.MaxBuffs; i++)
+            if (targetPlayer.hostile)
+                targetPlayer.AddBuff(ModContent.BuffType<MadMilkDebuff>(), TF2.Time(10));
+            else
             {
-                int buffTypes = targetPlayer.buffType[i];
-                if (Main.debuff[buffTypes] && targetPlayer.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                for (int i = 0; i < Player.MaxBuffs; i++)
                 {
-                    targetPlayer.DelBuff(i);
-                    i = -1;
+                    int buffTypes = targetPlayer.buffType[i];
+                    if (Main.debuff[buffTypes] && targetPlayer.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                    {
+                        targetPlayer.DelBuff(i);
+                        i = -1;
+                    }
                 }
-            }
-            for (int i = 0; i < Player.MaxBuffs; i++)
-            {
-                if (Main.player[Projectile.owner].buffType[i] == ModContent.BuffType<MadMilkCooldown>() && Main.player[Projectile.owner] != targetPlayer)
-                    Main.player[Projectile.owner].buffTime[i] -= 240;
+                for (int i = 0; i < Player.inventory.Length; i++)
+                {
+                    Item item = Player.inventory[i];
+                    if (item.ModItem is MadMilk weapon)
+                        weapon.timer[0] -= TF2.Time(4);
+                }
             }
         }
     }

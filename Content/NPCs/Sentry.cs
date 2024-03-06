@@ -6,7 +6,8 @@ using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Engineer;
+using TF2.Content.Items;
+using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.NPCs;
 
@@ -76,18 +77,10 @@ namespace TF2.Content.NPCs
 
         public override void OnKill()
         {
-            if (Main.netMode == NetmodeID.SinglePlayer)
+            if (Main.netMode == NetmodeID.SinglePlayer && Main.player[npcOwner].GetModPlayer<TF2Player>().currentClass == TF2Item.Engineer)
             {
                 FrontierJusticePlayer f = Main.player[npcOwner].GetModPlayer<FrontierJusticePlayer>();
                 f.revenge += 3;
-                AdvancedPopupRequest revengeText = new()
-                {
-                    Text = "Revenge count: " + f.revenge,
-                    Color = Color.Red,
-                    DurationInFrames = 30,
-                    Velocity = new Vector2(0f, -5f)
-                };
-                PopupText.NewText(revengeText, Main.player[npcOwner].position);
             }
         }
 
@@ -135,7 +128,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 16;
             NPC.lifeMax = 150;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -194,9 +187,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -211,7 +202,7 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                 }
@@ -238,7 +229,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 16;
             NPC.lifeMax = 180;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -297,9 +288,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -314,7 +303,7 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                 }
@@ -342,7 +331,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 16;
             NPC.lifeMax = 216;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -403,14 +392,11 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
-
                     float speed = 10f;
                     int type = ModContent.ProjectileType<Bullet>();
                     int damage;
@@ -421,7 +407,7 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                 }
@@ -455,14 +441,12 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget2)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
                         NPC.spriteDirection = NPC.direction = -1;
-                    float speed = 10f;
+                    float speed = 25f;
                     int type = ModContent.ProjectileType<SentryRocket>();
                     int damage;
                     if (Main.netMode == NetmodeID.SinglePlayer)
@@ -475,7 +459,7 @@ namespace TF2.Content.NPCs
                     {
                         Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(15f));
                         if (Main.netMode == NetmodeID.SinglePlayer)
-                            Projectile.NewProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                            TF2.CreateProjectile(null, projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, npcOwner, 0f, 0f);
                         else
                             NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                     }
@@ -504,7 +488,7 @@ namespace TF2.Content.NPCs
             NPC.defense = 0;
             NPC.lifeMax = 100;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -563,9 +547,7 @@ namespace TF2.Content.NPCs
                 }
                 if (foundTarget)
                 {
-                    Vector2 shootVel = targetCenter - NPC.Center;
-                    if (shootVel == Vector2.Zero)
-                        shootVel = Vector2.UnitY;
+                    Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     if ((targetCenter - NPC.Center).X > 0f)
                         NPC.spriteDirection = NPC.direction = 1;
                     else if ((targetCenter - NPC.Center).X < 0f)
@@ -580,7 +562,7 @@ namespace TF2.Content.NPCs
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_shoot"), NPC.Center);
                     if (Main.netMode == NetmodeID.SinglePlayer)
-                        Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
+                        TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f);
                     else
                         NetMessage.SendData(MessageID.SyncProjectile, number: Projectile.NewProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, npcOwner, 0f, 0f));
                 }

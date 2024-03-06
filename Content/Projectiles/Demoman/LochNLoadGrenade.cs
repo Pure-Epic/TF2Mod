@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -10,61 +9,61 @@ namespace TF2.Content.Projectiles.Demoman
     {
         public override string Texture => "TF2/Content/Projectiles/Demoman/Grenade";
 
-        public override bool OnTileCollide(Vector2 oldVelocity)
-        {
-            Projectile.active = false;
-            return false;
-        }
-
-        public override bool PreAI()
+        protected override bool ProjectilePreAI()
         {
             if (Timer >= maxPower)
             {
-                Projectile.velocity.Y = Projectile.velocity.Y + 0.2f;
+                Projectile.velocity.Y += 0.2f;
                 Timer = maxPower;
             }
             if (!projectileInitialized)
             {
                 velocity = Projectile.velocity;
                 projectileInitialized = true;
+                Projectile.netUpdate = true;
             }
             return true;
         }
 
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Timer++;
-            if (Projectile.timeLeft == 0)
+            if (StartTimer)
+                FuseTimer++;
+            if (FuseTimer == fuseTime || Projectile.timeLeft == 0)
             {
-                Projectile.tileCollide = false;
-                Projectile.alpha = 255;
                 Projectile.position = Projectile.Center;
-                Projectile.width = 113;
-                Projectile.height = 113;
+                Projectile.Size = new Vector2(113, 113);
+                Projectile.hide = true;
+                Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
                 GrenadeJump(velocity);
             }
-            Projectile.rotation = Projectile.velocity.ToRotation();
+            SetRotation();
         }
 
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        protected override bool ProjectileTileCollide(Vector2 oldVelocity)
+        {
+            Projectile.active = false;
+            return false;
+        }
+
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             // Temporary solution
             ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
             modifiers.SourceDamage *= ((gensokyo != null && target.ModNPC?.Mod == gensokyo && target.boss) || target.TypeName == "Byakuren Hijiri") ? 1.2f : 1f;
         }
 
-        public override void GrenadeJump(Vector2 velocity)
+        protected override void GrenadeJump(Vector2 velocity)
         {
             if (TF2.FindPlayer(Projectile, 50f))
             {
                 velocity *= 10f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                Player player = Main.player[Projectile.owner];
-                player.velocity -= velocity;
-                if (player.immuneNoBlink) return;
-                int selfDamage = Convert.ToInt32(Math.Floor(player.statLifeMax2 * 0.2f));
-                player.Hurt(PlayerDeathReason.ByCustomReason(player.name + " blew themself to smithereens."), selfDamage, 0);
+                Player.velocity -= velocity;
+                if (Player.immuneNoBlink) return;
+                int selfDamage = TF2.GetHealth(Player, 55);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[2]), selfDamage, 0);
             }
             Projectile.timeLeft = 0;
         }

@@ -21,19 +21,6 @@ namespace TF2.Content.Buffs
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<JarateNPC>().jarateDebuff = true;
     }
 
-    public class JarateCooldown : ModBuff
-    {
-        public override void SetStaticDefaults()
-        {
-            Main.debuff[Type] = true;
-            Main.buffNoSave[Type] = true;
-            BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
-            TF2BuffBase.cooldownBuff[Type] = true;
-        }
-
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<JaratePlayer>().jarateCooldown = true;
-    }
-
     public class JaratePlayer : ModPlayer
     {
         public bool jarateDebuff;

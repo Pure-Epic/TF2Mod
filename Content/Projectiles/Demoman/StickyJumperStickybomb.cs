@@ -7,23 +7,22 @@ namespace TF2.Content.Projectiles.Demoman
 {
     public class StickyJumperStickybomb : Stickybomb
     {
-        public override void AI()
+        protected override void ProjectileAI()
         {
-            Timer++;
             if (Projectile.timeLeft == 0)
             {
-                Projectile.tileCollide = false;
-                Projectile.alpha = 255;
                 Projectile.position = Projectile.Center;
-                Projectile.width = 250;
-                Projectile.height = 250;
+                Projectile.Size = new Vector2(250, 250);
+                Projectile.hide = true;
+                Projectile.tileCollide = false;
+                Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
                 if (TF2.FindPlayer(Projectile, 50f))
                 {
                     velocity *= 2.5f;
                     velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                     velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
-                    Main.player[Projectile.owner].velocity -= velocity;
+                    Player.velocity -= velocity;
                 }
             }
             if (!Stick && Projectile.timeLeft != 0)
@@ -32,11 +31,11 @@ namespace TF2.Content.Projectiles.Demoman
                 GroundAI();
         }
 
-        public override void OnKill(int timeLeft) => Explode();
+        protected override void ProjectileDestroy(int timeLeft) => Explode();
 
         public void Explode()
         {
-            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sticky_jumper_explode1"), Projectile.Center);
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/sticky_jumper_explode"), Projectile.Center);
             for (int i = 0; i < 50; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 100, default, 2f);

@@ -366,7 +366,7 @@ namespace TF2.Gensokyo.Content.NPCs
             if (GensokyoDLC.Gensokyo == null || !ModLoader.TryGetMod("CalamityMod", out Mod calamity)) return;
             bool revengeance = (bool)calamity.Call("GetDifficultyActive", "revengeance");
             bool death = (bool)calamity.Call("GetDifficultyActive", "death");
-            if (proj.ModProjectile?.Mod == GensokyoDLC.Gensokyo || proj.ModProjectile?.Mod is TF2 && proj.GetGlobalProjectile<TF2ProjectileBase>().spawnedFromNPC && proj.hostile)
+            if (proj.ModProjectile?.Mod == GensokyoDLC.Gensokyo || proj.ModProjectile?.Mod is TF2 && (proj.ModProjectile as TF2Projectile).spawnedFromNPC && proj.hostile)
             {
                 if (revengeance && !death)
                     modifiers.SourceDamage *= 1.25f;

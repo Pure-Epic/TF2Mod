@@ -26,7 +26,7 @@ namespace TF2.Common
 
         public static bool ScreamFortress => DateTime.Today.Month == 10 || (DateTime.Today.Month == 11 && DateTime.Today.Day < 7);
 
-        public int classSelected;
+        public static int classSelected;
 
         public override void Load() => classSelected = Main.rand.Next(1, 10);
 
@@ -43,7 +43,7 @@ namespace TF2.Common
             Main.raining = false;
             logoRotation = 0f;
             logoScale = 1f;
-            Texture2D background = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/" + (!ScreamFortress ? "Background" : "BackgroundScreamFortress"));
+            Texture2D background = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/" + (!ScreamFortress ? "Background" : "BackgroundScreamFortress"), AssetRequestMode.ImmediateLoad);
             float width = (float)Main.screenWidth / background.Width;
             float height = (float)Main.screenHeight / background.Height;
             Vector2 center = Vector2.Zero;
@@ -61,46 +61,10 @@ namespace TF2.Common
 
         private static void DrawClass(int mercenary, SpriteBatch spriteBatch, Vector2 position, float scale)
         {
-            switch (mercenary)
+            if (mercenary != 0)
             {
-                case 1:
-                    Texture2D scout = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_scout");
-                    spriteBatch.Draw(scout, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 2:
-                    Texture2D soldier = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_soldier");
-                    spriteBatch.Draw(soldier, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 3:
-                    Texture2D pyro = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_pyro");
-                    spriteBatch.Draw(pyro, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 4:
-                    Texture2D demoman = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_demoman");
-                    spriteBatch.Draw(demoman, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 5:
-                    Texture2D heavy = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_heavy");
-                    spriteBatch.Draw(heavy, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 6:
-                    Texture2D engineer = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_engineer");
-                    spriteBatch.Draw(engineer, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 7:
-                    Texture2D medic = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_medic");
-                    spriteBatch.Draw(medic, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 8:
-                    Texture2D sniper = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_sniper");
-                    spriteBatch.Draw(sniper, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                case 9:
-                    Texture2D spy = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/Main_menu_spy");
-                    spriteBatch.Draw(spy, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-                    break;
-                default:
-                    break;
+                Texture2D mercenaryImage = (Texture2D)ModContent.Request<Texture2D>($"TF2/Content/Textures/Main_Menu_{(TF2Player.ClassName)mercenary}", AssetRequestMode.ImmediateLoad);
+                spriteBatch.Draw(mercenaryImage, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
             }
         }
     }

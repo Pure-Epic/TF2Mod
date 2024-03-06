@@ -1,79 +1,102 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Buffs;
-using TF2.Content.Items;
+using TF2.Content.Items.Weapons.Sniper;
 
 namespace TF2.Content.Projectiles.Sniper
 {
-    public class SydneySleeperDart : ModProjectile
+    public class SydneySleeperDart : Bullet
     {
-        public bool projectileInitialized;
         public int jarateDuration;
 
-        public override void SetStaticDefaults()
+        protected override void ProjectileAI()
         {
-            ProjectileID.Sets.TrailingMode[Type] = 0;
-            ProjectileID.Sets.TrailCacheLength[Type] = 5;
-        }
-
-        public override void SetDefaults()
-        {
-            Projectile.CloneDefaults(ProjectileID.BulletHighVelocity);
-            Projectile.width = 50;
-            Projectile.height = 4;
-            Projectile.DamageType = ModContent.GetInstance<TF2DamageClass>();
-            Projectile.penetrate = 1;
-            Projectile.friendly = true;
-            Projectile.hostile = false;
-            AIType = ProjectileID.BulletHighVelocity;
-            Projectile.usesLocalNPCImmunity = true;
-            Projectile.localNPCHitCooldown = -1;
-        }
-
-        public override bool PreDraw(ref Color lightColor) => TF2.DrawProjectile(Projectile, ref lightColor);
-
-        public override bool PreAI()
-        {
-            if (projectileInitialized) return true;
-            TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            Projectile.penetrate = p.pierce;
-            projectileInitialized = true;
-            return true;
-        }
-
-        public override void AI() => Projectile.rotation = Projectile.velocity.ToRotation();
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Player player = Main.player[Projectile.owner];
-            target.AddBuff(BuffID.Ichor, jarateDuration);
-            target.AddBuff(ModContent.BuffType<JarateDebuff>(), jarateDuration);
-            if (Projectile.GetGlobalProjectile<TF2ProjectileBase>().miniCrit)
+            if (!sniperCrit && !sniperMiniCrit) return;
+            foreach (NPC npc in Main.npc)
             {
-                for (int i = 0; i < Player.MaxBuffs; i++)
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active && npc.friendly)
                 {
-                    if (player.buffType[i] == ModContent.BuffType<JarateCooldown>())
-                        player.buffTime[i] -= 60;
+                    HitNPC(npc);
+                    Projectile.Kill();
+                }
+            }
+            foreach (Player player in Main.player)
+            {
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !player.hostile)
+                {
+                    HitPlayer(player);
+                    if (Main.netMode != NetmodeID.SinglePlayer)
+                        NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
+                    Projectile.Kill();
                 }
             }
         }
 
-        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
-            Player player = Main.player[Projectile.owner];
             if (!info.PvP) return;
-            target.AddBuff(BuffID.Ichor, jarateDuration, true);
             target.AddBuff(ModContent.BuffType<JarateDebuff>(), jarateDuration);
-            if (Projectile.GetGlobalProjectile<TF2ProjectileBase>().miniCrit)
+            if (miniCrit)
             {
-                for (int i = 0; i < Player.MaxBuffs; i++)
+                for (int i = 0; i < Player.inventory.Length; i++)
                 {
-                    if (player.buffType[i] == ModContent.BuffType<JarateCooldown>())
-                        player.buffTime[i] -= 60;
+                    Item item = Player.inventory[i];
+                    if (item.ModItem is Jarate weapon)
+                        weapon.timer[0] -= TF2.Time(1);
                 }
+            }
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            target.AddBuff(ModContent.BuffType<JarateDebuff>(), jarateDuration);
+            if (miniCrit)
+            {
+                for (int i = 0; i < Player.inventory.Length; i++)
+                {
+                    Item item = Player.inventory[i];
+                    if (item.ModItem is Jarate weapon)
+                        weapon.timer[0] -= TF2.Time(1);
+                }
+            }
+        }
+
+        protected virtual void HitNPC(NPC npc)
+        {
+            for (int i = 0; i < NPC.maxBuffs; i++)
+            {
+                int buffTypes = npc.buffType[i];
+                if (Main.debuff[buffTypes] && npc.buffTime[i] > 0)
+                {
+                    npc.DelBuff(i);
+                    i = -1;
+                }
+            }
+            for (int i = 0; i < Player.inventory.Length; i++)
+            {
+                Item item = Player.inventory[i];
+                if (item.ModItem is Jarate weapon)
+                    weapon.timer[0] -= TF2.Time(4);
+            }
+        }
+
+        protected virtual void HitPlayer(Player targetPlayer)
+        {
+            for (int i = 0; i < Player.MaxBuffs; i++)
+            {
+                int buffTypes = targetPlayer.buffType[i];
+                if (Main.debuff[buffTypes] && targetPlayer.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                {
+                    targetPlayer.DelBuff(i);
+                    i = -1;
+                }
+            }
+            for (int i = 0; i < Player.inventory.Length; i++)
+            {
+                Item item = Player.inventory[i];
+                if (item.ModItem is Jarate weapon)
+                    weapon.timer[0] -= TF2.Time(4);
             }
         }
     }

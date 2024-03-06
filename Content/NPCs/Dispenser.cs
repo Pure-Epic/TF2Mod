@@ -5,7 +5,6 @@ using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Ammo;
 using TF2.Content.Items.Consumables;
 
 namespace TF2.Content.NPCs
@@ -99,7 +98,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 0;
             NPC.lifeMax = 150;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/dispenser_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -142,7 +141,7 @@ namespace TF2.Content.NPCs
             if (ai2 >= 750)
             {
                 IEntitySource metalSource = NPC.GetSource_FromAI();
-                int type = ModContent.ItemType<Metal>();
+                int type = ModContent.ItemType<MediumAmmoBox>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(metalSource, NPC.Center, type);
@@ -155,12 +154,12 @@ namespace TF2.Content.NPCs
                 for (int i = 0; i < 10; i++)
                 {
                     IEntitySource ammoSource = NPC.GetSource_FromAI();
-                    int type = ModContent.ItemType<PrimaryAmmo>();
+                    int type = ModContent.ItemType<LargeAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);
                     else
                         NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(ammoSource, NPC.Center, type));
-                    int type2 = ModContent.ItemType<SecondaryAmmo>();
+                    int type2 = ModContent.ItemType<SmallAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type2);
                     else
@@ -192,7 +191,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 0;
             NPC.lifeMax = 180;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/dispenser_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -235,7 +234,7 @@ namespace TF2.Content.NPCs
             if (ai2 >= 600)
             {
                 IEntitySource metalSource = NPC.GetSource_FromAI();
-                int type = ModContent.ItemType<Metal>();
+                int type = ModContent.ItemType<MediumAmmoBox>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(metalSource, NPC.Center, type);
@@ -248,12 +247,12 @@ namespace TF2.Content.NPCs
                 for (int i = 0; i < 10; i++)
                 {
                     IEntitySource ammoSource = NPC.GetSource_FromAI();
-                    int type = ModContent.ItemType<PrimaryAmmo>();
+                    int type = ModContent.ItemType<LargeAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);
                     else
                         NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(ammoSource, NPC.Center, type));
-                    int type2 = ModContent.ItemType<SecondaryAmmo>();
+                    int type2 = ModContent.ItemType<SmallAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type2);
                     else
@@ -285,7 +284,7 @@ namespace TF2.Content.NPCs
             NPC.damage = 0;
             NPC.lifeMax = 216;
             NPC.knockBackResist = 0f;
-            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/wrench_hit_build_success1");
+            NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success1");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/dispenser_explode");
             NPC.friendly = true;
             NPC.GetGlobalNPC<TF2GlobalNPC>().building = true;
@@ -328,7 +327,7 @@ namespace TF2.Content.NPCs
             if (ai2 >= 375)
             {
                 IEntitySource metalSource = NPC.GetSource_FromAI();
-                int type = ModContent.ItemType<Metal>();
+                int type = ModContent.ItemType<MediumAmmoBox>();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_generate_metal"), NPC.Center);
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Item.NewItem(metalSource, NPC.Center, type);
@@ -341,12 +340,12 @@ namespace TF2.Content.NPCs
                 for (int i = 0; i < 10; i++)
                 {
                     IEntitySource ammoSource = NPC.GetSource_FromAI();
-                    int type = ModContent.ItemType<PrimaryAmmo>();
+                    int type = ModContent.ItemType<LargeAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type);
                     else
                         NetMessage.SendData(MessageID.SyncItem, number: Item.NewItem(ammoSource, NPC.Center, type));
-                    int type2 = ModContent.ItemType<SecondaryAmmo>();
+                    int type2 = ModContent.ItemType<SmallAmmoBox>();
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Item.NewItem(ammoSource, NPC.Center, type2);
                     else
