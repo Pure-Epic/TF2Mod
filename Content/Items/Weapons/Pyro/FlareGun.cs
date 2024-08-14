@@ -12,7 +12,7 @@ namespace TF2.Content.Items.Weapons.Pyro
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Pyro, Secondary, Unique, Unlock);
-            SetWeaponSize(40, 40);
+            SetWeaponSize(40, 24);
             SetGunUseStyle(focus: true);
             SetWeaponDamage(damage: 30, projectile: ModContent.ProjectileType<Flare>(), projectileSpeed: 25f, knockback: 5f, distanceModifier: false);
             SetWeaponAttackSpeed(0.25, hide: true);
@@ -43,8 +43,7 @@ namespace TF2.Content.Items.Weapons.Pyro
         {
             if (currentAmmoClip > 0)
                 cooldownTimer++;
-            if (cooldownTimer > TF2.Time(2))
-                cooldownTimer = TF2.Time(2);
+            TF2.Maximum(ref cooldownTimer, TF2.Time(2));
         }
 
         protected override bool WeaponPreAttack(Player player)

@@ -8,7 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
-using TF2.Content.NPCs;
+using TF2.Content.NPCs.Buddies;
 using TF2.Content.Projectiles;
 
 namespace TF2.Content.Items.Weapons.Spy
@@ -161,7 +161,7 @@ namespace TF2.Content.Items.Weapons.Spy
                     IEntitySource source = Player.GetSource_FromThis();
                     int npc = NPC.NewNPC(source, (int)Player.position.X, (int)Player.position.Y, ModContent.NPCType<SpyNPC>(), Player.whoAmI);
                     SpyNPC spawnedModNPC = (SpyNPC)Main.npc[npc].ModNPC;
-                    spawnedModNPC.npcOwner = Player.whoAmI;
+                    spawnedModNPC.Owner = Player.whoAmI;
                     NetMessage.SendData(MessageID.SyncNPC, number: npc);
                 }
                 else

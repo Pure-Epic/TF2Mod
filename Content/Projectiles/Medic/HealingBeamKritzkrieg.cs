@@ -7,7 +7,7 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Items/Weapons/Medic/Kritzkrieg";
 
-        protected override float Heal => 1.25f;
+        protected override float UberchargeMultiplier => 1.25f;
 
         protected override int UberCharge => ModContent.BuffType<KritzkriegUberCharge>();
     }

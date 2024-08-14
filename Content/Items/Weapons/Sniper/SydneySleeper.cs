@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Items.Materials;
 using TF2.Content.Projectiles.Sniper;
@@ -33,20 +32,9 @@ namespace TF2.Content.Items.Weapons.Sniper
         protected override void WeaponPostFireProjectile(Player player, int projectile)
         {
             if (chargeTime > 0)
-            {
-                SydneySleeperDart dart = (SydneySleeperDart)Main.projectile[projectile].ModProjectile;
-                dart.jarateDuration = TF2.Time(2) + (int)(TF2.Time(3) * (chargeTime / maxChargeTime));
-                NetMessage.SendData(MessageID.SyncProjectile, number: projectile);
-            }
+                (Main.projectile[projectile].ModProjectile as SydneySleeperDart).jarateDuration = TF2.Time(2) + (int)(TF2.Time(3) * (chargeTime / maxChargeTime));
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Huntsman>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Huntsman>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

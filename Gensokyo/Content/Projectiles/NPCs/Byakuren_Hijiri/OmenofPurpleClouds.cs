@@ -174,7 +174,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override void AI()
         {
             timer++;
-            if (timer >= 60)
+            if (timer >= TF2.Time(1))
                 Projectile.velocity = Utils.RotatedBy(Projectile.velocity, Projectile.ai[1] * MathHelper.ToRadians(15f * direction), default);
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
@@ -344,7 +344,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override void AI()
         {
             timer++;
-            if (timer >= 60)
+            if (timer >= TF2.Time(1))
                 Projectile.velocity = Utils.RotatedBy(Projectile.velocity, Projectile.ai[1] * MathHelper.ToRadians(15f * direction), default);
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;

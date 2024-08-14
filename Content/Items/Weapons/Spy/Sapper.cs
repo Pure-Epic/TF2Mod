@@ -9,7 +9,7 @@ namespace TF2.Content.Items.Weapons.Spy
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Spy, PDA2, Stock, Starter);
-            SetWeaponSize();
+            SetWeaponSize(50, 35);
             SetThrowableUseStyle(focus: true);
             SetWeaponDamage(damage: 25, projectile: ModContent.ProjectileType<SapperProjectile>(), projectileSpeed: 25f);
             SetWeaponAttackSpeed(1, hide: true);

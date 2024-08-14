@@ -14,7 +14,7 @@ namespace TF2.Content.UI.HUD.Soldier
     [Autoload(Side = ModSide.Client)]
     internal class BuffBannerChargeMeterHUD : TF2HUD
     {
-        protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().hasBanner;
+        protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().HasBanner;
 
         protected override string Texture => "TF2/Content/Textures/UI/HUD/RightChargeMeterHUD";
 
@@ -36,13 +36,12 @@ namespace TF2.Content.UI.HUD.Soldier
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _rage = new UIText(TF2HUDSystem.TF2HUDLocalization[2], 0.5f)
+            rage = new UIText(TF2HUDSystem.TF2HUDLocalization[4], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            rage = _rage;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(rage);
@@ -61,19 +60,18 @@ namespace TF2.Content.UI.HUD.Soldier
             hitbox.Y += 24;
             hitbox.Width = 44;
             hitbox.Height = 6;
-            int left = hitbox.Left;
             float charge;
             if (!p.buffActive)
             {
-                charge = (float)p.rage / p.maxRage;
+                charge = (float)p.rage / p.MaxRage;
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
             else
             {
-                charge = p.buffDuration / 600f;
+                charge = (float)p.buffDuration / TF2.Time(10);
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.buffActive && p.rage < p.maxRage ? Color.White : Color.Red);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.buffActive && p.rage < p.MaxRage ? Color.White : Color.Red);
         }
     }
 }

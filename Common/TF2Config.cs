@@ -7,6 +7,11 @@ namespace TF2.Common
     {
         public override ConfigScope Mode => ConfigScope.ServerSide;
 
+        [Header("NPCs")]
+        [DefaultValue(false)]
+        [ReloadRequired]
+        public bool Shop;
+
         [Header("Enemies")]
         [DefaultValue(false)]
         [ReloadRequired]
@@ -39,6 +44,10 @@ namespace TF2.Common
         [DefaultValue(false)]
         [ReloadRequired]
         public bool DefaultTips;
+
+        [Header("MannCoStore")]
+        [DefaultValue(true)]
+        public bool WarningText;
 
         [Header("Cheats")]
         [DefaultValue(false)]

@@ -74,7 +74,6 @@ namespace TF2.Content.Buffs
                 cloakMeter = 0;
                 timer = 0;
             }
-
             if (!cloakAndDaggerBuff && cloakAndDaggerEquipped && timer >= 3)
             {
                 cloakMeter++;

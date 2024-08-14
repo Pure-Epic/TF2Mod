@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
@@ -72,7 +73,7 @@ namespace TF2.Content.Projectiles.Scout
         {
             SoundEngine.PlaySound(new SoundStyle(!moonShot ? "TF2/Content/Sounds/SFX/Weapons/sandman_stun" : "TF2/Content/Sounds/SFX/Weapons/sandman_stun_moonshot"), target.Center);
             int buffDuration = TF2.Round(Vector2.Distance(Player.Center, target.Center) / 1000f * TF2.Time(7));
-            target.AddBuff(ModContent.BuffType<BaseballDebuff>(), !moonShot ? (buffDuration >= TF2.Time(1) ? buffDuration : 0) : TF2.Time(7));
+            target.AddBuff(ModContent.BuffType<BaseballDebuff>(), !moonShot ? (buffDuration >= TF2.Time(1) ? buffDuration : 0) : TF2.Time(7), false);
             Projectile.velocity *= -0.1f;
             grounded = true;
         }
@@ -85,5 +86,9 @@ namespace TF2.Content.Projectiles.Scout
             Projectile.velocity *= -0.1f;
             grounded = true;
         }
+
+        protected override void ProjectileSendExtraAI(BinaryWriter writer) => writer.Write(grounded);
+
+        protected override void ProjectileReceiveExtraAI(BinaryReader binaryReader) => grounded = binaryReader.ReadBoolean();
     }
 }

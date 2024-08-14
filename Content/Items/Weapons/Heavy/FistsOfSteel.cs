@@ -32,14 +32,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped = true;
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<KillingGlovesOfBoxing>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<KillingGlovesOfBoxing>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class FistsOfSteelPlayer : ModPlayer

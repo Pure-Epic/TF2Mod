@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Buffs;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Materials;
 using TF2.Content.Tiles.Crafting;
@@ -16,7 +15,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(MultiClass, Melee, Unique, Craft);
-            SetWeaponClass(new int[] { Soldier, Demoman });
+            SetWeaponClass([Soldier, Demoman]);
             SetSwingUseStyle(sword: true);
             SetWeaponDamage(damage: 65, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.8);
@@ -53,43 +52,24 @@ namespace TF2.Content.Items.Weapons.MultiClass
             player.itemLocation = player.MountedCenter + Vector2.UnitX.RotatedBy(currentAngle);
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.miniCrit || p.crit || p.critMelee)
-            {
-                player.Heal(TF2Player.GetPlayerHealthFromPercentage(player, 50));
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            }
-            else
-                modifiers.DisableCrit();
-        }
-
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             TF2Player oppponent = target.GetModPlayer<TF2Player>();
             if (oppponent.currentClass == Soldier || oppponent.currentClass == Demoman)
                 modifiers.SourceDamage *= 3f;
             if (p.miniCrit || p.crit || p.critMelee)
-            {
                 player.Heal(TF2Player.GetPlayerHealthFromPercentage(player, 50));
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            }
         }
 
-        public override void AddRecipes()
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            CreateRecipe()
-                .AddIngredient<Eyelander>(2)
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.miniCrit || p.crit || p.critMelee)
+                player.Heal(TF2Player.GetPlayerHealthFromPercentage(player, 50));
         }
+
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Eyelander>(2).AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class HalfZatoichiPlayer : ModPlayer
@@ -104,7 +84,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 int healthPenalty = TF2.GetHealth(Player, 50);
                 if (Player.statLife > healthPenalty && halfZatoichiCheck)
                 {
-                    Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[3]), healthPenalty, 0);
+                    Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[4].Format(Player.name)), healthPenalty, 0);
                     halfZatoichiCheck = false;
                 }
             }

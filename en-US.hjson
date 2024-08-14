@@ -8,6 +8,18 @@
 
 Mods: {
 	TF2: {
+		Bestiary: {
+			Scout: The youngest of eight boys from the south side of Boston, the Scout learned early how to solve problems with his fists. With seven older brothers on his side, fights tended to end before the runt of the litter could maneuver into punching distance, so the Scout trained himself to run. He ran everywhere, all the time, until he could beat his pack of mad dog siblings to the fray.
+			Soldier: Though he wanted desperately to fight in World War 2, the Soldier was rejected from every branch of the U.S. military. Undaunted, he bought his own ticket to Europe. After arriving and finally locating Poland, the Soldier taught himself how to load and fire a variety of weapons before embarking on a Nazi killing spree for which he was awarded several medals that he designed and made himself. His rampage ended immediately upon hearing about the end of the war in 1949.
+			Pyro: Only two things are known for sure about the mysterious Pyro: he sets things on fire and he doesn't speak. In fact, only the part about setting things on fire is undisputed. Some believe his occasional rasping wheeze may be an attempt to communicate through a mouth obstructed by a filter and attached to lungs ravaged by constant exposure to his asbestos-lined suit. Either way, he's a fearsome, inscrutable, on - fire Frankenstein of a man.If he even is a man.
+			Demoman: A fierce temper, a fascination with all things explosive, and a terrible plan to kill the Loch Ness Monster cost the six year old Demoman his original set of adoptive parents. Later, at the Crypt Grammar School for Orphans near Ullapool in the Scottish Highlands, the boy's bomb-making skills improved dramatically. His disposition and total number of intact eyeballs, however, did not. Word of his proficiency with explosives spread, and it was not long before Crypt Grammar received two visitors; the Demoman's real parents, who lovingly explained that all Demomen are abandoned at birth until their skills manifest themselves, a long-standing, cruel, and wholly unnecessary tradition among the Highland Demolition Men. His unhappy childhood had ended, but his training had just begun.
+			Heavy: Like a hibernating bear, the Heavy appears to be a gentle giant. Also like a bear, confusing his deliberate, sleepy demeanor with gentleness will get you ripped limb from limb. Though he speaks simply and moves with an economy of energy that's often confused with napping, the Heavy isn't dumb; he's not your big friend and he generally wishes that you would just shut up before he has to make you shut up.
+			Engineer: This amiable, soft-spoken good ol' boy from tiny Bee Cave, Texas loves barbeque, guns, and higher education. Natural curiosity, ten years as a roughneck in the west Texas oilfields, and eleven hard science PhDs have trained him to design, build and repair a variety of deadly contraptions.
+			Medic: What he lacks in compassion for the sick, respect for human dignity, and any sort of verifiable formal training in medicine, the Medic more than makes up for with a bottomless supply of giant needles and a trembling enthusiasm for plunging them into exposed flesh. Raised in Stuttgart, Germany during an era when the Hippocratic oath had been downgraded to an optional Hippocratic suggestion, the Medic considers healing a generally unintended side effect of satisfying his own morbid curiosity.
+			Sniper: Half rugged outdoorsman, half alien observer, this taciturn strip of beef jerky has spent the better part of his life alone in the bush, slow baking under the Australian sun.
+			Spy: He is a puzzle, wrapped in an enigma, shrouded in riddles, lovingly sprinkled with intrigue, express mailed to Mystery, Alaska, and LOOK OUT BEHIND YOU! but it is too late. You're dead. For he is the Spy - globetrotting rogue, lady killer (metaphorically) and mankiller (for real).
+		}
+
 		BossChecklist: {
 			BossRush: {
 				DisplayName: Boss Rush
@@ -20,159 +32,15 @@ Mods: {
 			}
 		}
 
-		Configs: {
-			TF2Config: {
-				DisplayName: Team Fortress 2 Config
-
-				Loot: {
-					Label: Extra Loot
-					Tooltip: Disable enemies dropping ammo and health packs? Bosses will always drop these, even if this option is enabled.
-				}
-
-				FreeHealthPacks: {
-					Label: Risky Health Packs
-					Tooltip: Disable enemies dropping health packs when hit?
-				}
-
-				NoTF2Loot: {
-					Label: Disable Loot
-					Tooltip: Disable drops from the Team Fortess 2 mod? Overrides Extra Loot and Risky Health Packs.
-				}
-
-				Headers: {
-					Enemies: Enemies
-					Soldier&Demoman: Soldier & Demoman
-					CustomMusic: Custom Music
-				}
-
-				BossMusic: {
-					Label: Goofy Ahh Boss Music
-					Tooltip: Replace boss music with Fruity Robo 2 Theme?
-				}
-			}
-
-			TF2ConfigClient: {
-				DisplayName: Team Fortress 2 Config Client
-
-				EnableWeaponSwitch: {
-					Label: Switching Weapons While Reloading
-					Tooltip: Can the player switch weapons while reloading?
-				}
-
-				SingleReload: {
-					Label: Unlock Single Reload Weapons
-					Tooltip: Are these weapons allowed to fire while reloading? Enabling may desync reloading sounds.
-				}
-
-				InventoryStats: {
-					Label: Inventory Weapon Attributes
-					Tooltip: Apply certain weapon attributes in the inventory, instead of solely in the hotbar?
-				}
-
-				Channel: {
-					Label: Hold and Release
-					Tooltip: Is charging automatic? (Legacy)
-				}
-
-				SniperAutoCharge: {
-					Label: Sniper Rifle Auto Charge
-					Tooltip: Is charge increased by scoping or is it automatic? (Legacy)
-				}
-
-				Headers: {
-					Weapons: Weapons
-					MainMenu: Main Menu
-					Cheats: Cheats
-				}
-
-				DisablePlayerIcons: {
-					Label: Disable Player Screen Modifications
-					Tooltip: Should the vanilla player selection screen persist? Disables custom player icons.
-				}
-
-				DefaultTips: {
-					Label: Other Tips
-					Tooltip: Should tips from vanilla or other mods show up?
-				}
-
-				InfiniteAmmo: {
-					Label: Infinite Ammo
-					Tooltip: Ammo is no longer consumed and clip size doesn't decrease per shot. The mod is balanced with this option disabled.
-				}
-			}
-
-			GensokyoSaveFile.DisplayName: Gensokyo Save File
-		}
-
-		Currencies.AustraliumCurrency: australium
-		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
-
-		DeathMessages: {
-			Bleeding: bled to death.
-			BostonBasher: bashed his own skull open.
-			Explosion: blew themself to smithereens.
-			HalfZatoichi: was a coward.
-			Fire: burnt to death.
-			Sapper: got electrocuted.
-			Backstab: was backstabbed by
-		}
-
-		GameTips: {
-			OneOfTheGamesEver: Team Fortress 2 is one of the games ever.
-			9Years: Welcome to Team Fortress 2. After 9 years in development, hopefully it will have been worth the wait.
-			Updates: This Team Fortress 2 update hits different.
-			NoUpdates: Last updated 6 years ago!
-			SaxtonHale: Saxton Hale solos Goku.
-			Australium: Australium can occasionally be found. There's a certain person that would love to have some.
-			MannCoStore: If you aren't 100% satisfied with our product line, you can take it up with me!
-			Crates: Use keys to open crates. They contain new weapons waiting to be used.
-			FreeGift: If you talk to Saxton Hale, he may give you a little gift.
-			NoGrinding: Do you want a specific item that takes days to get? The Mann Co. Store may have it for a good price.
-			Weapons: You can keep using stock weapons for your entire playthrough. Yes, some of them are that good.
-			Reloading: Make sure to keep track of your weapon's ammo. Reloading at the wrong time may ensue defeat!
-			Crafting: Unlock even more weapons by crafting!
-			Classes: You can use a class token to switch to your favorite mercenary and inherit their attributes.
-			Ranks: Bosses drop rank tokens, which make you stronger.
-			Playstyles: Choosing a class is the most important part of your playthrough. Pick the one that matches your playstyle.
-			Scout: Scout is the fastest class and can double jump.
-			Scout2: Scout is the most capable of outrunning projectiles.
-			Soldier: Soldier is an all-rounded class.
-			Soldier2: Soldier can rocket jump. However, he takes self-damage from doing it.
-			Pyro: Pyro has the highest damage output of all the classes, but has the lowest range to compensate.
-			Pyro2: Pyro's flamethrowers can airblast, removing debuffs from NPCs and players.
-			Demoman: Demoman is the best at mid-range crowd control.
-			Demoman2: Demoman can be transformed into a melee user if the right weapons are equipped.
-			Heavy: Heavy is the tankiest class and the slowest one too.
-			Heavy2: Heavy's Sandvich can heal him back to full health.
-			Engineer: Engineer can construct buildings to assist him in combat.
-			Engineer2: Engineer's buildings automatically upgrade themselves when built, only if their owner has enough metal.
-			Medic: Medic relies on others to deal damage. In return, he heals them.
-			Medic2: Medic's ÜberCharge can change the tide of a battle.
-			Sniper: Sniper has the highest damage per shot, but the lowest shoot speed.
-			Sniper2: Sniper works best from long distances.
-			Spy: Spy focuses on chip damage, while maintaining survivability.
-			Spy2: Spy's cloak makes him invincible, but degrades over time or with every evaded hit.
-			Random: Hog Riderrrrr!
-			Random2: Tick-tock. Heavy like a Brinks truck...
-			Random3: Me when someone says ara ara in my Buddhist Discord server:
-			Touhou: Team Fortress 2 and Touhou make an unlikely friendship.
-			Touhou2: Imagine if every Team Fortress 2 mercenary fought every Touhou girl.
-			Touhou3: Reimu bad, Heavy good!
-			Touhou4: If I was forced to kiss Yukari Yakumo or suffer eternal torment... Wait, they're both the same thing.
-			Touhou5: Born to teleport bread, forced to play Touhou LostWord.
-			GensokyoCrossPromotion: I wonder what happens if I combine the Team Fortress 2 mod with the Gensokyo mod?
-			GensokyoCrossPromotion2: The Team Fortress 2 mod has perfect synergy with another particular mod.
-			GensokyoCrossPromotion3: I have no other mods to play with the Team Fortress 2 mod. What shall I do? Gensokyo mod:
-			CurioTrader: Rinnosuke Morichika sells individual weapons for a good price. Don't tell Saxton Hale!
-			GensokyoExtraContent: The Gensokyo mod doesn't end after defeating all the Tier 8 bosses. There might be a few bosses that you missed...
-			BossRushTeaser: There are legends of a mysterious scroll, which unleashes the might of Gensokyo.
-			ByakurenTeaser: The Gensokyo mod includes a boss that her power prohibits her from being added to that mod.
-		}
-
 		Buffs: {
 			BaseballDebuff: {
 				DisplayName: Slugged!
 				Description: Slowed
+			}
+
+			BigEarnerBuff: {
+				DisplayName: Paycheck
+				Description: Speed Boost
 			}
 
 			Bleeding: {
@@ -221,8 +89,18 @@ Mods: {
 			}
 
 			HeavyCrit: {
-				DisplayName: Heavy's Crit
+				DisplayName: Knockout
 				Description: Grants crits
+			}
+
+			HeavySpeed: {
+				DisplayName: Evicted
+				Description: Speed boost
+			}
+
+			Hype: {
+				DisplayName: Hype
+				Description: Extra jumps
 			}
 
 			JarateDebuff: {
@@ -265,6 +143,11 @@ Mods: {
 				Description: Losing life
 			}
 
+			QuickFixUberCharge: {
+				DisplayName: ÜberCharge
+				Description: Rapid healing and immunities
+			}
+
 			Radiation: {
 				DisplayName: Radiation
 				Description: Invinciblity with some side effects
@@ -295,261 +178,264 @@ Mods: {
 				Description: I am bulletproof!
 			}
 
+			Whipped: {
+				DisplayName: Disciplined
+				Description: Speed boost
+			}
+
 			TF2MountBuff: {
-				DisplayName: Mann's Anti Danmaku System
+				DisplayName: Mann's Anti-Danmaku System
 				Description: Nice try, pal!
 			}
 		}
 
+		Class: {
+			Scout: Scout
+			Soldier: Soldier
+			Pyro: Pyro
+			Demoman: Demoman
+			Heavy: Heavy
+			Engineer: Engineer
+			Medic: Medic
+			Sniper: Sniper
+			Spy: Spy
+		}
+
+		Configs: {
+			TF2Config: {
+				DisplayName: Team Fortress 2 Config
+
+				Loot: {
+					Label: Extra Loot
+					Tooltip: Disable enemies dropping ammo and health packs? Bosses will always drop these, even if this option is enabled.
+				}
+
+				FreeHealthPacks: {
+					Label: Risky Health Packs
+					Tooltip: Disable enemies dropping health packs when hit?
+				}
+
+				NoTF2Loot: {
+					Label: Disable Loot
+					Tooltip: Disable drops from the Team Fortess 2 mod? Overrides Extra Loot and Risky Health Packs.
+				}
+
+				Headers: {
+					Enemies: Enemies
+					Soldier&Demoman: Soldier & Demoman
+					CustomMusic: Custom Music
+					NPCs: N P Cs Header
+				}
+
+				BossMusic: {
+					Label: Goofy Ahh Boss Music
+					Tooltip: Replace boss music with Fruity Robo 2 Theme?
+				}
+
+				Shop: {
+					Label: Shop
+					Tooltip: ""
+				}
+			}
+
+			TF2ConfigClient: {
+				DisplayName: Team Fortress 2 Config Client
+
+				EnableWeaponSwitch: {
+					Label: Switching Weapons While Reloading
+					Tooltip: Can the player switch weapons while reloading?
+				}
+
+				SingleReload: {
+					Label: Unlock Single Reload Weapons
+					Tooltip: Are these weapons allowed to fire while reloading? Enabling may desync reloading sounds.
+				}
+
+				InventoryStats: {
+					Label: Inventory Weapon Attributes
+					Tooltip: Apply certain weapon attributes in the inventory, instead of solely in the hotbar?
+				}
+
+				Headers: {
+					Weapons: Weapons
+					MainMenu: Main Menu
+					Cheats: Cheats
+					MannCoStore: Mann Co Store Header
+				}
+
+				DisablePlayerIcons: {
+					Label: Disable Player Screen Modifications
+					Tooltip: Should the vanilla player selection screen persist? Disables custom player icons.
+				}
+
+				DefaultTips: {
+					Label: Other Tips
+					Tooltip: Should tips from vanilla or other mods show up?
+				}
+
+				InfiniteAmmo: {
+					Label: Infinite Ammo
+					Tooltip: Ammo is no longer consumed and clip size doesn't decrease per shot. The mod is balanced with this option disabled.
+				}
+
+				WarningText: {
+					Label: Warning Text
+					Tooltip: ""
+				}
+			}
+
+			GensokyoSaveFile.DisplayName: Gensokyo Save File
+		}
+
+		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
+
+		DeathMessages: {
+			Bleeding: "{0} bled to death."
+			BostonBasher: "{0} bashed his own skull open."
+			Explosion: "{0} blew themself to smithereens."
+			Mantreads: "{0} was squished by {1}."
+			HalfZatoichi: "{0} was a coward."
+			Fire: "{0} burnt to death."
+			Sapper: "{0} got electrocuted."
+			Backstab: "{0} was backstabbed by {1}"
+		}
+
+		GameTips: {
+			OneOfTheGamesEver: Team Fortress 2 is one of the games ever.
+			9Years: Welcome to Team Fortress 2. After 9 years in development, hopefully it will have been worth the wait.
+			Updates: This Team Fortress 2 update hits different.
+			NoUpdates: Last updated 6 years ago!
+			SaxtonHale: Saxton Hale solos Goku.
+			Money: Certain money drop money when killed, which can be spent in the Mann Co. Store.
+			MannCoStore: If you aren't 100% satisfied with our product line, you can take it up with me!
+			Crates: Use keys to open crates. They contain new weapons waiting to be used.
+			NoGrinding: Do you want a specific item that takes days to get? The Mann Co. Store may have it for a good price.
+			Weapons: You can keep using stock weapons for your entire playthrough. Yes, some of them are that good.
+			Reloading: Make sure to keep track of your weapon's ammo. Reloading at the wrong time may ensue defeat!
+			Ammo: Guns have a limited amount of ammo. Make sure to not run out of it!
+			RandomCriticalHits: Dealing more damage over time increases the chance of a random critical hit.
+			Points: Hitting bosses may drop power-ups, which can heal you or replenish your ammo.
+			Melee: Melee weapons have a higher chance of dealing random critical hits and making bosses drop power-ups!
+			Crafting: Unlock even more weapons by crafting!
+			Ranks: Bosses drop soul items, which make you stronger.
+			Classes: There are nine unique classes to choose from.
+			Playstyles: Choosing a class is the most important part of your playthrough. Pick the one that matches your playstyle.
+			Scout: Scout is the fastest class and can double jump.
+			Scout2: Scout is the most capable of outrunning projectiles.
+			Soldier: Soldier is an all-rounded class.
+			Soldier2: Soldier can rocket jump. However, he takes self-damage from doing it.
+			Pyro: Pyro has the highest damage output of all the classes, but has the lowest range to compensate.
+			Pyro2: Pyro's flamethrowers can airblast, removing debuffs from NPCs and players.
+			Demoman: Demoman is the best at mid-range crowd control.
+			Demoman2: Demoman can be transformed into a melee user if the right weapons are equipped.
+			Heavy: Heavy is the tankiest class and the slowest one too.
+			Heavy2: Heavy's Sandvich can heal him back to full health.
+			Engineer: Engineer can construct buildings to assist him in combat.
+			Engineer2: Engineer's buildings automatically upgrade themselves when built, only if their owner has enough metal.
+			Medic: Medic relies on others to deal damage. In return, he heals them.
+			Medic2: Medic's ÜberCharge can change the tide of a battle.
+			Sniper: Sniper has the highest damage per shot, but the lowest shoot speed.
+			Sniper2: Sniper works best from long distances.
+			Spy: Spy focuses on chip damage, while maintaining survivability.
+			Spy2: Spy's cloak makes him invincible, but degrades over time or with every evaded hit.
+			Random: Hog Riderrrrr!
+			Random2: Tick-tock. Heavy like a Brinks truck...
+			Random3: Me when someone says ara ara in my Buddhist Discord server:
+			Touhou: Team Fortress 2 and Touhou make an unlikely friendship.
+			Touhou2: Imagine if every Team Fortress 2 mercenary fought every Touhou girl.
+			Touhou3: Reimu bad, Heavy good!
+			Touhou4: If I was forced to kiss Yukari Yakumo or suffer eternal torment... Wait, they're the same thing.
+			Touhou5: Born to teleport bread, forced to play Touhou LostWord.
+			Touhou6: Imagine if the Black Templars invaded Gensokyo.
+			GensokyoCrossPromotion: I wonder what happens if I combine the Team Fortress 2 mod with the Gensokyo mod?
+			GensokyoCrossPromotion2: The Team Fortress 2 mod has perfect synergy with another particular mod.
+			GensokyoCrossPromotion3: I have no other mods to play with the Team Fortress 2 mod. What shall I do? Gensokyo mod:
+			CurioTrader: Rinnosuke Morichika sells exclusive weapons for a good price. Don't tell Saxton Hale!
+			GensokyoExtraContent: The Gensokyo mod doesn't end after defeating all the Tier 8 bosses. There might be a few bosses that you might have missed...
+			BossRushTeaser: There are legends of a mysterious scroll, which unleashes the might of Gensokyo.
+			ByakurenTeaser: The Gensokyo mod includes a boss that her power prohibits her from being added to that mod.
+		}
+
 		Items: {
-			Rank1: {
-				DisplayName: Mercenary I
-				Tooltip:
-					'''
-					75% weapon damage
-					75% npc efficiency
-					'''
-			}
-
-			Rank10: {
-				DisplayName: Expert Assassin I
-				Tooltip:
-					'''
-					400% health
-					20000% weapon damage
-					20000% npc efficiency
-					+400 metal capacity
-					+3 bullet pierce
-					'''
-			}
-
-			Rank11: {
-				DisplayName: Expert Assassin II
-				Tooltip:
-					'''
-					500% health
-					50000% weapon damage
-					50000% npc efficiency
-					+400 metal capacity
-					+3 bullet pierce
-					'''
-			}
-
-			Rank12: {
-				DisplayName: Expert Assassin III
-				Tooltip:
-					'''
-					500% health
-					100000% weapon damage
-					100000% npc efficiency
-					+400 metal capacity
-					+4 bullet pierce
-					'''
-			}
-
-			Rank13: {
-				DisplayName: Death Merchant
-				Tooltip:
-					'''
-					1000% health
-					1000000% weapon damage
-					1000000% npc efficiency
-					+800 metal capacity
-					+5 bullet pierce
-					'''
-			}
-
-			Rank2: {
-				DisplayName: Mercenary II
-				Tooltip:
-					'''
-					125% health
-					100% weapon damage
-					100% npc efficiency
-					'''
-			}
-
-			Rank3: {
-				DisplayName: Mercenary III
-				Tooltip:
-					'''
-					125% health
-					150% weapon damage
-					150% npc efficiency
-					+1 bullet pierce
-					'''
-			}
-
-			Rank4: {
-				DisplayName: Contract Killer I
-				Tooltip:
-					'''
-					125% health
-					350% weapon damage
-					350% npc efficiency
-					+200 metal capacity
-					+1 bullet pierce
-					'''
-			}
-
-			Rank5: {
-				DisplayName: Contract Killer II
-				Tooltip:
-					'''
-					150% health
-					500% weapon damage
-					500% npc efficiency
-					+200 metal capacity
-					+1 bullet pierce
-					'''
-			}
-
-			Rank6: {
-				DisplayName: Contract Killer III
-				Tooltip:
-					'''
-					150% health
-					750% weapon damage
-					750% npc efficiency
-					+200 metal capacity
-					+2 bullet pierce
-					'''
-			}
-
-			Rank7: {
-				DisplayName: Executioner I
-				Tooltip:
-					'''
-					150% health
-					1500% weapon damage
-					1500% npc efficiency
-					+200 metal capacity
-					+2 bullet pierce
-					'''
-			}
-
-			Rank8: {
-				DisplayName: Executioner II
-				Tooltip:
-					'''
-					200% health
-					5000% weapon damage
-					5000% npc efficiency
-					+400 metal capacity
-					+2 bullet pierce
-					'''
-			}
-
-			Rank9: {
-				DisplayName: Executioner III
-				Tooltip:
-					'''
-					300% health
-					10000% weapon damage
-					10000% npc efficiency
-					+400 metal capacity
-					+3 bullet pierce
-					'''
-			}
-
-			TournamentStandard: {
-				DisplayName: Tournament Standard
-				Tooltip:
-					'''
-					100% health
-					100% weapon damage
-					100% npc efficiency
-					'''
-			}
-
-			DemomanClass: {
-				DisplayName: Demoman Class Token
-				Tooltip: Change class to Demoman
-			}
-
-			EngineerClass: {
-				DisplayName: Engineer Class Token
-				Tooltip: Change class to Engineer
-			}
-
-			HeavyClass: {
-				DisplayName: Heavy Class Token
-				Tooltip: Change class to Heavy
-			}
-
-			MedicClass: {
-				DisplayName: Medic Class Token
-				Tooltip: Change class to Medic
-			}
-
-			PyroClass: {
-				DisplayName: Pyro Class Token
-				Tooltip: Change class to Pyro
-			}
-
-			ScoutClass: {
-				DisplayName: Scout Class Token
-				Tooltip: Change class to Scout
-			}
-
-			SniperClass: {
-				DisplayName: Sniper Class Token
-				Tooltip: Change class to Sniper
-			}
-
-			SoldierClass: {
-				DisplayName: Soldier Class Token
-				Tooltip: Change class to Soldier
-			}
-
-			SpyClass: {
-				DisplayName: Spy Class Token
-				Tooltip: Change class to Spy
-			}
-
 			DemomanBundle: {
 				DisplayName: Demoman Starter Pack
-				Tooltip: Contains Grenade Launcher, Stickybomb Launcher, Bottle, and Demoman Class Token
+				Tooltip:
+					'''
+					Contains Grenade Launcher, Stickybomb Launcher, and Bottle
+					Right click to open
+					'''
 			}
 
 			EngineerBundle: {
 				DisplayName: Engineer Starter Pack
-				Tooltip: Contains Shotgun, Pistol, Wrench, Sentry Tool, Dispenser Tool, and Engineer Class Token
+				Tooltip:
+					'''
+					Contains Shotgun, Pistol, Wrench, Construction PDA, and Destruction PDA
+					Right click to open
+					'''
 			}
 
 			HeavyBundle: {
 				DisplayName: Heavy Starter Pack
-				Tooltip: Contains Minigun, Shotgun, Fists, and Heavy Class Token
+				Tooltip:
+					'''
+					Contains Minigun, Shotgun, and Fists
+					Right click to open
+					'''
 			}
 
 			MedicBundle: {
 				DisplayName: Medic Starter Pack
-				Tooltip: Contains Syringe Gun, Medi Gun, Bonesaw, and Medic Class Token
+				Tooltip:
+					'''
+					Contains Syringe Gun, Medi Gun, and Bonesaw
+					Right click to open
+					'''
 			}
 
 			PyroBundle: {
 				DisplayName: Pyro Starter Pack
-				Tooltip: Contains Flame Thrower, Shotgun, Fire Axe, and Pyro Class Token
+				Tooltip:
+					'''
+					Contains Flame Thrower, Shotgun, and Fire Axe
+					Right click to open
+					'''
 			}
 
 			ScoutBundle: {
 				DisplayName: Scout Starter Pack
-				Tooltip: Contains Scattergun, Pistol, Bat, and Scout Class Token
+				Tooltip:
+					'''
+					Contains Scattergun, Pistol, and Bat
+					Right click to open
+					'''
 			}
 
 			SniperBundle: {
 				DisplayName: Sniper Starter Pack
-				Tooltip: Contains Sniper Rifle, SMG, Kukri, and Sniper Class Token
+				Tooltip:
+					'''
+					Contains Sniper Rifle, SMG, and Kukri
+					Right click to open
+					'''
 			}
 
 			SoldierBundle: {
 				DisplayName: Soldier Starter Pack
-				Tooltip: Contains Rocket Launcher, Shotgun, Shovel, and Soldier Class Token
+				Tooltip:
+					'''
+					Contains Rocket Launcher, Shotgun, and Shovel
+					Right click to open
+					'''
 			}
 
 			SpyBundle: {
 				DisplayName: Spy Starter Pack
-				Tooltip: Contains Revolver, Knife, Sapper, Invis Watch, and Spy Class Token
+				Tooltip:
+					'''
+					Contains Revolver, Knife, Sapper, and Invis Watch
+					Right click to open
+					'''
 			}
 
 			LargeAmmoBox: {
@@ -579,6 +465,11 @@ Mods: {
 
 			LargeHealthPotion: {
 				DisplayName: Large Health Kit
+				Tooltip: Restores all health
+			}
+
+			BuildingPoint: {
+				DisplayName: Building Point
 				Tooltip: ""
 			}
 
@@ -598,7 +489,7 @@ Mods: {
 					You need a Mann Co. Supply Crate Key to open this.
 					You can pick one up at the Mann Co. Store.
 					Contains 3 random weapons
-					{$CommonItemTooltip.RightClickToOpen}
+					Right click to open
 					'''
 			}
 
@@ -614,12 +505,12 @@ Mods: {
 
 			MediumAmmoPoint: {
 				DisplayName: Medium Ammo Point
-				Tooltip: Restores 50% of ammo reserve on all weapons
+				Tooltip: ""
 			}
 
 			MediumAmmoPotion: {
 				DisplayName: Medium Ammo Potion
-				Tooltip: ""
+				Tooltip: Restores 50% of ammo reserve on all weapons
 			}
 
 			MediumHealth: {
@@ -634,7 +525,7 @@ Mods: {
 
 			MediumHealthPotion: {
 				DisplayName: Medium Health Kit
-				Tooltip: ""
+				Tooltip: Restores 50% of maximum health
 			}
 
 			PlanteraItem: {
@@ -674,7 +565,7 @@ Mods: {
 
 			SmallHealthPotion: {
 				DisplayName: Small Health Kit
-				Tooltip: ""
+				Tooltip: Restores 20% of maximum health
 			}
 
 			SoulItem: {
@@ -684,7 +575,7 @@ Mods: {
 
 			Australium: {
 				DisplayName: Australium
-				Tooltip: Use it at Mann Co. Store
+				Tooltip: ""
 			}
 
 			HauntedMetalScrap: {
@@ -707,49 +598,49 @@ Mods: {
 				Tooltip: ""
 			}
 
-			DemomanSummon: {
-				DisplayName: Demoman
-				Tooltip: Summons Demoman
+			DemomanBuddy: {
+				DisplayName: Demoman Buddy
+				Tooltip: ""
 			}
 
-			EngineerSummon: {
-				DisplayName: Engineer
-				Tooltip: Summons Engineer
+			EngineerBuddy: {
+				DisplayName: Engineer Buddy
+				Tooltip: ""
 			}
 
-			HeavySummon: {
-				DisplayName: Heavy
-				Tooltip: Summons Heavy
+			HeavyBuddy: {
+				DisplayName: Heavy Buddy
+				Tooltip: ""
 			}
 
-			MedicSummon: {
-				DisplayName: Medic
-				Tooltip: Summons Medic
+			MedicBuddy: {
+				DisplayName: Medic Buddy
+				Tooltip: ""
 			}
 
-			PyroSummon: {
-				DisplayName: Pyro
-				Tooltip: Summons Pyro
+			PyroBuddy: {
+				DisplayName: Pyro Buddy
+				Tooltip: ""
 			}
 
-			ScoutSummon: {
-				DisplayName: Scout
-				Tooltip: Summons Scout
+			ScoutBuddy: {
+				DisplayName: Scout Buddy
+				Tooltip: ""
 			}
 
-			SniperSummon: {
-				DisplayName: Sniper
-				Tooltip: Summons Sniper
+			SniperBuddy: {
+				DisplayName: Sniper Buddy
+				Tooltip: ""
 			}
 
-			SoldierSummon: {
-				DisplayName: Soldier
-				Tooltip: Summons Soldier
+			SoldierBuddy: {
+				DisplayName: Soldier Buddy
+				Tooltip: ""
 			}
 
-			SpySummon: {
-				DisplayName: Spy
-				Tooltip: Summons Spy
+			SpyBuddy: {
+				DisplayName: Spy Buddy
+				Tooltip: ""
 			}
 
 			CraftingAnvilItem: {
@@ -768,6 +659,23 @@ Mods: {
 			AustraliumDrill: {
 				DisplayName: Australium Drill
 				Tooltip: ""
+			}
+
+			MannCoCatalog: {
+				DisplayName: Mann Co. Catalog
+				Tooltip: Opens the Mann Co. Store
+			}
+
+			AliBabasWeeBooties: {
+				DisplayName: Ali Baba's Wee Booties
+				Tooltip: ""
+				Upsides:
+					'''
+					+25 max health on wearer
+					+200% increase in turning control while charging
+					+10% faster move speed on wearer (shield required)
+					Melee critical hits refill 25% of your charge meter
+					'''
 			}
 
 			Bottle: {
@@ -848,6 +756,23 @@ Mods: {
 					'''
 			}
 
+			PersianPersuader: {
+				DisplayName: Persian Persuader
+				Tooltip: ""
+				Sword: This weapon has a large melee range and deploys and holsters slower
+				Upsides:
+					'''
+					Melee hits refill 20% of your charge meter
+					Ammo boxes collected also refill your charge meter
+					'''
+				Downsides:
+					'''
+					No random critical hits
+					-80% max primary ammo on wearer
+					-80% max secondary ammo on wearer
+					'''
+			}
+
 			ScotsmansSkullcutter: {
 				DisplayName: Scotsman's Skullcutter
 				Tooltip: ""
@@ -871,6 +796,28 @@ Mods: {
 					Stickybombs can collide with enemies
 					'''
 				Downsides: 0.8 sec slower bomb arm time
+			}
+
+			SplendidScreen: {
+				DisplayName: Splendid Screen
+				Tooltip: ""
+				Upsides:
+					'''
+					+20% contact damage resistance on wearer
+					+20% projectile damage resistance on wearer
+					+70% increase in charge impact damage
+					+50% increase in charge recharge rate
+					'''
+				Notes:
+					'''
+					Assign key to charge toward your enemies and remove debuffs.
+					Gain a critical melee strike after impacting an enemy.
+					'''
+				Notes2:
+					'''
+					: Charge toward your enemies and remove debuffs.
+					Gain a critical melee strike after impacting an enemy.
+					'''
 			}
 
 			StickybombLauncher: {
@@ -918,25 +865,11 @@ Mods: {
 			ConstructionPDA: {
 				DisplayName: Construction PDA
 				Tooltip: ""
-				Notes:
-					'''
-					Left click to build a sentry gun
-					Right click to build a dispenser
-					Sentry guns target the closest enemy.
-					Sentry gun level depends on the amount of metal the player currently has.
-					Dispensers produce health kits, ammo, and metal.
-					Dispenser level depends on the amount of metal the player currently has.
-					'''
 			}
 
 			DestructionPDA: {
 				DisplayName: Destruction PDA
 				Tooltip: ""
-				Notes:
-					'''
-					Left click to destroy your current sentry gun
-					Right click to destroy your current dispenser
-					'''
 			}
 
 			FrontierJustice: {
@@ -946,7 +879,7 @@ Mods: {
 					'''
 					Gain 3 revenge crits when your sentry is destroyed
 					Gain a revenge crit every third time you get hit by a hostile NPC or projectile
-					Has focus shot
+					Supports focus shot
 					'''
 				Downsides:
 					'''
@@ -978,12 +911,12 @@ Mods: {
 				Upsides:
 					'''
 					+15% faster firing speed
-					Sentries cost 30% less metal
+					Construction hit speed boost increased by 30%
 					'''
 				Downsides:
 					'''
 					-25% damage penalty
-					Dispensers cost 20% more metal
+					20% slower repair rate
 					-33% damage penalty vs basic enemies
 					'''
 			}
@@ -1067,6 +1000,33 @@ Mods: {
 					'''
 			}
 
+			EvictionNotice: {
+				DisplayName: Eviction Notice
+				Tooltip: ""
+				Upsides:
+					'''
+					+40% faster firing speed
+					On Hit: Gain a speed boost
+					+15% faster move speed on wearer
+					'''
+				Downsides:
+					'''
+					-60% damage penalty
+					Maximum health is drained while item is active
+					'''
+			}
+
+			FamilyBusiness: {
+				DisplayName: Family Business
+				Tooltip: ""
+				Upsides:
+					'''
+					+33% clip size
+					+15% faster firing speed
+					'''
+				Downsides: -15% damage penalty
+			}
+
 			Fists: {
 				DisplayName: Fists
 				Tooltip: ""
@@ -1131,6 +1091,19 @@ Mods: {
 					Eat to regain full health.
 					Alt-fire: Share a Sandvich with a friend (Medium Health Kit)
 					'''
+			}
+
+			Tomislav: {
+				DisplayName: Tomislav
+				Tooltip: ""
+				Upsides:
+					'''
+					20% faster spin up time
+					20% more accurate
+					Silent Killer: No barrel spin sound
+					Supports focus shot
+					'''
+				Downsides: 20% slower firing speed
 			}
 
 			WarriorsSpirit: {
@@ -1200,6 +1173,33 @@ Mods: {
 				Tooltip: ""
 			}
 
+			Overdose: {
+				DisplayName: Overdose
+				Tooltip: ""
+				Downsides: -15% damage penalty
+				Notes: While active, movement speed increases based on ÜberCharge percentage to a maximum of +20%
+			}
+
+			QuickFix: {
+				DisplayName: Quick-Fix
+				Tooltip: ""
+				Header: ÜberCharge increases healing to 300% and grants immunity to knockback and basic debuffs
+				Upsides:
+					'''
+					+40% heal rate
+					+10% ÜberCharge rate
+					'''
+				Downsides: 50% max overheal
+			}
+
+			SolemnVow: {
+				DisplayName: Solemn Vow
+				Tooltip: ""
+				Upsides: On Hit: The target is coated with Jarate for 5 seconds
+				Downsides: 10% slower firing speed
+				Notes: "'Do no harm.'"
+			}
+
 			SyringeGun: {
 				DisplayName: Syringe Gun
 				Tooltip: ""
@@ -1212,6 +1212,7 @@ Mods: {
 				Downsides:
 					'''
 					20% slower firing speed
+					Each hit sets Marked-For-Death to yourself for 2 seconds
 					No random health kits
 					'''
 			}
@@ -1245,13 +1246,24 @@ Mods: {
 			PainTrain: {
 				DisplayName: Pain Train
 				Tooltip: ""
-				Upsides: Guaranteed critical hits vs Touhou girls
+				Upsides: 100% critical hit vs Touhou girls
 				Downsides: 10% projectile damage vulnerability on wearer
 			}
 
 			Pistol: {
 				DisplayName: Pistol
 				Tooltip: ""
+			}
+
+			ReserveShooter: {
+				DisplayName: Reserve Shooter
+				Tooltip: ""
+				Upsides:
+					'''
+					Mini-crits flying targets
+					This weapon deploys 20% faster
+					'''
+				Downsides: -34% clip size
 			}
 
 			Shotgun: {
@@ -1317,6 +1329,22 @@ Mods: {
 					'''
 			}
 
+			Detonator: {
+				DisplayName: Detonator
+				Tooltip: ""
+				Upsides: 100% mini-crits vs burning players
+				Downsides:
+					'''
+					-25% damage penalty
+					+50% damage to self
+					'''
+				Notes:
+					'''
+					Alt-Fire: Detonate flare.
+					This weapon will reload automatically when not active.
+					'''
+			}
+
 			FireAxe: {
 				DisplayName: Fire Axe
 				Tooltip: ""
@@ -1364,6 +1392,21 @@ Mods: {
 				Tooltip: ""
 				Upsides: On Hit: target is engulfed in flames
 				Downsides: -20% damage penalty
+			}
+
+			Atomizer: {
+				DisplayName: Atomizer
+				Tooltip: ""
+				Upsides:
+					'''
+					Grants Triple Jump while deployed.
+					Melee attacks mini-crit while airborne.
+					'''
+				Downsides:
+					'''
+					-15% damage penalty
+					This weapon deploys 50% slower
+					'''
 			}
 
 			Bat: {
@@ -1446,7 +1489,7 @@ Mods: {
 					Players heal 60% of the damage done to an enemy covered with milk.
 					Can be used to remove debuffs.
 					'''
-				Lore: Apparently, Scout was in a secret relationship with Yuuka Kazami. Knowing that calamity would strike if everyone else discovered the affair, the couple gave their final farewell. The only remant of their love: A suspicious liquid assumed to be extracted from Yuuka.
+				Lore: Although Scout has never revealed the identity of the substance, its appearance and properties confirm it to be Yautja blood.
 			}
 
 			Sandman: {
@@ -1479,6 +1522,23 @@ Mods: {
 				Notes: Alt-Fire to reach and shove someone!
 			}
 
+			SodaPopper: {
+				DisplayName: Soda Popper
+				Tooltip: ""
+				Upsides:
+					'''
+					50% faster firing speed
+					25% faster reload time
+					On Hit: Builds Hype
+					'''
+				Downsides: -66% clip size
+				Notes:
+					'''
+					When Hype is full, Alt-Fire to activate Hype mode for multiple air jumps and allow focus shots.
+					This weapon reloads its entire clip at once.
+					'''
+			}
+
 			SunonaStick: {
 				DisplayName: Sun-on-a-Stick
 				Tooltip: ""
@@ -1489,6 +1549,24 @@ Mods: {
 					'''
 				Downsides: -25% damage penalty
 				Notes: Spiky end goes into other man.
+			}
+
+			Winger: {
+				DisplayName: Winger
+				Tooltip: ""
+				Upsides:
+					'''
+					+15% damage bonus
+					+25% greater jump height when active
+					'''
+				Downsides: -60% clip size
+			}
+
+			BazaarBargain: {
+				DisplayName: Bazaar Bargain
+				Tooltip: ""
+				Downsides: Base charge rate decreased by 50%
+				Notes: Each scoped headshot kill increases the weapon's charge rate by 25% up to 200%.
 			}
 
 			Bushwacka: {
@@ -1541,6 +1619,13 @@ Mods: {
 				Tooltip: ""
 				Upsides: Blocks a single enemy hit attempt
 				Downsides: -100% maximum overheal on wearer
+			}
+
+			Shahanshah: {
+				DisplayName: Shahanshah
+				Tooltip: ""
+				Upsides: +25% increase in damage when health <50% of max
+				Downsides: -25% decrease in damage when health >50% of max
 			}
 
 			SMG: {
@@ -1627,6 +1712,13 @@ Mods: {
 					'''
 			}
 
+			DisciplinaryAction: {
+				DisplayName: Disciplinary Action
+				Tooltip: ""
+				Upsides: On Hit Teammate: Boosts both partners' speed for several seconds
+				Downsides: -25% damage penalty
+			}
+
 			Equalizer: {
 				DisplayName: Equalizer
 				Tooltip: ""
@@ -1640,6 +1732,42 @@ Mods: {
 				Tooltip: ""
 				Upsides: -60% damage vulnerability
 				Downsides: No random health kits
+			}
+
+			LibertyLauncher: {
+				DisplayName: Liberty Launcher
+				Tooltip: ""
+				Upsides:
+					'''
+					+25% clip size
+					+40% projectile speed
+					-25% blast damage from rocket jumps
+					'''
+				Downsides: -25% damage penalty
+			}
+
+			Mantreads: {
+				DisplayName: Mantreads
+				Tooltip: ""
+				Upsides:
+					'''
+					-75% knockback from enemy damage
+					Deals 3x falling damage to the enemy you land on
+					200% increased air control while airborne
+					+25% movement speed while flying
+					'''
+			}
+
+			MarketGardener: {
+				DisplayName: Market Gardener
+				Tooltip: ""
+				Upsides: Deals crits while the wielder is airborne
+				Downsides:
+					'''
+					20% slower firing speed
+					No random critical hits
+					No random health kits while active
+					'''
 			}
 
 			RocketJumper: {
@@ -1683,6 +1811,17 @@ Mods: {
 					20% slower firing speed
 					No random critical hits
 					'''
+			}
+
+			BigEarner: {
+				DisplayName: Big Earner
+				Tooltip: ""
+				Upsides:
+					'''
+					+30% cloak on backstabs when uncloaked
+					Gain a speed boost on backstabs
+					'''
+				Downsides: -25 max health on wearer
 			}
 
 			CloakAndDagger: {
@@ -1739,6 +1878,21 @@ Mods: {
 					+40% cloak duration
 					'''
 				Downsides: -50% cloak meter when Feign Death is activated
+			}
+
+			Enforcer: {
+				DisplayName: Enforcer
+				Tooltip: ""
+				Upsides:
+					'''
+					+20% damage bonus while cloaked
+					Attacks pierce damage resistance effects and bonuses
+					'''
+				Downsides:
+					'''
+					20% slower firing speed
+					No random critical hits
+					'''
 			}
 
 			InvisWatch: {
@@ -1800,7 +1954,7 @@ Mods: {
 			}
 
 			TF2MountItem: {
-				DisplayName: Mann's Anti Danmaku System
+				DisplayName: Mann's Anti-Danmaku System
 				Tooltip: ""
 				Notes:
 					'''
@@ -1917,76 +2071,55 @@ Mods: {
 			"Shield Charge.DisplayName": Shield Charge
 			"Homing Distance.DisplayName": Homing Distance
 			"Mount Speed.DisplayName": Mount Speed
+			"Move Building.DisplayName": Move  Building
 		}
 
 		NPCs: {
-			DemomanNPC.DisplayName: Demoman
 			DispenserLevel1.DisplayName: Dispenser Level 1
 			DispenserLevel2.DisplayName: Dispenser Level 2
 			DispenserLevel3.DisplayName: Dispenser Level 3
+			SentryLevel1.DisplayName: Sentry Gun Level 1
+			SentryLevel2.DisplayName: Sentry Gun Level 2
+			SentryLevel3.DisplayName: Sentry Gun Level 3
+			TeleporterEntranceLevel1.DisplayName: Teleporter Entrance Level 1
+			TeleporterEntranceLevel2.DisplayName: Teleporter Entrance Level 2
+			TeleporterEntranceLevel3.DisplayName: Teleporter Entrance Level 3
+			TeleporterExitLevel1.DisplayName: Teleporter Exit Level 1
+			TeleporterExitLevel2.DisplayName: Teleporter Exit Level 2
+			TeleporterExitLevel3.DisplayName: Teleporter Exit Level 3
+			DemomanNPC.DisplayName: Demoman
 			EngineerNPC.DisplayName: Engineer
 			HeavyNPC.DisplayName: Heavy
 			MedicNPC.DisplayName: Medic
 			MiniSentry.DisplayName: Mini-Sentry Gun
 			PyroNPC.DisplayName: Pyro
 			ScoutNPC.DisplayName: Scout
-			SentryLevel1.DisplayName: Sentry Gun Level 1
-			SentryLevel2.DisplayName: Sentry Gun Level 2
-			SentryLevel3.DisplayName: Sentry Gun Level 3
 			SniperNPC.DisplayName: Sniper
 			SoldierNPC.DisplayName: Soldier
 			SpyNPC.DisplayName: Spy
-
-			Administrator: {
-				DisplayName: Administrator
-
-				TownNPCMood: {
-					Content: "{$Mods.TF2.TownNPCMood.Administrator.Content}"
-					NoHome: "{$Mods.TF2.TownNPCMood.Administrator.NoHome}"
-					FarFromHome: "{$Mods.TF2.TownNPCMood.Administrator.FarFromHome}"
-					LoveSpace: "{$Mods.TF2.TownNPCMood.Administrator.LoveSpace}"
-					DislikeCrowded: "{$Mods.TF2.TownNPCMood.Administrator.DislikeCrowded}"
-					HateCrowded: "{$Mods.TF2.TownNPCMood.Administrator.HateCrowded}"
-					LoveBiome: "{$Mods.TF2.TownNPCMood.Administrator.LoveBiome}"
-					LoveNPC: "{$Mods.TF2.TownNPCMood.Administrator.LoveNPC}"
-					LikeNPC: "{$Mods.TF2.TownNPCMood.Administrator.LikeNPC}"
-					HateNPC: "{$Mods.TF2.TownNPCMood.Administrator.HateNPC}"
-					LikeNPC_Princess: I like {NPCName}.
-					Princess_LovesNPC: I like {NPCName}.
-				}
-			}
-
-			MissPauling: {
-				DisplayName: Miss Pauling
-
-				TownNPCMood: {
-					Content: "{$Mods.TF2.TownNPCMood.MissPauling.Content}"
-					NoHome: "{$Mods.TF2.TownNPCMood.MissPauling.NoHome}"
-					FarFromHome: "{$Mods.TF2.TownNPCMood.MissPauling.FarFromHome}"
-					LoveSpace: "{$Mods.TF2.TownNPCMood.MissPauling.LoveSpace}"
-					DislikeCrowded: "{$Mods.TF2.TownNPCMood.MissPauling.DislikeCrowded}"
-					HateCrowded: "{$Mods.TF2.TownNPCMood.MissPauling.HateCrowded}"
-					LoveBiome: "{$Mods.TF2.TownNPCMood.MissPauling.LoveBiome}"
-					LoveNPC: "{$Mods.TF2.TownNPCMood.MissPauling.LoveNPC}"
-					HateNPC: "{$Mods.TF2.TownNPCMood.MissPauling.HateNPC}"
-					LikeNPC_Princess: I like {NPCName}.
-					Princess_LovesNPC: I like {NPCName}.
-				}
-			}
+			Administrator.DisplayName: Administrator
+			MissPauling.DisplayName: Miss Pauling
+			SentryGun: Sentry Gun
+			MiniSentryGun: Combat Mini-Sentry Gun
+			Dispenser: Dispenser
+			TeleporterEntrance: Teleporter Entrance
+			TeleporterExit: Teleporter Exit
+			Metal: Metal
 
 			SaxtonHale: {
 				DisplayName: Saxton Hale
+				BestiaryEntry: Saxton Hale is a powerhouse of an Australian. He had been striving to regain his position as the CEO of Mann Co. until recruited alongside RED team by a interdimensional being to fight against heresy.
+				Chat: Welcome to the Mann Co. Store! We sell products and get in fights!
+				Chat2: Browse, buy, design, sell and wear Mann Co.'s ever-growing catalog of fine products with your BARE HANDS--all without leaving the COMFORT OF YOUR CHAIRS!
+				Chat3: If you aren't 100% satisfied with our product line, you can take it up with me!
 
 				TownNPCMood: {
-					Content: "{$Mods.TF2.TownNPCMood.SaxtonHale.Content}"
-					NoHome: "{$Mods.TF2.TownNPCMood.SaxtonHale.NoHome}"
-					FarFromHome: "{$Mods.TF2.TownNPCMood.SaxtonHale.FarFromHome}"
-					LoveSpace: "{$Mods.TF2.TownNPCMood.SaxtonHale.LoveSpace}"
-					DislikeCrowded: "{$Mods.TF2.TownNPCMood.SaxtonHale.DislikeCrowded}"
-					HateCrowded: "{$Mods.TF2.TownNPCMood.SaxtonHale.HateCrowded}"
-					LoveBiome: "{$Mods.TF2.TownNPCMood.SaxtonHale.LoveBiome}"
-					LikeNPC: "{$Mods.TF2.TownNPCMood.SaxtonHale.LikeNPC}"
-					HateNPC: "{$Mods.TF2.TownNPCMood.SaxtonHale.HateNPC}"
+					Content: I am content.
+					NoHome: I hate not having a home.
+					FarFromHome: I am too far from home.
+					LoveSpace: I love having so much space.
+					DislikeCrowded: I dislike how crowded I am.
+					HateCrowded: I hate how crowded I am.
 					LikeNPC_Princess: I like {NPCName}.
 					Princess_LovesNPC: I like {NPCName}.
 				}
@@ -2003,16 +2136,16 @@ Mods: {
 		}
 
 		Projectiles: {
-			Bullet.DisplayName: Bullet
 			Grenade.DisplayName: Grenade
 			LochnLoadGrenade.DisplayName: Grenade
 			ScottishResistanceStickybomb.DisplayName: Stickybomb
 			ShieldHitbox.DisplayName: Shield Bash
 			Stickybomb.DisplayName: Stickybomb
 			StickyJumperStickybomb.DisplayName: Stickybomb
-			UllapoolCaberHitbox.DisplayName: Ullapool Caber Hitbox
+			UllapoolCaberHitbox.DisplayName: Ullapool Caber
 			WranglerBeam.DisplayName: Wrangler Beam
 			WrenchHitbox.DisplayName: Wrench
+			EvictionNoticeProjectile.DisplayName: Fists
 			FistProjectile.DisplayName: Fists
 			FistsOfSteelProjectile.DisplayName: Fists
 			GlovesOfRunningUrgentlyProjectile.DisplayName: Fists
@@ -2024,13 +2157,13 @@ Mods: {
 			HealingBeam.DisplayName: Healing Beam
 			HealingBeamKritzkrieg.DisplayName: Healing Beam
 			Syringe.DisplayName: Syringe
-			FlareNPC.DisplayName: Flare
 			GrenadeNPC.DisplayName: Grenade
+			SentryBullet.DisplayName: Bullet
 			KnifeProjectileNPC.DisplayName: Knife
 			SentryRocket.DisplayName: Rocket
-			SyringeNPC.DisplayName: Healing Syringe
 			Airblast.DisplayName: Air blast
 			DegreaserFire.DisplayName: Fire
+			DetonatorFlare.DisplayName: Flare
 			Fire.DisplayName: Fire
 			Flare.DisplayName: Flare
 			Baseball.DisplayName: Baseball
@@ -2045,10 +2178,15 @@ Mods: {
 			DirectHitRocket.DisplayName: Rocket
 			Rocket.DisplayName: Rocket
 			RocketJumperRocket.DisplayName: Rocket
+			BigEarnerProjectile.DisplayName: Knife
+			ConniversKunaiProjectile.DisplayName: Knife
 			KnifeProjectile.DisplayName: Knife
 			SapperProjectile.DisplayName: Sapper
-			YourEternalRewardBeam.DisplayName: Your Eternal Reward
+			YourEternalRewardBeam.DisplayName: Knife Beam
 			YourEternalRewardProjectile.DisplayName: Knife
+			AustraliumDrillProjectile.DisplayName: Australium Drill
+			Bullet.DisplayName: Bullet
+			SuperBullet.DisplayName: Bullet
 			AmagimiHijirisAirScroll.DisplayName: Amagimi Hijiri's Air Scroll
 			ButterflyWing.DisplayName: Makai Butterfly
 			DevilsRecitation1.DisplayName: Devil's Recitation
@@ -2085,66 +2223,124 @@ Mods: {
 			StarMaelstrom2.DisplayName: Star Maelstrom
 			HellFire.DisplayName: Fire
 			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
-			ConniversKunaiProjectile.DisplayName: Connivers Kunai Projectile
-			AustraliumDrillProjectile.DisplayName: Australium Drill Projectile
+			LibertyLauncherRocket.DisplayName: Liberty Launcher Rocket
+			DisciplinaryActionHitbox.DisplayName: Disciplinary Action Hitbox
+			HealingBeamQuickFix.DisplayName: Healing Beam Quick Fix
 		}
 
 		Tiles.CraftingAnvil.MapEntry: Crafting Anvil
 
-		TownNPCMood: {
-			SaxtonHale: {
-				Content: This place is like Australia!
-				NoHome: Where home?
-				LoveSpace: Not too many people, just how I like it!
-				FarFromHome: I want to go home!
-				DislikeCrowded: Too many folks. Saxton Hale no likey!
-				HateCrowded: Everyone else is ugly and cringe. Saxton Hale very no likey!
-				LikeBiome: "{BiomeName} is the perfect place to fight animals."
-				LoveBiome: RED and BLU should fight over {BiomeName} instead of useless gravel pits.
-				DislikeBiome: Australians, like me, are unfit for {BiomeName}.
-				HateBiome: "{BiomeName} is more useless than gravel pit."
-				LikeNPC: "{NPCName} is based!"
-				LoveNPC: "{NPCName} is giga chad!"
-				DislikeNPC: "{NPCName} is cringe"
-				HateNPC: "{NPCName} is the enemy of Mann Co."
-			}
-
-			Administrator: {
-				Content: Flawless victory!
-				NoHome: Flawless defeat!
-				LoveSpace: Time has been added.
-				FarFromHome: The bomb is nearing the checkpoint!
-				DislikeCrowded: Alert! The enemy has taken our intelligence!
-				HateCrowded: You've failed. The enemy has captured our intelligence.
-				LikeBiome: Control point enabled.
-				LoveBiome: Control point enabled, get moving!
-				DislikeBiome: Alert! The control point is being captured.
-				HateBiome: We have lost the control point!
-				LikeNPC: "{NPCName} is the least disappointing."
-				LoveNPC: You're all winners! Now, {NPCName}'s an actual winner.
-				DislikeNPC: I am dumbstruck by your mediocrity, {NPCName}.
-				HateNPC: Humiliating defeat, {NPCName}!
-			}
-
-			MissPauling: {
-				Content: I like it here.
-				NoHome: I don't have anywhere to go, do I?
-				LoveSpace: Perfect vacation spot!
-				FarFromHome: Where am I?
-				DislikeCrowded: A little too crowded here?
-				HateCrowded: Definitely too crowded here.
-				LikeBiome: "{BiomeName} is pretty nice."
-				LoveBiome: "{BiomeName} is very nice. Sad that I only have one day off."
-				DislikeBiome: "{BiomeName} is a bit uncomfortable. I could stay here a little longer though."
-				HateBiome: "{BiomeName} is not where I want to spend my one day off."
-				LikeNPC: "{NPCName} is a cool person."
-				LoveNPC: "{NPCName} is the best boss ever!"
-				DislikeNPC: "{NPCName} might not be the person I can get along with."
-				HateNPC: Yeah no. I'm not staying with {NPCName}.
-			}
-		}
-
 		UI: {
+			HUD: {
+				Scout: {
+					Ball: Ball
+					Drink: Drink
+					Hype: Hype
+				}
+
+				Soldier: {
+					Mangler: Mangler
+					Rage: Rage
+				}
+
+				Demoman: {
+					Charge: Charge
+					Heads: Heads
+				}
+
+				Heavy.Food: Food
+				Engineer.Revenge: Revenge
+
+				Medic: {
+					Organs: Organs
+					Ubercharge: ÜberCharge
+				}
+
+				Sniper: {
+					Crikey: Crikey
+					Jar: Jar
+					Razorback: Razorback
+				}
+
+				Spy: {
+					Cloak: Cloak
+					Feign: Feign
+					Motion: Motion
+				}
+			}
+
+			Items: {
+				Availability: {
+					Starter: Starter
+					Unlocked: Unlocked
+					Crafted: Crafted
+					Uncrated: Uncrated
+					Purchased: Purchased
+					Contract: Contract
+					Exclusive: Exclusive
+				}
+
+				Category: {
+					Primary: Primary
+					Secondary: Secondary
+					Melee: Melee
+					PDA: PDA
+				}
+
+				Mount: {
+					Description: "{0} {1}"
+					Fast: Fast
+					High: High
+					HomingPower: Homing Power: {0}
+					Low: Low
+					Medium: Medium
+					MountInstruction: Press {0} to change homing power
+					MountInstructionUnassigned: Assign keybind to change homing power
+					MountInstruction2: Press {0} to change speed
+					MountInstruction2Unassigned: Assign keybind to change to change speed
+					Normal: Normal
+					Speed: Speed {0}
+				}
+
+				Rarity: {
+					Unique: The {0}
+					Vintage: Vintage {0}
+					Genuine: Genuine {0}
+					Strange: Strange {0}
+					Unusual: Unusual {0}
+				}
+
+				AttackSpeed: Attack Speed: {0}
+				Buddy: Mercenary Buddy
+				BuddySlotHover: Buddy
+				CategoryText: "{0}'s {1} {2}"
+				Damage: Damage: {0}
+				DrillDescription:
+					'''
+					Mines through ores, wood, and walls
+					Drill power:
+					'''
+				Module: Module
+				MultiClass: Multi-Class
+				ReloadSpeed: Reload Speed: {0}
+				SoulItem: Usable Item
+				SoulItemCategory: "{0} {1}"
+				SoulItemDescription: Increases attack power to ×{0} and health to ×{1}
+				Tool: Mercenary Tool
+			}
+
+			MannCoStore: {
+				Classes: Classes
+				Balance: Balance
+				ContinueShopping: Continue Shopping
+				Checkout: Checkout
+				EmptyShoppingCart: Shopping Cart is Empty
+				Total: Total
+				Remove: Remove
+				Warning: The Mann Co. Store cannot view nor modify your Steam Wallet.
+				Warning2: Money is saved per character.
+			}
+
 			TF2MercenaryCreation: {
 				Mercenary: Mercenary
 				Classless: Terrarian
@@ -2197,67 +2393,6 @@ Mods: {
 					• Backstab your enemies with your knife to do critical hits!
 					• Throw sappers on enemies to stun them!
 					'''
-			}
-
-			HUD: {
-				Scout: {
-					Ball: Ball
-					Drink: Drink
-				}
-
-				Soldier: {
-					Rage: Rage
-					Mangler: Mangler
-				}
-
-				Demoman: {
-					Charge: Charge
-					Heads: Heads
-				}
-
-				Heavy.Food: Food
-
-				Engineer: {
-					Revenge: Revenge
-					Crikey: Crikey
-				}
-
-				Medic: {
-					Ubercharge: ÜberCharge
-					Organs: Organs
-				}
-
-				Sniper: {
-					Jar: Jar
-					Razorback: Razorback
-					Crikey: Crikey
-				}
-
-				Spy: {
-					Cloak: Cloak
-					Motion: Motion
-					Feign: Feign
-				}
-			}
-
-			Items: {
-				Drill: Drill
-				DrillDescription:
-					'''
-					Mines through ores, wood, and walls
-					Drill power:
-					'''
-				Mount: Mount
-				MountInstruction: Assign keybind to change homing power
-				MountInstruction2: Press
-				MountInstruction3: to change homing power
-				MountInstruction4: Assign keybind to change to change speed
-				MountInstruction5: to change speed
-				MultiClass: Multi-Class
-				Owner: "'s"
-				SoulItem: Usable Item
-				SoulItemDescription: Increases attack power to
-				SoulItemDescription2: and health to
 			}
 		}
 

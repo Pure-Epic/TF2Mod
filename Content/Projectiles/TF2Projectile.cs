@@ -5,10 +5,14 @@ using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.WorldBuilding;
 using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons;
+using TF2.Content.Items.Weapons.Sniper;
+using TF2.Content.NPCs.Buddies;
 
 namespace TF2.Content.Projectiles
 {
@@ -25,6 +29,7 @@ namespace TF2.Content.Projectiles
         protected bool projectileInitialized;
         public bool spawnedFromNPC;
         public int owner;
+        public int npcOwner;
         public TF2Weapon weapon;
         public bool noDistanceModifier;
         protected Vector2 velocity;
@@ -33,8 +38,11 @@ namespace TF2.Content.Projectiles
         public bool healingProjectile;
         public bool sniperMiniCrit; // Exclusive to the Sydney Sleeper
         public bool sniperCrit; // Exclusive to any Sniper Rifle (except for the Sydney Sleeper)
+        public bool backStab;
         public bool ammoShot;
         public bool healthShot;
+        public bool reserveShooterProjectile;
+        public bool bazaarBargainProjectile;
         public bool lEtrangerProjectile;
         public bool homing;
         public float shootSpeed = 10f;
@@ -42,7 +50,7 @@ namespace TF2.Content.Projectiles
         protected virtual void ProjectileStatistics()
         { }
 
-        protected virtual void ProjectileInitialize()
+        protected virtual void ProjectileInitialize(IEntitySource source)
         { }
 
         protected virtual bool ProjectileDraw(Projectile projectile, ref Color lightColor)
@@ -87,9 +95,105 @@ namespace TF2.Content.Projectiles
         protected virtual void ProjectileReceiveExtraAI(BinaryReader binaryReader)
         { }
 
-        protected void SetProjectileSize(int width = 25, int height = 25) => Projectile.Size = new Vector2(width, height);     
+        protected void SetProjectileSize(int width = 25, int height = 25) => Projectile.Size = new Vector2(width, height);
 
         protected void SetRotation(float rotation = 0) => Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.ToRadians(rotation);
+
+        protected static void KnockbackPlayer(Player player, ref Player.HurtModifiers modifiers, float knockbackPower)
+        {
+            if (modifiers.HitDirection < 0 && player.velocity.X > -knockbackPower)
+            {
+                if (player.velocity.X > 0f)
+                    player.velocity.X -= knockbackPower;
+                player.velocity.X -= knockbackPower;
+                TF2.Minimum(ref player.velocity.X, -knockbackPower);
+            }
+            else if (modifiers.HitDirection > 0 && player.velocity.X < knockbackPower)
+            {
+                if (player.velocity.X < 0f)
+                    player.velocity.X += knockbackPower;
+                player.velocity.X += knockbackPower;
+                TF2.Minimum(ref player.velocity.X, knockbackPower);
+            }
+            knockbackPower *= -0.5f;
+            if (player.velocity.Y > knockbackPower)
+            {
+                player.velocity.Y += knockbackPower;
+                TF2.Minimum(ref player.velocity.Y, knockbackPower);
+            }
+        }
+
+        protected static void KnockbackPlayer(Player player, int direction, float knockbackPower)
+        {
+            if (direction < 0 && player.velocity.X > -knockbackPower)
+            {
+                if (player.velocity.X > 0f)
+                    player.velocity.X -= knockbackPower;
+                player.velocity.X -= knockbackPower;
+                TF2.Minimum(ref player.velocity.X, -knockbackPower);
+            }
+            else if (direction > 0 && player.velocity.X < knockbackPower)
+            {
+                if (player.velocity.X < 0f)
+                    player.velocity.X += knockbackPower;
+                player.velocity.X += knockbackPower;
+                TF2.Minimum(ref player.velocity.X, knockbackPower);
+            }
+            knockbackPower *= -0.5f;
+            if (player.velocity.Y > knockbackPower)
+            {
+                player.velocity.Y += knockbackPower;
+                TF2.Minimum(ref player.velocity.Y, knockbackPower);
+            }
+        }
+
+        protected static void KnockbackNPC(NPC npc, ref NPC.HitModifiers modifiers, float knockbackPower)
+        {
+            if (modifiers.HitDirection < 0 && npc.velocity.X > -knockbackPower)
+            {
+                if (npc.velocity.X > 0f)
+                    npc.velocity.X -= knockbackPower;
+                npc.velocity.X -= knockbackPower;
+                TF2.Minimum(ref npc.velocity.X, -knockbackPower);
+            }
+            else if (modifiers.HitDirection > 0 && npc.velocity.X < knockbackPower)
+            {
+                if (npc.velocity.X < 0f)
+                    npc.velocity.X += knockbackPower;
+                npc.velocity.X += knockbackPower;
+                TF2.Minimum(ref npc.velocity.X, knockbackPower);
+            }
+            knockbackPower = npc.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f);
+            if (npc.velocity.Y > knockbackPower)
+            {
+                npc.velocity.Y += knockbackPower;
+                TF2.Minimum(ref npc.velocity.Y, knockbackPower);
+            }
+        }
+        
+        protected static void KnockbackNPC(NPC npc, int direction, float knockbackPower)
+        {
+            if (direction < 0 && npc.velocity.X > -knockbackPower)
+            {
+                if (npc.velocity.X > 0f)
+                    npc.velocity.X -= knockbackPower;
+                npc.velocity.X -= knockbackPower;
+                TF2.Minimum(ref npc.velocity.X, -knockbackPower);
+            }
+            else if (direction > 0 && npc.velocity.X < knockbackPower)
+            {
+                if (npc.velocity.X < 0f)
+                    npc.velocity.X += knockbackPower;
+                npc.velocity.X += knockbackPower;
+                TF2.Minimum(ref npc.velocity.X, knockbackPower);
+            }
+            knockbackPower = npc.noGravity ? (knockbackPower * -0.5f) : (knockbackPower * -0.75f);
+            if (npc.velocity.Y > knockbackPower)
+            {
+                npc.velocity.Y += knockbackPower;
+                TF2.Minimum(ref npc.velocity.Y, knockbackPower);
+            }
+        }
 
         public sealed override void SetDefaults()
         {
@@ -101,9 +205,13 @@ namespace TF2.Content.Projectiles
 
         public sealed override void OnSpawn(IEntitySource source)
         {
-            if (source is EntitySource_Parent parent && parent.Entity is NPC)
+            if (source is EntitySource_Parent parent && parent.Entity is NPC npc)
+            {
                 spawnedFromNPC = true;
-            ProjectileInitialize();
+                npcOwner = npc.whoAmI;
+                npc.netUpdate = true;
+            }
+            ProjectileInitialize(source);
         }
 
         public sealed override bool PreAI() => ProjectilePreAI();
@@ -223,22 +331,35 @@ namespace TF2.Content.Projectiles
         public sealed override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             modifiers.DamageVariationScale *= 0;
-            if ((sniperCrit || crit) && !spawnedFromNPC)
-                Player.GetModPlayer<TF2Player>().crit = true;
-            if ((sniperMiniCrit || miniCrit) && !spawnedFromNPC)
-                Player.GetModPlayer<TF2Player>().miniCrit = true;
+            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy)
+                TF2.NPCDistanceModifier(buddy.NPC, Projectile, target, ref modifiers);
+            if (reserveShooterProjectile && target.noGravity)
+                miniCrit = true;
             ProjectileHitNPC(target, ref modifiers);
+            Projectile.netUpdate = true;
         }
 
         public sealed override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             homing = false;
+            if (bazaarBargainProjectile && weapon is BazaarBargain)
+            {
+                ref int heads = ref Main.player[Projectile.owner].GetModPlayer<BazaarBargainPlayer>().heads;
+                if (heads < 6)
+                    heads++;
+            }
             ProjectilePostHitPlayer(target, info);
         }
 
         public sealed override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             homing = false;
+            if (bazaarBargainProjectile && weapon is BazaarBargain && target.type != NPCID.TargetDummy)
+            {
+                ref int heads = ref Main.player[Projectile.owner].GetModPlayer<BazaarBargainPlayer>().heads;
+                if (heads < 6)
+                    heads++;
+            }
             ProjectilePostHitNPC(target, hit, damageDone);
         }
 
@@ -251,11 +372,15 @@ namespace TF2.Content.Projectiles
             writer.Write(homing);
             writer.Write(spawnedFromNPC);
             writer.Write(owner);
+            writer.Write(npcOwner);
             writer.WriteVector2(velocity);
             writer.Write(crit);
             writer.Write(miniCrit);
             writer.Write(sniperCrit);
             writer.Write(sniperMiniCrit);
+            writer.Write(backStab);
+            writer.Write(reserveShooterProjectile);
+            writer.Write(bazaarBargainProjectile);
             writer.Write(lEtrangerProjectile);
             writer.Write(ammoShot);
             writer.Write(healthShot);
@@ -269,11 +394,15 @@ namespace TF2.Content.Projectiles
             homing = binaryReader.ReadBoolean();
             spawnedFromNPC = binaryReader.ReadBoolean();
             owner = binaryReader.ReadInt32();
+            npcOwner = binaryReader.ReadInt32();
             velocity = binaryReader.ReadVector2();
             crit = binaryReader.ReadBoolean();
             miniCrit = binaryReader.ReadBoolean();
             sniperCrit = binaryReader.ReadBoolean();
             sniperMiniCrit = binaryReader.ReadBoolean();
+            backStab = binaryReader.ReadBoolean();
+            reserveShooterProjectile = binaryReader.ReadBoolean();
+            bazaarBargainProjectile = binaryReader.ReadBoolean();
             lEtrangerProjectile = binaryReader.ReadBoolean();
             ammoShot = binaryReader.ReadBoolean();
             healthShot = binaryReader.ReadBoolean();

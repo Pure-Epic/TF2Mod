@@ -35,20 +35,18 @@ namespace TF2.Content.UI.HUD.Engineer
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _amount = new UIText("", 0.8f, true)
+            amount = new UIText("", 0.8f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.375f,
                 IgnoresMouseInteraction = true
             };
-            amount = _amount;
-            UIText _revenge = new UIText(TF2HUDSystem.TF2HUDLocalization[6], 0.5f)
+            revenge = new UIText(TF2HUDSystem.TF2HUDLocalization[8], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.85f,
                 IgnoresMouseInteraction = true
             };
-            revenge = _revenge;
         }
 
         protected override void HUDPostInitialize(UIElement area)

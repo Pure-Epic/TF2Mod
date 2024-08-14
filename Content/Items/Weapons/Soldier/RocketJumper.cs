@@ -28,14 +28,6 @@ namespace TF2.Content.Items.Weapons.Soldier
             AddNeutralAttribute(description);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Gunboats>(3)
-                .AddIngredient<RefinedMetal>(3)
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Mantreads>(3).AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

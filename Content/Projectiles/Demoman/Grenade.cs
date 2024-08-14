@@ -91,8 +91,8 @@ namespace TF2.Content.Projectiles.Demoman
                 velocity.Y = Math.Abs(Utils.Clamp(velocity.Y, -25f, 25f));
                 Player.velocity -= velocity;
                 if (Player.immuneNoBlink) return;
-                int selfDamage = TF2.GetHealth(Player, 55);
-                Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[2]), selfDamage, 0);
+                int selfDamage = TF2.GetHealth(Player, 55.5);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].Format(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
             Projectile.timeLeft = 0;
         }

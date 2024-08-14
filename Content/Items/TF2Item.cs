@@ -11,6 +11,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Terraria.UI.Chat;
 using Terraria.Utilities;
@@ -20,6 +21,8 @@ namespace TF2.Content.Items
 {
     public abstract class TF2Item : ModItem
     {
+        protected virtual string CustomDescription => "";
+
         public int classType;
         public int weaponType;
         public int availability;
@@ -38,11 +41,13 @@ namespace TF2.Content.Items
         public const int Melee = 3;
         public const int PDA = 4;
         public const int PDA2 = 5;
-        protected const int Starter = 1;
-        protected const int Unlock = 2;
-        protected const int Craft = 3;
-        protected const int Contract = 4;
-        protected const int Exclusive = 5;
+        public const int Starter = 1;
+        public const int Unlock = 2;
+        public const int Craft = 3;
+        public const int Purchase = 4;
+        public const int Uncrate = 5;
+        public const int Contract = 6;
+        public const int Exclusive = 7;
         protected const int Stock = 1;
         protected const int Unique = 2;
         protected const int Vintage = 3;
@@ -50,12 +55,14 @@ namespace TF2.Content.Items
         protected const int Strange = 5;
         protected const int Unusual = 6;
 
+        protected bool noThe;
         protected int metalValue;
         public int[] timer = new int[5];
         protected readonly HashSet<int> classHashSet = new HashSet<int>();
-        protected readonly HashSet<int> qualityHashSet = new HashSet<int>();
-        protected readonly int[] qualityTypes = new int[]
-        {
+        protected HashSet<int> qualityHashSet = new HashSet<int>();
+
+        protected readonly int[] qualityTypes =
+        [
             ItemRarityID.White,
             ModContent.RarityType<NormalRarity>(),
             ModContent.RarityType<UniqueRarity>(),
@@ -63,47 +70,55 @@ namespace TF2.Content.Items
             0,
             0,
             ModContent.RarityType<UnusualRarity>()
-        };
+        ];
+        protected readonly string[] classNames =
+        [
+            "",
+            Language.GetTextValue("Mods.TF2.Class.Scout"),
+            Language.GetTextValue("Mods.TF2.Class.Soldier"),
+            Language.GetTextValue("Mods.TF2.Class.Pyro"),
+            Language.GetTextValue("Mods.TF2.Class.Demoman"),
+            Language.GetTextValue("Mods.TF2.Class.Heavy"),
+            Language.GetTextValue("Mods.TF2.Class.Engineer"),
+            Language.GetTextValue("Mods.TF2.Class.Medic"),
+            Language.GetTextValue("Mods.TF2.Class.Sniper"),
+            Language.GetTextValue("Mods.TF2.Class.Spy")
+        ];
+        protected readonly LocalizedText[] rarityNames =
+        [
+            Language.GetText("Mods.TF2.UI.Items.Rarity.Unique"),
+            Language.GetText("Mods.TF2.UI.Items.Rarity.Vintage"),
+            Language.GetText("Mods.TF2.UI.Items.Rarity.Genuine"),
+            Language.GetText("Mods.TF2.UI.Items.Rarity.Strange"),
+            Language.GetText("Mods.TF2.UI.Items.Rarity.Unusual")
+        ];
+        protected readonly string[] availabilityNames =
+        [
+            "",
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Starter"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Unlocked"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Crafted"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Uncrated"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Purchased"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Contract"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Exclusive")
+        ];
+        protected readonly string[] categoryNames =
+        [
+            "",
+            Language.GetTextValue("Mods.TF2.UI.Items.Category.Primary"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Category.Secondary"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Category.Melee"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Category.PDA"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Category.PDA")
+        ];
+
         public bool equipped;
-
-        public enum Classes
-        {
-            Classless,
-            Scout,
-            Soldier,
-            Pyro,
-            Demoman,
-            Heavy,
-            Engineer,
-            Medic,
-            Sniper,
-            Spy
-        }
-
-        public enum Availability
-        {
-            Exotic,
-            Starter,
-            Unlocked,
-            Crafted,
-            Contract,
-            Exclusive
-        }
-
-        public enum WeaponCategory
-        {
-            Weapon,
-            Primary,
-            Secondary,
-            Melee,
-            PDA,
-            PDA2
-        }
 
         protected virtual int WeaponResearchCost() => availability switch
         {
             Starter => 1,
-            Unlock or Craft or Contract => 5,
+            Unlock or Craft or Purchase or Uncrate or Contract => 5,
             Exclusive => 10,
             _ => 0,
         };
@@ -126,7 +141,7 @@ namespace TF2.Content.Items
 
         protected virtual bool WeaponDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) => true;
 
-        protected virtual bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => true;
+        protected virtual bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => false;
 
         protected virtual void WeaponEarlyUpdate(Player player)
         { }
@@ -151,26 +166,17 @@ namespace TF2.Content.Items
 
         protected static void RemoveDefaultTooltips(List<TooltipLine> tooltips)
         {
-            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
-            tooltips.Remove(nameTooltip);
-            TooltipLine materialTooltip = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(materialTooltip);
-            TooltipLine damageTooltip = tooltips.FirstOrDefault(x => x.Name == "Damage" && x.Mod == "Terraria");
-            tooltips.Remove(damageTooltip);
-            TooltipLine speedTooltip = tooltips.FirstOrDefault(x => x.Name == "Speed" && x.Mod == "Terraria");
-            tooltips.Remove(speedTooltip);
-            TooltipLine knockbackTooltip = tooltips.FirstOrDefault(x => x.Name == "Knockback" && x.Mod == "Terraria");
-            tooltips.Remove(knockbackTooltip);
-            TooltipLine consumableTooltip = tooltips.FirstOrDefault(x => x.Name == "Consumable" && x.Mod == "Terraria");
-            tooltips.Remove(consumableTooltip);
-            TooltipLine equipableTooltip = tooltips.FirstOrDefault(x => x.Name == "Equipable" && x.Mod == "Terraria");
-            tooltips.Remove(equipableTooltip);
-            TooltipLine favoriteTooltip = tooltips.FirstOrDefault(x => x.Name == "Favorite" && x.Mod == "Terraria");
-            tooltips.Remove(favoriteTooltip);
-            TooltipLine favoriteDescriptionTooltip = tooltips.FirstOrDefault(x => x.Name == "FavoriteDesc" && x.Mod == "Terraria");
-            tooltips.Remove(favoriteDescriptionTooltip);
-            TooltipLine noTransferTooltip = tooltips.FirstOrDefault(x => x.Name == "NoTransfer" && x.Mod == "Terraria");
-            tooltips.Remove(noTransferTooltip);
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Damage" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Speed" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Knockback" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "HealLife" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Consumable" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Equipable" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Favorite" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "FavoriteDesc" && x.Mod == "Terraria"));
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "NoTransfer" && x.Mod == "Terraria"));
         }
 
         protected void AddName(List<TooltipLine> description)
@@ -343,9 +349,9 @@ namespace TF2.Content.Items
 
         public static Vector2 DrawColorCodedStringWithShadow(SpriteBatch spriteBatch, DynamicSpriteFont font, string text, Vector2 position, Color baseColor, float rotation, Vector2 origin, Vector2 baseScale, float maxWidth = -1f, float spread = 2f)
         {
-            TextSnippet[] snippets = ChatManager.ParseMessage(text, baseColor).ToArray();
+            TextSnippet[] snippets = [.. ChatManager.ParseMessage(text, baseColor)];
             ChatManager.ConvertNormalSnippets(snippets);
-            ChatManager.DrawColorCodedStringShadow(spriteBatch, font, snippets, position, new Color(0, 0, 0, baseColor.A), rotation, origin, baseScale, maxWidth, spread);
+            DrawColorCodedStringShadow(spriteBatch, font, snippets, position, new Color(0, 0, 0, baseColor.A), rotation, origin, baseScale, maxWidth, spread);
             return DrawColorCodedString(spriteBatch, font, snippets, position, baseColor, rotation, origin, baseScale, out _, maxWidth);
         }
 
@@ -363,6 +369,8 @@ namespace TF2.Content.Items
             {
                 TextSnippet textSnippet = snippets[i];
                 textSnippet.Update();
+                if (!ignoreColors)
+                    color = textSnippet.GetVisibleColor();
                 float num3 = textSnippet.Scale;
                 if (textSnippet.UniqueDraw(false, out Vector2 size, spriteBatch, vector, color, baseScale.X * num3))
                 {
@@ -437,35 +445,38 @@ namespace TF2.Content.Items
             return result;
         }
 
+        public static void DrawColorCodedStringShadow(SpriteBatch spriteBatch, DynamicSpriteFont font, TextSnippet[] snippets, Vector2 position, Color baseColor, float rotation, Vector2 origin, Vector2 baseScale, float maxWidth = -1f, float spread = 2f)
+        {
+            for (int i = 0; i < ChatManager.ShadowDirections.Length; i++)
+                DrawColorCodedString(spriteBatch, font, snippets, position + ChatManager.ShadowDirections[i] * spread, baseColor, rotation, origin, baseScale, out var _, maxWidth, ignoreColors: true);
+        }
+
         public string GetItemName()
         {
             string name = Item.Name;
-            if (qualityHashSet.Contains(Unique) && !qualityHashSet.Contains(Unusual) && !qualityHashSet.Contains(Strange) && !qualityHashSet.Contains(Genuine) && !qualityHashSet.Contains(Vintage))
-                name = "The " + name;
+            if (qualityHashSet.Contains(Unique) && !qualityHashSet.Contains(Unusual) && !qualityHashSet.Contains(Strange) && !qualityHashSet.Contains(Genuine) && !qualityHashSet.Contains(Vintage) && !noThe)
+                name = rarityNames[0].Format(name);
             if (qualityHashSet.Contains(Vintage))
-                name = "Vintage " + name;
+                name = rarityNames[1].Format(name);
             if (qualityHashSet.Contains(Genuine))
-                name = "Genuine " + name;
+                name = rarityNames[2].Format(name);
             if (qualityHashSet.Contains(Strange))
-                name = "Strange " + name;
+                name = rarityNames[3].Format(name);
             if (qualityHashSet.Contains(Unusual))
-                name = "Unusual " + name;
+                name = rarityNames[4].Format(name);
             return name;
         }
 
-        public Color GetItemColor()
+        public Color GetItemColor() => qualityHashSet.Max() switch
         {
-            return qualityHashSet.Max() switch
-            {
-                Unusual => new Color(134, 80, 172),
-                Strange => new Color(207, 106, 50),
-                Genuine => new Color(77, 116, 85),
-                Vintage => new Color(71, 98, 145),
-                Unique => new Color(255, 215, 0),
-                Stock => new Color(178, 178, 178),
-                _ => Color.White
-            };
-        }
+            Unusual => new Color(134, 80, 172),
+            Strange => new Color(207, 106, 50),
+            Genuine => new Color(77, 116, 85),
+            Vintage => new Color(71, 98, 145),
+            Unique => new Color(255, 215, 0),
+            Stock => new Color(178, 178, 178),
+            _ => Color.White
+        };
 
         public static Item GetWeapon(Player player, int weaponType)
         {
@@ -482,11 +493,64 @@ namespace TF2.Content.Items
             return foundItem;
         }
 
-        public static List<string> TooltipSplitter(string text) => text.Split("\n").ToList();
+        public void DefaultTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria"));
+            AddName(tooltips);
+            for (int i = 0; i < Item.ToolTip.Lines; i++)
+                tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == ("Tooltip" + i) && x.Mod == "Terraria"));
+            RemoveDefaultTooltips(tooltips);
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, new TooltipLine(Mod, "Weapon Category", CustomDescription == "" ? Language.GetTextValue("Mods.TF2.UI.Items.Tool") : CustomDescription)
+            {
+                OverrideColor = new Color(117, 107, 94)
+            });
+            if (base.Tooltip.Value != "")
+                AddOtherAttribute(tooltips, base.Tooltip.Value);
+            if (Item.favorited)
+            {
+                tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                });
+                tooltips.Add(new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                });
+                if (Main.LocalPlayer.chest > -1)
+                {
+                    ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
+                    if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
+                    {
+                        TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202)
+                        };
+                        tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202)
+                        });
+                    }
+                }
+            }
+            TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
+            TooltipLine price = priceTooltip;
+            tooltips.Add(price);
+            tooltips.Remove(priceTooltip);
+            TooltipLine specialPriceTooltip = tooltips.FirstOrDefault(x => x.Name == "SpecialPrice" && x.Mod == "Terraria");
+            TooltipLine specialPrice = specialPriceTooltip;
+            tooltips.Add(specialPrice);
+            tooltips.Remove(specialPriceTooltip);
+            TooltipLine journeyResearchTooltip = tooltips.FirstOrDefault(x => x.Name == "JourneyResearch" && x.Mod == "Terraria");
+            TooltipLine journeyModeTooltip = journeyResearchTooltip;
+            tooltips.Add(journeyModeTooltip);
+            tooltips.Remove(journeyResearchTooltip);
+        }
+
+        public static List<string> TooltipSplitter(string text) => [.. text.Split("\n")];
 
         public static List<string> StringSplitter(string text)
         {
-            List<string> list = text.Split(' ').ToList();
+            List<string> list = [.. text.Split(' ')];
             string currentString = "";
             List<string> finalString = new List<string>();
             for (int i = 0; i < list.Count; i++)
@@ -504,9 +568,9 @@ namespace TF2.Content.Items
             return finalString;
         }
 
-        public sealed override bool? PrefixChance(int pre, UnifiedRandom rand) => false;
+        public override sealed bool? PrefixChance(int pre, UnifiedRandom rand) => false;
 
-        public sealed override bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y)
+        public override sealed bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y)
         {
             Color color = new Color(36, 32, 27);
             Item hoverItem = Main.HoverItem;
@@ -564,13 +628,13 @@ namespace TF2.Content.Items
                     if (sellPrice >= 1L)
                         copper = sellPrice;
                     if (platinum > 0L)
-                        text = string.Concat(new string[] { text, platinum.ToString(), " ", Lang.inter[15].Value, " " });
+                        text = string.Concat([text, platinum.ToString(), " ", Lang.inter[15].Value, " "]);
                     if (gold > 0L)
-                        text = string.Concat(new string[] { text, gold.ToString(), " ", Lang.inter[16].Value, " " });
+                        text = string.Concat([text, gold.ToString(), " ", Lang.inter[16].Value, " "]);
                     if (silver > 0L)
-                        text = string.Concat(new string[] { text, silver.ToString(), " ", Lang.inter[17].Value, " " });
+                        text = string.Concat([text, silver.ToString(), " ", Lang.inter[17].Value, " "]);
                     if (copper > 0L)
-                        text = string.Concat(new string[] { text, copper.ToString(), " ", Lang.inter[18].Value, " " });
+                        text = string.Concat([text, copper.ToString(), " ", Lang.inter[18].Value, " "]);
                     array[numLines] = !hoverItem.buy ? Lang.tip[49].Value + " " + text : Lang.tip[50].Value + " " + text;
                     tooltipNames[numLines] = "sellPrice";
                     numLines++;
@@ -600,7 +664,7 @@ namespace TF2.Content.Items
                 Vector2 stringSize = ChatManager.GetStringSize(FontAssets.MouseText.Value, array[j], Vector2.One);
                 zero.Y += stringSize.Y;
             }
-            if (yoyoLogo != -1)
+            if (yoyoLogo > -1)
                 zero.Y += 24f;
             x = (int)Main.MouseScreen.X - (int)(zero.X / 2);
             y += 6;
@@ -620,7 +684,7 @@ namespace TF2.Content.Items
             return true;
         }
 
-        public sealed override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
+        public override sealed bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset)
         {
             string text = (int)line.Font.MeasureString(line.Text).X < 350 ? line.Text : line.Font.CreateWrappedText(line.Text, 350);
             float drawX = Main.MouseScreen.X - (int)line.Font.MeasureString(text).X / 2;
@@ -638,15 +702,34 @@ namespace TF2.Content.Items
             return false;
         }
 
-        public sealed override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => WeaponDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+        public override sealed bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => WeaponDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
 
-        public sealed override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) => WeaponDrawInWorld(spriteBatch, lightColor, alphaColor, ref rotation, ref scale, whoAmI);
+        public override sealed bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) => WeaponDrawInWorld(spriteBatch, lightColor, alphaColor, ref rotation, ref scale, whoAmI);
 
-        public sealed override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        public override sealed void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             if (!WeaponModifyDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale)) return;
             if (Item != GetWeapon(Main.LocalPlayer, weaponType) && Item.ModItem is not TF2Accessory && TF2.IsItemInHotbar(Main.LocalPlayer, Item))
                 spriteBatch.Draw(TextureAssets.Cd.Value, position - TextureAssets.InventoryBack9.Value.Size() / 4.225f * Main.inventoryScale, null, drawColor, 0f, new Vector2(0.5f, 0.5f), 0.8f * Main.inventoryScale, SpriteEffects.None, 0f);
+        }
+
+        public override void LoadData(TagCompound tag)
+        {
+            if (tag.GetInt("availability") > 0)
+                availability = tag.GetInt("availability");
+            else
+            {
+                availability = Exclusive;
+                qualityHashSet.Add(Vintage);
+            }
+            if (tag.GetList<int>("qualities") != null && tag.GetList<int>("qualities").Count > 0)
+                qualityHashSet = [.. tag.GetList<int>("qualities")];
+        }
+
+        public override void SaveData(TagCompound tag)
+        {
+            tag["availability"] = availability;
+            tag["qualities"] = qualityHashSet.ToList();
         }
     }
 
@@ -680,44 +763,42 @@ namespace TF2.Content.Items
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
             AddName(tooltips);
-            tooltips.Remove(nameTooltip);
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria"));
             RemoveDefaultTooltips(tooltips);
-            string category = ((Classes)classType).ToString() + Language.GetTextValue("Mods.TF2.UI.Items.Owner") + " " + ((Availability)availability).ToString() + " " + ((WeaponCategory)weaponType).ToString();
+            string weaponAvailability = !TF2.MannCoStoreActive ? availabilityNames[availability] : availabilityNames[5];
+            string weaponCategory = categoryNames[weaponType];
+            string category = Language.GetText("Mods.TF2.UI.Items.CategoryText").Format(classNames[classType], weaponAvailability, weaponCategory);
             if (classType == MultiClass)
+                category = HasClass(Main.LocalPlayer.GetModPlayer<TF2Player>().currentClass) ? Language.GetText("Mods.TF2.UI.Items.CategoryText").Format(classNames[Main.LocalPlayer.GetModPlayer<TF2Player>().currentClass], weaponAvailability, weaponCategory) : Language.GetText("Mods.TF2.UI.Items.CategoryText").Format(Language.GetTextValue("Mods.TF2.UI.Items.MultiClass"), weaponAvailability, weaponCategory);
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, new TooltipLine(Mod, "Weapon Category", category)
             {
-                int currentClass = Main.LocalPlayer.GetModPlayer<TF2Player>().currentClass;
-                category = HasClass(currentClass) ? ((Classes)currentClass).ToString() + Language.GetTextValue("Mods.TF2.UI.Items.Owner") + " " + ((Availability)availability).ToString() + " " + ((WeaponCategory)weaponType).ToString() : Language.GetTextValue("Mods.TF2.UI.Items.MultiClass") + " " + ((Availability)availability).ToString() + " " + ((WeaponCategory)weaponType).ToString();
-            }
-            TooltipLine line = new TooltipLine(Mod, "Weapon Category", category)
-            {
-                OverrideColor = new Color(117, 107, 94, 255)
-            };
-            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, line);
+                OverrideColor = new Color(117, 107, 94)
+            });
             WeaponDescription(tooltips);
             if (Item.favorited)
             {
-                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
-                };
-                tooltips.Add(favorite);
-                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                    OverrideColor = new Color(235, 226, 202)
+                });
+                tooltips.Add(new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
-                };
-                tooltips.Add(favoriteDescription);
-                if (Main.LocalPlayer.chest != -1)
+                    OverrideColor = new Color(235, 226, 202)
+                });
+                if (Main.LocalPlayer.chest > -1)
                 {
                     ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
                     if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
                     {
                         TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
                         {
-                            OverrideColor = new Color(235, 226, 202, 255)
+                            OverrideColor = new Color(235, 226, 202)
                         };
-                        tooltips.Add(favorite);
+                        tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202)
+                        });
                     }
                 }
             }
@@ -735,28 +816,17 @@ namespace TF2.Content.Items
             tooltips.Remove(journeyResearchTooltip);
         }
 
+        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => true;
+
         public override bool CanEquipAccessory(Player player, int slot, bool modded)
         {
             if (slot < 10)
             {
                 int index = FindDifferentEquippedAccessory().index;
-                if (index != -1)
+                if (index > -1)
                     return slot == index;
             }
             return classType == player.GetModPlayer<TF2Player>().currentClass;
         }
-
-        /*
-        public override void UpdateEquip(Player player)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (weaponType == Primary)
-                p.primaryEquipped = true;
-            if (weaponType == Secondary)
-                p.secondaryEquipped = true;
-            if (weaponType == PDA)
-                p.pdaEquipped = true;
-        }
-        */
     }
 }

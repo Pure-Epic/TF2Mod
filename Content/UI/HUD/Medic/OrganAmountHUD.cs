@@ -38,20 +38,18 @@ namespace TF2.Content.UI.HUD.Medic
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _amount = new UIText("", 0.8f, true)
+            amount = new UIText("", 0.8f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.375f,
                 IgnoresMouseInteraction = true
             };
-            amount = _amount;
-            UIText _organ = new UIText(TF2HUDSystem.TF2HUDLocalization[8], 0.5f)
+            organ = new UIText(TF2HUDSystem.TF2HUDLocalization[10], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.85f,
                 IgnoresMouseInteraction = true
             };
-            organ = _organ;
         }
 
         protected override void HUDPostInitialize(UIElement area)

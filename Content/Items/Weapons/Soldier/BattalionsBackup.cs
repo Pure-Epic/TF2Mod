@@ -24,30 +24,22 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.hasBanner = true;
-            p.bannerType = 2;
             TF2Player.SetPlayerHealth(player, 20);
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            p.bannerType = 2;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<BuffBanner>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BuffBanner>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class BattalionsBackupPlayer : BannerPlayer
     {
+        public override int BannerID => 2;
+
         public override void PostUpdate()
         {
-            bannerID = 2;
-            maxRage = 600;
-            rage = Utils.Clamp(rage, 0, maxRage);
-            if (!Player.GetModPlayer<TF2Player>().hasBanner)
+            rage = Utils.Clamp(rage, 0, MaxRage);
+            if (!Player.GetModPlayer<TF2Player>().HasBanner)
                 rage = 0;
             if (buffActive && Player.HasBuff<DefenseRage>())
             {

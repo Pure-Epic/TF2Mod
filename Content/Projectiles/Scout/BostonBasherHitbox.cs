@@ -40,7 +40,7 @@ namespace TF2.Content.Projectiles.Scout
             p.resetHit = true;
             BleedingPlayer player = target.GetModPlayer<BleedingPlayer>();
             player.damageMultiplier = Player.GetModPlayer<TF2Player>().classMultiplier;
-            target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5));
+            target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

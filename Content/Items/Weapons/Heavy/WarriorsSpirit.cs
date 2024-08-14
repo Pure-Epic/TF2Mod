@@ -29,14 +29,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<GlovesOfRunningUrgently>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class WarriorsSpiritPlayer : ModPlayer

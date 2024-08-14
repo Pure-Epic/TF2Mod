@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -24,14 +23,14 @@ namespace TF2.Content.Items.Consumables
         {
             Item.width = 24;
             Item.height = 24;
-            Item.useTime = 20;
-            Item.useAnimation = 20;
+            Item.useTime = Item.useAnimation = TF2.Time(0.33333);
             Item.useStyle = ItemUseStyleID.HoldUp;
             Item.UseSound = SoundID.Item4;
             Item.consumable = true;
             Item.value = Item.buyPrice(platinum: 1);
             Item.rare = ModContent.RarityType<UniqueRarity>();
             ItemID.Sets.ItemNoGravity[Item.type] = true;
+            noThe = true;
             qualityHashSet.Add(Unique);
         }
 
@@ -41,36 +40,32 @@ namespace TF2.Content.Items.Consumables
             AddName(tooltips);
             tooltips.Remove(nameTooltip);
             RemoveDefaultTooltips(tooltips);
-            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary") + " " + Language.GetTextValue("Mods.TF2.UI.Items.SoulItem"))
+            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetText("Mods.TF2.UI.Items.SoulItemCategory").Format(Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary"), Language.GetTextValue("Mods.TF2.UI.Items.SoulItem")))
             {
-                OverrideColor = new Color(117, 107, 94, 255)
+                OverrideColor = new Color(117, 107, 94)
             };
             tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
-            TooltipLine description = new TooltipLine(Mod, "Weapon Category", ((Availability)availability).ToString() + " " + Language.GetTextValue("Mods.TF2.UI.Items.SoulItem"))
-            {
-                OverrideColor = new Color(117, 107, 94, 255)
-            };
-            AddOtherAttribute(tooltips, Language.GetTextValue("Mods.TF2.UI.Items.SoulItemDescription") + " ×" + damageMultiplier + " " + Language.GetTextValue("Mods.TF2.UI.Items.SoulItemDescription2") + " ×" + healthMultiplier);
+            AddOtherAttribute(tooltips, Language.GetText("Mods.TF2.UI.Items.SoulItemDescription").Format(damageMultiplier, healthMultiplier));
             if (Item.favorited)
             {
                 TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
+                    OverrideColor = new Color(235, 226, 202)
                 };
                 tooltips.Add(favorite);
                 TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
+                    OverrideColor = new Color(235, 226, 202)
                 };
                 tooltips.Add(favoriteDescription);
-                if (Main.LocalPlayer.chest != -1)
+                if (Main.LocalPlayer.chest > -1)
                 {
                     ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
                     if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
                     {
                         TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
                         {
-                            OverrideColor = new Color(235, 226, 202, 255)
+                            OverrideColor = new Color(235, 226, 202)
                         };
                         tooltips.Add(favorite);
                     }
@@ -89,8 +84,6 @@ namespace TF2.Content.Items.Consumables
             tooltips.Add(journeyModeTooltip);
             tooltips.Remove(journeyResearchTooltip);
         }
-
-        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => false;
 
         public override void PostUpdate() => Lighting.AddLight(Item.Center, Color.LimeGreen.ToVector3());
 

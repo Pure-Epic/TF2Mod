@@ -36,22 +36,18 @@ namespace TF2.Content.Items.Weapons.Engineer
             return true;
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (player.GetModPlayer<TF2Player>().critMelee)
-                player.GetModPlayer<TF2Player>().crit = true;
 
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
+        {
             timer[0]++;
             if (timer[0] >= 3)
             {
                 player.GetModPlayer<TF2Player>().crit = true;
                 timer[0] = 0;
             }
-            else
-                modifiers.DisableCrit();
         }
 
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
             timer[0]++;
             if (timer[0] >= 3)

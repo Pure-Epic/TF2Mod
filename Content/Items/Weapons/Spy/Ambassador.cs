@@ -15,7 +15,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetGunUseStyle(focus: true, automatic: true);
             SetWeaponDamage(damage: 34, projectile: ModContent.ProjectileType<Bullet>(), noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.6);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/revolver_shoot");
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/ambassador_shoot");
             SetWeaponAttackIntervals(maxAmmo: 6, maxReserve: 24, reloadTime: 1.133, usesMagazine: true, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/revolver_reload");
         }
 

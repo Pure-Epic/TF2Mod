@@ -16,9 +16,9 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponCategory(Pyro, Primary, Unique, Craft);
             SetWeaponSize(50, 16);
             SetGunUseStyle();
-            SetWeaponDamage(damage: 78, projectile: ModContent.ProjectileType<DegreaserFire>());
+            SetWeaponDamage(damage: 18, projectile: ModContent.ProjectileType<DegreaserFire>());
             SetWeaponAttackSpeed(0.105, hide: true);
-            SetWeaponAttackIntervals(maxAmmo: 200, deploy: 0.2, holster: 0.35, altClick: true, noAmmo: true);
+            SetWeaponAttackIntervals(deploy: 0.2, holster: 0.35, maxAmmo: 200, altClick: true, noAmmo: true);
             SetFlamethrower(cost: 25, attackSound: "TF2/Content/Sounds/SFX/Weapons/degreaser_loop");
             SetWeaponPrice(weapon: 1, reclaimed: 1);
         }
@@ -51,13 +51,6 @@ namespace TF2.Content.Items.Weapons.Pyro
                 modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / TF2.Time(1), 0.5f, 1f);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Backburner>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Backburner>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

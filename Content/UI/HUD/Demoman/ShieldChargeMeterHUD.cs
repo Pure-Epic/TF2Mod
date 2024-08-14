@@ -15,7 +15,7 @@ namespace TF2.Content.UI.HUD.Demoman
     [Autoload(Side = ModSide.Client)]
     internal class ShieldChargeMeterHUD : TF2HUD
     {
-        protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().hasShield;
+        protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().HasShield;
 
         protected override string Texture => "TF2/Content/Textures/UI/HUD/ShieldChargeMeterHUD";
 
@@ -37,34 +37,28 @@ namespace TF2.Content.UI.HUD.Demoman
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _charge = new UIText(TF2HUDSystem.TF2HUDLocalization[3], 0.5f)
+            charge = new UIText(TF2HUDSystem.TF2HUDLocalization[5], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.85f,
                 IgnoresMouseInteraction = true
             };
-            charge = _charge;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(charge);
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            ShieldPlayer p = Player.GetModPlayer<TF2Player>().shieldType switch
-            {
-                1 => Player.GetModPlayer<CharginTargePlayer>(),
-                _ => Player.GetModPlayer<CharginTargePlayer>(),
-            };
+            ShieldPlayer p = ShieldPlayer.GetShield(Player);
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 10;
             hitbox.Y += 22;
             hitbox.Width = 62;
             hitbox.Height = 8;
-            int left = hitbox.Left;
             float charge;
             if (!p.chargeActive)
             {
-                charge = (float)p.timer / p.shieldRechargeTime;
+                charge = (float)p.timer / p.ShieldRechargeTime;
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
             else
@@ -72,9 +66,7 @@ namespace TF2.Content.UI.HUD.Demoman
                 charge = (float)p.chargeLeft / p.chargeDuration;
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.Player.HasBuff<MeleeCrit>() ? Color.White : Color.Red);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.Player.HasBuff<MeleeCrit>() ? Color.White : Color.Red);
         }
-
-        // protected override void HUDUpdate(GameTime gameTime) => area.Top = StyleDimension.FromPixels(!TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<Eyelander>()) ? 80f : 151f);
     }
 }

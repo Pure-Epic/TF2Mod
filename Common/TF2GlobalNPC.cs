@@ -9,6 +9,7 @@ using TF2.Content.Items.Currencies;
 using TF2.Content.Items.Materials;
 using TF2.Content.Items.Placeables.Crafting;
 using TF2.Content.Items.Weapons;
+using TF2.Content.NPCs.Buildings;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Medic;
 
@@ -34,16 +35,15 @@ namespace TF2.Common
                 NPCID.Sets.ImmuneToAllBuffs[npc.type] = false;
                 NPCID.Sets.ImmuneToRegularBuffs[npc.type] = true;
             }
-
             if (!TF2.gensokyoLoaded || !ModLoader.TryGetMod("CalamityMod", out Mod calamity)) return;
             bool revengeance = (bool)calamity.Call("GetDifficultyActive", "revengeance");
             bool death = (bool)calamity.Call("GetDifficultyActive", "death");
             if ((npc.ModNPC?.Mod == TF2.Gensokyo || npc.ModNPC?.Mod is TF2) && !npc.friendly)
             {
                 if (revengeance && !death)
-                    npc.damage = (int)(npc.damage * 1.25f);
+                    npc.damage = TF2.Round(npc.damage * 1.25f);
                 else if (death)
-                    npc.damage = (int)(npc.damage * 2.5f);
+                    npc.damage = TF2.Round(npc.damage * 2.5f);
             }
         }
 
@@ -54,31 +54,28 @@ namespace TF2.Common
             if (npc.life > TF2.Round(npc.lifeMax * 1.5f))
                 npc.life = TF2.Round(npc.lifeMax * 1.5f);
             bool healed = false;
-            foreach (Projectile projectile in Main.projectile)
+            if (npc.friendly)
             {
-                if ((projectile.type == ModContent.ProjectileType<HealingBeam>()
-                    || projectile.type == ModContent.ProjectileType<HealingBeamKritzkrieg>())
-                    && projectile.Hitbox.Intersects(npc.Hitbox)
-                    && projectile.active)
-                    healed = true;
+                foreach (Projectile projectile in Main.ActiveProjectiles)
+                {
+                    if ((projectile.type == ModContent.ProjectileType<HealingBeam>()
+                        || projectile.type == ModContent.ProjectileType<HealingBeamKritzkrieg>())
+                        && projectile.Hitbox.Intersects(npc.Hitbox))
+                        healed = true;
+                }
             }
             if (npc.life > npc.lifeMax && !healed)
             {
-                if (overhealTimer < 30)
+                if (overhealTimer < TF2.Time(0.5))
                     overhealTimer++;
                 else
                 {
                     npc.life--;
                     overhealTimer = 0;
-                    if (Main.netMode == NetmodeID.MultiplayerClient)
+                    if (Main.netMode == NetmodeID.Server)
                         npc.netUpdate = true;
                 }
             }
-        }
-
-        public override void ModifyActiveShop(NPC npc, string shopName, Item[] items)
-        {
-            // May or may not be used
         }
 
         public override void OnKill(NPC npc)
@@ -104,6 +101,9 @@ namespace TF2.Common
                     TF2.DropLoot(npc, ModContent.ItemType<RefinedMetal>(), 9);
                 }
             }
+
+            if (npc.boss || TF2.BasicEnemiesThatCanDropMoney(npc))
+                Main.player[npc.lastInteraction].GetModPlayer<TF2Player>().money += 0.05f;
 
             if (npc.type == NPCID.EyeofCthulhu)
                 TF2.CreateSoulItem(npc, 0.75f, 1f);
@@ -169,7 +169,7 @@ namespace TF2.Common
             }
             else
             {
-                // In case the Gensokyo DLC gets removed from the mod, the rest of the mod can still compile successfully
+                // In case the Gensokyo DLC gets removed from the mod, the rest of the mod can still be compiled
                 if (Mod.TryFind("ByakurenHijiri", out ModNPC byakuren) && npc.type == byakuren.Type)
                 {
                     TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
@@ -180,7 +180,7 @@ namespace TF2.Common
 
         public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
         {
-            if (Array.IndexOf(new int[] { NPCID.EaterofWorldsBody, NPCID.EaterofWorldsHead, NPCID.EaterofWorldsTail }, npc.type) > -1)
+            if (Array.IndexOf([NPCID.EaterofWorldsBody, NPCID.EaterofWorldsHead, NPCID.EaterofWorldsTail], npc.type) > -1)
             {
                 LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.LegacyHack_IsABoss());
                 leadingConditionRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<Australium>(), 10));
@@ -247,6 +247,15 @@ namespace TF2.Common
 
                 if (projectile.type == ModContent.ProjectileType<HealingBeam>())
                     modifiers.DisableCrit();
+            }
+        }
+
+        public override void OnHitNPC(NPC npc, NPC target, NPC.HitInfo hit)
+        {
+            if (target.ModNPC is Building building && !building.Initialized)
+            {
+                building.preConstructedDamage = hit.Damage;
+                target.netUpdate = true;
             }
         }
 

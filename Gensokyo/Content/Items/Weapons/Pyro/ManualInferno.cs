@@ -19,7 +19,7 @@ namespace TF2.Gensokyo.Content.Items.Weapons.Pyro
             SetWeaponSize(55, 22);
             SetWeaponOffset(-7.5f);
             SetGunUseStyle();
-            SetWeaponDamage(damage: 78, projectile: ModContent.ProjectileType<HellFire>());
+            SetWeaponDamage(damage: 18, projectile: ModContent.ProjectileType<HellFire>());
             SetWeaponAttackSpeed(0.1, hide: true);
             SetWeaponAttackIntervals(maxAmmo: 65, maxReserve: 130, reloadTime: 1.5, reloadSoundPath: "TF2/Gensokyo/Content/Sounds/SFX/manualinferno_reload", altClick: true, usesMagazine: true);
             SetFlamethrower();

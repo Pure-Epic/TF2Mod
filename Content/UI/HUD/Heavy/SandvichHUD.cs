@@ -46,20 +46,19 @@ namespace TF2.Content.UI.HUD.Heavy
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _food = new UIText(TF2HUDSystem.TF2HUDLocalization[5], 0.5f)
+            food = new UIText(TF2HUDSystem.TF2HUDLocalization[7], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            food = _food;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(food);
         
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            TF2Weapon weapon = TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<Sandvich>(), ModContent.ItemType<DalokohsBar>(), ModContent.ItemType<BuffaloSteakSandvich>() }).ModItem as TF2Weapon;
+            TF2Weapon weapon = TF2.GetItemInHotbar(Player, [ModContent.ItemType<Sandvich>(), ModContent.ItemType<DalokohsBar>(), ModContent.ItemType<BuffaloSteakSandvich>()]).ModItem as TF2Weapon;
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 12;
             hitbox.Y += 24;

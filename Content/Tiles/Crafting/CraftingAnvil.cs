@@ -22,11 +22,11 @@ namespace TF2.Content.Tiles.Crafting
             TileID.Sets.IgnoredByNpcStepUp[Type] = true; // This line makes NPCs not try to step up this tile during their movement. Only use this for furniture with solid tops.
 
             DustType = DustID.Lava;
-            AdjTiles = new int[] { TileID.WorkBenches };
+            AdjTiles = [TileID.WorkBenches];
 
             // Placement
             TileObjectData.newTile.CopyFrom(TileObjectData.Style3x3);
-            TileObjectData.newTile.CoordinateHeights = new[] { 16, 18, 16 };
+            TileObjectData.newTile.CoordinateHeights = [16, 18, 16];
             TileObjectData.addTile(Type);
 
             AddToArray(ref TileID.Sets.RoomNeeds.CountsAsTable);

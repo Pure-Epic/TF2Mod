@@ -60,7 +60,7 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
         public override void Load()
         {
             if (!Main.dedServ)
-                spriteSheet = ModContent.Request<Texture2D>("TF2/Gensokyo/Content/NPCs/Byakuren_Hijiri/ByakurenHijiri_Spritesheet", AssetRequestMode.AsyncLoad);
+                spriteSheet = ModContent.Request<Texture2D>("TF2/Gensokyo/Content/NPCs/Byakuren_Hijiri/ByakurenHijiri_Spritesheet");
         }
 
         public override void Unload() => spriteSheet = null;
@@ -132,44 +132,41 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
 
             MovespeedMax = 100f;
             NumStages = 6;
-            MovePhaseDuration = new int[]
-            {
+            MovePhaseDuration =
+            [
                 60,
                 240,
                 120,
                 300,
                 120,
                 120
-            };
-            BasicAttackDuration = new int[]
-            {
+            ];
+            BasicAttackDuration =
+            [
                 120,
                 1200,
                 360,
                 1200,
                 0,
                 0
-            };
-            AttackPhaseDuration = new int[]
-            {
+            ];
+            AttackPhaseDuration =
+            [
                 240,
                 900,
                 1000,
                 1920,
                 600,
                 3000
-            };
+            ];
             enableRevengeanceDamageResistance = true;
         }
 
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
-        {
-            bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[]
-            {
+        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange(
+            [
                 BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
                 new FlavorTextBestiaryInfoElement("Initially seeking eternal youth, the Buddhist nun Byakuren Hijiri protected youkai and tried bringing them harmony with humankind. Viewed as a traitor to humans, she was then imprisoned to Makai. Eventually, the youkai freed their savior and she is now the chief priest of the Myouren Temple.")
-            });
-        }
+            ]);
 
         public override void ApplyDifficultyAndPlayerScaling(int numPlayers, float balance, float bossAdjustment)
         {
@@ -322,48 +319,12 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
             return false;
         }
 
-        /*
-        public override void BasicAttack()
+        protected override bool HasAttack() => Phase switch
         {
-            switch (SpellCard)
-            {
-                case 0:
-                    PreOmenofPurpleClouds();
-                    return;
-
-                case 1:
-                    PreMysticFragranceofaMakaiButterfly();
-                    return;
-
-                case 2:
-                    PreStarMaelstrom();
-                    return;
-
-                case 3:
-                    PreDevilsRecitation();
-                    return;
-
-                case 4:
-                    return;
-
-                case 5:
-                    return;
-
-                default:
-                    return;
-            }
-        }
-        */
-
-        protected override bool HasAttack()
-        {
-            return Phase switch
-            {
-                Phase_BasicAttackPhase => true,
-                Phase_DefaultStageAttack => true,
-                _ => base.HasAttack(),
-            };
-        }
+            Phase_BasicAttackPhase => true,
+            Phase_DefaultStageAttack => true,
+            _ => base.HasAttack(),
+        };
 
         protected override void Attack()
         {
@@ -851,14 +812,14 @@ namespace TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri
         {
             npcLoot.Add(ItemDropRule.BossBag(ModContent.ItemType<ByakurenBossBag>()));
             LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.NotExpert());
-            Chains.OnSuccess(leadingConditionRule, ItemDropRule.OneFromOptions(1, new int[]
-            {
+            Chains.OnSuccess(leadingConditionRule, ItemDropRule.OneFromOptions(1,
+            [
                 ModContent.ItemType<AdvancedScoutRifle>(),
                 ModContent.ItemType<HeadhunterPistols>(),
                 ModContent.ItemType<ManualInferno>(),
                 ModContent.ItemType<HarshPunisher>(),
                 ModContent.ItemType<OffensiveRocketSystem>()
-            }), false);
+            ]), false);
             if (GensokyoDLC.gensokyoLoaded)
             {
                 GensokyoDLC.Gensokyo.TryFind("PointItem", out ModItem pointItem);

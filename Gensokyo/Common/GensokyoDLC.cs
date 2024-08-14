@@ -72,13 +72,12 @@ namespace TF2.Gensokyo.Common
                 ILLabel LabelKey = null;
 
                 if (c.TryGotoNext(
-                    x => x.MatchLdarg(0), // IL_0000: ldarg.0
-                                          // The MatchCall being empty is not really a big deal since this piece of code is short anyway.
-                    x => x.MatchCall(out _), // IL_0012: call instance int32 Gensokyo.NPCs.Boss::get_State()
-                    x => x.MatchLdcI4(99), // IL_0017: ldc.i4.s 99
-                    x => x.MatchBeq(out LabelKey) // IL_0019: beq.s IL_0069
+                    x => x.MatchLdarg(0),
+                    // The MatchCall being empty is not really a big deal since this piece of code is short anyway.
+                    x => x.MatchCall(out _),
+                    x => x.MatchLdcI4(99),
+                    x => x.MatchBeq(out LabelKey)
                     ))
-
                 {
                     // The reason why we increase the index by 4 is because by default, the cursor will be placed on the first line encountered by the TryGotoNext.
                     // In our case, we want to move past these lines to get inside the if statement.
@@ -86,16 +85,16 @@ namespace TF2.Gensokyo.Common
 
                     // For safety, we should actually also check the lines where we want to branch over, since we cannot guarantee this code stays the same in the future.
                     if (c.TryGotoNext(
-                    x => x.MatchLdsfld<Main>("dayTime"), // IL_001B: ldsfld bool [tModLoader]Terraria.Main::dayTime
-                    x => x.MatchBrfalse(out LabelKey), // IL_0020: brfalse.s IL_002C
-                    x => x.MatchLdsfld<Main>("eclipse"), // IL_0022: ldsfld bool [tModLoader]Terraria.Main::eclipse
-                    x => x.MatchBrtrue(out LabelKey), // IL_0027: brtrue.s  IL_0033
-                    x => x.MatchLdsfld<Main>("remixWorld"),// IL_0029: ldsfld    bool[tModLoader]Terraria.Main::remixWorld
-                    x => x.MatchLdcI4(0), // IL_002E: ldc.i4.0
-                    x => x.MatchCeq(), // IL_002F: ceq
-                    x => x.MatchBr(out _), // IL_0031: br.s IL_002D
-                    x => x.MatchLdcI4(0), // IL_0033: ldc.i4.0
-                    x => x.MatchBrfalse(out _) // IL_0034: brfalse IL_00B9
+                    x => x.MatchLdsfld<Main>("dayTime"),
+                    x => x.MatchBrfalse(out LabelKey),
+                    x => x.MatchLdsfld<Main>("eclipse"),
+                    x => x.MatchBrtrue(out LabelKey),
+                    x => x.MatchLdsfld<Main>("remixWorld"),
+                    x => x.MatchLdcI4(0),
+                    x => x.MatchCeq(),
+                    x => x.MatchBr(out _),
+                    x => x.MatchLdcI4(0),
+                    x => x.MatchBrfalse(out _)
                     ))
                     {
                         c.Index = Index;
@@ -117,12 +116,9 @@ namespace TF2.Gensokyo.Common
             }
         }
 
-        private UIElement Hook_GetIconElement(On_AWorldListItem.orig_GetIconElement orig, AWorldListItem self)
+        private UIElement Hook_GetIconElement(On_AWorldListItem.orig_GetIconElement orig, AWorldListItem self) => self.Data.TryGetHeaderData(this, out var data) && data.GetBool("downedByakurenHijiri") ? orig(self) : new UIImage(ModContent.Request<Texture2D>("TF2/Gensokyo/Content/Textures/FantasyModeIcon", AssetRequestMode.ImmediateLoad).Value)
         {
-            return self.Data.TryGetHeaderData(this, out var data) && data.GetBool("downedByakurenHijiri") ? orig(self) : new UIImage(ModContent.Request<Texture2D>("TF2/Gensokyo/Content/Textures/FantasyModeIcon", AssetRequestMode.ImmediateLoad).Value)
-            {
-                Left = new StyleDimension(4f, 0f)
-            };
-        }
+            Left = new StyleDimension(4f, 0f)
+        };
     }
 }

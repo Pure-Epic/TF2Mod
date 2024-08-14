@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Weapons;
+using TF2.Content.NPCs.Buddies;
 
 namespace TF2.Content.Projectiles.Medic
 {
@@ -13,7 +14,9 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Items/Weapons/Medic/MediGun";
 
-        protected virtual float Heal => 1f;
+        protected virtual float HealMultiplier => 1f;
+
+        protected virtual float UberchargeMultiplier => 1f;
 
         protected virtual float OverhealLimit => 0.5f;
 
@@ -66,44 +69,60 @@ namespace TF2.Content.Projectiles.Medic
                     }
                     Projectile.Kill();
                 }
-                foreach (NPC npc in Main.npc)
+                foreach (Player targetPlayer in Main.ActivePlayers)
                 {
-                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
+                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && !targetPlayer.dead && !targetPlayer.hostile && HealCooldown <= 0)
                     {
                         if (!Player.GetModPlayer<TF2Player>().activateUberCharge)
                             AddUberCharge(Player.HeldItem);
                         else
-                            npc.AddBuff(UberCharge, TF2.Time(8));
-                        if (Main.netMode != NetmodeID.SinglePlayer)
-                            HealCooldown = 5;
-                    }
-                }
-                foreach (Player targetPlayer in Main.player)
-                {
-                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && targetPlayer.active && !targetPlayer.dead && !targetPlayer.hostile && HealCooldown <= 0)
-                    {
-                        if (!Player.GetModPlayer<TF2Player>().activateUberCharge)
-                            AddUberCharge(Player.HeldItem);
-                        else
+                        {
+                            if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                                TF2.RemoveAllDebuffs(targetPlayer);
                             targetPlayer.AddBuff(UberCharge, TF2.Time(8), false);
+                        }
                         HealPlayer(targetPlayer);
                         HealCooldown = 5;
+                        break;
+                    }
+                }
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
+                    {
+                        if (!Player.GetModPlayer<TF2Player>().activateUberCharge)
+                            AddUberCharge(Player.HeldItem);
+                        else
+                        {
+                            if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                                TF2.RemoveAllDebuffs(npc);
+                            npc.AddBuff(UberCharge, TF2.Time(8));
+                        }
+                        if (Main.netMode != NetmodeID.SinglePlayer)
+                            HealCooldown = 5;
+                        break;
                     }
                 }
             }
-            foreach (NPC npc in Main.npc)
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server)
+                if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && HealCooldown <= 0)
+                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && HealCooldown <= 0)
+                    {
                         HealNPC(npc);
+                        break;
+                    }
                 }
             }
             if (Main.netMode == NetmodeID.SinglePlayer) return;
-            foreach (Player targetPlayer in Main.player)
+            foreach (Player targetPlayer in Main.ActivePlayers)
             {
-                if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && targetPlayer.active && !targetPlayer.dead && !targetPlayer.hostile && Main.netMode == NetmodeID.Server)
+                if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && !targetPlayer.dead && !targetPlayer.hostile && Main.netMode == NetmodeID.Server)
+                {
                     HealPlayer(targetPlayer);
+                    break;
+                }
             }
             if (HealCooldown > 0)
                 HealCooldown--;
@@ -112,42 +131,41 @@ namespace TF2.Content.Projectiles.Medic
 
         public override bool ShouldUpdatePosition() => false;
 
-        protected void HealNPC(NPC npc)
+        protected void HealNPC(NPC target)
         {
-            TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
-            {
-                int healingAmount = (int)(2 * p.classMultiplier) <= 1 ? 2 : (int)(2 * p.classMultiplier);
-                npc.life += healingAmount;
-                if (npc.life > TF2.Round(npc.lifeMax * 1.5f))
-                    npc.life = TF2.Round(npc.lifeMax * 1.5f);
-                npc.HealEffect(healingAmount);
-                npc.GetGlobalNPC<TF2GlobalNPC>().overhealTimer = 0;
-                HealCooldown = 5;
-                if (Main.netMode == NetmodeID.MultiplayerClient)
-                {
-                    npc.netUpdate = true;
-                    Projectile.netUpdate = true;
-                }
-            }
-        }
-
-        protected void HealPlayer(Player targetPlayer)
-        {
+            if (target.ModNPC is not MercenaryBuddy buddy) return;
             if (HealCooldown <= 0)
             {
-                int healingAmount = TF2.Round(TF2.GetHealthRaw(targetPlayer, 0.4f));
+                int healingAmount = TF2.Round(target.lifeMax / buddy.BaseHealth * 0.4f * HealMultiplier);
                 if (healingAmount <= 0)
                     healingAmount = 1;
-                targetPlayer.Heal(healingAmount);
-                targetPlayer.HealEffect(healingAmount);
-                if (Main.netMode != NetmodeID.SinglePlayer)
-                    TF2.OverhealMultiplayer(targetPlayer, healingAmount, OverhealLimit);
+                if (Main.netMode == NetmodeID.SinglePlayer)
+                    TF2.OverhealNPC(target, healingAmount, OverhealLimit);
+                else if (Main.netMode == NetmodeID.Server)
+                    TF2.OverhealNPCMultiplayer(target, healingAmount, OverhealLimit);
+                if (Player.HasBuff<QuickFixUberCharge>())
+                    TF2.Overheal(Player, TF2.Round(TF2.GetRawHealth(Player, 0.4f * HealMultiplier)), OverhealLimit);
                 HealCooldown = 5;
                 Projectile.netUpdate = true;
             }
         }
 
-        protected void AddUberCharge(Item item) => (item.ModItem as TF2Weapon).AddUberCharge(Heal);
+        protected void HealPlayer(Player target)
+        {
+            if (HealCooldown <= 0)
+            {
+                int healingAmount = TF2.Round(TF2.GetRawHealth(target, 0.4f * HealMultiplier));
+                if (healingAmount <= 0)
+                    healingAmount = 1;
+                if (Main.netMode == NetmodeID.Server)
+                    TF2.OverhealMultiplayer(target, healingAmount, OverhealLimit);
+                if (Player.HasBuff<QuickFixUberCharge>())
+                    TF2.Overheal(Player, healingAmount, OverhealLimit);
+                HealCooldown = 5;
+                Projectile.netUpdate = true;
+            }
+        }
+
+        protected void AddUberCharge(Item item) => (item.ModItem as TF2Weapon).AddUberCharge(UberchargeMultiplier);
     }
 }

@@ -13,7 +13,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(MultiClass, Melee, Unique, Craft);
-            SetWeaponClass(new int[] { Soldier, Demoman });
+            SetWeaponClass([Soldier, Demoman]);
             SetSwingUseStyle();
             SetWeaponDamage(damage: 65);
             SetWeaponAttackSpeed(0.8);
@@ -29,7 +29,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<PainTrainPlayer>().painTrainEquipped = true;
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
             // Temporary solution
             ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
@@ -37,14 +37,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 player.GetModPlayer<TF2Player>().crit = true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Sandman>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class PainTrainPlayer : ModPlayer

@@ -2,7 +2,9 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Spy
 {
@@ -12,7 +14,7 @@ namespace TF2.Content.Projectiles.Spy
 
         public float CollisionWidth => 10f * Projectile.scale;
 
-        public const int TotalDuration = 48;
+        public int totalDuration = TF2.Time(0.8);
 
         protected override void ProjectileStatistics()
         {
@@ -32,7 +34,7 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileAI()
         {
-            if (Timer >= TotalDuration)
+            if (Timer >= totalDuration)
             {
                 Projectile.Kill();
                 return;
@@ -41,7 +43,7 @@ namespace TF2.Content.Projectiles.Spy
             {
                 Player.heldProj = Projectile.whoAmI;
                 if (Player.GetModPlayer<TF2Player>().backStab)
-                    Player.GetModPlayer<TF2Player>().crit = true;
+                    backStab = true;
             }
             Vector2 playerCenter = Player.RotatedRelativePoint(Player.MountedCenter, reverseRotation: false, addGfxOffY: false);
             if (Timer <= 8)
@@ -76,8 +78,8 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            if (!modifiers.PvP) return;
-            target.KillMe(PlayerDeathReason.ByCustomReason(target.name + " " + TF2.TF2DeathMessagesLocalization[6] + " " + Player.name), target.statLife, 0);
+            if (!modifiers.PvP || !backStab) return;
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
         }
 
         protected override void ProjectileDestroy(int timeLeft) => Player.GetModPlayer<TF2Player>().backStab = false;
@@ -96,13 +98,31 @@ namespace TF2.Content.Projectiles.Spy
         {
             if (!modifiers.PvP) return;
             TF2.Overheal(Player, target.statLife, 2f);
-            target.KillMe(PlayerDeathReason.ByCustomReason(target.name + " " + TF2.TF2DeathMessagesLocalization[6] + " " + Player.name), target.statLife, 0);
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             if (target.type != NPCID.TargetDummy)
                 TF2.Overheal(Player, Utils.Clamp(TF2.Round((float)((float)target.life / target.lifeMax * TF2.GetHealth(Player, 210))), TF2.GetHealth(Player, 75), TF2.GetHealth(Player, 210)), 2f);
+        }
+    }
+
+    public class BigEarnerProjectile : KnifeProjectile
+    {
+        public override string Texture => "TF2/Content/Items/Weapons/Spy/BigEarner";
+
+        protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        {
+            if (!modifiers.PvP || !backStab) return;
+            Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
+        }
+
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (target.type != NPCID.TargetDummy && backStab)
+                Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
         }
     }
 }

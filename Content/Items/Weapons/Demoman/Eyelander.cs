@@ -4,7 +4,6 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Buffs;
 
 namespace TF2.Content.Items.Weapons.Demoman
 {
@@ -41,34 +40,26 @@ namespace TF2.Content.Items.Weapons.Demoman
         protected override void WeaponPassiveUpdate(Player player)
         {
             TF2Player.SetPlayerHealth(player, player.GetModPlayer<EyelanderPlayer>().heads * 15 - 25);
-            player.GetModPlayer<EyelanderPlayer>().eyelanderInInventory = true;
+            EyelanderPlayer p = player.GetModPlayer<EyelanderPlayer>();
+            p.eyelanderEquipped = true;
+            TF2Player.SetPlayerSpeed(player, 100 + (10 * p.heads));
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.crit || p.critMelee)
+            if (player.GetModPlayer<TF2Player>().crit)
             {
-                player.GetModPlayer<EyelanderPlayer>().heads += 1;
+                player.GetModPlayer<EyelanderPlayer>().heads++;
                 player.Heal(TF2.GetHealth(player, 15));
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
             }
-            else
-                modifiers.DisableCrit();
         }
 
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.crit || p.critMelee)
+            if (player.GetModPlayer<TF2Player>().crit)
             {
-                player.GetModPlayer<EyelanderPlayer>().heads += 1;
+                player.GetModPlayer<EyelanderPlayer>().heads++;
                 player.Heal(TF2.GetHealth(player, 15));
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
             }
         }
     }
@@ -76,9 +67,9 @@ namespace TF2.Content.Items.Weapons.Demoman
     public class EyelanderPlayer : ModPlayer
     {
         public int heads;
-        public bool eyelanderInInventory;
+        public bool eyelanderEquipped;
 
-        public override void ResetEffects() => eyelanderInInventory = false;
+        public override void ResetEffects() => eyelanderEquipped = false;
 
         public override void Kill(double damage, int hitDirection, bool pvp, PlayerDeathReason damageSource)
         {
@@ -88,13 +79,10 @@ namespace TF2.Content.Items.Weapons.Demoman
 
         public override void OnRespawn() => heads = 0;
 
-        public override void PostUpdate()
+        public override void PreUpdate()
         {
-            if (eyelanderInInventory)
-            {
+            if (eyelanderEquipped)
                 heads = Utils.Clamp(heads, 0, 4);
-                TF2Player.SetPlayerSpeed(Player, 100 + (10 * heads));
-            }
         }
     }
 }

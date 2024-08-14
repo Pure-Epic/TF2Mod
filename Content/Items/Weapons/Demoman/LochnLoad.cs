@@ -26,13 +26,6 @@ namespace TF2.Content.Items.Weapons.Demoman
             AddNegativeAttribute(description);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<ScottishResistance>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ScottishResistance>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

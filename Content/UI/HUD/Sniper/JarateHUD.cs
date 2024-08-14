@@ -46,13 +46,12 @@ namespace TF2.Content.UI.HUD.Sniper
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _jar = new UIText(TF2HUDSystem.TF2HUDLocalization[9], 0.5f)
+            jar = new UIText(TF2HUDSystem.TF2HUDLocalization[11], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            jar = _jar;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(jar);
@@ -65,8 +64,7 @@ namespace TF2.Content.UI.HUD.Sniper
             hitbox.Y += 24;
             hitbox.Width = 44;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * weapon.timer[0] / (float)TF2.Time(20)), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * weapon.timer[0] / (float)TF2.Time(20)), hitbox.Height), Color.White);
         }
     }
 }

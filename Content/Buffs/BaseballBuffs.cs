@@ -10,6 +10,7 @@ namespace TF2.Content.Buffs
         public override void SetStaticDefaults()
         {
             Main.debuff[Type] = true;
+            Main.pvpBuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
             BuffID.Sets.IsATagBuff[Type] = true;
         }

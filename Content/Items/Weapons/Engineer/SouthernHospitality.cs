@@ -53,14 +53,7 @@ namespace TF2.Content.Items.Weapons.Engineer
             target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5));
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Ambassador>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Ambassador>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class SouthernHospitalityPlayer : ModPlayer

@@ -27,7 +27,11 @@ namespace TF2.Content.Items.Weapons.Engineer
             AddNegativeAttribute(description);
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<JagPlayer>().jagEquipped = true;
+        protected override void WeaponPassiveUpdate(Player player)
+        {
+            player.GetModPlayer<TF2Player>().constructionSpeedMultiplier *= 1.3f;
+            player.GetModPlayer<TF2Player>().repairRateMultiplier *= 0.8f;
+        }
 
         protected override bool? WeaponOnUse(Player player)
         {
@@ -35,33 +39,8 @@ namespace TF2.Content.Items.Weapons.Engineer
             return true;
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1f : 0.66f;
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1f : 0.66f;
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<SouthernHospitality>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
-    }
-
-    public class JagPlayer : ModPlayer
-    {
-        public bool jagEquipped;
-
-        public override void ResetEffects() => jagEquipped = false;
-
-        public override void PostUpdate()
-        {
-            if (jagEquipped)
-            {
-                // Note that this doesn't change building cost, it's here for reference. The actual code resides in Engineer's PDAs themselves.
-                TF2Player p = Player.GetModPlayer<TF2Player>();
-                p.sentryCostReduction *= 0.7f;
-                p.dispenserCostReduction *= 1.2f;
-            }
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<SouthernHospitality>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

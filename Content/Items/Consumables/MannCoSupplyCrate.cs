@@ -1,21 +1,52 @@
-﻿using Terraria;
-using Terraria.GameContent.ItemDropRules;
+﻿using System.Collections.Generic;
+using Terraria;
 using Terraria.ModLoader;
 using TF2.Content.Items.Weapons.Demoman;
-using TF2.Content.Items.Weapons.Sniper;
+using TF2.Content.Items.Weapons.Engineer;
+using TF2.Content.Items.Weapons.Heavy;
+using TF2.Content.Items.Weapons.Medic;
 using TF2.Content.Items.Weapons.Pyro;
 using TF2.Content.Items.Weapons.Scout;
-using TF2.Content.Items.Weapons.Spy;
-using TF2.Content.Items.Weapons.Medic;
-using TF2.Content.Items.Weapons.Heavy;
+using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Soldier;
-using TF2.Content.Items.Weapons.Engineer;
+using TF2.Content.Items.Weapons.Spy;
 
 namespace TF2.Content.Items.Consumables
 {
-    public class MannCoSupplyCrate : ModItem
+    public class MannCoSupplyCrate : TF2Item
     {
         public bool keyFound;
+
+        public static int[] PossibleDrops =
+        [
+            ModContent.ItemType<ForceANature>(),
+            ModContent.ItemType<Sandman>(),
+            ModContent.ItemType<BonkAtomicPunch>(),
+            ModContent.ItemType<Equalizer>(),
+            ModContent.ItemType<DirectHit>(),
+            ModContent.ItemType<BuffBanner>(),
+            ModContent.ItemType<FlareGun>(),
+            ModContent.ItemType<Backburner>(),
+            ModContent.ItemType<Axtinguisher>(),
+            ModContent.ItemType<CharginTarge>(),
+            ModContent.ItemType<Eyelander>(),
+            ModContent.ItemType<ScottishResistance>(),
+            ModContent.ItemType<Sandvich>(),
+            ModContent.ItemType<Natascha>(),
+            ModContent.ItemType<KillingGlovesOfBoxing>(),
+            ModContent.ItemType<FrontierJustice>(),
+            ModContent.ItemType<Gunslinger>(),
+            ModContent.ItemType<Wrangler>(),
+            ModContent.ItemType<Blutsauger>(),
+            ModContent.ItemType<Kritzkrieg>(),
+            ModContent.ItemType<Ubersaw>(),
+            ModContent.ItemType<Huntsman>(),
+            ModContent.ItemType<Jarate>(),
+            ModContent.ItemType<Razorback>(),
+            ModContent.ItemType<Ambassador>(),
+            ModContent.ItemType<CloakAndDagger>(),
+            ModContent.ItemType<DeadRinger>(),
+        ];
 
         public override void SetStaticDefaults() => Item.ResearchUnlockCount = 50;
 
@@ -27,11 +58,15 @@ namespace TF2.Content.Items.Consumables
             Item.maxStack = Item.CommonMaxStack;
             Item.consumable = true;
             Item.rare = ModContent.RarityType<UniqueRarity>();
+            noThe = true;
+            qualityHashSet.Add(Unique);
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
 
         public override bool CanRightClick()
         {
-            keyFound = false; ;
+            keyFound = false;
             foreach (Item item in Main.LocalPlayer.inventory)
             {
                 if (item.type == ModContent.ItemType<MannCoSupplyCrateKey>())
@@ -44,40 +79,14 @@ namespace TF2.Content.Items.Consumables
             return keyFound;
         }
 
-        public override void ModifyItemLoot(ItemLoot itemLoot)
+        public override void RightClick(Player player)
         {
             for (int i = 0; i < 3; i++)
             {
-                IItemDropRule[] weapons = new IItemDropRule[] {
-                ItemDropRule.Common(ModContent.ItemType<ForceANature>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Sandman>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<BonkAtomicPunch>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Equalizer>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<DirectHit>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<BuffBanner>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<FlareGun>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Backburner>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Axtinguisher>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<CharginTarge>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Eyelander>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<ScottishResistance>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Sandvich>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Natascha>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<KillingGlovesOfBoxing>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<FrontierJustice>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Gunslinger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Wrangler>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Blutsauger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Kritzkrieg>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Ubersaw>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Huntsman>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Jarate>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Razorback>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<Ambassador>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<CloakAndDagger>(), 1),
-                ItemDropRule.Common(ModContent.ItemType<DeadRinger>(), 1),
-            };
-                itemLoot.Add(new OneFromRulesRule(1, weapons));
+                Item item = new Item();
+                item.SetDefaults(PossibleDrops[Main.rand.Next(PossibleDrops.Length + 1)]);
+                (item.ModItem as TF2Item).availability = Uncrate;
+                player.QuickSpawnItem(player.GetSource_GiftOrReward(), item);
             }
         }
     }

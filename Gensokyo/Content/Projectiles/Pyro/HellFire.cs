@@ -15,7 +15,7 @@ namespace TF2.Gensokyo.Content.Projectiles.Pyro
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
             burntPlayer.damageMultiplier = p.classMultiplier * 3f;
             target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10));
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

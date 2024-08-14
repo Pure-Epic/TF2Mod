@@ -61,14 +61,7 @@ namespace TF2.Content.Items.Weapons.Heavy
             return true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Sandvich>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandvich>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class DroppedBuffaloSteakSandvich : DroppedSandvich

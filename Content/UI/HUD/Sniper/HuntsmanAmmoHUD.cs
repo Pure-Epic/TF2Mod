@@ -24,8 +24,7 @@ namespace TF2.Content.UI.HUD.Sniper
             hitbox.Y += 48;
             hitbox.Width = 84;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * weapon.chargeTime / weapon.maxChargeTime), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * weapon.chargeTime / weapon.maxChargeTime), hitbox.Height), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime)

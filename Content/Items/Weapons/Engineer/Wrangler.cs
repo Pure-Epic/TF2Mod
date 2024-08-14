@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using TF2.Content.NPCs;
+using TF2.Common;
+using TF2.Content.NPCs.Buildings.SentryGun;
 using TF2.Content.Projectiles.Engineer;
 
 namespace TF2.Content.Items.Weapons.Engineer
@@ -20,6 +21,10 @@ namespace TF2.Content.Items.Weapons.Engineer
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
 
-        protected override bool WeaponCanAltClick(Player player) => NPC.CountNPCS(ModContent.NPCType<SentryLevel3>()) >= 1;
+        protected override bool WeaponCanAltClick(Player player)
+        {
+            int sentry = player.GetModPlayer<TF2Player>().sentryWhoAmI;
+            return sentry > -1 && Main.npc[sentry].ModNPC is SentryLevel3;
+        }
     }
 }

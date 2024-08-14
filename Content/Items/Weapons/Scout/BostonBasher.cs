@@ -36,7 +36,7 @@ namespace TF2.Content.Items.Weapons.Scout
             {
                 if (!player.immuneNoBlink)
                 {
-                    player.Hurt(PlayerDeathReason.ByCustomReason(player.name + " " + TF2.TF2DeathMessagesLocalization[1]), TF2.GetHealth(player, 18), 0, cooldownCounter: 5);
+                    player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[1].Format(player.name)), TF2.GetHealth(player, 18), 0, cooldownCounter: 5);
                     player.GetModPlayer<BleedingPlayer>().damageMultiplier = TF2.GetHealth(player, 1);
                     player.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5));
                 }
@@ -53,14 +53,7 @@ namespace TF2.Content.Items.Weapons.Scout
             return true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Sandman>()
-                .AddIngredient<TribalmansShiv>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<TribalmansShiv>().AddTile<CraftingAnvil>().Register();
     }
 
     public class BostonBasherPlayer : ModPlayer

@@ -1,13 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Content.Items.Materials;
 
 namespace TF2.Content.Items.Consumables
 {
-    public class MannCoSupplyCrateKey : ModItem
+    public class MannCoSupplyCrateKey : TF2Item
     {
         public override void SetStaticDefaults() => Item.ResearchUnlockCount = 10;
 
@@ -18,21 +17,15 @@ namespace TF2.Content.Items.Consumables
             Item.maxStack = Item.CommonMaxStack;
             Item.rare = ModContent.RarityType<UniqueRarity>();
             Item.value = Item.buyPrice(platinum: 1);
+            qualityHashSet.Add(Unique);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine tt = tooltips.FirstOrDefault(x => x.Name == "Material" && x.Mod == "Terraria");
-            tooltips.Remove(tt);
-        }
+        public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
 
         public override Color? GetAlpha(Color lightColor) => Color.Lerp(lightColor, Color.White, 0.4f);
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
+        public override void AddRecipes() => CreateRecipe()
                 .AddIngredient<RefinedMetal>(50)
                 .Register();
-        }
     }
 }

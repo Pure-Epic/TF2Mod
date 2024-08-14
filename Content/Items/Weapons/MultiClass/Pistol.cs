@@ -10,8 +10,9 @@ namespace TF2.Content.Items.Weapons.MultiClass
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(MultiClass, Secondary, Stock, Starter);
-            SetWeaponClass(new int[] { Scout, Engineer });
+            SetWeaponClass([Scout, Engineer]);
             SetWeaponSize(30, 23);
+            SetWeaponOffset(-2f, 2f);
             SetGunUseStyle(focus: true, automatic: true);
             SetWeaponDamage(damage: 15, projectile: ModContent.ProjectileType<Bullet>());
             SetWeaponAttackSpeed(0.15);

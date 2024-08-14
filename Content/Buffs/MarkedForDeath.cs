@@ -31,7 +31,7 @@ namespace TF2.Content.Buffs
             if (markedForDeath && !modifiers.PvP)
             {
                 modifiers.SourceDamage.Base *= 1.35f;
-                Dust.NewDust(Player.Center, 40, 24, ModContent.DustType<MiniCrit>(), 0 * 0.5f, 0);
+                Dust.NewDust(Player.Center, 0, 0, ModContent.DustType<MiniCrit>(), 0f, 0);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
             }
         }

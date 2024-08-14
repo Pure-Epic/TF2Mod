@@ -35,7 +35,7 @@ using TF2.Content.Mounts;
 namespace TF2.Content.UI.MercenaryCreationMenu
 {
     [Autoload(Side = ModSide.Client)]
-    public class TF2ChoosePlayerType : UIState
+    internal class TF2ChoosePlayerType : UIState
     {
         public override void OnInitialize() => BuildPage();
 
@@ -170,7 +170,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
     }
 
     [Autoload(Side = ModSide.Client)]
-    public class TF2MercenarySelect : UIState
+    internal class TF2MercenarySelect : UIState
     {
         private readonly Player _player;
         private readonly TF2Player mercenaryPlayer;
@@ -261,7 +261,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 Height = StyleDimension.FromPixels(50f),
                 VAlign = 0.5f,
                 HAlign = 0.965f,
-                BackgroundColor = new Color(115, 105, 95, 255)
+                BackgroundColor = new Color(115, 105, 95)
             };
             randomClassPanel.OnLeftMouseDown += Click_RandomClass;
             randomClassPanel.OnMouseOver += FadedMouseOver;
@@ -366,7 +366,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             textPanel.SetPadding(0f);
             container.Append(textPanel);
-            UIText classDesciption = new UIText("")
+            classDescription = new UIText("")
             {
                 Width = MaxWidth,
                 Height = MaxHeight,
@@ -376,8 +376,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 IgnoresMouseInteraction = true,
                 IsWrapped = true
             };
-            textPanel.Append(classDesciption);
-            classDescription = classDesciption;
+            textPanel.Append(classDescription);
         }
 
         private void MakeBackAndNextButton(UIElement outerContainer)
@@ -386,10 +385,10 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             {
                 Width = StyleDimension.FromPixels(250f),
                 Height = StyleDimension.FromPixels(50f),
-                VAlign = 0.5f,
                 HAlign = 0.405f,
+                VAlign = 0.5f,
                 Top = StyleDimension.FromPixels(307f),
-                BackgroundColor = new Color(115, 105, 95, 255)
+                BackgroundColor = new Color(115, 105, 95)
             };
             uITextPanel.OnLeftMouseDown += Click_GoBack;
             uITextPanel.OnMouseOver += FadedMouseOver;
@@ -400,10 +399,10 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             {
                 Width = StyleDimension.FromPixels(250f),
                 Height = StyleDimension.FromPixels(50f),
-                VAlign = 0.5f,
                 HAlign = 0.595f,
+                VAlign = 0.5f,
                 Top = StyleDimension.FromPixels(307f),
-                BackgroundColor = new Color(115, 105, 95, 255)
+                BackgroundColor = new Color(115, 105, 95)
             };
             uITextPanel2.OnMouseOver += FadedMouseOver;
             uITextPanel2.OnMouseOut += FadedMouseOut;
@@ -446,19 +445,19 @@ namespace TF2.Content.UI.MercenaryCreationMenu
         private void FadedMouseOver(UIMouseEvent evt, UIElement listeningElement)
         {
             SoundEngine.PlaySound(SoundID.MenuTick);
-            ((UIPanel)evt.Target).BackgroundColor = new Color(115, 105, 95, 255) * 1.25f;
+            ((UIPanel)evt.Target).BackgroundColor = new Color(115, 105, 95) * 1.25f;
             ((UIPanel)evt.Target).BorderColor = Colors.FancyUIFatButtonMouseOver;
         }
 
         private void FadedMouseOut(UIMouseEvent evt, UIElement listeningElement)
         {
-            ((UIPanel)evt.Target).BackgroundColor = new Color(115, 105, 95, 255);
+            ((UIPanel)evt.Target).BackgroundColor = new Color(115, 105, 95);
             ((UIPanel)evt.Target).BorderColor = Color.Black;
         }
     }
 
     [Autoload(Side = ModSide.Client)]
-    public class TF2MercenaryCreation : UIState
+    internal class TF2MercenaryCreation : UIState
     {
         private readonly Player _player;
         private UICharacterNameButton _charName;
@@ -630,37 +629,43 @@ namespace TF2.Content.UI.MercenaryCreationMenu
         private void SetupMercenary()
         {
             int i = 0;
-            switch (_player.GetModPlayer<TF2Player>().currentClass)
+            TF2Player p = _player.GetModPlayer<TF2Player>();
+            switch (p.currentClass)
             {
                 case TF2Item.Scout:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Scattergun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Pistol>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bat>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Soldier:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<RocketLauncher>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shotgun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shovel>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Pyro:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<FlameThrower>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shotgun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<FireAxe>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Demoman:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<GrenadeLauncher>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<StickybombLauncher>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bottle>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Heavy:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Minigun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shotgun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Fists>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Engineer:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shotgun>());
@@ -669,27 +674,32 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<ConstructionPDA>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<DestructionPDA>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Medic:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<SyringeGun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MediGun>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bonesaw>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Sniper:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<SniperRifle>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<SMG>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Kukri>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
                 case TF2Item.Spy:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Revolver>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Knife>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Sapper>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
+                    _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
                     break;
             }
             _player.miscEquips[3].SetDefaults(ModContent.ItemType<TF2MountItem>());
+            p.cachedHealth = p.BaseHealth;
         }
 
         private void Click_GoBack(UIMouseEvent evt, UIElement listeningElement)
@@ -731,17 +741,11 @@ namespace TF2.Content.UI.MercenaryCreationMenu
     }
 
     [Autoload(Side = ModSide.Client)]
-    internal class TF2MercenaryRender : UIState
+    internal class TF2MercenaryRender(int mercenary) : UIState
     {
-        public Asset<Texture2D> BackgroundTexture;
+        public Asset<Texture2D> BackgroundTexture = ModContent.Request<Texture2D>($"TF2/Content/Textures/UI/MercenaryCreationMenu/{(TF2Player.ClassName)mercenary}", AssetRequestMode.ImmediateLoad);
         public Color BackgroundColor = Color.White;
-        public int classID;
-
-        public TF2MercenaryRender(int mercenary)
-        {
-            BackgroundTexture = ModContent.Request<Texture2D>($"TF2/Content/Textures/UI/MercenaryCreationMenu/{(TF2Player.ClassName)mercenary}", AssetRequestMode.ImmediateLoad);
-            classID = mercenary;
-        }
+        public int classID = mercenary;
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
@@ -802,7 +806,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
     }
 
     [Autoload(Side = ModSide.Client)]
-    public class TF2PlayerRenderer : IPlayerRenderer
+    internal class TF2PlayerRenderer : IPlayerRenderer
     {
         private readonly List<DrawData> _drawData = new List<DrawData>();
 

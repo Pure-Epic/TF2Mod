@@ -21,6 +21,17 @@ namespace TF2.Content.Mounts
     {
         public float speed;
         public bool idle;
+        private readonly string[] homingPowerText =
+        [
+            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Low"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Medium"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Mount.High")
+        ];
+        private readonly string[] mountSpeedText =
+        [
+            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Normal"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Fast")
+        ];
 
         public override void SetStaticDefaults()
         {
@@ -86,7 +97,6 @@ namespace TF2.Content.Mounts
                         DurationInFrames = 30,
                         Velocity = new Vector2(0, -5)
                     };
-
                     int maximumPower;
                     if (NPC.downedMoonlord)
                         maximumPower = 2;
@@ -99,13 +109,13 @@ namespace TF2.Content.Mounts
                         if (p.homingPower == maximumPower)
                         {
                             p.homingPower = 0;
-                            homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
+                            homingText.Text = Language.GetText("Mods.TF2.UI.Items.Mount.HomingPower").Format(homingPowerText[p.homingPower]);
                             PopupText.NewText(homingText, player.position);
                         }
                         else
                         {
                             p.homingPower++;
-                            homingText.Text = "Homing Power: " + (HomingPower)p.homingPower;
+                            homingText.Text = Language.GetText("Mods.TF2.UI.Items.Mount.HomingPower").Format(homingPowerText[p.homingPower]);
                             PopupText.NewText(homingText, player.position);
                         }
                     }
@@ -123,44 +133,35 @@ namespace TF2.Content.Mounts
                         if (p.mountSpeed == 1)
                         {
                             p.mountSpeed = 0;
-                            speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
+                            speedText.Text = Language.GetText("Mods.TF2.UI.Items.Mount.Speed").Format(mountSpeedText[p.mountSpeed]);
                             PopupText.NewText(speedText, player.position);
                         }
                         else
                         {
                             p.mountSpeed++;
-                            speedText.Text = "Speed: " + (MountSpeed)p.mountSpeed;
+                            speedText.Text = Language.GetText("Mods.TF2.UI.Items.Mount.Speed").Format(mountSpeedText[p.mountSpeed]);
                             PopupText.NewText(speedText, player.position);
                         }
                     }
                 }
-
                 player.controlMount = true;
                 player.noKnockback = true;
                 if (player.controlJump)
                 {
                     if (!player.controlDown)
                         player.maxFallSpeed = 0f;
-                    if (!player.GetModPlayer<TF2Player>().disableFocusSlowdown)
-                        speed = 0.5f * p.speedMultiplier;
-                    else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 0)
+                    if (!p.disableFocusSlowdown)
+                        speed = p.speedMultiplier * 0.5f;
+                    else if (p.disableFocusSlowdown && p.mountSpeed == 0)
                         speed = p.speedMultiplier;
-                    else if (player.GetModPlayer<TF2Player>().disableFocusSlowdown && p.mountSpeed == 1)
-                        speed = p.currentClass switch
-                        {
-                            1 => 1.5f * p.speedMultiplier,
-                            _ => 2f * p.speedMultiplier
-                        };
+                    else if (p.disableFocusSlowdown && p.mountSpeed == 1)
+                        speed = p.speedMultiplier * 2f;
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         p.focus = true;
                 }
                 else if (p.mountSpeed == 1)
                 {
-                    speed = p.currentClass switch
-                    {
-                        1 => 1.5f * p.speedMultiplier,
-                        _ => 2f * p.speedMultiplier
-                    };
+                    speed = p.speedMultiplier * 2f;
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         p.focus = false;
                 }
@@ -170,41 +171,20 @@ namespace TF2.Content.Mounts
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         p.focus = false;
                 }
-
-                ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
-                {
-                    1 => player.GetModPlayer<CharginTargePlayer>(),
-                    _ => player.GetModPlayer<CharginTargePlayer>()
-                };
-
+                ShieldPlayer shield = ShieldPlayer.GetShield(player);
                 if (player.controlUp)
                 {
                     if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
                         player.velocity.X = 0f;
-                    player.velocity = p.currentClass switch
-                    {
-                        1 => new Vector2(player.velocity.X, -(speed * 15f)),
-                        5 => new Vector2(player.velocity.X, -(speed * 10f)),
-                        _ => new Vector2(player.velocity.X, -(speed * 12.5f))
-                    };
+                    player.velocity = new Vector2(player.velocity.X, -(speed * 12.5f));
                     SendMountMessage(player);
                 }
                 else if (player.controlDown)
                 {
                     if (!player.controlLeft && !player.controlRight && !p.backStab && !shield.chargeActive)
                         player.velocity.X = 0f;
-                    player.maxFallSpeed = p.currentClass switch
-                    {
-                        1 => speed * 15f,
-                        5 => speed * 10f,
-                        _ => speed * 12.5f
-                    };
-                    player.velocity = p.currentClass switch
-                    {
-                        1 => new Vector2(player.velocity.X, speed * 15f),
-                        5 => new Vector2(player.velocity.X, speed * 10f),
-                        _ => new Vector2(player.velocity.X, speed * 12.5f)
-                    };
+                    player.velocity = new Vector2(player.velocity.X, speed * 12.5f);
+                    player.maxFallSpeed = speed * 12.5f;
                     SendMountMessage(player);
                 }
                 if (player.controlLeft)
@@ -213,12 +193,7 @@ namespace TF2.Content.Mounts
                         player.direction = -1;
                     if (!player.controlUp && !player.controlDown)
                         player.velocity.Y = 0f;
-                    player.velocity = p.currentClass switch
-                    {
-                        1 => new Vector2(-(speed * 15f), player.velocity.Y),
-                        5 => new Vector2(-(speed * 10f), player.velocity.Y),
-                        _ => new Vector2(-(speed * 12.5f), player.velocity.Y)
-                    };
+                    player.velocity = new Vector2(-(speed * 12.5f), player.velocity.Y);
                     SendMountMessage(player);
                 }
                 else if (player.controlRight)
@@ -227,16 +202,10 @@ namespace TF2.Content.Mounts
                         player.direction = 1;
                     if (!player.controlUp && !player.controlDown)
                         player.velocity.Y = 0f;
-                    player.velocity = p.currentClass switch
-                    {
-                        1 => new Vector2(speed * 15f, player.velocity.Y),
-                        5 => new Vector2(speed * 10f, player.velocity.Y),
-                        _ => new Vector2(speed * 12.5f, player.velocity.Y)
-                    };
+                    player.velocity = new Vector2(speed * 12.5f, player.velocity.Y);
                     SendMountMessage(player);
                 }
                 idle = !player.controlUp && !player.controlDown && !player.controlLeft && !player.controlRight! && !p.backStab && !shield.chargeActive;
-
                 if (idle)
                 {
                     player.velocity = new Vector2(0f, 0f);
@@ -293,71 +262,47 @@ namespace TF2.Content.Mounts
             TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
             AddName(tooltips);
             tooltips.Remove(nameTooltip);
-            RemoveDefaultTooltips(tooltips);         
-            TooltipLine category = new TooltipLine(Mod, "Weapon Category", ((Availability)availability).ToString() + " " + Language.GetTextValue("Mods.TF2.UI.Items.Mount"))
+            RemoveDefaultTooltips(tooltips);
+            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetText("Mods.TF2.UI.Items.Mount.Description").Format(availabilityNames[availability], Language.GetTextValue("Mods.TF2.UI.Items.Module")))
             {
-                OverrideColor = new Color(117, 107, 94, 255)
+                OverrideColor = new Color(117, 107, 94)
             };
             tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
             AddNeutralAttribute(tooltips);
             List<string> currentHomingPowerKey = KeybindSystem.HomingPower.GetAssignedKeys(0);
+            TooltipLine line = new TooltipLine(Mod, "Homing Attribute", Language.GetText("Mods.TF2.UI.Items.Mount.MountInstruction").Format(currentHomingPowerKey[0]));
             if (currentHomingPowerKey.Count <= 0 || currentHomingPowerKey.Contains("None"))
-            {
-                TooltipLine line = new TooltipLine(Mod, "Homing Attribute", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction"))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                if (Main.hardMode)
-                    tooltips.Add(line);
-            }
-            else
-            {
-                TooltipLine line = new TooltipLine(Mod, "Homing Attribute", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction2") + " " + currentHomingPowerKey[0] + " " + Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction3"))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                if (Main.hardMode)
-                    tooltips.Add(line);
-            }
+                line = new TooltipLine(Mod, "Homing Attribute", Language.GetTextValue("Mods.TF2.UI.Items.Mount.MountInstructionUnassigned"));
+            line.OverrideColor = new Color(235, 226, 202);
+            if (Main.hardMode)
+                tooltips.Add(line);
             List<string> currentMountSpeedKey = KeybindSystem.MountSpeed.GetAssignedKeys(0);
+            TooltipLine line2 = new TooltipLine(Mod, "Speed Attribute", Language.GetText("Mods.TF2.UI.Items.Mount.MountInstruction2").Format(currentMountSpeedKey[0]));
             if (currentMountSpeedKey.Count <= 0 || currentMountSpeedKey.Contains("None"))
-            {
-                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction4"))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                if (NPC.downedMoonlord)
-                    tooltips.Add(line2);
-            }
-            else
-            {
-                TooltipLine line2 = new TooltipLine(Mod, "Speed Attributes", Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction2") + " " + currentMountSpeedKey[0] + " " + Language.GetTextValue("Mods.TF2.UI.Items.MountInstruction5"))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                if (NPC.downedMoonlord)
-                    tooltips.Add(line2);
-            }
+                line2 = new TooltipLine(Mod, "Speed Attribute", Language.GetTextValue("Mods.TF2.UI.Items.Mount.MountInstruction2Unassigned"));
+            line2.OverrideColor = new Color(235, 226, 202);
+            if (NPC.downedMoonlord)
+                tooltips.Add(line2);
             if (Item.favorited)
             {
                 TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
+                    OverrideColor = new Color(235, 226, 202)
                 };
                 tooltips.Add(favorite);
                 TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
                 {
-                    OverrideColor = new Color(235, 226, 202, 255)
+                    OverrideColor = new Color(235, 226, 202)
                 };
                 tooltips.Add(favoriteDescription);
-                if (Main.LocalPlayer.chest != -1)
+                if (Main.LocalPlayer.chest > -1)
                 {
                     ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
                     if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
                     {
                         TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
                         {
-                            OverrideColor = new Color(235, 226, 202, 255)
+                            OverrideColor = new Color(235, 226, 202)
                         };
                         tooltips.Add(favorite);
                     }
@@ -376,8 +321,6 @@ namespace TF2.Content.Mounts
             tooltips.Add(journeyModeTooltip);
             tooltips.Remove(journeyResearchTooltip);
         }
-
-        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => false;
     }
 
     public class TF2MountBuff : ModBuff
@@ -408,8 +351,7 @@ namespace TF2.Content.Mounts
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus) return;
-            if (focusModeTexture == null)
-                focusModeTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/Focus");
+            focusModeTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Focus");
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             drawInfo.DrawDataCache.Add(new DrawData(focusModeTexture.Value, position, null, Color.White, 0f, focusModeTexture.Size() * 0.5f, 1f, SpriteEffects.None, 0));
@@ -427,8 +369,7 @@ namespace TF2.Content.Mounts
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus) return;
-            if (focusModeHitboxTexture == null)
-                focusModeHitboxTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/Hitbox");
+            focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Hitbox");
 
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);

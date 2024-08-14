@@ -71,7 +71,7 @@ namespace TF2.Gensokyo.Content.Events
                 text = "You failed!";
             if (Main.netMode == NetmodeID.SinglePlayer)
             {
-                Main.NewText(text, 175, 75, 255);
+                Main.NewText(text, 175, 75);
                 return;
             }
             if (Main.netMode == NetmodeID.Server)
@@ -237,7 +237,7 @@ namespace TF2.Gensokyo.Content.Events
                 int i = NPC.NewNPC(NPC.GetBossSpawnSource(targetPlayer.whoAmI), spawnPositionX, spawnPositionY, type);
                 Main.npc[i].GetGlobalNPC<GensokyoBossRushMarker>().realBoss = true;
                 if (Main.netMode == NetmodeID.SinglePlayer)
-                    Main.NewText(Language.GetTextValue("Announcement.HasAwoken", Main.npc[i].TypeName), 175, 75);
+                    Main.NewText(Language.GetTextValue("Announcement.HasAwoken", Main.npc[i].TypeName), 175, 75, 255);
                 else if (Main.netMode == NetmodeID.Server)
                     ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Announcement.HasAwoken", Main.npc[i].GetTypeNetName()), new Color(175, 75, 255));
                 bossActive = true;
@@ -307,7 +307,7 @@ namespace TF2.Gensokyo.Content.Events
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
         {
             int resourceBarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Invasion Progress Bars"));
-            if (resourceBarIndex != -1)
+            if (resourceBarIndex > -1)
             {
                 layers.Insert(resourceBarIndex, new LegacyGameInterfaceLayer(
                     "TF2: Invasion Progress Bars",
@@ -321,12 +321,7 @@ namespace TF2.Gensokyo.Content.Events
             }
         }
 
-        private static void DrawInterface_15_InvasionProgressBars()
-        {
-            DrawInvasionProgress();
-            // if (Main.HealthBarDrawSettings != 0)
-            // Main.BigBossProgressBar.Draw(Main.spriteBatch);
-        }
+        private static void DrawInterface_15_InvasionProgressBars() => DrawInvasionProgress();// if (Main.HealthBarDrawSettings != 0)// Main.BigBossProgressBar.Draw(Main.spriteBatch);
 
         public static void DrawInvasionProgress()
         {
@@ -371,7 +366,7 @@ namespace TF2.Gensokyo.Content.Events
             int num7 = (int)(200f * num);
             int num8 = (int)(45f * num);
             Vector2 vector3 = new Vector2(Main.screenWidth - 120, Main.screenHeight - 40);
-            Utils.DrawInvBG(R: new Rectangle((int)vector3.X - num7 / 2, (int)vector3.Y - num8 / 2, num7, num8), sb: Main.spriteBatch, c: new Color(63, 65, 151, 255) * 0.785f);
+            Utils.DrawInvBG(R: new Rectangle((int)vector3.X - num7 / 2, (int)vector3.Y - num8 / 2, num7, num8), sb: Main.spriteBatch, c: new Color(63, 65, 151) * 0.785f);
             string text3;
             text3 = totalBosses != 0 ? (int)(bossesDefeated * 100f / totalBosses) + "%" : bossesDefeated.ToString();
             text3 = Language.GetTextValue("Game.WaveCleared", text3);

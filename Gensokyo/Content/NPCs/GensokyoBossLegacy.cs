@@ -354,9 +354,9 @@ namespace TF2.Gensokyo.Content.NPCs
             if ((npc.ModNPC?.Mod == gensokyo || npc.ModNPC?.Mod is TF2) && !npc.friendly)
             {
                 if (revengeance && !death)
-                    npc.damage = (int)(npc.damage * 1.25f);
+                    npc.damage = TF2.Round(NPC.damage * 1.25f);
                 else if (death)
-                    npc.damage = (int)(npc.damage * 2.5f);
+                    npc.damage = TF2.Round(NPC.damage * 2.5f);
             }
         }
         */

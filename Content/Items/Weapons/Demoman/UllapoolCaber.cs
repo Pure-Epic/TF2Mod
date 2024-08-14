@@ -97,7 +97,6 @@ namespace TF2.Content.Items.Weapons.Demoman
                 Dust dust = Dust.NewDustDirect(target.position, target.width, target.height, DustID.Smoke, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 1.4f;
             }
-
             for (int i = 0; i < 80; i++)
             {
                 Dust dust = Dust.NewDustDirect(target.position, target.width, target.height, DustID.Torch, 0f, 0f, 100, default, 3f);
@@ -108,13 +107,6 @@ namespace TF2.Content.Items.Weapons.Demoman
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<PainTrain>()
-                .AddIngredient<ScrapMetal>(2)
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
     }
 }

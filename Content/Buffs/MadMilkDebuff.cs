@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Projectiles.Scout;
 
 namespace TF2.Content.Buffs
 {
@@ -25,31 +24,8 @@ namespace TF2.Content.Buffs
     public class MadMilkPlayer : ModPlayer
     {
         public bool madMilkDebuff;
-        public bool madMilkCooldown;
 
-        public override void ResetEffects()
-        {
-            madMilkDebuff = false;
-            madMilkCooldown = false;
-        }
-
-        public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
-        {
-            if (proj.type == ModContent.ProjectileType<MadMilkProjectile>())
-            {
-                Player.noKnockback = true;
-                Player.statLife += 1;
-                for (int i = 0; i < Player.MaxBuffs; i++)
-                {
-                    int buffTypes = Player.buffType[i];
-                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
-                    {
-                        Player.DelBuff(i);
-                        i = -1;
-                    }
-                }
-            }
-        }
+        public override void ResetEffects() => madMilkDebuff = false;
     }
 
     public class MadMilkNPC : GlobalNPC

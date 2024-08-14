@@ -46,13 +46,12 @@ namespace TF2.Content.UI.HUD.Scout
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _ball = new UIText(TF2HUDSystem.TF2HUDLocalization[0], 0.5f)
+            ball = new UIText(TF2HUDSystem.TF2HUDLocalization[3], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            ball = _ball;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(ball);
@@ -65,8 +64,7 @@ namespace TF2.Content.UI.HUD.Scout
             hitbox.Y += 24;
             hitbox.Width = 44;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * weapon.timer[0] / (float)TF2.Time(10)), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * weapon.timer[0] / (float)TF2.Time(10)), hitbox.Height), Color.White);
         }
     }
 }

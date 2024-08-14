@@ -2,11 +2,11 @@
 using System;
 using System.IO;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TF2.Common;
-using TF2.Content.Projectiles.Medic;
 
 namespace TF2.Content.Buffs
 {
@@ -24,10 +24,10 @@ namespace TF2.Content.Buffs
 
         public override bool RightClick(int buffIndex)
         {
-            TF2Player uber = Main.LocalPlayer.GetModPlayer<TF2Player>();
-            uber.uberChargeTime = 0;
-            uber.uberCharge = 0;
-            uber.activateUberCharge = false;
+            TF2Player p = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            p.uberChargeTime = 0;
+            p.uberCharge = 0;
+            p.activateUberCharge = false;
             return true;
         }
     }
@@ -35,7 +35,7 @@ namespace TF2.Content.Buffs
     public class UberChargePlayer : ModPlayer
     {
         public bool uberCharge;
-        public int uberChargeDuration = 480;
+        public int uberChargeDuration = TF2.Time(8);
 
         public override void ResetEffects()
         {
@@ -45,21 +45,22 @@ namespace TF2.Content.Buffs
 
         public override void PostUpdate()
         {
-            TF2Player uber = Player.GetModPlayer<TF2Player>();
+            TF2Player p = Player.GetModPlayer<TF2Player>();
             if (uberCharge)
             {
                 Player.creativeGodMode = true;
                 SpawnDusts(Player);
             }
-            if (uber.activateUberCharge && Player.HasBuff<UberCharge>())
+            if (p.activateUberCharge && Player.HasBuff<UberCharge>())
             {
-                uber.uberChargeTime++;
-                uber.uberChargeDuration = uberChargeDuration;
-                if (uber.uberChargeTime >= uberChargeDuration)
+                p.uberChargeTime++;
+                p.uberChargeDuration = uberChargeDuration;
+                if (p.uberChargeTime >= uberChargeDuration)
                 {
-                    uber.uberChargeTime = 0;
-                    uber.uberCharge = 0;
-                    uber.activateUberCharge = false;
+                    p.uberChargeTime = 0;
+                    p.uberCharge = 0;
+                    p.activateUberCharge = false;
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_off"), Player.Center);
                 }
             }
         }

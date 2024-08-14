@@ -22,6 +22,8 @@ namespace TF2.Content.Projectiles.Pyro
             Projectile.timeLeft = TF2.Time(1);
             Projectile.alpha = 255;
             Projectile.extraUpdates = 2;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
         }
 
         protected override bool ProjectileDraw(Projectile projectile, ref Color lightColor)
@@ -93,7 +95,7 @@ namespace TF2.Content.Projectiles.Pyro
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
             burntPlayer.damageMultiplier = p.classMultiplier;
             target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10));
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

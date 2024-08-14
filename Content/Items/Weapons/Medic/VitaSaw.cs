@@ -29,6 +29,13 @@ namespace TF2.Content.Items.Weapons.Medic
 
         protected override void WeaponPassiveUpdate(Player player) => TF2Player.SetPlayerHealth(player, -10);
 
+        public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo)
+        {
+            if (!hurtInfo.PvP) return;
+            player.GetModPlayer<TF2Player>().organs++;
+            player.GetModPlayer<TF2Player>().organs = Utils.Clamp(player.GetModPlayer<TF2Player>().organs, 0, 4);
+        }
+
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (target.type == NPCID.TargetDummy) return;
@@ -36,14 +43,7 @@ namespace TF2.Content.Items.Weapons.Medic
             player.GetModPlayer<TF2Player>().organs = Utils.Clamp(player.GetModPlayer<TF2Player>().organs, 0, 4);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Ubersaw>()
-                .AddIngredient<ScrapMetal>(2)
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Ubersaw>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
     }
 
     public class VitaSawPlayer : ModPlayer
@@ -53,7 +53,7 @@ namespace TF2.Content.Items.Weapons.Medic
         public override void PostUpdate()
         {
             int organs = Player.GetModPlayer<TF2Player>().organs;
-            if (!Player.dead && TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>() })?.ModItem is TF2Weapon weapon)
+            if (!Player.dead && TF2.GetItemInHotbar(Player, [ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>()])?.ModItem is TF2Weapon weapon)
                 deathUberCharge = Utils.Clamp(weapon.uberCharge, 0f, weapon.uberChargeCapacity * 0.15f * organs);
         }
     }

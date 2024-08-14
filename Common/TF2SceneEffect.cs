@@ -12,9 +12,9 @@ namespace TF2.Common
 
         public override bool IsSceneEffectActive(Player player)
         {
-            foreach (NPC npc in Main.npc)
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (ModContent.GetInstance<TF2Config>().BossMusic && npc.active && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
+                if (ModContent.GetInstance<TF2Config>().BossMusic && (npc.boss || npc.type == NPCID.EaterofWorldsHead || npc.type == NPCID.EaterofWorldsBody || npc.type == NPCID.EaterofWorldsTail))
                     return true;
             }
             return false;

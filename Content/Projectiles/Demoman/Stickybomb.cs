@@ -65,9 +65,9 @@ namespace TF2.Content.Projectiles.Demoman
                 StartingAI();
             else
                 GroundAI();
-            foreach (NPC npc in Main.npc)
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.boss && !npc.friendly && npc.active && !npc.dontTakeDamage)
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.boss && !npc.friendly && !npc.dontTakeDamage)
                 {
                     TargetWhoAmI = npc.whoAmI;
                     Stick = true;
@@ -90,7 +90,7 @@ namespace TF2.Content.Projectiles.Demoman
         public void StartingAI()
         {
             if (!Stick)
-                Projectile.timeLeft = 3600;
+                Projectile.timeLeft = TF2.Time(60);
             if (Projectile.timeLeft == 0)
             {
                 Stick = true;
@@ -102,13 +102,12 @@ namespace TF2.Content.Projectiles.Demoman
         public void GroundAI()
         {
             if (Projectile.timeLeft > 0)
-                Projectile.timeLeft = 3600;
+                Projectile.timeLeft = TF2.Time(60);
             if (StickOnEnemy)
             {
                 Projectile.tileCollide = false;
-
                 int npcTarget = TargetWhoAmI;
-                if (npcTarget < 0 || npcTarget >= 200)
+                if (npcTarget < 0 || npcTarget >= Main.npc.Length)
                 {
                     Projectile.tileCollide = true;
                     Stick = false;
@@ -135,7 +134,7 @@ namespace TF2.Content.Projectiles.Demoman
             if (StickOnEnemy)
             {
                 int npcIndex = TargetWhoAmI;
-                if (npcIndex >= 0 && npcIndex < 200 && Main.npc[npcIndex].active)
+                if (npcIndex >= 0 && npcIndex < Main.npc.Length && Main.npc[npcIndex].active)
                 {
                     if (Main.npc[npcIndex].behindTiles)
                         behindNPCsAndTiles.Add(index);
@@ -156,8 +155,8 @@ namespace TF2.Content.Projectiles.Demoman
                 velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
                 Player.velocity -= velocity;
                 if (Player.immuneNoBlink) return;
-                int selfDamage = TF2.GetHealth(Player, 80);
-                Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[2]), selfDamage, 0);
+                int selfDamage = TF2.GetHealth(Player, 79.5);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].Format(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
         }
     }

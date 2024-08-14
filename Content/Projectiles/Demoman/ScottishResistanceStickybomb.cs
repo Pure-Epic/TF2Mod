@@ -35,9 +35,9 @@ namespace TF2.Content.Projectiles.Demoman
                 StartingAI();
             else
                 GroundAI();
-            foreach (NPC npc in Main.npc)
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.boss && !npc.friendly && npc.active && !npc.dontTakeDamage)
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.boss && !npc.friendly && !npc.dontTakeDamage)
                 {
                     TargetWhoAmI = npc.whoAmI;
                     Stick = true;

@@ -75,14 +75,7 @@ namespace TF2.Content.Items.Weapons.Heavy
             return true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Sandvich>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandvich>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class DroppedDalokohsBar : DroppedSandvich

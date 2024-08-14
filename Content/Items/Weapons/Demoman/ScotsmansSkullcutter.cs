@@ -15,7 +15,7 @@ namespace TF2.Content.Items.Weapons.Demoman
         {
             SetWeaponCategory(Demoman, Melee, Unique, Craft);
             SetSwingUseStyle(sword: true);
-            SetWeaponDamage(damage: 78, noRandomCriticalHits: true);
+            SetWeaponDamage(damage: 78);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/demo_sword_swing1");
             SetWeaponAttackIntervals(deploy: 1, holster: 1);
@@ -42,13 +42,6 @@ namespace TF2.Content.Items.Weapons.Demoman
 
         protected override void WeaponPassiveUpdate(Player player) => TF2Player.SetPlayerSpeed(player, 85);
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Jarate>()
-                .AddIngredient<Axtinguisher>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>().AddIngredient<Axtinguisher>().AddTile<CraftingAnvil>().Register();
     }
 }

@@ -23,14 +23,14 @@ namespace TF2.Content.Projectiles.Pyro
 
         protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            if (target.HasBuff(ModContent.BuffType<PyroFlames>()) || target.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>()))
-                Player.GetModPlayer<TF2Player>().crit = true;
+            if (TF2.IsPlayerOnFire(target))
+                crit = true;
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (target.HasBuff(ModContent.BuffType<PyroFlames>()) || target.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>()))
-                Player.GetModPlayer<TF2Player>().crit = true;
+            if (TF2.IsNPCOnFire(target))
+                crit = true;
         }
 
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
@@ -39,7 +39,7 @@ namespace TF2.Content.Projectiles.Pyro
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
             burntPlayer.damageMultiplier = p.classMultiplier;
             target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), 450);
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -48,7 +48,7 @@ namespace TF2.Content.Projectiles.Pyro
             PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
             npc.damageMultiplier = p.classMultiplier;
             TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), 450);
+            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5));
         }
     }
 }

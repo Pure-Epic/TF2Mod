@@ -15,7 +15,7 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.NPCs.TownNPCs
 {
-    // [AutoloadHead] and NPC.townNPC are extremely important and absolutely both necessary for any Town NPC to work at all.
+    [ExtendsFromMod("Deprecated Code")]
     [AutoloadHead]
     public class MissPauling : ModNPC
     {
@@ -68,18 +68,16 @@ namespace TF2.Content.NPCs.TownNPCs
             AnimationType = NPCID.Guide;
         }
 
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
-        {
+        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) =>
             // We can use AddRange instead of calling Add multiple times in order to add multiple items at once
-            bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
+            bestiaryEntry.Info.AddRange([
 				// Sets the preferred biomes of this town NPC listed in the bestiary.
 				// With Town NPCs, you usually set this to what biome it likes the most in regards to NPC happiness.
 				BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
 
 				// Sets your NPC's flavor text in the bestiary.
 				new FlavorTextBestiaryInfoElement("Miss Pauling is the assistant of the Administrator. She only got one day off per year, and spent it fighting alongside you!"),
-            });
-        }
+            ]);
 
         public override void HitEffect(NPC.HitInfo hit)
         {

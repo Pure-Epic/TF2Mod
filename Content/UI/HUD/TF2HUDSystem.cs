@@ -15,6 +15,7 @@ using TF2.Content.UI.HUD.Scout;
 using TF2.Content.UI.HUD.Sniper;
 using TF2.Content.UI.HUD.Soldier;
 using TF2.Content.UI.HUD.Spy;
+using TF2.Content.UI.MercenaryCreationMenu;
 
 namespace TF2.Content.UI.HUD
 {
@@ -28,10 +29,8 @@ namespace TF2.Content.UI.HUD
         internal HeavyAmmoHUD heavyAmmoHUD = new HeavyAmmoHUD();
         internal UserInterface heavyAmmoUserInterface = new UserInterface();
 
-        internal SandmanAmmoHUD sandmanAmmoHUD = new SandmanAmmoHUD();
-        internal UserInterface sandmanAmmoHUDUserInterface = new UserInterface();
-        internal SandmanChargeMeterHUD sandmanChargeMeterHUD = new SandmanChargeMeterHUD();
-        internal UserInterface sandmanChargeMeterHUDUserInterface = new UserInterface();
+        internal SodaPopperHUD sodaPopperHUD = new SodaPopperHUD();
+        internal UserInterface sodaPopperHUDUserInterface = new UserInterface();
         internal BonkAtomicPunchAmmoHUD bonkAtomicPunchAmmoHUD = new BonkAtomicPunchAmmoHUD();
         internal UserInterface bonkAtomicPunchAmmoHUDUserInterface = new UserInterface();
         internal BonkAtomicPunchChargeMeterHUD bonkAtomicPunchChargeMeterHUD = new BonkAtomicPunchChargeMeterHUD();
@@ -40,6 +39,10 @@ namespace TF2.Content.UI.HUD
         internal UserInterface madMilkAmmoHUDUserInterface = new UserInterface();
         internal MadMilkChargeMeterHUD madMilkChargeMeterHUD = new MadMilkChargeMeterHUD();
         internal UserInterface madMilkChargeMeterHUDUserInterface = new UserInterface();
+        internal SandmanAmmoHUD sandmanAmmoHUD = new SandmanAmmoHUD();
+        internal UserInterface sandmanAmmoHUDUserInterface = new UserInterface();
+        internal SandmanChargeMeterHUD sandmanChargeMeterHUD = new SandmanChargeMeterHUD();
+        internal UserInterface sandmanChargeMeterHUDUserInterface = new UserInterface();
 
         internal BuffBannerChargeMeterHUD buffBannerChargeMeterHUD = new BuffBannerChargeMeterHUD();
         internal UserInterface buffBannerChargeMeterHUDUserInterface = new UserInterface();
@@ -53,8 +56,8 @@ namespace TF2.Content.UI.HUD
         internal UserInterface stickybombAmountHUDUserInterface = new UserInterface();
         internal ShieldChargeMeterHUD shieldChargeMeterHUD = new ShieldChargeMeterHUD();
         internal UserInterface shieldChargeMeterHUDUserInterface = new UserInterface();
-        internal HeadAmountHUD headAmountHUD = new HeadAmountHUD();
-        internal UserInterface headAmountHUDUserInterface = new UserInterface();
+        internal EyelanderHeadAmountHUD eyelanderHeadAmountHUD = new EyelanderHeadAmountHUD();
+        internal UserInterface eyelanderHeadAmountHUDUserInterface = new UserInterface();
 
         internal SandvichAmmoHUD sandvichAmmoHUD = new SandvichAmmoHUD();
         internal UserInterface sandvichAmmoHUDUserInterface = new UserInterface();
@@ -63,13 +66,25 @@ namespace TF2.Content.UI.HUD
 
         internal MetalHUD metalHUD = new MetalHUD();
         internal UserInterface metalHUDUserInterface = new UserInterface();
+        internal SentryHUD sentryHUD = new SentryHUD();
+        internal UserInterface sentryHUDUserInterface = new UserInterface();
+        internal DispenserHUD dispenserHUD = new DispenserHUD();
+        internal UserInterface dispenserHUDUserInterface = new UserInterface();
+        internal TeleporterEntranceHUD teleporterEntranceHUD = new TeleporterEntranceHUD();
+        internal UserInterface teleporterEntranceHUDUserInterface = new UserInterface();
+        internal TeleporterExitHUD teleporterExitHUD = new TeleporterExitHUD();
+        internal UserInterface teleporterExitHUDUserInterface = new UserInterface();
+        internal ConstructionPDAHUD constructionPDAHUD = new ConstructionPDAHUD();
+        internal UserInterface constructionPDAHUDUserInterface = new UserInterface();
+        internal DestructionPDAHUD destructionPDAHUD = new DestructionPDAHUD();
+        internal UserInterface destructionPDAHUDUserInterface = new UserInterface();
         internal RevengeAmountHUD revengeAmountHUD = new RevengeAmountHUD();
         internal UserInterface revengeAmountHUDUserInterface = new UserInterface();
 
-        internal UberchargeHUD uberchargeHUD = new UberchargeHUD();
-        internal UserInterface uberchargeHUDUserInterface = new UserInterface();
         internal CrusadersCrossbowAmmoHUD crusadersCrossbowHUD = new CrusadersCrossbowAmmoHUD();
         internal UserInterface crusadersCrossbowAmmoHUDUserInterface = new UserInterface();
+        internal UberchargeHUD uberchargeHUD = new UberchargeHUD();
+        internal UserInterface uberchargeHUDUserInterface = new UserInterface();
         internal OrganAmountHUD organAmountHUD = new OrganAmountHUD();
         internal UserInterface organAmountHUDUserInterface = new UserInterface();
 
@@ -77,6 +92,8 @@ namespace TF2.Content.UI.HUD
         internal UserInterface sniperRifleAmmoHUDUserInterface = new UserInterface();
         internal HuntsmanAmmoHUD huntsmanAmmoHUD = new HuntsmanAmmoHUD();
         internal UserInterface huntsmanAmmoHUDUserInterface = new UserInterface();
+        internal BazaarBargainHeadAmountHUD bazaarBargainHeadAmountHUD = new BazaarBargainHeadAmountHUD();
+        internal UserInterface bazaarBargainHeadAmountHUDUserInterface = new UserInterface();
         internal JarateAmmoHUD jarateAmmoHUD = new JarateAmmoHUD();
         internal UserInterface jarateAmmoHUDUserInterface = new UserInterface();
         internal JarateChargeMeterHUD jarateChargeMeterHUD = new JarateChargeMeterHUD();
@@ -96,7 +113,7 @@ namespace TF2.Content.UI.HUD
         public static void DrawHUD(List<GameInterfaceLayer> layers, UserInterface ui)
         {
             int resourceBarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Resource Bars"));
-            if (resourceBarIndex != -1)
+            if (resourceBarIndex > -1)
             {
                 layers.Insert(resourceBarIndex, new LegacyGameInterfaceLayer(
                     "TF2: Ammo Bar",
@@ -112,10 +129,12 @@ namespace TF2.Content.UI.HUD
 
         public override void Load()
         {
-            TF2HUDLocalization = new LocalizedText[]
-            {
-                Language.GetText("Mods.TF2.UI.HUD.Scout.Ball"),
+            TF2HUDLocalization =
+            [
+                Language.GetText("Mods.TF2.UI.HUD.Scout.Hype"),
+                Language.GetText("Mods.TF2.UI.HUD.Scout.Boost"),
                 Language.GetText("Mods.TF2.UI.HUD.Scout.Drink"),
+                Language.GetText("Mods.TF2.UI.HUD.Scout.Ball"),
                 Language.GetText("Mods.TF2.UI.HUD.Soldier.Rage"),
                 Language.GetText("Mods.TF2.UI.HUD.Demoman.Charge"),
                 Language.GetText("Mods.TF2.UI.HUD.Demoman.Heads"),
@@ -127,74 +146,90 @@ namespace TF2.Content.UI.HUD
                 Language.GetText("Mods.TF2.UI.HUD.Sniper.Razorback"),
                 Language.GetText("Mods.TF2.UI.HUD.Spy.Cloak"),
                 Language.GetText("Mods.TF2.UI.HUD.Spy.Motion"),
-                Language.GetText("Mods.TF2.UI.HUD.Spy.Feign"),
-            };
+                Language.GetText("Mods.TF2.UI.HUD.Spy.Feign")
+            ];
             if (!Main.dedServ)
             {
-                hudType = new TF2HUD[]
-                {
+                hudType =
+                [
                     ammoHUD,
                     heavyAmmoHUD,
-                    sandmanAmmoHUD,
-                    sandmanChargeMeterHUD,
+                    sodaPopperHUD,
                     bonkAtomicPunchAmmoHUD,
                     bonkAtomicPunchChargeMeterHUD,
                     madMilkAmmoHUD,
                     madMilkChargeMeterHUD,
+                    sandmanAmmoHUD,
+                    sandmanChargeMeterHUD,
                     buffBannerChargeMeterHUD,
                     flareGunAmmoHUD,
                     stickybombLauncherAmmoHUD,
                     stickybombAmountHUD,
                     shieldChargeMeterHUD,
-                    headAmountHUD,
+                    eyelanderHeadAmountHUD,
                     sandvichAmmoHUD,
                     sandvichChargeMeterHUD,
                     metalHUD,
+                    sentryHUD,
+                    dispenserHUD,
+                    teleporterEntranceHUD,
+                    teleporterExitHUD,
+                    constructionPDAHUD,
+                    destructionPDAHUD,
                     revengeAmountHUD,
-                    uberchargeHUD,
                     crusadersCrossbowHUD,
+                    uberchargeHUD,
                     organAmountHUD,
                     sniperRifleAmmoHUD,
                     huntsmanAmmoHUD,
+                    bazaarBargainHeadAmountHUD,
                     jarateAmmoHUD,
                     jarateChargeMeterHUD,
                     razorbackChargeMeterHUD,
                     invisWatchChargeMeterHUD,
                     cloakAndDaggerChargeMeterHUD,
                     deadRingerChargeMeterHUD
-                };
-                userInterfaces = new UserInterface[]
-                {
+                ];
+                userInterfaces =
+                [
                     ammoHUDUserInterface,
                     heavyAmmoUserInterface,
-                    sandmanAmmoHUDUserInterface,
-                    sandmanChargeMeterHUDUserInterface,
+                    sodaPopperHUDUserInterface,
                     bonkAtomicPunchAmmoHUDUserInterface,
                     bonkAtomicPunchChargeMeterHUDUserInterface,
                     madMilkAmmoHUDUserInterface,
                     madMilkChargeMeterHUDUserInterface,
+                    sandmanAmmoHUDUserInterface,
+                    sandmanChargeMeterHUDUserInterface,
                     buffBannerChargeMeterHUDUserInterface,
                     flareGunAmmoHUDUserInterface,
                     stickybombLauncherAmmoHUDUserInterface,
                     stickybombAmountHUDUserInterface,
                     shieldChargeMeterHUDUserInterface,
-                    headAmountHUDUserInterface,
+                    eyelanderHeadAmountHUDUserInterface,
                     sandvichAmmoHUDUserInterface,
                     sandvichChargeMeterHUDUserInterface,
                     metalHUDUserInterface,
+                    sentryHUDUserInterface,
+                    dispenserHUDUserInterface,
+                    teleporterEntranceHUDUserInterface,
+                    teleporterExitHUDUserInterface,
+                    constructionPDAHUDUserInterface,
+                    destructionPDAHUDUserInterface,
                     revengeAmountHUDUserInterface,
-                    uberchargeHUDUserInterface,
                     crusadersCrossbowAmmoHUDUserInterface,
+                    uberchargeHUDUserInterface,
                     organAmountHUDUserInterface,
                     sniperRifleAmmoHUDUserInterface,
                     huntsmanAmmoHUDUserInterface,
+                    bazaarBargainHeadAmountHUDUserInterface,
                     jarateAmmoHUDUserInterface,
                     jarateChargeMeterHUDUserInterface,
                     razorbackChargeMeterHUDUserInterface,
                     invisWatchChargeMeterHUDUserInterface,
                     cloakAndDaggerChargeMeterHUDUserInterface,
                     deadRingerChargeMeterHUDUserInterface
-                };
+                ];
                 var fullHUD = hudType.Zip(userInterfaces, (hud, ui) => new { HUD = hud, UI = ui });
                 foreach (var eachHUD in fullHUD)
                     eachHUD.UI.SetState(eachHUD.HUD);

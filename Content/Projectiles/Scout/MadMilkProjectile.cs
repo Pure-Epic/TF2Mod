@@ -54,21 +54,21 @@ namespace TF2.Content.Projectiles.Scout
 
         private void CheckCollision()
         {
-            foreach (NPC npc in Main.npc)
+            foreach (Player player in Main.ActivePlayers)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                {
-                    HitNPC(npc);
-                    Projectile.Kill();
-                }
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner)
                 {
                     HitPlayer(player);
                     if (Main.netMode != NetmodeID.SinglePlayer)
                         NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
+                    Projectile.Kill();
+                }
+            }
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (Projectile.Hitbox.Intersects(npc.Hitbox))
+                {
+                    HitNPC(npc);
                     Projectile.Kill();
                 }
             }
@@ -76,19 +76,19 @@ namespace TF2.Content.Projectiles.Scout
 
         private void FinalCollision()
         {
-            foreach (NPC npc in Main.npc)
+            foreach (Player player in Main.ActivePlayers)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
-                    HitNPC(npc);
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.active)
+                if (Projectile.Hitbox.Intersects(player.Hitbox))
                 {
                     HitPlayer(player);
                     if (Main.netMode != NetmodeID.SinglePlayer)
                         NetMessage.SendData(MessageID.SyncPlayer, number: player.whoAmI);
                 }
+            }
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (Projectile.Hitbox.Intersects(npc.Hitbox))
+                    HitNPC(npc);
             }
             Projectile.Kill();
         }
@@ -120,7 +120,7 @@ namespace TF2.Content.Projectiles.Scout
         protected virtual void HitPlayer(Player targetPlayer)
         {
             if (targetPlayer.hostile)
-                targetPlayer.AddBuff(ModContent.BuffType<MadMilkDebuff>(), TF2.Time(10));
+                targetPlayer.AddBuff(ModContent.BuffType<MadMilkDebuff>(), TF2.Time(10), false);
             else
             {
                 for (int i = 0; i < Player.MaxBuffs; i++)

@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Projectiles.Sniper;
 
 namespace TF2.Content.Buffs
 {
@@ -24,31 +23,8 @@ namespace TF2.Content.Buffs
     public class JaratePlayer : ModPlayer
     {
         public bool jarateDebuff;
-        public bool jarateCooldown;
 
-        public override void ResetEffects()
-        {
-            jarateDebuff = false;
-            jarateCooldown = false;
-        }
-
-        public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
-        {
-            if (proj.type == ModContent.ProjectileType<JarateProjectile>())
-            {
-                Player.noKnockback = true;
-                Player.statLife += 1;
-                for (int i = 0; i < Player.MaxBuffs; i++)
-                {
-                    int buffTypes = Player.buffType[i];
-                    if (Main.debuff[buffTypes] && Player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
-                    {
-                        Player.DelBuff(i);
-                        i = -1;
-                    }
-                }
-            }
-        }
+        public override void ResetEffects() => jarateDebuff = false;
     }
 
     public class JarateNPC : GlobalNPC
@@ -58,6 +34,13 @@ namespace TF2.Content.Buffs
         public bool jarateDebuff;
         public Color initialColor;
         public bool colorInitialized;
+
+        public override void ResetEffects(NPC npc)
+        {
+            jarateDebuff = false;
+            if (colorInitialized)
+                npc.color = initialColor;
+        }
 
         public override void AI(NPC npc)
         {
@@ -72,13 +55,6 @@ namespace TF2.Content.Buffs
                 initialColor = npc.color;
                 colorInitialized = true;
             }
-        }
-
-        public override void ResetEffects(NPC npc)
-        {
-            jarateDebuff = false;
-            if (colorInitialized)
-                npc.color = initialColor;
         }
     }
 }

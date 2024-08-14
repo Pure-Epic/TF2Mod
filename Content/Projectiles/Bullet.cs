@@ -22,8 +22,7 @@ namespace TF2.Content.Projectiles
         protected override bool ProjectilePreAI()
         {
             if (projectileInitialized) return true;
-            TF2Player p = Player.GetModPlayer<TF2Player>();
-            Projectile.penetrate = p.pierce;
+            Projectile.penetrate = Player.GetModPlayer<TF2Player>().pierce;
             projectileInitialized = true;
             return true;
         }

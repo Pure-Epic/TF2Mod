@@ -36,15 +36,14 @@ namespace TF2.Content.UI.HUD.Engineer
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _metal = new UIText("", 0.6f, true)
+            metal = new UIText("", 0.6f, true)
             {
-                HAlign = 0.75f,
+                HAlign = 0.5f,
                 VAlign = 0.5f,
-                Left = StyleDimension.FromPixels(27.5f),
+                Left = StyleDimension.FromPixels(-15f),
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            metal = _metal;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(metal);
@@ -52,8 +51,7 @@ namespace TF2.Content.UI.HUD.Engineer
         protected override void HUDUpdate(GameTime gameTime)
         {
             metal.SetText(Player.GetModPlayer<TF2Player>().metal.ToString());
-            metal.Left = StyleDimension.FromPixels(27.5f - FontAssets.DeathText.Value.MeasureString(metal.Text).X / 2.5f);
-            //area.Top = StyleDimension.FromPixels(!TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<FrontierJustice>()) ? 80f : 151f);
+            metal.Left = StyleDimension.FromPixels(FontAssets.DeathText.Value.MeasureString(metal.Text).X / 3.33333f - 15f);
         }
     }
 }

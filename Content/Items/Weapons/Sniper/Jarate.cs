@@ -10,7 +10,7 @@ namespace TF2.Content.Items.Weapons.Sniper
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Sniper, Secondary, Unique, Unlock);
-            SetWeaponSize();
+            SetWeaponSize(27, 50);
             SetThrowableUseStyle();
             SetWeaponDamage(projectile: ModContent.ProjectileType<JarateProjectile>());
             SetWeaponAttackSpeed(0.5, hide: true);

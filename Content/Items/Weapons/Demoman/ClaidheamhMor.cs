@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Buffs;
 using TF2.Content.Items.Weapons.Pyro;
 using TF2.Content.Tiles.Crafting;
 
@@ -40,67 +39,38 @@ namespace TF2.Content.Items.Weapons.Demoman
             player.itemLocation = player.MountedCenter + Vector2.UnitX.RotatedBy(currentAngle);
         }
 
-        protected override void WeaponPassiveUpdate(Player player)
-        {
-            player.GetModPlayer<ClaidheamhMorPlayer>().claidheamhMorInInventory = true;
-            ShieldPlayer shield = player.GetModPlayer<TF2Player>().shieldType switch
-            {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>(),
-            };
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<ClaidheamhMorPlayer>().claidheamhMorEquipped = true;
 
-            if (player.GetModPlayer<ClaidheamhMorPlayer>().claidheamhMorInInventory && timer[0] == 1 && !shield.chargeActive)
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
+        {
+            if (player.GetModPlayer<TF2Player>().crit)
             {
-                shield.timer += (int)(shield.shieldRechargeTime * 0.25f);
-                timer[0] = 0;
+                ShieldPlayer shield = ShieldPlayer.GetShield(player);
+                shield.timer += TF2.Round(shield.ShieldRechargeTime * 0.25f);
             }
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.crit || p.critMelee)
+            if (player.GetModPlayer<TF2Player>().crit)
             {
-                timer[0] = 1;
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            }
-            else
-                modifiers.DisableCrit();
-        }
-
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
-        {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.crit || p.critMelee)
-            {
-                timer[0] = 1;
-                if (p.critMelee)
-                    p.crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+                ShieldPlayer shield = ShieldPlayer.GetShield(player);
+                shield.timer += TF2.Round(shield.ShieldRechargeTime * 0.25f);
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Homewrecker>()
-                .AddIngredient<CharginTarge>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Homewrecker>().AddIngredient<CharginTarge>().AddTile<CraftingAnvil>().Register();
     }
 
     public class ClaidheamhMorPlayer : ModPlayer
     {
-        public bool claidheamhMorInInventory;
+        public bool claidheamhMorEquipped;
 
-        public override void ResetEffects() => claidheamhMorInInventory = false;
+        public override void ResetEffects() => claidheamhMorEquipped = false;
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (claidheamhMorInInventory)
+            if (claidheamhMorEquipped)
                 modifiers.FinalDamage *= 1.15f;
         }
     }

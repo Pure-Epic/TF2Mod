@@ -29,18 +29,17 @@ namespace TF2.Content.Items.Weapons.Demoman
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            p.hasShield = true;
             p.shieldType = 1;
-
             CharginTargePlayer shield = player.GetModPlayer<CharginTargePlayer>();
             if (shield.chargeActive && !shield.chargeProjectileCreated)
             {
                 Vector2 chargeDirection = player.DirectionTo(Main.MouseWorld);
-                float speed = 25f;
-                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((50 + player.GetModPlayer<EyelanderPlayer>().heads) * p.classMultiplier), 0f, player.whoAmI);
+                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((50f + player.GetModPlayer<EyelanderPlayer>().heads * 5f) * p.classMultiplier), 0f, player.whoAmI);
                 if (p.miniCrit)
+                {
                     projectile.miniCrit = true;
-                player.velocity = chargeDirection * speed;
+                    projectile.Projectile.netUpdate = true;
+                }
                 TF2.SetPlayerDirection(player);
                 shield.chargeProjectileCreated = true;
                 for (int i = 0; i < Player.MaxBuffs; i++)
@@ -58,8 +57,11 @@ namespace TF2.Content.Items.Weapons.Demoman
 
     public abstract class ShieldPlayer : ModPlayer
     {
-        public int shieldRechargeTime = 720;
-        public int chargeDuration = 90;
+        public virtual int ShieldRechargeTime => TF2.Time(12);
+
+        public virtual int BaseChargeDuration => TF2.Time(1.5);
+
+        public int chargeDuration = TF2.Time(1.5);
         public int timer;
         public bool activateGracePeriod;
         public bool chargeActive;
@@ -67,46 +69,56 @@ namespace TF2.Content.Items.Weapons.Demoman
         public bool chargeProjectileCreated;
         public int buffDelay;
 
+        public virtual void ShieldUpdate()
+        { }
+
         public override void PostUpdate()
         {
-            SafePostUpdate();
-            if (Player.GetModPlayer<TF2Player>().hasShield && !chargeActive)
+            ShieldUpdate();
+            if (Player.GetModPlayer<TF2Player>().HasShield && !chargeActive)
                 timer++;               
             else
                 timer = 0;
-            timer = Utils.Clamp(timer, 0, shieldRechargeTime);
+            timer = Utils.Clamp(timer, 0, ShieldRechargeTime);
             if (!activateGracePeriod) return;
             buffDelay++;
-            if (buffDelay >= 30)
+            if (buffDelay >= TF2.Time(0.5))
             {
                 Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
                 buffDelay = 0;
             }
         }
 
-        public virtual void SafePostUpdate()
-        { }
+        public static ShieldPlayer GetShield(Player player)
+        {
+            return player.GetModPlayer<TF2Player>().shieldType switch
+            {
+                1 => player.GetModPlayer<CharginTargePlayer>(),
+                2 => player.GetModPlayer<SplendidScreenPlayer>(),
+                _ => player.GetModPlayer<CharginTargePlayer>()
+            };
+        }
     }
 
     public class CharginTargePlayer : ShieldPlayer
     {
-        public override void SafePostUpdate() => shieldRechargeTime = 720;
-
         public override void ModifyHitByNPC(NPC npc, ref Player.HurtModifiers modifiers)
         {
-            if (Player.GetModPlayer<TF2Player>().hasShield && Player.GetModPlayer<TF2Player>().shieldType == 1)
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            if (p.shieldType == 1)
                 modifiers.FinalDamage *= 0.5f;
         }
 
         public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
         {
-            if (Player.GetModPlayer<TF2Player>().hasShield && Player.GetModPlayer<TF2Player>().shieldType == 1)
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            if (p.shieldType == 1)
                 modifiers.FinalDamage *= 0.7f;
         }
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (KeybindSystem.ShieldCharge.JustPressed && timer >= shieldRechargeTime)
+            if (KeybindSystem.ShieldCharge.JustPressed && timer >= ShieldRechargeTime)
             {
                 chargeActive = true;
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/demoman_charge_windup1"), Player.Center);

@@ -35,15 +35,14 @@ namespace TF2.Content.Buffs
         {
             if (lifeRegenDebuff)
             {
-                if (Player.lifeRegen > 0)
-                    Player.lifeRegen = 0;
+                TF2.Maximum(ref Player.lifeRegen, 0);
                 Player.lifeRegenTime = 0;
-                if (timer >= 60)
+                if (timer >= TF2.Time(1))
                 {
-                    Player.statLife -= (int)(25 * damageMultiplier);
+                    Player.statLife -= TF2.Round(25 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(25 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
-                        Player.KillMe(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[5]), (int)(4 * damageMultiplier), 0);
+                        Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[6].Format(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
             }
@@ -65,12 +64,11 @@ namespace TF2.Content.Buffs
             if (lifeRegenDebuff)
             {
                 timer++;
-                if (npc.lifeRegen > 0)
-                    npc.lifeRegen = 0;
-                if (timer >= 60)
+                TF2.Maximum(ref npc.lifeRegen, 0);
+                if (timer >= TF2.Time(1))
                 {
                     npc.velocity = new Vector2(0f, 0f);
-                    npc.life -= (int)(25 * damageMultiplier);
+                    npc.life -= TF2.Round(25 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height), CombatText.LifeRegenNegative, (int)(25 * damageMultiplier), dramatic: false, dot: true);
                     npc.checkDead();
                     if (Main.netMode != NetmodeID.SinglePlayer)

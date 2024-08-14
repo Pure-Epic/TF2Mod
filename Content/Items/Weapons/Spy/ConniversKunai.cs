@@ -34,13 +34,6 @@ namespace TF2.Content.Items.Weapons.Spy
             player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<CloakAndDagger>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

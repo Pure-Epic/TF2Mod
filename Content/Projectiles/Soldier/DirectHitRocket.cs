@@ -39,8 +39,8 @@ namespace TF2.Content.Projectiles.Soldier
                 velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
                 Player.velocity -= velocity;
                 if (Player.immuneNoBlink) return;
-                int selfDamage = TF2.GetHealth(Player, 58);
-                Player.Hurt(PlayerDeathReason.ByCustomReason(Player.name + " " + TF2.TF2DeathMessagesLocalization[2]), selfDamage, 0);
+                int selfDamage = TF2.GetHealth(Player, 36.5);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].Format(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
         }
     }

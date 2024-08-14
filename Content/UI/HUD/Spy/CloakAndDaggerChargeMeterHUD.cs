@@ -35,13 +35,12 @@ namespace TF2.Content.UI.HUD.Spy
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _cloak = new UIText(TF2HUDSystem.TF2HUDLocalization[12], 0.5f)
+            cloak = new UIText(TF2HUDSystem.TF2HUDLocalization[14], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            cloak = _cloak;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(cloak);
@@ -54,8 +53,7 @@ namespace TF2.Content.UI.HUD.Spy
             hitbox.Y += 24;
             hitbox.Width = 44;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * (float)cloakAndDaggerPlayer.cloakMeter / cloakAndDaggerPlayer.cloakMeterMax), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * (float)cloakAndDaggerPlayer.cloakMeter / cloakAndDaggerPlayer.cloakMeterMax), hitbox.Height), Color.White);
         }
     }
 }

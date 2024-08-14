@@ -41,7 +41,7 @@ namespace TF2.Content.UI.HUD
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _currentAmmo = new UIText("", 1f, true)
+            currentAmmo = new UIText("", 1f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
@@ -50,8 +50,7 @@ namespace TF2.Content.UI.HUD
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            currentAmmo = _currentAmmo;
-            UIText _maxAmmo = new UIText("", 0.5f, true)
+            currentAmmoReserve = new UIText("", 0.5f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
@@ -60,7 +59,6 @@ namespace TF2.Content.UI.HUD
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            currentAmmoReserve = _maxAmmo;
         }
 
         protected override void HUDPostInitialize(UIElement area)

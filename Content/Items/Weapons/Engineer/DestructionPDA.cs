@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework.Input;
+using System.Linq;
 using Terraria;
-using Terraria.Audio;
-using Terraria.ID;
-using Terraria.ModLoader;
-using TF2.Content.NPCs;
+using TF2.Common;
 
 namespace TF2.Content.Items.Weapons.Engineer
 {
@@ -14,37 +12,28 @@ namespace TF2.Content.Items.Weapons.Engineer
             SetWeaponCategory(Engineer, PDA2, Stock, Starter);
             SetWeaponSize(50, 50);
             SetPDAUseStyle();
-            SetWeaponAttackSpeed(1, hide: true);
-            SetWeaponAttackIntervals(altClick: true, noAmmo: true);
         }
 
-        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
+        public override bool WeaponCanBeUsed(Player player) => false;
 
-        protected override bool? WeaponOnUse(Player player)
+        protected override void WeaponActiveUpdate(Player player)
         {
-            int sentry = player.GetModPlayer<EngineerBuildings>().sentryWhoAmI;
-            int dispenser = player.GetModPlayer<EngineerBuildings>().dispenserWhoAmI;
-            if (player.altFunctionUse != 2)
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.currentClass == Engineer)
             {
-                if (Main.netMode != NetmodeID.SinglePlayer) return false;
-                if (sentry != -1 && sentry <= Main.npc.Length && Main.npc[sentry].ModNPC is Sentry)
+                Keys[] keybind = [Keys.D1, Keys.D2, Keys.D3, Keys.D4];
+                bool keyDown = false;
+                for (int i = 0; i < 4; i++)
                 {
-                    Main.npc[sentry].ModNPC.NPC.active = false;
-                    player.GetModPlayer<EngineerBuildings>().sentryWhoAmI = -1;
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode"), player.Center);
+                    if (Main.keyState.GetPressedKeys().Contains(keybind[i]))
+                    {
+                        keyDown = true;
+                        break;
+                    }
                 }
+                p.lockPDA = keyDown;
             }
-            else
-            {
-                if (Main.netMode != NetmodeID.SinglePlayer) return false;
-                if (dispenser != -1 && dispenser <= Main.npc.Length && Main.npc[dispenser].ModNPC is Dispenser)
-                {
-                    Main.npc[dispenser].ModNPC.NPC.active = false;
-                    player.GetModPlayer<EngineerBuildings>().dispenserWhoAmI = -1;
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/dispenser_explode"), player.Center);
-                }
-            }
-            return true;
+            base.WeaponActiveUpdate(player);
         }
     }
 }

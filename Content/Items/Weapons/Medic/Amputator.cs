@@ -5,6 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Materials;
+using TF2.Content.NPCs.Buddies;
 using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Medic
@@ -62,17 +63,28 @@ namespace TF2.Content.Items.Weapons.Medic
                 timer[2]++;
                 if (timer[2] >= TF2.Time(0.25))
                 {
-                    for (int i = 0; i < Main.maxPlayers; i++)
+                    foreach (Player healedPlayer in Main.ActivePlayers)
                     {
-                        Player healedPlayer = Main.player[i];
-                        if (!TF2Player.IsHealthFull(healedPlayer) && healedPlayer.active && !healedPlayer.dead)
+                        if (!TF2Player.IsHealthFull(healedPlayer) && !healedPlayer.dead)
                         {
                             TF2Player p = healedPlayer.GetModPlayer<TF2Player>();
                             int healingAmount = TF2.Round(TF2.GetHealth(healedPlayer, 6.25) * p.healReduction);
                             healedPlayer.Heal(healingAmount);
-                            if (Main.netMode != NetmodeID.SinglePlayer && healedPlayer != player)
-                                healedPlayer.HealEffect(healingAmount);
                             NetMessage.SendData(MessageID.SpiritHeal, number: healedPlayer.whoAmI, number2: healingAmount);
+                            for (int j = 0; j < player.inventory.Length; j++)
+                            {
+                                Item item = player.inventory[j];
+                                if (item.ModItem is TF2Weapon weapon && weapon.GetWeaponMechanic("Medi Gun"))
+                                    weapon.uberCharge += TF2.Round(healingAmount * weapon.uberChargeCapacity / 100f * 0.1275510204f);
+                            }
+                        }
+                    }
+                    foreach (NPC healedNPC in Main.ActiveNPCs)
+                    {
+                        if (healedNPC.life < healedNPC.lifeMax && healedNPC.ModNPC is MercenaryBuddy buddy)
+                        {
+                            int healingAmount = TF2.Round(healedNPC.lifeMax / buddy.BaseHealth * 6.25f);
+                            buddy.Heal(healingAmount);
                             for (int j = 0; j < player.inventory.Length; j++)
                             {
                                 Item item = player.inventory[j];
@@ -96,13 +108,6 @@ namespace TF2.Content.Items.Weapons.Medic
             }
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<VitaSaw>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<VitaSaw>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

@@ -37,13 +37,6 @@ namespace TF2.Content.Items.Weapons.Scout
 
         public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo) => target.AddBuff(ModContent.BuffType<MarkedForDeath>(), TF2.Time(15));
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<MadMilk>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<MadMilk>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

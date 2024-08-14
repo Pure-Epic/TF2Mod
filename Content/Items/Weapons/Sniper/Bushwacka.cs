@@ -35,14 +35,7 @@ namespace TF2.Content.Items.Weapons.Sniper
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<BushwackaPlayer>().bushwackaEquipped = true;
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Eyelander>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Eyelander>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class BushwackaPlayer : ModPlayer

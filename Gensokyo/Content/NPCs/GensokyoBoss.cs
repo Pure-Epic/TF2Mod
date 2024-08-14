@@ -318,10 +318,7 @@ namespace TF2.Gensokyo.Content.NPCs
             }
         }
 
-        protected virtual bool CanChangeStage()
-        {
-            return true;
-        }
+        protected virtual bool CanChangeStage() => true;
         #endregion
 
         #region MoveWindup
@@ -332,20 +329,14 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Also requires you to use MoveWindupCompleted()
         /// Returns false by default.
         /// </summary>
-        protected virtual bool HasMoveWindup()
-        {
-            return false;
-        }
+        protected virtual bool HasMoveWindup() => false;
 
         /// <summary>
         /// Used for executing the MoveWindUp, once the windup
         /// is completed return true.
         /// Returns true by default.
         /// </summary>
-        protected virtual bool MoveWindUpComplete()
-        {
-            return true;
-        }
+        protected virtual bool MoveWindUpComplete() => true;
         #endregion
 
         #region Move
@@ -354,43 +345,31 @@ namespace TF2.Gensokyo.Content.NPCs
         /// if it has no movement, MovePrepare and Move states
         /// are not executed.
         /// </summary>
-        protected virtual bool HasMove()
-        {
-            return MoveType() != MoveType_None;
-        }
+        protected virtual bool HasMove() => MoveType() != MoveType_None;
 
         /// <summary>
         /// Determines which Movement Type this phase should use
         /// Returns MoveType_Straight by default.
         /// </summary>
-        protected virtual int MoveType()
+        protected virtual int MoveType() => Phase switch
         {
-            return Phase switch
-            {
-                Phase_SpawnMove or Phase_DefaultStageMove => MoveType_Follow,
-                _ => MoveType_None,
-            };
-        }
+            Phase_SpawnMove or Phase_DefaultStageMove => MoveType_Follow,
+            _ => MoveType_None,
+        };
 
         /// <summary>
         /// Determines if the MoveDestination needs to be updated
         /// outside MovePrepare. Used for Follow and Orbit movetype
         /// </summary>
         /// <returns></returns>
-        protected virtual bool MoveUpdateDestination()
-        {
-            return (State == State_Move && MoveType() is MoveType_Follow or MoveType_Orbit)
+        protected virtual bool MoveUpdateDestination() => (State == State_Move && MoveType() is MoveType_Follow or MoveType_Orbit)
                 || (State == State_Slowdown && SlowdownType() is MoveType_Follow or MoveType_Orbit);
-        }
 
         /// <summary>
         /// Get the move destination. By default this returns the
         /// TargetCenter. Can be used to set a fixed MoveDestination.
         /// </summary>
-        protected virtual Vector2 GetMoveDestination()
-        {
-            return TargetCenter;
-        }
+        protected virtual Vector2 GetMoveDestination() => TargetCenter;
 
         /// <summary>
         /// Determines if the current movement uses an additional
@@ -398,10 +377,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// is not MoveType_Orbit.
         /// </summary>
         /// <returns></returns>
-        protected virtual bool MoveUseOffset()
-        {
-            return MoveType() != MoveType_Orbit;
-        }
+        protected virtual bool MoveUseOffset() => MoveType() != MoveType_Orbit;
 
         /// <summary>
         /// Get an offset around the destination position chosen in 
@@ -425,10 +401,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// position and direction based on the targets velocity.
         /// Returns true if the MoveType is set to MoveType_Follow.
         /// </summary>
-        protected virtual bool MoveUsePrediction()
-        {
-            return MoveType() == MoveType_Follow;
-        }
+        protected virtual bool MoveUsePrediction() => MoveType() == MoveType_Follow;
 
         /// <summary>
         /// Determines if the movement can be ended early.
@@ -438,10 +411,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// execute attack. Returns false by default.
         /// </summary>
         /// <returns></returns>
-        protected virtual bool MoveCanEndEarly()
-        {
-            return false;
-        }
+        protected virtual bool MoveCanEndEarly() => false;
 
         /// <summary>
         /// Place your end-early conditions
@@ -449,19 +419,13 @@ namespace TF2.Gensokyo.Content.NPCs
         /// when true is returned in this hook the movement
         /// will be cancelled. Returns false by default.
         /// </summary>
-        protected virtual bool MoveEndEarlyComplete()
-        {
-            return false;
-        }
+        protected virtual bool MoveEndEarlyComplete() => false;
 
         /// <summary>
         /// The Minimum move time of this phase.
         /// Returns MovePhaseDuration[Stage] by default.
         /// </summary>
-        protected virtual int MoveMinimumTime()
-        {
-            return MovePhaseDuration[Stage];
-        }
+        protected virtual int MoveMinimumTime() => MovePhaseDuration[Stage];
 
         /// <summary>
         /// The Maximum move time of this phase.
@@ -484,38 +448,26 @@ namespace TF2.Gensokyo.Content.NPCs
         /// The Maximum move speed of this phase.
         /// Returns 10f by default;
         /// </summary>
-        protected virtual float MoveMaximumSpeed()
-        {
-            return MovespeedMax;
-        }
+        protected virtual float MoveMaximumSpeed() => MovespeedMax;
 
         /// <summary>
         /// The Acceleration rate used for this phase.
         /// Returns 1.075f by default.
         /// </summary>
-        protected virtual float MoveAccelerationRate()
-        {
-            return 1.075f;
-        }
+        protected virtual float MoveAccelerationRate() => 1.075f;
 
         /// <summary>
         /// The Deceleration rate used for this phase.
         /// Returns 0.93f by default.
         /// </summary>
-        protected virtual float MoveDecelerationRate()
-        {
-            return 0.93f;
-        }
+        protected virtual float MoveDecelerationRate() => 0.93f;
 
         /// <summary>
         /// The turnrate used for this phase, if the
         /// MovementType() is set to follow or orbit.
         /// Returns 0.05f by default.
         /// </summary>
-        protected virtual float MoveTurnRate()
-        {
-            return 0.05f;
-        }
+        protected virtual float MoveTurnRate() => 0.05f;
 
         /// <summary>
         /// Determines if CalculateMoveTime() needs hit 
@@ -525,10 +477,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// hitting the MoveMinimumTime over the Distance.
         /// Returns true by default.
         /// </summary>
-        protected virtual bool MoveEnforceMinimumTime()
-        {
-            return true;
-        }
+        protected virtual bool MoveEnforceMinimumTime() => true;
 
         /// <summary>
         /// Determines if the deceleration time will be
@@ -536,41 +485,29 @@ namespace TF2.Gensokyo.Content.NPCs
         /// has been completed. By default only when MoveType()
         /// is set to MoveType_Orbit.
         /// </summary>
-        protected virtual bool MoveCalculationAddDecelerationTime()
-        {
-            return MoveType() == MoveType_Orbit;
-        }
+        protected virtual bool MoveCalculationAddDecelerationTime() => MoveType() == MoveType_Orbit;
 
         /// <summary>
         /// Executes slowdown during State_Move. Used for phases
         /// where you also need to have the time to slowdown in the 
         /// MidMoveAttack.
         /// </summary>
-        protected virtual bool MoveSlowdownDuringMove()
-        {
-            return MoveCalculationAddDecelerationTime() ||
+        protected virtual bool MoveSlowdownDuringMove() => MoveCalculationAddDecelerationTime() ||
                 MoveType() == MoveType_Follow;
-        }
 
         /// <summary>
         /// Determines if the time needed to slowdown will be taken
         /// into consideration for the MoveTime calculation.
         /// By default returns the value set in HasSlowdown().
         /// </summary>
-        protected virtual bool MoveCalculationHasSlowdown()
-        {
-            return HasSlowdown();
-        }
+        protected virtual bool MoveCalculationHasSlowdown() => HasSlowdown();
 
         /// <summary>
         /// Determines if a Straight movement should be re-directed
         /// towards the target, useful for when a dash attack is 
         /// executed after a follow movement. Returns true by default.
         /// </summary>
-        protected virtual bool MoveStraightShouldRedirect()
-        {
-            return true;
-        }
+        protected virtual bool MoveStraightShouldRedirect() => true;
 
         /// <summary>
         /// The position in degrees around the MoveDestination the boss
@@ -579,10 +516,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Boss left => end position right and viceversa
         /// Returns 0f by default (Above target)
         /// </summary>
-        protected virtual float MoveOrbitTargetRotation()
-        {
-            return 90f;
-        }
+        protected virtual float MoveOrbitTargetRotation() => 90f;
 
         /// <summary>
         /// The offset of the boss from the target during the Orbit
@@ -590,10 +524,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// circumference calculations.
         /// Returns 0f by default.
         /// </summary>
-        protected virtual float MoveOrbitDistance()
-        {
-            return 400f;
-        }
+        protected virtual float MoveOrbitDistance() => 400f;
 
         /// <summary>
         /// The direction the boss will move around the player
@@ -601,10 +532,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// depending on the current position of the boss.
         /// Returns 1 clockwise by default (boss moves to top)
         /// </summary>
-        protected virtual int MoveOrbitDirection()
-        {
-            return 1;
-        }
+        protected virtual int MoveOrbitDirection() => 1;
 
         /// <summary>
         /// Amount of additional revolutions around the destination
@@ -612,10 +540,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// rotate around the destination longer.
         /// Returns 0 (no extra revolutions) by default;
         /// </summary>
-        protected virtual int MoveOrbitRevolutions()
-        {
-            return 0;
-        }
+        protected virtual int MoveOrbitRevolutions() => 0;
 
         /// <summary>
         /// Determines if this move phase should check for the
@@ -623,30 +548,21 @@ namespace TF2.Gensokyo.Content.NPCs
         /// MoveRangeCheckDistance() to se the distance.
         /// Returns true by default.
         /// </summary>
-        protected virtual bool HasMoveRangeCheck()
-        {
-            return true;
-        }
+        protected virtual bool HasMoveRangeCheck() => true;
 
 
         /// <summary>
         /// The distance between boss and target when it is 
         /// considered out of range. Returns 1750f by default.
         /// </summary>
-        protected virtual float MoveRangeCheckDistance()
-        {
-            return 1750f;
-        }
+        protected virtual float MoveRangeCheckDistance() => 1750f;
 
         /// <summary>
         /// The maximum amount of retries of the movement when
         /// the target is not in range. Returns -1 by default;
         /// negative values equals infinite retries!
         /// </summary>
-        protected virtual int MoveRetryAmount()
-        {
-            return -1;
-        }
+        protected virtual int MoveRetryAmount() => -1;
 
         /// <summary>
         /// Used to manually run MovePrepare for BossSpecific
@@ -686,10 +602,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Determines if the current phase has an spellcard
         /// announcement message
         /// </summary>
-        protected virtual bool HasSpellCardAnnouncement()
-        {
-            return Phase == Phase_DefaultStageAttack;
-        }
+        protected virtual bool HasSpellCardAnnouncement() => Phase == Phase_DefaultStageAttack;
         /// <summary>
         /// Plays the Spellcard message in chat. Place
         /// logic for playing the message in this hook.
@@ -703,10 +616,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Determines if this phase uses ExtraAttackPreparations(). Set
         /// to true to use addition preperations. Returns false by default.
         /// </summary>
-        protected virtual bool HasExtraAttackPreparations()
-        {
-            return false;
-        }
+        protected virtual bool HasExtraAttackPreparations() => false;
 
         /// <summary>
         /// Hook for additional attack preparations, such as updating a target list
@@ -726,10 +636,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// true if SlowdownType() has been set to anything
         /// other than MoveType_None
         /// </summary>
-        protected virtual bool HasSlowdown()
-        {
-            return SlowdownType() != MoveType_None;
-        }
+        protected virtual bool HasSlowdown() => SlowdownType() != MoveType_None;
 
         /// <summary>
         /// The slowdown type of this phase.
@@ -753,10 +660,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// the slowdown state has been completed.
         /// Returns 0f by default.
         /// </summary>
-        protected virtual float SlowdownSpeed()
-        {
-            return 0f;
-        }
+        protected virtual float SlowdownSpeed() => 0f;
 
         /// <summary>
         /// Used to manually run Move for BossSpecific movements,
@@ -774,10 +678,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Indicates that this phase contains an AttackWindup
         /// Returns false by default
         /// </summary>
-        protected virtual bool HasAttackWindup()
-        {
-            return false;
-        }
+        protected virtual bool HasAttackWindup() => false;
 
         /// <summary>
         /// Executes the Attack windup, used for playing animations
@@ -785,10 +686,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /// When the windup is completed, return true.
         /// Returns True by default.
         /// </summary>
-        protected virtual bool AttackWindupComplete()
-        {
-            return true;
-        }
+        protected virtual bool AttackWindupComplete() => true;
         #endregion
 
         #region Attack
@@ -822,19 +720,13 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Override to use a custom attack completed condition,
         /// by default it uses Timer together with AttackPhaseDuration()
         /// </summary>
-        protected virtual bool AttackComplete()
-        {
-            return Timer >= GetAttackPhaseDuration();
-        }
+        protected virtual bool AttackComplete() => Timer >= GetAttackPhaseDuration();
 
         /// <summary>
         /// Sets the maximum amount of time the Attack takes.
         /// Returns AttackPhaseDuration[Stage] by default.
         /// </summary>
-        protected virtual int GetAttackPhaseDuration()
-        {
-            return AttackPhaseDuration[Stage];
-        }
+        protected virtual int GetAttackPhaseDuration() => AttackPhaseDuration[Stage];
 
         /// <summary>
         /// Used to clean up and reset variables used in the attack.
@@ -851,19 +743,13 @@ namespace TF2.Gensokyo.Content.NPCs
         /// Used for playing animation, putting away a sword etc.
         /// Returns false by default
         /// </summary>
-        protected virtual bool HasWinddown()
-        {
-            return false;
-        }
+        protected virtual bool HasWinddown() => false;
 
         /// <summary>
         /// Used for executing the winddown conditions, when 
         /// done return true. Returns true by default
         /// </summary>
-        protected virtual bool WinddownComplete()
-        {
-            return true;
-        }
+        protected virtual bool WinddownComplete() => true;
 
         /// <summary>
         /// Used to clean up and reset variables for this phase

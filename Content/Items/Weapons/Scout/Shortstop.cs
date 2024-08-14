@@ -41,8 +41,7 @@ namespace TF2.Content.Items.Weapons.Scout
                 timer[0] = 0;
             }
             timer[0]++;
-            if (timer[0] >= TF2.Time(1.5))
-                timer[0] = TF2.Time(1.5);
+            TF2.Maximum(ref timer[0], TF2.Time(1.5));
         }
 
         public override void WeaponDistanceModifier(Player player, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
@@ -56,14 +55,7 @@ namespace TF2.Content.Items.Weapons.Scout
             }            
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<ForceANature>()
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class ShortstopPlayer : ModPlayer

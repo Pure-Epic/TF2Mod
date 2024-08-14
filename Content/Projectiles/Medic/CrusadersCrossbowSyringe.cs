@@ -2,6 +2,7 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.NPCs.Buddies;
 
 namespace TF2.Content.Projectiles.Medic
 {
@@ -24,14 +25,12 @@ namespace TF2.Content.Projectiles.Medic
         protected override void ProjectileAI()
         {
             SetRotation();
-            foreach (NPC npc in Main.npc)
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.active && (Main.netMode == NetmodeID.SinglePlayer || Main.netMode == NetmodeID.Server))
-                {
-                    int healingAmount = TF2.Round(75 * Player.GetModPlayer<TF2Player>().classMultiplier);
-                    npc.life += healingAmount;
-                    npc.HealEffect(healingAmount);
-                    npc.netUpdate = true;
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.ModNPC is MercenaryBuddy buddy && Main.netMode != NetmodeID.MultiplayerClient)
+                {                 
+                    int healingAmount = TF2.Round(npc.lifeMax / buddy.BaseHealth * 75f);
+                    buddy.Heal(healingAmount);
                     if (Main.netMode == NetmodeID.Server)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
@@ -40,12 +39,13 @@ namespace TF2.Content.Projectiles.Medic
                         packet.Send();
                     }
                     Projectile.Kill();
+                    break;
                 }
             }
             if (Main.netMode == NetmodeID.SinglePlayer) return;
-            foreach (Player player in Main.player)
+            foreach (Player player in Main.ActivePlayers)
             {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active && !player.dead && !player.hostile && Main.netMode == NetmodeID.Server)
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && !player.dead && !player.hostile && Main.netMode == NetmodeID.Server)
                 {
                     TF2Player p = player.GetModPlayer<TF2Player>();
                     int healingAmount = TF2.Round(TF2.GetHealth(player, 75) * p.healReduction);
@@ -60,6 +60,7 @@ namespace TF2.Content.Projectiles.Medic
                         packet.Send();
                     }
                     Projectile.Kill();
+                    break;
                 }
             }
         }

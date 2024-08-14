@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.Projectiles;
+using TF2.Content.Projectiles.Spy;
 
 namespace TF2.Content.Buffs
 {
@@ -100,6 +101,8 @@ namespace TF2.Content.Buffs
                 cloakMeter -= TF2.Time(2.5);
             else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
                 cloakMeter += TF2.Time(2.1);
+            else if (proj.ModProjectile is BigEarnerProjectile)
+                cloakMeter += TF2.Round(cloakMeterMax / 3f);
         }
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)

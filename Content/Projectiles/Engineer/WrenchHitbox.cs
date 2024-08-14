@@ -1,8 +1,12 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
+using Terraria.Audio;
+using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.NPCs;
+using TF2.Content.NPCs.Buildings;
+using TF2.Content.NPCs.Buildings.Dispenser;
+using TF2.Content.NPCs.Buildings.SentryGun;
+using TF2.Content.NPCs.Buildings.Teleporter;
 
 namespace TF2.Content.Projectiles.Engineer
 {
@@ -14,7 +18,6 @@ namespace TF2.Content.Projectiles.Engineer
         {
             SetProjectileSize(50, 50);
             Projectile.penetrate = -1;
-            Projectile.hostile = true;
             Projectile.timeLeft = TF2.Time(0.8);
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
@@ -23,53 +26,194 @@ namespace TF2.Content.Projectiles.Engineer
             Projectile.localNPCHitCooldown = -1;
         }
 
-        public override void ModifyDamageHitbox(ref Rectangle hitbox) => hitbox = TF2.MeleeHitbox(Player);
-
         protected override void ProjectileAI()
         {
             if (Projectile.owner == Main.myPlayer)
                 Projectile.Center = Player.Center;
-        }
-
-        public override bool CanHitPlayer(Player player) => false;
-
-        public override bool? CanHitNPC(NPC target) => target.GetGlobalNPC<TF2GlobalNPC>().building;
-
-        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            miniCrit = false;
-            crit = false;
-            modifiers.HideCombatText();
-            modifiers.DisableCrit();
-        }
-
-        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            Sentry sentryNPC;
-            float healMultiplier = 1f;
-            if (target.type == ModContent.NPCType<SentryLevel1>() || target.type == ModContent.NPCType<SentryLevel2>() || target.type == ModContent.NPCType<SentryLevel3>() || target.type == ModContent.NPCType<MiniSentry>() || target.type == ModContent.NPCType<DispenserLevel1>() || target.type == ModContent.NPCType<DispenserLevel2>() || target.type == ModContent.NPCType<DispenserLevel3>())
+            foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (target.type == ModContent.NPCType<SentryLevel1>() || target.type == ModContent.NPCType<SentryLevel2>() || target.type == ModContent.NPCType<SentryLevel3>())
+                if (TF2.MeleeHitbox(Player).Intersects(npc.Hitbox) && npc.ModNPC is Building && Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    sentryNPC = (Sentry)target.ModNPC;
-                    if (sentryNPC.wrangled)
-                        healMultiplier = 0.66f;
+                    HitBuilding(npc);
+                    if (Main.netMode == NetmodeID.Server)
+                    {
+                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                        packet.Write((byte)TF2.MessageType.KillProjectile);
+                        packet.Write((byte)Projectile.whoAmI);
+                        packet.Send();
+                    }
+                    Projectile.Kill();
+                }
+            }
+        }
+
+        protected void HitBuilding(NPC building)
+        {
+            float healMultiplier = 1f;
+            int cost = 0;
+            bool success = false;
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            Building buildingNPC = building.ModNPC as Building;
+            if (!buildingNPC.Initialized && Building.BaseLevel(buildingNPC))
+            {
+                buildingNPC.constructionSpeed += 2.5f * p.constructionSpeedMultiplier;
+                building.netUpdate = true;
+                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success"));
+            }
+            if (buildingNPC is TF2Sentry sentry && buildingNPC.Initialized)
+            {
+                healMultiplier = sentry.wrangled ? 0.66666f : 1f;
+                int health = ((building.lifeMax - building.life) / p.healthMultiplier) >= 102 ? 102 : TF2.Round((building.lifeMax - building.life) / p.healthMultiplier);
+                int damageRepaired = TF2.Round(health * healMultiplier * p.repairRateMultiplier);
+                cost = TF2.Round(damageRepaired / 3f);
+                if (cost > 0)
+                {
+                    if (cost <= p.metal && p.metal > 0)
+                    {
+                        building.life += TF2.Round(damageRepaired * p.healthMultiplier);
+                        p.metal -= cost;
+                        building.HealEffect(cost);
+                        building.netUpdate = true;
+                        success = true;
+                    }
                     else
-                        healMultiplier = 1;
+                    {
+                        building.life += TF2.Round(damageRepaired * (float)p.metal / cost * p.healthMultiplier);
+                        p.metal = 0;
+                        building.HealEffect(cost);
+                        building.netUpdate = true;
+                        success = true;
+                    }
                 }
-                target.life += 1;
-                if (target.life >= target.lifeMax)
+                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
                 {
-                    target.life = target.lifeMax;
-                    return;
+                    cost = (p.metal >= 25) ? 25 : p.metal;
+                    sentry.Metal += cost;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
                 }
-                TF2Player p = Player.GetModPlayer<TF2Player>();
-                int cost = 102;
-                if (!(p.metal >= cost / 3)) return;
-                if (healMultiplier < 0) { healMultiplier = 0; }
-                target.life += (int)(cost * p.classMultiplier * healMultiplier);
-                p.metal -= cost / 3;
-                target.HealEffect((int)(cost * p.classMultiplier * healMultiplier));
+                int ammo = (sentry.Rounds - sentry.Ammo >= 40) ? 40 : (sentry.Rounds - sentry.Ammo);
+                if (ammo <= p.metal && ammo > 0)
+                {
+                    cost = ammo;
+                    sentry.Ammo += cost;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
+                }
+                else if (ammo > 0)
+                {
+                    cost = p.metal;
+                    sentry.Ammo += cost;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
+                }
+                int rocketAmmo = (20 - sentry.RocketAmmo >= 8) ? 16 : ((20 - sentry.RocketAmmo) * 2);
+                if (rocketAmmo <= p.metal && rocketAmmo > 0)
+                {
+                    cost = rocketAmmo;
+                    sentry.RocketAmmo += cost / 2;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
+                }
+                else if (rocketAmmo > 0 && p.metal > 1)
+                {
+                    cost = p.metal;
+                    sentry.RocketAmmo += cost / 2;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
+                }
+                SoundEngine.PlaySound(new SoundStyle(success ? "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success" : "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_fail"));
+            }
+            else if (buildingNPC is TF2Dispenser dispenser && buildingNPC.Initialized)
+            {
+                int health = ((building.lifeMax - building.life) / p.healthMultiplier) >= 102 ? 102 : TF2.Round((building.lifeMax - building.life) / p.healthMultiplier);
+                int damage = TF2.Round(health * healMultiplier);
+                cost = TF2.Round(damage / 3f);
+                if (cost > 0)
+                {
+                    if (cost <= p.metal && p.metal > 0)
+                    {
+                        building.life += TF2.Round(damage * p.healthMultiplier);
+                        p.metal -= cost;
+                        building.HealEffect(cost);
+                        building.netUpdate = true;
+                        success = true;
+                    }
+                    else
+                    {
+                        building.life += TF2.Round(damage * (float)p.metal / cost * p.healthMultiplier);
+                        p.metal = 0;
+                        building.HealEffect(cost);
+                        building.netUpdate = true;
+                        success = true;
+                    }
+                }
+                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
+                {
+                    cost = (p.metal >= 25) ? 25 : p.metal;
+                    dispenser.Metal += cost;
+                    p.metal -= cost;
+                    building.netUpdate = true;
+                    success = cost > 0;
+                }
+                SoundEngine.PlaySound(new SoundStyle(success ? "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success" : "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_fail"));
+            }
+            else if (buildingNPC is TF2Teleporter teleporter && buildingNPC.Initialized)
+            {
+                int health = ((building.lifeMax - building.life) / p.healthMultiplier) >= 102 ? 102 : TF2.Round((building.lifeMax - building.life) / p.healthMultiplier);
+                int damage = TF2.Round(health * healMultiplier);
+                cost = TF2.Round(damage / 3f);
+                if (cost <= p.metal && cost > 0 && p.metal > 0)
+                {
+                    building.life += TF2.Round(damage * p.healthMultiplier);
+                    p.metal -= cost;
+                    building.HealEffect(cost);
+                    building.netUpdate = true;
+                    success = true;
+                }
+                else if (cost > 0)
+                {
+                    building.life += TF2.Round(damage * (float)p.metal / cost * p.healthMultiplier);
+                    p.metal = 0;
+                    building.HealEffect(cost);
+                    building.netUpdate = true;
+                    success = true;
+                }
+                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
+                {
+                    cost = (p.metal >= 25) ? 25 : p.metal;
+                    teleporter.Metal += cost;
+                    building.netUpdate = true;
+                    TeleporterStatistics carriedTeleporter = Main.player[teleporter.Owner].GetModPlayer<TF2Player>().carriedTeleporter;
+                    if (carriedTeleporter != null)
+                        carriedTeleporter.Metal += cost;
+                    if (teleporter is TeleporterEntrance)
+                    {
+                        (teleporter as TeleporterEntrance).FindTeleporterExit(out TeleporterExit exit);
+                        if (exit != null)
+                        {
+                            exit.Metal += cost;
+                            exit.NPC.netUpdate = true;
+                        }
+                    }
+                    else if (teleporter is TeleporterExit)
+                    {
+                        (teleporter as TeleporterExit).FindTeleporterEntrance(out TeleporterEntrance entrance);
+                        if (entrance != null)
+                        {
+                            entrance.Metal += cost;
+                            entrance.NPC.netUpdate = true;
+                        }
+                    }
+                    p.metal -= cost;
+                    success = cost > 0;
+                }
+                SoundEngine.PlaySound(new SoundStyle(success ? "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success" : "TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_fail"));
             }
         }
     }

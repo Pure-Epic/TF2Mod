@@ -27,7 +27,7 @@ namespace TF2.Content.Items.Weapons.Pyro
 
         protected override void WeaponAttackAnimation(Player player)
         {
-            foreach (Projectile projectile in Main.projectile)
+            foreach (Projectile projectile in Main.ActiveProjectiles)
             {
                 if (TF2.MeleeHitbox(player).Intersects(projectile.Hitbox) && TF2.CanParryProjectile(projectile) && projectile.hostile && !projectile.friendly)
                 {
@@ -37,7 +37,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             }
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
             // Temporary solution
             ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
@@ -45,13 +45,6 @@ namespace TF2.Content.Items.Weapons.Pyro
             modifiers.SourceDamage *= target.ModNPC?.Mod == gensokyo && target.boss || target.TypeName == "Byakuren Hijiri" ? 2f : 0.75f;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Equalizer>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Equalizer>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

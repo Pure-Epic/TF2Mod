@@ -12,12 +12,10 @@ namespace TF2.Gensokyo.Common
     [ExtendsFromMod("Gensokyo")]
     public class GensokyoBossChecklist : ModSystem
     {
-        public override void PostSetupContent()
-        {
+        public override void PostSetupContent() =>
             // Boss Checklist shows comprehensive information about bosses in its own UI. We can customize it:
             // https://forums.terraria.org/index.php?threads/.50668/
             DoBossChecklistIntegration();
-        }
 
         private void DoBossChecklistIntegration()
         {
@@ -102,9 +100,7 @@ namespace TF2.Gensokyo.Common
             );
         }
 
-        private void ByakurenHijiri(Mod mod)
-        {
-            mod.Call(
+        private void ByakurenHijiri(Mod mod) => mod.Call(
                 "LogBoss",
                 Mod,
                 nameof(ByakurenHijiri),
@@ -119,6 +115,5 @@ namespace TF2.Gensokyo.Common
                     ["despawnMessage"] = Language.GetTextValue("Mods.TF2.BossChecklist.ByakurenHijiri.DespawnMessage")
                 }
             );
-        }
     }
 }

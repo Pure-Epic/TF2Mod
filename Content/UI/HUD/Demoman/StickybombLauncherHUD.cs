@@ -26,8 +26,7 @@ namespace TF2.Content.UI.HUD.Demoman
             hitbox.Y += 48;
             hitbox.Width = 84;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * weapon.chargeTime / weapon.maxChargeTime), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * weapon.chargeTime / weapon.maxChargeTime), hitbox.Height), Color.White);
         }
     }
 
@@ -58,7 +57,7 @@ namespace TF2.Content.UI.HUD.Demoman
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _amount = new UIText("", 0.8f, true)
+            amount = new UIText("", 0.8f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
@@ -66,14 +65,13 @@ namespace TF2.Content.UI.HUD.Demoman
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            amount = _amount;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(amount);
 
         protected override void HUDUpdate(GameTime gameTime)
         {
-            amount.SetText((TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<StickybombLauncher>(), ModContent.ItemType<ScottishResistance>() }).ModItem as TF2Weapon).stickybombsAmount.ToString());
+            amount.SetText((TF2.GetItemInHotbar(Player, [ModContent.ItemType<StickybombLauncher>(), ModContent.ItemType<ScottishResistance>(), ModContent.ItemType<StickyJumper>()]).ModItem as TF2Weapon).stickybombsAmount.ToString());
             amount.Left = StyleDimension.FromPixels(5f + FontAssets.DeathText.Value.MeasureString(amount.Text).X / 2.5f);
         }
     }

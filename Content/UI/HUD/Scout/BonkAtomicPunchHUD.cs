@@ -47,13 +47,12 @@ namespace TF2.Content.UI.HUD.Scout
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _drink = new UIText(TF2HUDSystem.TF2HUDLocalization[1], 0.5f)
+            drink = new UIText(TF2HUDSystem.TF2HUDLocalization[2], 0.5f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.75f,
                 IgnoresMouseInteraction = true
             };
-            drink = _drink;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(drink);
@@ -65,8 +64,7 @@ namespace TF2.Content.UI.HUD.Scout
             hitbox.Y += 26;
             hitbox.Width = 46;
             hitbox.Height = 6;
-            int left = hitbox.Left;
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * (TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<BonkAtomicPunch>(), ModContent.ItemType<CritaCola>() }).ModItem as TF2Weapon).timer[0] / (float)TF2.Time(22)), hitbox.Height), Color.White);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * (TF2.GetItemInHotbar(Player, [ModContent.ItemType<BonkAtomicPunch>(), ModContent.ItemType<CritaCola>()]).ModItem as TF2Weapon).timer[0] / (float)TF2.Time(22)), hitbox.Height), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime) => area.Left = StyleDimension.FromPixelsAndPercent(-578f - (HasMelee ? 65f : 0f), 1f);

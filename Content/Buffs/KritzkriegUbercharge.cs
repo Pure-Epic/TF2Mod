@@ -1,4 +1,5 @@
 ﻿using Terraria;
+using Terraria.Audio;
 using Terraria.ModLoader;
 using TF2.Common;
 
@@ -24,10 +25,10 @@ namespace TF2.Content.Buffs
 
         public override bool RightClick(int buffIndex)
         {
-            TF2Player uber = Main.LocalPlayer.GetModPlayer<TF2Player>();
-            uber.uberChargeTime = 0;
-            uber.uberCharge = 0;
-            uber.activateUberCharge = false;
+            TF2Player p = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            p.uberChargeTime = 0;
+            p.uberCharge = 0;
+            p.activateUberCharge = false;
             return true;
         }
     }
@@ -36,18 +37,19 @@ namespace TF2.Content.Buffs
     {
         public override void PostUpdate()
         {
-            TF2Player uber = Player.GetModPlayer<TF2Player>();
+            TF2Player p = Player.GetModPlayer<TF2Player>();
             if (uberCharge)
                 SpawnDusts(Player);
-            if (uber.activateUberCharge && Player.HasBuff<KritzkriegUberCharge>())
+            if (p.activateUberCharge && Player.HasBuff<KritzkriegUberCharge>())
             {
-                uber.uberChargeTime++;
-                uber.uberChargeDuration = uberChargeDuration;
-                if (uber.uberChargeTime >= uberChargeDuration)
+                p.uberChargeTime++;
+                p.uberChargeDuration = uberChargeDuration;
+                if (p.uberChargeTime >= uberChargeDuration)
                 {
-                    uber.uberChargeTime = 0;
-                    uber.uberCharge = 0;
-                    uber.activateUberCharge = false;
+                    p.uberChargeTime = 0;
+                    p.uberCharge = 0;
+                    p.activateUberCharge = false;
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_off"), Player.Center);
                 }
             }
         }

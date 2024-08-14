@@ -217,7 +217,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
         public override void AI()
         {
             timer++;
-            if (timer >= 60)
+            if (timer >= TF2.Time(1))
                 Projectile.velocity = Vector2.UnitY * 10f;
             if (Projectile.timeLeft <= 30)
                 Projectile.scale *= 0.875f;
@@ -309,7 +309,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.Center + unit * 5000f, 16, ref point);
         }
 
-        public override bool? CanDamage() => timer >= 30 && timer <= 45;
+        public override bool? CanDamage() => timer >= TF2.Time(0.5) && timer <= 45;
 
         public override void AI()
         {
@@ -317,7 +317,7 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
                 Projectile.velocity = -Vector2.UnitY;
 
             timer++;
-            if (timer >= 30 && timer <= 45)
+            if (timer >= TF2.Time(0.5) && timer <= 45)
             {
                 Projectile.scale += 0.05f;
                 Projectile.scale = Utils.Clamp(Projectile.scale, 0.1f, 0.25f);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -21,8 +20,7 @@ namespace TF2.Content.Items.Tools
 		{
 			Item.width = 56;
 			Item.height = 30;
-			Item.useTime = 1;
-			Item.useAnimation = 1;
+			Item.useTime = Item.useAnimation = 1;
 			Item.useStyle = ItemUseStyleID.Shoot;
 			Item.shoot = ModContent.ProjectileType<AustraliumDrillProjectile>();
 			Item.shootSpeed = 32f;
@@ -38,37 +36,33 @@ namespace TF2.Content.Items.Tools
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
-            AddName(tooltips);
-            tooltips.Remove(nameTooltip);
-            TooltipLine pickaxeTooltip = tooltips.FirstOrDefault(x => x.Name == "PickPower" && x.Mod == "Terraria");
+			TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
+			AddName(tooltips);
+			TooltipLine pickaxeTooltip = tooltips.FirstOrDefault(x => x.Name == "PickPower" && x.Mod == "Terraria");
             tooltips.Remove(pickaxeTooltip);
             TooltipLine axeTooltip = tooltips.FirstOrDefault(x => x.Name == "AxePower" && x.Mod == "Terraria");
             tooltips.Remove(axeTooltip);
             TooltipLine hammerTooltip = tooltips.FirstOrDefault(x => x.Name == "HammerPower" && x.Mod == "Terraria");
             tooltips.Remove(hammerTooltip);
             TooltipLine rangeTooltip = tooltips.FirstOrDefault(x => x.Name == "TileBoost" && x.Mod == "Terraria");
-            tooltips.Remove(rangeTooltip);
+			tooltips.Remove(rangeTooltip);
             RemoveDefaultTooltips(tooltips);
-            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary") + " " + Language.GetTextValue("Mods.TF2.UI.Items.Drill"))
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, new TooltipLine(Mod, "Weapon Category", Language.GetTextValue("Mods.TF2.UI.Items.Tool"))
             {
-                OverrideColor = new Color(117, 107, 94, 255)
-            };
-            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
+                OverrideColor = new Color(117, 107, 94)
+            });
             AddOtherAttribute(tooltips, Language.GetTextValue("Mods.TF2.UI.Items.DrillDescription") + " " + Main.LocalPlayer.GetModPlayer<TF2Player>().miningPower + "%");
             if (Item.favorited)
             {
-                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
                 {
                     OverrideColor = new Color(235, 226, 202, 255)
-                };
-                tooltips.Add(favorite);
-                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                });
+                tooltips.Add(new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
                 {
                     OverrideColor = new Color(235, 226, 202, 255)
-                };
-                tooltips.Add(favoriteDescription);
-                if (Main.LocalPlayer.chest != -1)
+                });
+                if (Main.LocalPlayer.chest > -1)
                 {
                     ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
                     if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
@@ -77,7 +71,10 @@ namespace TF2.Content.Items.Tools
                         {
                             OverrideColor = new Color(235, 226, 202, 255)
                         };
-                        tooltips.Add(favorite);
+                        tooltips.Add(new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202, 255)
+                        });
                     }
                 }
             }
@@ -94,17 +91,12 @@ namespace TF2.Content.Items.Tools
             tooltips.Add(journeyModeTooltip);
             tooltips.Remove(journeyResearchTooltip);
         }
-
-        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => false;
-
+        
         public override void UpdateInventory(Player player) => Item.pick = Item.axe = Item.hammer = player.GetModPlayer<TF2Player>().miningPower;
 
-        public override void AddRecipes()
-		{
-			CreateRecipe()
-				.AddIngredient<Australium>()
-				.AddTile<CraftingAnvil>()
-				.Register();
-		}
-	}
+        public override void AddRecipes() => CreateRecipe()
+                .AddIngredient<Australium>()
+                .AddTile<CraftingAnvil>()
+                .Register();
+    }
 }

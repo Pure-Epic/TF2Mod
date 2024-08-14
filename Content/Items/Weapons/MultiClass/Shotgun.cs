@@ -10,7 +10,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(MultiClass, Primary, Stock, Starter);
-            SetWeaponClass(new int[] { Soldier, Pyro, Heavy, Engineer });
+            SetWeaponClass([Soldier, Pyro, Heavy, Engineer]);
             SetWeaponSize(50, 12);
             SetGunUseStyle();
             SetWeaponDamage(damage: 6, projectile: ModContent.ProjectileType<Bullet>(), projectileCount: 10, shootAngle: 12f);

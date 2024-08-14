@@ -16,8 +16,7 @@ namespace TF2.Content.UI.HUD.Medic
     [Autoload(Side = ModSide.Client)]
     internal class UberchargeHUD : AmmoHUD
     {
-        protected override bool CanDisplay => !(Player.HeldItem.ModItem is TF2Weapon weapon && weapon.IsWeaponType(TF2Item.Primary)) && (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<MediGun>())
-            || TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<Kritzkrieg>()));
+        protected override bool CanDisplay => !(Player.HeldItem.ModItem is TF2Weapon weapon && weapon.IsWeaponType(TF2Item.Primary)) && TF2.IsItemTypeInHotbar(Player, [ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>(), ModContent.ItemType<QuickFix>()]);
 
         protected override string Texture => "TF2/Content/Textures/UI/HUD/UberchargeHUD";
 
@@ -38,8 +37,8 @@ namespace TF2.Content.UI.HUD.Medic
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
-            };            
-            UIText _ubercharge = new UIText(TF2HUDSystem.TF2HUDLocalization[7], 0.8f)
+            };
+            ubercharge = new UIText(TF2HUDSystem.TF2HUDLocalization[9], 0.8f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.35f,
@@ -47,14 +46,13 @@ namespace TF2.Content.UI.HUD.Medic
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            ubercharge = _ubercharge;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(ubercharge);
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            TF2Weapon weapon = TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>() }).ModItem as TF2Weapon;
+            TF2Weapon weapon = TF2.GetItemInHotbar(Player, [ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>(), ModContent.ItemType<QuickFix>()]).ModItem as TF2Weapon;
             TF2Player p = Player.GetModPlayer<TF2Player>();
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 26;
@@ -67,9 +65,9 @@ namespace TF2.Content.UI.HUD.Medic
 
         protected override void HUDUpdate(GameTime gameTime)
         {
-            TF2Weapon weapon = TF2.GetItemInHotbar(Player, new int[] { ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>() }).ModItem as TF2Weapon;
+            TF2Weapon weapon = TF2.GetItemInHotbar(Player, [ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>(), ModContent.ItemType<QuickFix>()]).ModItem as TF2Weapon;
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            ubercharge.SetText(TF2HUDSystem.TF2HUDLocalization[7] + ": " + (TF2.Round(100 * (!Player.GetModPlayer<TF2Player>().activateUberCharge ? (weapon.uberCharge / weapon.uberChargeCapacity) : ((float)(p.uberChargeDuration - p.uberChargeTime) / p.uberChargeDuration))) + "%").ToString());
+            ubercharge.SetText(TF2HUDSystem.TF2HUDLocalization[9] + ": " + (TF2.Round(100 * (!Player.GetModPlayer<TF2Player>().activateUberCharge ? (weapon.uberCharge / weapon.uberChargeCapacity) : ((float)(p.uberChargeDuration - p.uberChargeTime) / p.uberChargeDuration))) + "%").ToString());
             ubercharge.Left = StyleDimension.FromPixels((FontAssets.MouseText.Value.MeasureString(ubercharge.Text).X / 2.5f) - 32.5f);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
@@ -18,15 +19,19 @@ using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 namespace TF2.Gensokyo.Content.Items.Consumables
 {
     [ExtendsFromMod("Gensokyo")]
-    public class GensokyoDLC_StarterBox : ModItem
+    public class GensokyoDLC_StarterBox : TF2Item
     {
         public override void SetDefaults()
         {
             Item.width = 41;
             Item.height = 50;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<NormalRarity>();
+            Item.rare = ModContent.RarityType<UniqueRarity>();
+            noThe = true;
+            qualityHashSet.Add(Unique);
         }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
 
         public override bool CanRightClick() => true;
 
@@ -44,11 +49,13 @@ namespace TF2.Gensokyo.Content.Items.Consumables
             GensokyoDLC.Gensokyo.TryFind("CirnoSpawner", out ModItem cirnoSpawner);
             GensokyoDLC.Gensokyo.TryFind("MinamitsuMurasaSpawner", out ModItem minamitsuMurasaSpawner);
             GensokyoDLC.Gensokyo.TryFind("AliceMargatroidSpawner", out ModItem aliceMargatroidSpawner);
+            GensokyoDLC.Gensokyo.TryFind("TsukumoSistersSpawner", out ModItem tsukumoSistersSpawner);
             GensokyoDLC.Gensokyo.TryFind("SakuyaIzayoiSpawner", out ModItem sakuyaIzayoiSpawner);
             GensokyoDLC.Gensokyo.TryFind("SeijaKijinSpawner", out ModItem seijaKijinSpawner);
             GensokyoDLC.Gensokyo.TryFind("MayumiJoutouguuSpawner", out ModItem mayumiJoutouguuSpawner);
             GensokyoDLC.Gensokyo.TryFind("ToyosatomimiNoMikoSpawner", out ModItem toyosatomimiNoMikoSpawner);
             GensokyoDLC.Gensokyo.TryFind("KaguyaHouraisanSpawner", out ModItem kaguyaHouraisanSpawner);
+            GensokyoDLC.Gensokyo.TryFind("KoishiKomeijiSpawner", out ModItem koishiKomeijiSpawner);
             GensokyoDLC.Gensokyo.TryFind("UtsuhoReiujiSpawner", out ModItem utsuhoReiujiSpawner);
             GensokyoDLC.Gensokyo.TryFind("TenshiHinanawiSpawner", out ModItem tenshiHinanawiSpawner);
 
@@ -66,11 +73,13 @@ namespace TF2.Gensokyo.Content.Items.Consumables
             player.QuickSpawnItem(entitySource, cirnoSpawner.Type);
             player.QuickSpawnItem(entitySource, minamitsuMurasaSpawner.Type);
             player.QuickSpawnItem(entitySource, aliceMargatroidSpawner.Type);
+            player.QuickSpawnItem(entitySource, tsukumoSistersSpawner.Type);
             player.QuickSpawnItem(entitySource, sakuyaIzayoiSpawner.Type);
             player.QuickSpawnItem(entitySource, seijaKijinSpawner.Type);
             player.QuickSpawnItem(entitySource, mayumiJoutouguuSpawner.Type);
             player.QuickSpawnItem(entitySource, toyosatomimiNoMikoSpawner.Type);
             player.QuickSpawnItem(entitySource, kaguyaHouraisanSpawner.Type);
+            player.QuickSpawnItem(entitySource, koishiKomeijiSpawner.Type);
             player.QuickSpawnItem(entitySource, utsuhoReiujiSpawner.Type);
             player.QuickSpawnItem(entitySource, tenshiHinanawiSpawner.Type);
         }
@@ -102,14 +111,14 @@ namespace TF2.Gensokyo.Content.Items.Consumables
 
         public override void ModifyItemLoot(ItemLoot itemLoot)
         {
-            itemLoot.Add(ItemDropRule.OneFromOptions(1, new int[]
-            {
+            itemLoot.Add(ItemDropRule.OneFromOptions(1,
+            [
                 ModContent.ItemType<AdvancedScoutRifle>(),
                 ModContent.ItemType<HeadhunterPistols>(),
                 ModContent.ItemType<ManualInferno>(),
                 ModContent.ItemType<HarshPunisher>(),
                 ModContent.ItemType<OffensiveRocketSystem>()
-            }));
+            ]));
             if (GensokyoDLC.gensokyoLoaded)
             {
                 GensokyoDLC.Gensokyo.TryFind("PointItem", out ModItem pointItem);

@@ -9,7 +9,7 @@ namespace TF2.Content.Projectiles.Heavy
     {
         public override string Texture => "TF2/Content/Projectiles/Bullet";
 
-        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => target.AddBuff(BuffID.Slow, 1);
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => target.AddBuff(BuffID.Slow, 1, true);
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => target.AddBuff(ModContent.BuffType<NataschaDebuff>(), 1);
     }

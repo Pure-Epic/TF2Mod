@@ -1,96 +1,88 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
-using System;
+using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
-using Terraria.GameContent.Personalities;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.Utilities;
-using TF2.Common;
-using TF2.Content.Items.Bundles;
+using TF2.Content.Items.Buddies;
 using TF2.Content.Items.Consumables;
-using TF2.Content.Items.Placeables.Crafting;
-using TF2.Content.Mounts;
+using TF2.Content.Items.Consumables.Bundles;
+using TF2.Content.Items.Weapons.Demoman;
+using TF2.Content.Items.Weapons.Engineer;
+using TF2.Content.Items.Weapons.Heavy;
+using TF2.Content.Items.Weapons.Medic;
+using TF2.Content.Items.Weapons.MultiClass;
+using TF2.Content.Items.Weapons.Pyro;
+using TF2.Content.Items.Weapons.Scout;
+using TF2.Content.Items.Weapons.Sniper;
+using TF2.Content.Items.Weapons.Soldier;
+using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.NPCs;
+using TF2.Content.UI.MannCoStore;
 
 namespace TF2.Content.NPCs.TownNPCs
 {
-    // [AutoloadHead] and NPC.townNPC are extremely important and absolutely both necessary for any Town NPC to work at all.
     [AutoloadHead]
     public class SaxtonHale : ModNPC
     {
+        public static Dictionary<MannCoStoreCategory, List<MannCoStoreItem>> Inventory = new Dictionary<MannCoStoreCategory, List<MannCoStoreItem>>();
+        public readonly MannCoStoreCategory Category;
+        private static Asset<Texture2D> spriteSheet;
         public int ai;
+        private int attackTime;
+        private int direction;
+
+        public override void Load()
+        {
+            if (!Main.dedServ)
+                spriteSheet = ModContent.Request<Texture2D>("TF2/Content/NPCs/TownNPCs/SaxtonHale");
+        }
+
+        public override void Unload() => spriteSheet = null;
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[Type] = 25; // The amount of frames the NPC has
-
-            NPCID.Sets.ExtraFramesCount[Type] = 9; // Generally for Town NPCs, but this is how the NPC does extra things such as sitting in a chair and talking to other NPCs.
+            Main.npcFrameCount[Type] = 25;
+            NPCID.Sets.ExtraFramesCount[Type] = 9;
             NPCID.Sets.AttackFrameCount[Type] = 4;
-            NPCID.Sets.DangerDetectRange[Type] = 700; // The amount of pixels away from the center of the npc that it tries to attack enemies.
-            NPCID.Sets.AttackType[Type] = 0;
-            NPCID.Sets.AttackTime[Type] = 60; // The amount of time it takes for the NPC's attack animation to be over once it starts.
-            NPCID.Sets.AttackAverageChance[Type] = 100;
-            NPCID.Sets.HatOffsetY[Type] = 5; // For when a party is active, the party hat spawns at a Y offset.
-            NPCID.Sets.MPAllowedEnemies[Type] = true;
-
-            // Influences how the NPC looks in the Bestiary
-            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new()
+            NPCID.Sets.DangerDetectRange[Type] = 1000;
+            NPCID.Sets.AttackTime[Type] = 60;
+            NPCID.Sets.NPCBestiaryDrawModifiers drawModifiers = new NPCID.Sets.NPCBestiaryDrawModifiers()
             {
-                Velocity = 0f, // Draws the NPC in the bestiary as if its walking +1 tiles in the x direction
-                Direction = 1, // -1 is left and 1 is right. NPCs are drawn facing the left by default but ExamplePerson will be drawn facing the right
+                Velocity = 1f
             };
-
             NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, drawModifiers);
-
-            // Set Example Person's biome and neighbor preferences with the NPCHappiness hook. You can add happiness text and remarks with localization (See an example in ExampleMod/Localization/en-US.lang).
-            // NOTE: The following code uses chaining - a style that works due to the fact that the SetXAffection methods return the same NPCHappiness instance they're called on.
-            NPC.Happiness
-                .SetBiomeAffection<JungleBiome>(AffectionLevel.Love)
-                .SetNPCAffection(ModContent.NPCType<Administrator>(), AffectionLevel.Like)
-                .SetNPCAffection(NPCID.Dryad, AffectionLevel.Hate)
-            ; // < Mind the semicolon!
         }
 
         public override void SetDefaults()
         {
-            NPC.townNPC = true; // Sets NPC to be a Town NPC
-            NPC.friendly = true; // NPC Will not attack player
-            NPC.width = 50;
-            NPC.height = 110;
-            NPC.aiStyle = 7;
+            NPC.width = 44;
+            NPC.height = 50;
+            NPC.lifeMax = 1000;
             NPC.damage = 100;
             NPC.defense = 100;
-            NPC.lifeMax = 1000;
+            NPC.aiStyle = 7;
+            NPC.friendly = true;
+            NPC.townNPC = true;
+            NPC.knockBackResist = 0f;
             NPC.HitSound = SoundID.NPCHit1;
             NPC.DeathSound = SoundID.NPCDeath1;
-            NPC.knockBackResist = 0.5f;
-
             AnimationType = NPCID.Guide;
         }
 
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
-        {
-            // We can use AddRange instead of calling Add multiple times in order to add multiple items at once
-            bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
-				// Sets the preferred biomes of this town NPC listed in the bestiary.
-				// With Town NPCs, you usually set this to what biome it likes the most in regards to NPC happiness.
-				BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Jungle,
-
-				// Sets your NPC's flavor text in the bestiary.
-				new FlavorTextBestiaryInfoElement("Saxton Hale is the CEO of Mann Co. He loves destroying anime girls with his Australian power! He currently has 2764 confirmed kills."),
-            });
-        }
-
-        public override void HitEffect(NPC.HitInfo hit)
-        {
-        }
+        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
+                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Jungle,
+                new FlavorTextBestiaryInfoElement(Language.GetTextValue("Mods.TF2.NPCs.SaxtonHale.BestiaryEntry"))
+            ]);
 
         public override bool CanTownNPCSpawn(int numTownNPCs) => true;
 
@@ -99,381 +91,191 @@ namespace TF2.Content.NPCs.TownNPCs
         public override string GetChat()
         {
             WeightedRandom<string> chat = new();
+            chat.Add(Language.GetTextValue("Mods.TF2.NPCs.SaxtonHale.Chat"), 10.0);
+            chat.Add(Language.GetTextValue("Mods.TF2.NPCs.SaxtonHale.Chat2"));
+            chat.Add(Language.GetTextValue("Mods.TF2.NPCs.SaxtonHale.Chat3"));
+            return chat;
+        }
 
-            int dryad = NPC.FindFirstNPC(NPCID.Dryad);
-            if (dryad >= 0 && Main.rand.NextBool(10))
-                chat.Add("Get goofy ahh " + Main.npc[dryad].GivenName + " away from me! Also tell her to wear some clothes.");
-            chat.Add("Welcome to the Mann Co. Store! We sell products and get in fights!", 10.0);
-            chat.Add("Browse, buy, design, sell and wear Mann Co.'s ever-growing catalog of fine products with your BARE HANDS--all without leaving the COMFORT OF YOUR CHAIRS!");
-            chat.Add("If you aren't 100% satisfied with our product line, you can take it up with me!");
-            chat.Add("I love fighting! But do you know what I don't love? Reimu Hakurei.", 0.1);
-            chat.Add("I beat up Touhou girls. I am wanted for my war crimes.", 0.1);
-            if (!Main.rand.NextBool(100))
-                return chat;
-            else
+        public override void SetChatButtons(ref string button, ref string button2) => button = "Mann Co. Store";
+
+        public override void OnChatButtonClicked(bool firstButton, ref string shopName) => TF2.MannCoStore.SetState(new MannCoStoreUI());
+
+        private static void ResetMannCoStore()
+        {
+            foreach (KeyValuePair<MannCoStoreCategory, List<MannCoStoreItem>> keyValuePair in Inventory)
+                Inventory[keyValuePair.Key].Clear();
+        }
+
+        public static void CreateMannCoStore()
+        {
+            ResetMannCoStore();
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MannCoSupplyCrateKey>(), 2.49f);
+            AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<ScoutBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Soldier, ModContent.ItemType<SoldierBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<PyroBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<DemomanBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Heavy, ModContent.ItemType<HeavyBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Engineer, ModContent.ItemType<EngineerBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<MedicBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<SniperBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Spy, ModContent.ItemType<SpyBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallAmmoPotion>(), 0.49f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumAmmoPotion>(), 1.49f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeAmmoPotion>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallHealthPotion>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumHealthPotion>(), 2.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeHealthPotion>(), 4.99f);
+            AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<ForceANature>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<Shortstop>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<SodaPopper>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<BonkAtomicPunch>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<CritaCola>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<MadMilk>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<Winger>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<Sandman>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<HolyMackerel>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<CandyCane>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<BostonBasher>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<SunonaStick>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<FanOWar>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<Atomizer>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Soldier, ModContent.ItemType<DirectHit>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<BlackBox>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<RocketJumper>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<LibertyLauncher>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Soldier, ModContent.ItemType<BuffBanner>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<Gunboats>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<BattalionsBackup>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<Concheror>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<ReserveShooter>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<Mantreads>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Soldier, ModContent.ItemType<Equalizer>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<PainTrain>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<MarketGardener>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Soldier, ModContent.ItemType<DisciplinaryAction>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<Backburner>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Pyro, ModContent.ItemType<Degreaser>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<FlareGun>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<Detonator>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<Axtinguisher>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Pyro, ModContent.ItemType<Homewrecker>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Pyro, ModContent.ItemType<Powerjack>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Pyro, ModContent.ItemType<BackScratcher>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Pyro, ModContent.ItemType<SharpenedVolcanoFragment>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<LochnLoad>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<AliBabasWeeBooties>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<ScottishResistance>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<CharginTarge>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<SplendidScreen>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<StickyJumper>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<Eyelander>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<ScotsmansSkullcutter>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<UllapoolCaber>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<ClaidheamhMor>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<HalfZatoichi>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Demoman, ModContent.ItemType<PersianPersuader>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Heavy, ModContent.ItemType<Natascha>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<BrassBeast>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<Tomislav>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Heavy, ModContent.ItemType<Sandvich>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<DalokohsBar>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<BuffaloSteakSandvich>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<FamilyBusiness>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Heavy, ModContent.ItemType<KillingGlovesOfBoxing>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<GlovesOfRunningUrgently>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<WarriorsSpirit>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<FistsOfSteel>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Heavy, ModContent.ItemType<EvictionNotice>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Engineer, ModContent.ItemType<FrontierJustice>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Engineer, ModContent.ItemType<Wrangler>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Engineer, ModContent.ItemType<Gunslinger>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Engineer, ModContent.ItemType<SouthernHospitality>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Engineer, ModContent.ItemType<Jag>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<Blutsauger>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<CrusadersCrossbow>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<Overdose>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<Kritzkrieg>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<QuickFix>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<Ubersaw>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<VitaSaw>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<Amputator>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<SolemnVow>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Huntsman>(), 1);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<SydneySleeper>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<BazaarBargain>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Jarate>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Razorback>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<DarwinsDangerShield>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<TribalmansShiv>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<Bushwacka>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<Shahanshah>(), 0.99f);
+            AddShopItem(true, MannCoStoreCategory.Spy, ModContent.ItemType<Ambassador>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Spy, ModContent.ItemType<LEtranger>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Spy, ModContent.ItemType<Enforcer>(), 0.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Spy, ModContent.ItemType<YourEternalReward>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Spy, ModContent.ItemType<ConniversKunai>(), 1.99f);
+            AddShopItem(Main.hardMode, MannCoStoreCategory.Spy, ModContent.ItemType<BigEarner>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Spy, ModContent.ItemType<CloakAndDagger>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Spy, ModContent.ItemType<DeadRinger>(), 1.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<ScoutBuddy>(), 4.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SoldierBuddy>(), 6.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<PyroBuddy>(), 6.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<DemomanBuddy>(), 5.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<HeavyBuddy>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<EngineerBuddy>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<MedicBuddy>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SniperBuddy>(), 6.99f);
+            AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SpyBuddy>(), 5.99f);
+            MannCoStoreUI.UpdateItemGrid();
+        }
+
+        public static void AddShopItem(bool visible, MannCoStoreCategory category, int item = 0, float cost = 0f, int amount = 1, int item2 = 0, int amount2 = 1)
+        {
+            if (item == 0) return;
+            if (!Inventory.ContainsKey(category))
+                Inventory.Add(category, new List<MannCoStoreItem>());
+            Item item3 = new Item(item, 1, 0) { stack = amount };
+            Item item4 = new Item(item2, 1, 0) { stack = amount2 };
+            Inventory[category].Add(new MannCoStoreItem
             {
-                Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_FromThis(), ModContent.ItemType<MannCoStorePackage>(), 1);
-                return "Seems like you need a little help. Have this package. It's on me!";
-            }
-        }
-
-        public enum ShopType
-        {
-            Armory,
-            General,
-            Ores,
-            Bars,
-            Potions,
-            MorePotions,
-            Enemies,
-            Melee,
-            Ranger,
-            Mage,
-            Summoner
-        }
-
-        public override void SetChatButtons(ref string button, ref string button2)
-        { // What the chat buttons are when you open up the chat UI
-            button = "Mann Co. Store";
-            if ((ShopType)Main.LocalPlayer.GetModPlayer<TF2Player>().shopRotation != ShopType.MorePotions)
-                button2 = "Shop: " + (ShopType)Main.LocalPlayer.GetModPlayer<TF2Player>().shopRotation;
-            else
-                button2 = "Shop: More Potions";
-        }
-
-        public override void OnChatButtonClicked(bool firstButton, ref string shopName)
-        {
-            if (firstButton)
-                shopName = ((ShopType)Main.LocalPlayer.GetModPlayer<TF2Player>().shopRotation).ToString();
-            else
-            {
-                Player player = Main.LocalPlayer;
-                player.GetModPlayer<TF2Player>().shopRotation++;
-                if (player.GetModPlayer<TF2Player>().shopRotation > Enum.GetNames(typeof(ShopType)).Length - 1)
-                    player.GetModPlayer<TF2Player>().shopRotation = 0;
-            }
-        }
-
-        public override void AddShops()
-        {
-            NPCShop armory = new NPCShop(Type, "Armory")
-                .Add(new Item(ModContent.ItemType<MannCoSupplyCrateKey>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<ScoutBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SoldierBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<PyroBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<DemomanBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<HeavyBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<EngineerBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<MedicBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SniperBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add(new Item(ModContent.ItemType<SpyBundle>()) { shopCustomPrice = 1, shopSpecialCurrency = TF2.Australium })
-                .Add<SmallAmmoPotion>()
-                .Add<MediumAmmoPotion>()
-                .Add<LargeAmmoPotion>()
-                .Add<SmallHealthPotion>()
-                .Add<MediumHealthPotion>()
-                .Add<LargeHealthPotion>()
-                .Add(new Item(ModContent.ItemType<TF2MountItem>()) { shopCustomPrice = Item.buyPrice(gold: 1) })
-                .Add(new Item(ModContent.ItemType<CraftingAnvilItem>()), new Condition("HardMode", () => Main.hardMode));                
-            armory.Register();
-
-            NPCShop general = new NPCShop(Type, "General")
-                .Add(ItemID.LifeCrystal)
-                .Add(ItemID.TerrasparkBoots)
-                .Add(ItemID.Shellphone)
-                .Add(ItemID.FeralClaws)
-                .Add(ItemID.GoldenDelight)
-                .Add(new Item(ItemID.AlchemyTable), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.AnkhShield), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DiscountCard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.GreedyRing), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.RodofDiscord), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrossNecklace), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.StarCloak), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SliceOfCake), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrystalShard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.LifeFruit), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.AvengerEmblem), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.LihzahrdAltar), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.MasterNinjaGear), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.DestroyerEmblem), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.Picksaw), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.DestroyerEmblem), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.GoldenKey) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.ShadowKey), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.JungleKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CorruptionKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrimsonKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.HallowedKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.FrozenKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DungeonDesertKey) { shopCustomPrice = Item.buyPrice(platinum: 1) }, new Condition("HardMode", () => Main.hardMode));
-            general.Register();
-
-            NPCShop ores = new NPCShop(Type, "Ores")
-                .Add(new Item(ItemID.CopperOre) { shopCustomPrice = Item.buyPrice(copper: 50) })
-                .Add(new Item(ItemID.TinOre) { shopCustomPrice = Item.buyPrice(copper: 75) })
-                .Add(new Item(ItemID.IronOre) { shopCustomPrice = Item.buyPrice(silver: 1) })
-                .Add(new Item(ItemID.LeadOre) { shopCustomPrice = Item.buyPrice(silver: 1, copper: 50) })
-                .Add(new Item(ItemID.SilverOre) { shopCustomPrice = Item.buyPrice(silver: 1, copper: 50) })
-                .Add(new Item(ItemID.TungstenOre) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 25) })
-                .Add(new Item(ItemID.GoldOre) { shopCustomPrice = Item.buyPrice(silver: 3) })
-                .Add(new Item(ItemID.PlatinumOre) { shopCustomPrice = Item.buyPrice(silver: 4, copper: 50) })
-                .Add(new Item(ItemID.DemoniteOre) { shopCustomPrice = Item.buyPrice(silver: 10) })
-                .Add(new Item(ItemID.CrimtaneOre) { shopCustomPrice = Item.buyPrice(silver: 13) })
-                .Add(new Item(ItemID.Meteorite) { shopCustomPrice = Item.buyPrice(silver: 2) })
-                .Add(new Item(ItemID.Obsidian) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 50) })
-                .Add(new Item(ItemID.Hellstone) { shopCustomPrice = Item.buyPrice(silver: 2, copper: 50) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
-                .Add(new Item(ItemID.CobaltOre) { shopCustomPrice = Item.buyPrice(silver: 7) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.PalladiumOre) { shopCustomPrice = Item.buyPrice(silver: 9) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MythrilOre) { shopCustomPrice = Item.buyPrice(silver: 11) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.OrichalcumOre) { shopCustomPrice = Item.buyPrice(silver: 13) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.AdamantiteOre) { shopCustomPrice = Item.buyPrice(silver: 15) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TitaniumOre) { shopCustomPrice = Item.buyPrice(silver: 17) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.ChlorophyteOre) { shopCustomPrice = Item.buyPrice(silver: 15) }, new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.LunarOre) { shopCustomPrice = Item.buyPrice(silver: 30) }, new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.Amethyst) { shopCustomPrice = Item.buyPrice(silver: 3, copper: 75) })
-                .Add(new Item(ItemID.Topaz) { shopCustomPrice = Item.buyPrice(silver: 7, copper: 50) })
-                .Add(new Item(ItemID.Sapphire) { shopCustomPrice = Item.buyPrice(silver: 11, copper: 25) })
-                .Add(new Item(ItemID.Emerald) { shopCustomPrice = Item.buyPrice(silver: 15) })
-                .Add(new Item(ItemID.Ruby) { shopCustomPrice = Item.buyPrice(silver: 22, copper: 50) })
-                .Add(new Item(ItemID.Amber) { shopCustomPrice = Item.buyPrice(silver: 30) })
-                .Add(new Item(ItemID.Diamond) { shopCustomPrice = Item.buyPrice(silver: 30) });
-            ores.Register();
-
-            NPCShop bars = new NPCShop(Type, "Bars")
-                .Add(new Item(ItemID.CopperBar) { shopCustomPrice = Item.buyPrice(silver: 7, copper: 50) })
-                .Add(new Item(ItemID.TinBar) { shopCustomPrice = Item.buyPrice(silver: 11, copper: 25) })
-                .Add(new Item(ItemID.IronBar) { shopCustomPrice = Item.buyPrice(silver: 15) })
-                .Add(new Item(ItemID.LeadBar) { shopCustomPrice = Item.buyPrice(silver: 22, copper: 50) })
-                .Add(new Item(ItemID.SilverBar) { shopCustomPrice = Item.buyPrice(silver: 30) })
-                .Add(new Item(ItemID.TungstenBar) { shopCustomPrice = Item.buyPrice(silver: 45) })
-                .Add(new Item(ItemID.GoldBar) { shopCustomPrice = Item.buyPrice(silver: 60) })
-                .Add(new Item(ItemID.PlatinumBar) { shopCustomPrice = Item.buyPrice(silver: 90) })
-                .Add(new Item(ItemID.DemoniteBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 50) })
-                .Add(new Item(ItemID.CrimtaneBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 36) })
-                .Add(new Item(ItemID.MeteoriteBar) { shopCustomPrice = Item.buyPrice(silver: 70) })
-                .Add(new Item(ItemID.HellstoneBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 50) }, new Condition("DownedBoss2", () => NPC.downedBoss2))
-                .Add(new Item(ItemID.CobaltBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 5) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.PalladiumBar) { shopCustomPrice = Item.buyPrice(gold: 1, silver: 35) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MythrilBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 20) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.OrichalcumBar) { shopCustomPrice = Item.buyPrice(gold: 2, silver: 60) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.AdamantiteBar) { shopCustomPrice = Item.buyPrice(gold: 3) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TitaniumBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 40) }, new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.HallowedBar) { shopCustomPrice = Item.buyPrice(gold: 3, silver: 75) }, new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ChlorophyteBar) { shopCustomPrice = Item.buyPrice(gold: 4, silver: 50) }, new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.ShroomiteBar) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.SpectreBar) { shopCustomPrice = Item.buyPrice(gold: 5) }, new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.LunarBar) { shopCustomPrice = Item.buyPrice(gold: 6) }, new Condition("DownedMoonLord", () => NPC.downedMoonlord));
-            bars.Register();
-
-            NPCShop potions = new NPCShop(Type, "Potions")
-                .Add(ItemID.BottledWater)
-                .Add(ItemID.LesserHealingPotion)
-                .Add(ItemID.HealingPotion)
-                .Add(new Item(ItemID.GreaterHealingPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SuperHealingPotion), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist))
-                .Add(ItemID.LesserManaPotion)
-                .Add(ItemID.ManaPotion)
-                .Add(new Item(ItemID.GreaterManaPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SuperManaPotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.LuckPotionLesser)
-                .Add(ItemID.LuckPotion)
-                .Add(ItemID.LuckPotionGreater)
-                .Add(ItemID.AmmoReservationPotion)
-                .Add(ItemID.ArcheryPotion)
-                .Add(ItemID.BattlePotion)
-                .Add(ItemID.BuilderPotion)
-                .Add(ItemID.CalmingPotion)
-                .Add(ItemID.CratePotion)
-                .Add(ItemID.TrapsightPotion)
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.FeatherfallPotion)
-                .Add(ItemID.FishingPotion)
-                .Add(ItemID.FlipperPotion)
-                .Add(ItemID.GenderChangePotion)
-                .Add(ItemID.GillsPotion)
-                .Add(ItemID.GravitationPotion)
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.HeartreachPotion)
-                .Add(ItemID.HunterPotion)
-                .Add(ItemID.InfernoPotion)
-                .Add(ItemID.InvisibilityPotion)
-                .Add(ItemID.IronskinPotion);
-            potions.Register();
-
-            NPCShop morePotions = new NPCShop(Type, "MorePotions")
-                .Add(ItemID.EndurancePotion)
-                .Add(new Item(ItemID.LifeforcePotion), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.EndurancePotion)
-                .Add(ItemID.MagicPowerPotion)
-                .Add(ItemID.ManaRegenerationPotion)
-                .Add(ItemID.MiningPotion)
-                .Add(ItemID.NightOwlPotion)
-                .Add(ItemID.ObsidianSkinPotion)
-                .Add(ItemID.RagePotion)
-                .Add(ItemID.RecallPotion)
-                .Add(ItemID.RegenerationPotion)
-                .Add(ItemID.ShinePotion)
-                .Add(ItemID.SonarPotion)
-                .Add(ItemID.SpelunkerPotion)
-                .Add(ItemID.SummoningPotion)
-                .Add(ItemID.SwiftnessPotion)
-                .Add(ItemID.TeleportationPotion)
-                .Add(ItemID.ThornsPotion)
-                .Add(ItemID.TitanPotion)
-                .Add(ItemID.WarmthPotion)
-                .Add(ItemID.WaterWalkingPotion)
-                .Add(ItemID.WormholePotion)
-                .Add(ItemID.WrathPotion);
-            morePotions.Register();
-
-            NPCShop enemies = new NPCShop(Type, "Enemies")
-                .Add(new Item(ItemID.CursedFlame), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Ichor), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofLight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofNight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofFlight), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SoulofMight), new Condition("DownedDestroyer", () => NPC.downedMechBoss1))
-                .Add(new Item(ItemID.SoulofSight), new Condition("DownedTwins", () => NPC.downedMechBoss2))
-                .Add(new Item(ItemID.SoulofFright), new Condition("DownedSkeletronPrime", () => NPC.downedMechBoss3))
-                .Add(new Item(ItemID.DarkShard), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.LightShard), new Condition("HardMode", () => Main.hardMode));
-            enemies.Register();
-
-            NPCShop melee = new NPCShop(Type, "Melee")
-                .Add(ItemID.CopperShortsword)
-                .Add(ItemID.Starfury)
-                .Add(ItemID.EnchantedSword)
-                .Add(ItemID.BladeofGrass)
-                .Add(new Item(ItemID.BeeKeeper), new Condition("DownedQueenBee", () => NPC.downedQueenBee))
-                .Add(new Item(ItemID.Muramasa), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.Seedler), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.TheHorsemansBlade), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.InfluxWaver), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.Meowmere), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.StarWrath), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.BrokenHeroSword), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.ShadowFlameKnife), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DripplerFlail), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.YoyoBag), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.BouncingShield), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.BerserkerGlove), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.TurtleShell), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.FireGauntlet), new Condition("DownedMechBoss", () => NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3))
-                .Add(new Item(ItemID.BeetleHusk), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.CelestialShell), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(ItemID.SharpeningStation)
-                .Add(new Item(ItemID.FragmentSolar), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            melee.Register();
-
-            NPCShop ranger = new NPCShop(Type, "Ranger")
-                .Add(new Item(ItemID.PhoenixBlaster), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.ZapinatorGray), new Condition("DownedAnyBoss", () => NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3 || NPC.downedQueenBee))
-                .Add(new Item(ItemID.ZapinatorOrange), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.DaedalusStormbow), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Megashark), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Uzi), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SDMG), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.TacticalShotgun), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.Celeb2), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.MoltenQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.StalkersQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.ReconScope), new Condition("DownedGolem", () => NPC.downedGolemBoss))
-                .Add(new Item(ItemID.EndlessQuiver), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.EndlessMusketPouch), new Condition("HardMode", () => Main.hardMode))
-                .Add(ItemID.AmmoBox)
-                .Add(new Item(ItemID.FragmentVortex), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            ranger.Register();
-
-            NPCShop mage = new NPCShop(Type, "Mage")
-                .Add(ItemID.ManaCrystal)
-                .Add(ItemID.DemonScythe)
-                .Add(new Item(ItemID.WaterBolt), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.SkyFracture), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.MeteorStaff), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CrystalSerpent), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.UnholyTrident), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ShadowbeamStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.InfernoFork), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.SpectreStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.LastPrism), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.LunarFlareBook), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(ItemID.ManaFlower)
-                .Add(ItemID.CelestialMagnet)
-                .Add(ItemID.MagicCuffs)
-                .Add(new Item(ItemID.CrystalBall), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Ectoplasm), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.FragmentNebula), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            mage.Register();
-
-            NPCShop summoner = new NPCShop(Type, "Summoner")
-                .Add(ItemID.SlimeStaff)
-                .Add(ItemID.FlinxStaff)
-                .Add(ItemID.VampireFrogStaff)
-                .Add(ItemID.AbigailsFlower)
-                .Add(new Item(ItemID.SanguineStaff), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.Smolstar), new Condition("DownedQueenSlime", () => NPC.downedQueenSlime))
-                .Add(new Item(ItemID.OpticStaff), new Condition("DownedTwins", () => NPC.downedMechBoss2))
-                .Add(new Item(ItemID.PygmyStaff), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.EmpressBlade), new Condition("DownedEmpressOfLight", () => NPC.downedEmpressOfLight))
-                .Add(new Item(ItemID.MoonlordTurretStaff), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(new Item(ItemID.RainbowCrystalStaff), new Condition("DownedMoonLord", () => NPC.downedMoonlord))
-                .Add(ItemID.ThornWhip)
-                .Add(new Item(ItemID.BoneWhip), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.FireWhip), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.CoolWhip), new Condition("HardMode", () => Main.hardMode))
-                .Add(new Item(ItemID.SwordWhip), new Condition("DownedOneMechBoss", () => NPC.downedMechBossAny))
-                .Add(new Item(ItemID.ScytheWhip), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.MaceWhip), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.RainbowWhip), new Condition("DownedEmpressOfLight", () => NPC.downedEmpressOfLight))
-                .Add(ItemID.PygmyNecklace)
-                .Add(new Item(ItemID.NecromanticScroll), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.PapyrusScarab), new Condition("DownedPlantera", () => NPC.downedPlantBoss))
-                .Add(new Item(ItemID.BewitchingTable), new Condition("DownedBoss3", () => NPC.downedBoss3))
-                .Add(new Item(ItemID.FragmentStardust), new Condition("DownedLunaticCultist", () => NPC.downedAncientCultist));
-            summoner.Register();
+                Item = item3,
+                Item2 = item4,
+                Cost = cost,
+                Visible = visible
+            });
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)
-        {
-        }
+        { }
 
-        // Make this Town NPC teleport to the King and/or Queen statue when triggered.
         public override bool CanGoToStatue(bool toKingStatue) => true;
 
-        public override void TownNPCAttackStrength(ref int damage, ref float knockback)
+        public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            damage = 100;
-            knockback = 20f;
-        }
-
-        public override void TownNPCAttackCooldown(ref int cooldown, ref int randExtraCooldown)
-        {
-            cooldown = 60;
-            randExtraCooldown = 0;
-        }
-
-        // todo: implement
-        // public override void TownNPCAttackProj(ref int projType, ref int attackDelay) {
-        // 	projType = ProjectileType<SparklingBall>();
-        // 	attackDelay = 1;
-        // }
-
-        public override void TownNPCAttackProjSpeed(ref float multiplier, ref float gravityCorrection, ref float randomOffset)
-        {
-            multiplier = 12f;
-            randomOffset = 2f;
+            if (attackTime > 0)
+            {
+                int height = spriteSheet.Value.Height / 25;
+                spriteBatch.Draw(spriteSheet.Value, NPC.position - screenPos, new Rectangle(0, height * 24 - 2, spriteSheet.Value.Width, height), drawColor, 0f, new Vector2(NPC.direction == 1 ? spriteSheet.Value.Width - NPC.width : 0, height - NPC.height), NPC.scale, (SpriteEffects)((NPC.direction == 1) ? 1 : 0), 0f);
+                return false;
+            }
+            else return true;
         }
 
         public override void AI()
         {
-            ai += 1;
-            float distanceFromTarget = 1000f;
+            ai++;
+            if (attackTime > 0)
+            {
+                NPC.spriteDirection = NPC.direction = direction;
+                attackTime--;
+            }
+            NPC.netUpdate = true;
+            float distanceFromTarget = NPCID.Sets.DangerDetectRange[Type];
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if (!foundTarget && ai >= 60) //&& Main.netMode != NetmodeID.MultiplayerClient
+            if (!foundTarget && ai >= TF2.Time(1) && Main.netMode != NetmodeID.MultiplayerClient)
             {
-                // This code is required either way, used for finding a target
                 foreach (NPC targetNPC in Main.npc)
                 {
                     ai = 0;
@@ -483,8 +285,6 @@ namespace TF2.Content.NPCs.TownNPCs
                         bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
                         bool inRange = between < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
-                        // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                         bool closeThroughWall = between < 100f;
                         if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
@@ -493,29 +293,42 @@ namespace TF2.Content.NPCs.TownNPCs
                             foundTarget = true;
                         }
                     }
+                    NPC.netUpdate = true;
                 }
                 if (foundTarget)
                 {
                     Vector2 shootVel = NPC.DirectionTo(targetCenter);
-                    if ((targetCenter - NPC.Center).X > 0f)
-                        NPC.spriteDirection = NPC.direction = 1;
-                    else if ((targetCenter - NPC.Center).X < 0f)
-                        NPC.spriteDirection = NPC.direction = -1;
+                    direction = (targetCenter - NPC.Center).X > 0f ? 1 : -1;
                     float speed = 10f;
                     int type = ModContent.ProjectileType<KnifeProjectileNPC>();
                     int damage = NPC.damage;
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/melee_swing"), NPC.Center);
                     if ((targetCenter - NPC.Center).Y >= 0f)
-                        NPC.velocity = new Vector2(25f * NPC.direction, 15f);
+                        NPC.velocity = new Vector2(25f * direction, 15f);
                     if ((targetCenter - NPC.Center).Y <= 0f)
-                        NPC.velocity = new Vector2(25f * NPC.direction, -15f);
+                        NPC.velocity = new Vector2(25f * direction, -15f);
                     TF2Projectile projectile = TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
                     KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)projectile;
                     spawnedModProjectile.thisNPC = NPC;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile.Projectile.whoAmI);
+                    NPC.spriteDirection = NPC.direction = NPC.velocity.X >= 0f ? 1 : -1;
+                    attackTime += TF2.Time(1);
+                    NPC.netUpdate = true;
                 }
             }
+        }
+
+        public override void SendExtraAI(BinaryWriter writer)
+        {
+            writer.Write(ai);
+            writer.Write(attackTime);
+        }
+
+        public override void ReceiveExtraAI(BinaryReader reader)
+        {
+            reader.ReadInt32();
+            reader.ReadInt32();
         }
 
         public override bool UsesPartyHat() => false;
@@ -539,5 +352,31 @@ namespace TF2.Content.NPCs.TownNPCs
         }
 
         public int GetHeadTextureIndex(NPC npc) => ModContent.GetModHeadSlot("TF2/Content/NPCs/TownNPCs/SaxtonHale_Head");
+    }
+
+    public class MannCoStoreItem
+    {
+        public Item Item { get; set; }
+
+        public Item Item2 { get; set; }
+
+        public float Cost { get; set; }
+
+        public bool Visible { get; set; }
+    }
+
+    public enum MannCoStoreCategory
+    {
+        All,
+        Scout,
+        Soldier,
+        Pyro,
+        Demoman,
+        Heavy,
+        Engineer,
+        Medic,
+        Sniper,
+        Spy,
+        Buddy
     }
 }

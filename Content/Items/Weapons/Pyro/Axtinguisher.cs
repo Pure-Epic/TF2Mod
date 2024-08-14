@@ -24,7 +24,8 @@ namespace TF2.Content.Items.Weapons.Pyro
             AddNegativeAttribute(description);
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
         {
             if (target.HasBuff(ModContent.BuffType<PyroFlames>()))
             {
@@ -40,36 +41,25 @@ namespace TF2.Content.Items.Weapons.Pyro
                 modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().classMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
-            else if (player.GetModPlayer<TF2Player>().critMelee)
-            {
-                player.GetModPlayer<TF2Player>().crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            }
-            else
-                modifiers.DisableCrit();
         }
 
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (target.HasBuff(ModContent.BuffType<PyroFlames>()))
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlames>());
-                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().classMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
             else if (target.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>()))
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlamesDegreaser>());
-                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().classMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
-            else if (player.GetModPlayer<TF2Player>().critMelee)
-            {
-                player.GetModPlayer<TF2Player>().crit = true;
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
-            }
         }
+
     }
 }

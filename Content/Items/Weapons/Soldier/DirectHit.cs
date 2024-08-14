@@ -8,7 +8,7 @@ namespace TF2.Content.Items.Weapons.Soldier
     {
         protected override void WeaponStatistics()
         {
-            SetWeaponCategory(Soldier, Primary, Unlock, Unique);
+            SetWeaponCategory(Soldier, Primary, Unique, Unlock);
             SetWeaponSize(50, 16);
             SetWeaponOffset(-25f);
             SetGunUseStyle(rocketLauncher: true);

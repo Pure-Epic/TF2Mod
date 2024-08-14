@@ -10,11 +10,11 @@ namespace TF2.Content.Items.Weapons.Soldier
     {
         protected override void WeaponStatistics()
         {
-            SetWeaponCategory(Soldier, Melee, Unlock, Unique);
+            SetWeaponCategory(Soldier, Melee, Unique, Unlock);
             SetSwingUseStyle();
             SetWeaponDamage(damage: 33);
             SetWeaponAttackSpeed(0.8);
-            SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/shovel_swing");
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/pickaxe_swing");
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

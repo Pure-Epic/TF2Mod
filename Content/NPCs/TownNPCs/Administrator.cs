@@ -8,10 +8,10 @@ using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
-using TF2.Content.Items.NPCSummoners;
 
 namespace TF2.Content.NPCs.TownNPCs
 {
+    [ExtendsFromMod("Deprecated Code")]
     [AutoloadHead]
     public class Administrator : ModNPC
     {
@@ -65,18 +65,16 @@ namespace TF2.Content.NPCs.TownNPCs
             AnimationType = NPCID.Guide;
         }
 
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
-        {
+        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) =>
             // We can use AddRange instead of calling Add multiple times in order to add multiple items at once
-            bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
+            bestiaryEntry.Info.AddRange([
 				// Sets the preferred biomes of this town NPC listed in the bestiary.
 				// With Town NPCs, you usually set this to what biome it likes the most in regards to NPC happiness.
 				BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
 
 				// Sets your NPC's flavor text in the bestiary.
 				new FlavorTextBestiaryInfoElement("Administrator is the CEO of TF Industries. She announces crucial events during the clash of mercenaries. She sides with no one, only being a double agent to help her gain an advantage."),
-            });
-        }
+            ]);
 
         public override void HitEffect(NPC.HitInfo hit)
         {
@@ -123,21 +121,6 @@ namespace TF2.Content.NPCs.TownNPCs
         {
             if (firstButton)
                 shopName = "Shop";
-        }
-
-        public override void AddShops()
-        {
-            NPCShop npcShop = new NPCShop(Type, "Shop")
-                .Add(new Item(ModContent.ItemType<ScoutSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1) })
-                .Add(new Item(ModContent.ItemType<SoldierSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 2) })
-                .Add(new Item(ModContent.ItemType<PyroSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50) })
-                .Add(new Item(ModContent.ItemType<DemomanSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 50) })
-                .Add(new Item(ModContent.ItemType<HeavySummon>()) { shopCustomPrice = Item.buyPrice(platinum: 4) })
-                .Add(new Item(ModContent.ItemType<EngineerSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25) })
-                .Add(new Item(ModContent.ItemType<MedicSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 5) })
-                .Add(new Item(ModContent.ItemType<SniperSummon>()) { shopCustomPrice = Item.buyPrice(platinum: 2) })
-                .Add(new Item(ModContent.ItemType<SpySummon>()) { shopCustomPrice = Item.buyPrice(platinum: 1, gold: 25) });
-            npcShop.Register();
         }
 
         public override void ModifyNPCLoot(NPCLoot npcLoot)

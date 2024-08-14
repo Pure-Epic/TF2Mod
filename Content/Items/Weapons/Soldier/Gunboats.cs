@@ -28,14 +28,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<Razorback>()
-                .AddIngredient<CharginTarge>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Razorback>().AddIngredient<CharginTarge>().AddTile<CraftingAnvil>().Register();
     }
 
     public class GunboatsPlayer : ModPlayer

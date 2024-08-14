@@ -28,28 +28,19 @@ namespace TF2.Content.Items.Weapons.Scout
             AddNeutralAttribute(description);
         }
 
-        public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (TF2.IsNPCOnFire(target))
-                player.GetModPlayer<TF2Player>().crit = true;
-            DemomanMeleeCrit(player);
-        }
-
-        public override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers)
         {
             if (TF2.IsPlayerOnFire(target))
                 player.GetModPlayer<TF2Player>().crit = true;
-            DemomanMeleeCrit(player);
         }
 
-        public override void AddRecipes()
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            CreateRecipe()
-                .AddIngredient<BostonBasher>()
-                .AddIngredient<ReclaimedMetal>(2)
-                .AddTile<CraftingAnvil>()
-                .Register();
+            if (TF2.IsNPCOnFire(target))
+                player.GetModPlayer<TF2Player>().crit = true;
         }
+
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BostonBasher>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
     }
 
     public class SunonaStickPlayer : ModPlayer

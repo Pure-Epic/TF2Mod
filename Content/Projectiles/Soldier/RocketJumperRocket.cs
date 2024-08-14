@@ -11,16 +11,16 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override void ProjectileAI()
         {
-            foreach (NPC npc in Main.npc)
+            foreach (Player player in Main.ActivePlayers)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.active)
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner)
+                    Projectile.timeLeft = 0;
+            }
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                if (Projectile.Hitbox.Intersects(npc.Hitbox))
                     Projectile.timeLeft = 0;
 
-            }
-            foreach (Player player in Main.player)
-            {
-                if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && player.active)
-                    Projectile.timeLeft = 0;
             }
             if (Projectile.timeLeft == 0)
             {

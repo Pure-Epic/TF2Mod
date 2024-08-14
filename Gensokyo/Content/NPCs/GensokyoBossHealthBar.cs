@@ -19,7 +19,7 @@ namespace TF2.Gensokyo.Content.NPCs
         public override Asset<Texture2D> GetIconTexture(ref Rectangle? iconFrame)
         {
             // Display the previously assigned head index
-            if (bossHeadIndex != -1)
+            if (bossHeadIndex > -1)
                 return TextureAssets.NpcHeadBoss[bossHeadIndex];
             return null;
         }
@@ -34,11 +34,9 @@ namespace TF2.Gensokyo.Content.NPCs
             return null;
         }
 
-        public override bool PreDraw(SpriteBatch spriteBatch, NPC npc, ref BossBarDrawParams drawParams)
-        {
+        public override bool PreDraw(SpriteBatch spriteBatch, NPC npc, ref BossBarDrawParams drawParams) =>
             // Don't know
-            return true;
-        }
+            true;
 
         public override void PostDraw(SpriteBatch spriteBatch, NPC npc, BossBarDrawParams drawParams)
         {

@@ -27,13 +27,6 @@ namespace TF2.Content.Items.Weapons.Demoman
             AddNeutralAttribute(description);
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<UllapoolCaber>(3)
-                .AddIngredient<ReclaimedMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<UllapoolCaber>(3).AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }
 }

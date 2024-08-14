@@ -96,4 +96,19 @@ namespace TF2.Content.Projectiles.Heavy
                 Player.Heal(TF2.GetHealth(Player, 50));
         }
     }
+
+    public class EvictionNoticeProjectile : FistProjectile
+    {
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
+        {
+            if (!info.PvP) return;
+            Player.AddBuff(ModContent.BuffType<HeavySpeed>(), TF2.Time(3));
+        }
+
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (target.type != NPCID.TargetDummy)
+                Player.AddBuff(ModContent.BuffType<HeavySpeed>(), TF2.Time(3));
+        }
+    }
 }

@@ -14,7 +14,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
-using Terraria.GameContent.UI;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
@@ -24,24 +23,24 @@ using Terraria.IO;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
+using Terraria.UI.Chat;
+using Terraria.UI.Gamepad;
 using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Weapons;
-using TF2.Content.Items.Weapons.Demoman;
-using TF2.Content.Items.Weapons.Engineer;
-using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.Items.Weapons.Medic;
-using TF2.Content.Items.Weapons.MultiClass;
-using TF2.Content.Items.Weapons.Pyro;
 using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
-using TF2.Content.Items.Weapons.Soldier;
 using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.Mounts;
+using TF2.Content.NPCs.Buddies;
+using TF2.Content.NPCs.Buildings;
+using TF2.Content.NPCs.TownNPCs;
 using TF2.Content.Projectiles;
 using TF2.Content.UI;
+using TF2.Content.UI.MannCoStore;
 using TF2.Content.UI.MercenaryCreationMenu;
 using TF2.Gensokyo.Content.Items.BossSummons;
 
@@ -53,15 +52,47 @@ namespace TF2
 
         internal static LocalizedText TF2MercenaryText { get; private set; }
 
+        public static float Money
+        {
+            get => Main.LocalPlayer.GetModPlayer<TF2Player>().money;
+            set => Main.LocalPlayer.GetModPlayer<TF2Player>().money = value;
+        }
+
+        public static bool MannCoStoreActive => MannCoStore.CurrentState is MannCoStoreUI || MannCoStore.CurrentState is MannCoStoreShoppingCartUI;
+
+        public static int MannCoStorePage
+        {
+            get => Main.LocalPlayer.GetModPlayer<TF2Player>().page;
+            set => Main.LocalPlayer.GetModPlayer<TF2Player>().page = value;
+        }
+
+        public static List<MannCoStoreItem> ShoppingCart => Main.LocalPlayer.GetModPlayer<TF2Player>().shoppingCart;
+
+        public static float TotalCost
+        {
+            get
+            {
+                float cost = 0f;
+                List<MannCoStoreItem> shoppingCart = Main.LocalPlayer.GetModPlayer<TF2Player>().shoppingCart;
+                for (int i = 0; i < shoppingCart.Count; i++)
+                    cost += shoppingCart[i].Cost;
+                return cost;
+            }
+        }
+
         internal static Asset<Texture2D> ClassPowerIcon;
-        // Registers a new custom currency
-        public static readonly int Australium = CustomCurrencyManager.RegisterCurrency(new Content.Items.Currencies.AustraliumCurrency(ModContent.ItemType<Content.Items.Currencies.Australium>(), 999L, "Australium"));
         public static IPlayerRenderer PlayerRenderer = new TF2PlayerRenderer();
+        public static UserInterface MannCoStore = new UserInterface();
         private ClassIcon classUI;
         public static Mod Gensokyo;
         public static bool gensokyoLoaded;
-        public Hook ModifyMaxStats = new Hook(typeof(PlayerLoader).GetMethod("ModifyMaxStats", BindingFlags.Static | BindingFlags.Public), Hook_ModifyMaxStats);
+        public Hook ModifyMaxStats;
+        public Hook PLayerModifyHitByProjectile;
+        public Hook ModifyHitByProjectile;
+
         public delegate void ModifyMaxStatsAction(Player player);
+        public delegate void PLayerModifyHitByProjectileAction(Player player, Projectile proj, ref Player.HurtModifiers modifiers);
+        public delegate void ModifyHitByProjectileAction(NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers);
 
         public override void Load()
         {
@@ -73,40 +104,57 @@ namespace TF2
                     return item.ModItem is TF2Item;
                 }));
             }
-            TF2DeathMessagesLocalization = new LocalizedText[]
-            {
+            TF2DeathMessagesLocalization =
+            [
                 Language.GetText("Mods.TF2.DeathMessages.Bleeding"),
                 Language.GetText("Mods.TF2.DeathMessages.BostonBasher"),
                 Language.GetText("Mods.TF2.DeathMessages.Explosion"),
+                Language.GetText("Mods.TF2.DeathMessages.Mantreads"),
                 Language.GetText("Mods.TF2.DeathMessages.HalfZatoichi"),
                 Language.GetText("Mods.TF2.DeathMessages.Fire"),
                 Language.GetText("Mods.TF2.DeathMessages.Sapper"),
                 Language.GetText("Mods.TF2.DeathMessages.Backstab")
-            };
+            ];
             TF2MercenaryText = Language.GetText("Mods.TF2.UI.TF2MercenaryCreation.Mercenary");
             ClassPowerIcon = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/ClassPower");
+            ModifyMaxStats = new Hook(typeof(PlayerLoader).GetMethod("ModifyMaxStats", BindingFlags.Static | BindingFlags.Public), Hook_ModifyMaxStats);
+            ModifyMaxStats.Apply();
+            PLayerModifyHitByProjectile = new Hook(typeof(PlayerLoader).GetMethod("ModifyHitByProjectile", BindingFlags.Static | BindingFlags.Public), Hook_PlayerModifyHitByProjectile);
+            PLayerModifyHitByProjectile.Apply();
+            ModifyHitByProjectile = new Hook(typeof(NPCLoader).GetMethod("ModifyHitByProjectile", BindingFlags.Static | BindingFlags.Public), Hook_ModifyHitByProjectile);
+            ModifyHitByProjectile.Apply();
             On_UICharacter.DrawSelf += Hook_UICharacter_DrawSelf;
             On_UICharacterListItem.ctor += Hook_UICharacterList;
-            IL_UICharacterListItem.DrawSelf += Hook_UICharacterListItem_DrawSelf; ;
+            IL_UICharacterListItem.DrawSelf += Hook_UICharacterListItem_DrawSelf;
             On_UICharacterSelect.NewCharacterClick += Hook_NewCharacterClick;
             On_Player.Spawn += Hook_Spawn;
             IL_Player.Update += Hook_Update;
             On_Player.GetWeaponDamage += Hook_GetWeaponDamage;
             On_Player.GetImmuneAlpha += Hook_GetImmuneAlpha;
             On_Player.GetImmuneAlphaPure += Hook_GetImmuneAlphaPure;
+            On_Player.ApplyEquipFunctional += Hook_ApplyEquipFunctional;
             On_PlayerDrawSet.HeadOnlySetup += Hook_HeadOnlySetup;
             IL_PlayerDrawSet.BoringSetup_2 += Hook_PlayerDrawSet;
             On_ItemSlot.LeftClick_ItemArray_int_int += Hook_LeftClick;
             On_Main.GUIHotbarDrawInner += Hook_GUIHotbarDrawInner;
             IL_Main.MouseText_DrawItemTooltip += Hook_MouseText_DrawItemTooltip;
             On_Main.DrawMouseOver += Hook_DrawMouseOver;
+            On_Main.HoverOverNPCs += Hook_HoverOverNPCs;
             On_NPC.HitModifiers.GetDamage += Hook_GetDamage;
+            On_NPC.CalculateHitInfo += Hook_CalculateHitInfo;
+            On_NPC.UpdateNPC_BuffApplyDOTs += Hook_UpdateNPC_BuffApplyDOTs;
+            On_NPC.CheckLifeRegen += Hook_CheckLifeRegen;
             On_NPC.NPCLoot_DropHeals += Hook_NPCLoot_DropHeals;
             On_NPC.DoDeathEvents_DropBossPotionsAndHearts += Hook_DoDeathEvents_DropBossPotionsAndHearts;
+            On_Main.DrawNPCChatButtons += Hook_DrawNPCChatButtons;
         }
 
         public override void Unload()
         {
+            ModifyMaxStats.Undo();
+            ModifyMaxStats = null;
+            ModifyHitByProjectile.Undo();
+            ModifyHitByProjectile = null;
             On_UICharacter.DrawSelf -= Hook_UICharacter_DrawSelf;
             On_UICharacterListItem.ctor -= Hook_UICharacterList;
             IL_UICharacterListItem.DrawSelf -= Hook_UICharacterListItem_DrawSelf;
@@ -116,15 +164,24 @@ namespace TF2
             On_Player.GetWeaponDamage -= Hook_GetWeaponDamage;
             On_Player.GetImmuneAlpha -= Hook_GetImmuneAlpha;
             On_Player.GetImmuneAlphaPure -= Hook_GetImmuneAlphaPure;
+            On_Player.ApplyEquipFunctional -= Hook_ApplyEquipFunctional;
             On_PlayerDrawSet.HeadOnlySetup -= Hook_HeadOnlySetup;
             IL_PlayerDrawSet.BoringSetup_2 -= Hook_PlayerDrawSet;
             On_ItemSlot.LeftClick_ItemArray_int_int -= Hook_LeftClick;
             On_Main.GUIHotbarDrawInner -= Hook_GUIHotbarDrawInner;
             IL_Main.MouseText_DrawItemTooltip -= Hook_MouseText_DrawItemTooltip;
             On_Main.DrawMouseOver -= Hook_DrawMouseOver;
+            On_Main.HoverOverNPCs -= Hook_HoverOverNPCs;
             On_NPC.HitModifiers.GetDamage -= Hook_GetDamage;
+            On_NPC.CalculateHitInfo -= Hook_CalculateHitInfo;
+            On_NPC.UpdateNPC_BuffApplyDOTs -= Hook_UpdateNPC_BuffApplyDOTs;
+            On_NPC.CheckLifeRegen -= Hook_CheckLifeRegen;
             On_NPC.NPCLoot_DropHeals -= Hook_NPCLoot_DropHeals;
             On_NPC.DoDeathEvents_DropBossPotionsAndHearts -= Hook_DoDeathEvents_DropBossPotionsAndHearts;
+            On_Main.DrawNPCChatButtons -= Hook_DrawNPCChatButtons;
+            TF2DeathMessagesLocalization = null;
+            TF2MercenaryText = null;
+            ClassPowerIcon = null;
             Gensokyo = null;
         }
 
@@ -135,93 +192,11 @@ namespace TF2
             try
             {
                 string message = (string)args[0];
-
                 switch (message)
                 {
                     case "AddGensokyoShopItem":
                         if (Gensokyo != null)
                         {
-                            AddShopItem((int)args[1], NPC.downedMoonlord, "Tools", ModContent.ItemType<BossRushSummon>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<ForceANature>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Shortstop>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<BonkAtomicPunch>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<CritaCola>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<MadMilk>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Sandman>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<HolyMackerel>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<CandyCane>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BostonBasher>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<SunonaStick>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<FanOWar>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<DirectHit>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BlackBox>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<RocketJumper>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<BuffBanner>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Gunboats>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BattalionsBackup>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Concheror>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Equalizer>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<PainTrain>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Backburner>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Degreaser>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<FlareGun>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Axtinguisher>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Homewrecker>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Powerjack>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BackScratcher>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<SharpenedVolcanoFragment>(), 1);
-
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<LochnLoad>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<ScottishResistance>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<CharginTarge>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<StickyJumper>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Eyelander>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<ScotsmansSkullcutter>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<UllapoolCaber>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<ClaidheamhMor>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<HalfZatoichi>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Natascha>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BrassBeast>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Sandvich>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<DalokohsBar>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<BuffaloSteakSandvich>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<KillingGlovesOfBoxing>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<GlovesOfRunningUrgently>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<WarriorsSpirit>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<FistsOfSteel>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<FrontierJustice>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Wrangler>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Gunslinger>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<SouthernHospitality>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Jag>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Blutsauger>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<CrusadersCrossbow>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Kritzkrieg>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Ubersaw>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<VitaSaw>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Amputator>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Huntsman>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<SydneySleeper>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Jarate>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Razorback>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<DarwinsDangerShield>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<TribalmansShiv>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<Bushwacka>(), 1);
-
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<Ambassador>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<LEtranger>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<YourEternalReward>(), 1);
-                            AddShopItem((int)args[1], Main.hardMode, "Weapons", ModContent.ItemType<ConniversKunai>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<CloakAndDagger>(), 1);
-                            AddShopItem((int)args[1], true, "Weapons", ModContent.ItemType<DeadRinger>(), 1);
-
                             if (TryFind("PhotonShotgun", out ModItem photonShotgun))
                                 AddShopItem((int)args[1], true, "Weapons", photonShotgun.Type, 1);
                             if (TryFind("ManualInferno", out ModItem manualInferno))
@@ -234,6 +209,255 @@ namespace TF2
                                 AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", offensiveRocketSystem.Type, 1);
                             if (TryFind("HeadhunterPistols", out ModItem headhunterPistols))
                                 AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", headhunterPistols.Type, 1);
+                            if (TryFind("GensokyoDLC_StarterBox", out ModItem starterBox))
+                                AddShopItem((int)args[1], true, "Consumables", starterBox.Type, 1);
+                            if (!ModContent.GetInstance<TF2Config>().Shop)
+                            {
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Tools", ModContent.ItemType<BossRushSummon>(), 1);
+                                AddShopItem((int)args[1], true, "Consumables", ItemID.LifeCrystal, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.TerrasparkBoots, 1);
+                                AddShopItem((int)args[1], true, "Tools", ItemID.Shellphone, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.FeralClaws, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.GoldenDelight, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Placeables", ItemID.AlchemyTable, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.AnkhShield, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.DiscountCard, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.GreedyRing, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Tools", ItemID.RodofDiscord, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.CrossNecklace, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.StarCloak, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Placeables", ItemID.SliceOfCake, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CrystalShard, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Consumables", ItemID.LifeFruit, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Accessories", ItemID.AvengerEmblem, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Placeables", ItemID.LihzahrdAltar, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.MasterNinjaGear, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Accessories", ItemID.DestroyerEmblem, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Tools", ItemID.Picksaw, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Miscellaneous", ItemID.GoldenKey, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Miscellaneous", ItemID.ShadowKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.JungleKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CorruptionKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CrimsonKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.HallowedKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.FrozenKey, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.DungeonDesertKey, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CopperOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TinOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.IronOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.LeadOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.SilverOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TungstenOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.GoldOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.PlatinumOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.DemoniteOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CrimtaneOre, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Miscellaneous", ItemID.Meteorite, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Obsidian, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss2, "Miscellaneous", ItemID.Hellstone, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CobaltOre, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.PalladiumOre, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.MythrilOre, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.OrichalcumOre, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.AdamantiteOre, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.TitaniumOre, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.ChlorophyteOre, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Miscellaneous", ItemID.LunarOre, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Amethyst, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Topaz, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Sapphire, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Emerald, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Ruby, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Amber, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Diamond, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CopperBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TinBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.IronBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.LeadBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.SilverBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TungstenBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.GoldBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.PlatinumBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.DemoniteBar, 1);
+                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CrimtaneBar, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Miscellaneous", ItemID.MeteoriteBar, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss2, "Miscellaneous", ItemID.HellstoneBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CobaltBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.PalladiumBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.MythrilBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.OrichalcumBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.AdamantiteBar, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.TitaniumBar, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.HallowedBar, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.ChlorophyteBar, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.ShroomiteBar, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.SpectreBar, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Miscellaneous", ItemID.LunarBar, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.BottledWater, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.LesserHealingPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.HealingPotion, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.GreaterHealingPotion, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Potions", ItemID.SuperHealingPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.LesserManaPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ManaPotion, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.GreaterManaPotion, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Potions", ItemID.SuperManaPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotionLesser, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotionGreater, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.AmmoReservationPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ArcheryPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.BattlePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.BuilderPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.CalmingPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.CratePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.TrapsightPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.EndurancePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.FeatherfallPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.FishingPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.FlipperPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.GenderChangePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.GillsPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.GravitationPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.HeartreachPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.HunterPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.InfernoPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.InvisibilityPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.IronskinPotion, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.LifeforcePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.MagicPowerPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ManaRegenerationPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.MiningPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.NightOwlPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ObsidianSkinPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.RagePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.RecallPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.RegenerationPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ShinePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.SonarPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.SpelunkerPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.SummoningPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.SwiftnessPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.TeleportationPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.ThornsPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.TitanPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.WarmthPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.WaterWalkingPotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.WormholePotion, 1);
+                                AddShopItem((int)args[1], true, "Potions", ItemID.WrathPotion, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CursedFlame, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.Ichor, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofLight, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofNight, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofFlight, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofMight, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofSight, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofFright, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.DarkShard, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.LightShard, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.CopperShortsword, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.Starfury, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.EnchantedSword, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.BladeofGrass, 1);
+                                AddShopItem((int)args[1], NPC.downedQueenBee || NPC.downedBoss3, "Weapons", ItemID.BeeKeeper, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.Muramasa, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.Seedler, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.TheHorsemansBlade, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.InfluxWaver, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.Meowmere, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.StarWrath, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.BrokenHeroSword, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.ShadowFlameKnife, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.DripplerFlail, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.YoyoBag, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.BouncingShield, 1);
+                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.Flairon, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.BerserkerGlove, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.TurtleShell, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Accessories", ItemID.FireGauntlet, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.BeetleHusk, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.CelestialShell, 1);
+                                AddShopItem((int)args[1], true, "Placeables", ItemID.SharpeningStation, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentSolar, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.PhoenixBlaster, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.ZapinatorGray, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.ZapinatorOrange, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.DaedalusStormbow, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.Megashark, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.Uzi, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.TacticalShotgun, 1);
+                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.Tsunami, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.SDMG, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.Celeb2, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.MoltenQuiver, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.StalkersQuiver, 1);
+                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Accessories", ItemID.ReconScope, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.EndlessQuiver, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.EndlessMusketPouch, 1);
+                                AddShopItem((int)args[1], true, "Placeables", ItemID.AmmoBox, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentVortex, 1);
+                                AddShopItem((int)args[1], true, "Consumables", ItemID.ManaCrystal, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.DemonScythe, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.WaterBolt, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.SkyFracture, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.MeteorStaff, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.CrystalSerpent, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Weapons", ItemID.UnholyTrident, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.ShadowbeamStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.InfernoFork, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.SpectreStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.Razorpine, 1);
+                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.RazorbladeTyphoon, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.LastPrism, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.LunarFlareBook, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.ManaFlower, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.CelestialMagnet, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.MagicCuffs, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Placeables", ItemID.CrystalBall, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.Ectoplasm, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentNebula, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.SlimeStaff, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.FlinxStaff, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.VampireFrogStaff, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.AbigailsFlower, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.SanguineStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedQueenSlime, "Weapons", ItemID.Smolstar, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss2, "Weapons", ItemID.OpticStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.PygmyStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedEmpressOfLight, "Weapons", ItemID.EmpressBlade, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.MoonlordTurretStaff, 1);
+                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.RainbowCrystalStaff, 1);
+                                AddShopItem((int)args[1], true, "Weapons", ItemID.ThornWhip, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.BoneWhip, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.FireWhip, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.CoolWhip, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Weapons", ItemID.SwordWhip, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.ScytheWhip, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.MaceWhip, 1);
+                                AddShopItem((int)args[1], NPC.downedEmpressOfLight, "Weapons", ItemID.RainbowWhip, 1);
+                                AddShopItem((int)args[1], true, "Accessories", ItemID.PygmyNecklace, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.NecromanticScroll, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.PapyrusScarab, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Placeables", ItemID.BewitchingTable, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentStardust, 1);
+                                AddShopItem((int)args[1], true, "Consumables", ItemID.SlimeCrown, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.SuspiciousLookingEye, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.WormFood, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.BloodySpine, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.Abeemination, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss2, "Consumables", ItemID.ClothierVoodooDoll, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss2, "Consumables", ItemID.DeerThing, 1);
+                                AddShopItem((int)args[1], NPC.downedBoss3, "Consumables", ItemID.GuideVoodooDoll, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.QueenSlimeCrystal, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalWorm, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalEye, 1);
+                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalSkull, 1);
+                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Consumables", ModContent.ItemType<PlanteraItem>(), 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.LihzahrdPowerCell, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.EmpressButterfly, 1);
+                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.TruffleWorm, 1);
+                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Consumables", ItemID.CelestialSigil, 1);
+                            }
                         }
                         return "Success";
 
@@ -293,18 +517,33 @@ namespace TF2
                         player = Main.player[i];
                         p = player.GetModPlayer<TF2Player>();
                         int maxHealth = TF2Player.TotalHealth(player);
+                        if (p.overheal >= OverhealRound(maxHealth * limit * p.overhealMultiplier)) return;
                         player.statLife += healAmount;
-                        if (player.statLife > maxHealth && p.overheal < OverhealRound(maxHealth * limit * p.overhealMultiplier))
+                        if (player.statLife > maxHealth)
                         {
                             int extraHealth = player.statLife - maxHealth - p.overheal;
                             p.overheal += extraHealth;
-                            if (p.overheal > OverhealRound(maxHealth * limit * p.overhealMultiplier))
-                                p.overheal = OverhealRound(maxHealth * limit * p.overhealMultiplier);
+                            Maximum(ref p.overheal, OverhealRound(maxHealth * limit * p.overhealMultiplier));
                             player.statLife = Round((p.BaseHealth + p.healthBonus) * p.healthMultiplier + p.overheal);
                         }
-                        player.HealEffect(healAmount, broadcast: false);
+                        player.HealEffect(healAmount);
                         if (Main.netMode == NetmodeID.Server)
                             OverhealMultiplayer(player, healAmount, limit);
+                    }
+                    break;
+                case MessageType.OverhealNPC:
+                    i = reader.ReadByte();
+                    healAmount = reader.ReadInt32();
+                    limit = reader.ReadSingle();
+                    if (healAmount > 0)
+                    {
+                        NPC target = Main.npc[i];
+                        int maxHealth = target.lifeMax;
+                        target.life += healAmount;
+                        Maximum(ref target.life, OverhealRound(maxHealth + maxHealth * limit));
+                        target.HealEffect(healAmount);
+                        if (Main.netMode == NetmodeID.Server)
+                            OverhealNPCMultiplayer(target, healAmount, limit);
                     }
                     break;
                 case MessageType.KillProjectile:
@@ -324,6 +563,7 @@ namespace TF2
             SyncMount,
             SyncSyringe,
             Overheal,
+            OverhealNPC,
             KillProjectile
         }
 
@@ -337,6 +577,23 @@ namespace TF2
             }
             else
                 orig(player);
+        }
+
+        private static void Hook_PlayerModifyHitByProjectile(PLayerModifyHitByProjectileAction orig, Player player, Projectile proj, ref Player.HurtModifiers modifiers)
+        {
+            if (proj.ModProjectile is not SuperBullet)
+            orig(player, proj, ref modifiers);
+        }
+
+        private static void Hook_ModifyHitByProjectile(ModifyHitByProjectileAction orig, NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers)
+        {
+            if (projectile.ModProjectile is SuperBullet bullet && modifiers.GetDamage(projectile.damage, bullet.crit) <= projectile.damage)
+            {
+                projectile.TryGetOwner(out var player);
+                if (!bullet.noDistanceModifier)
+                    bullet.weapon?.WeaponDistanceModifier(player, projectile, npc, ref modifiers);
+            }
+            else orig(npc, projectile, ref modifiers);
         }
 
         private void Hook_UICharacter_DrawSelf(On_UICharacter.orig_DrawSelf orig, UICharacter self, SpriteBatch spriteBatch)
@@ -563,7 +820,7 @@ namespace TF2
                     ))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.EmitDelegate(static (Player self) => TF2Weapon.CanSwitchWeapon(self));
+                c.EmitDelegate(static (Player self) => TF2Weapon.CanSwitchWeapon(self) && !MannCoStoreActive && TF2Player.CanSwitchWeaponPDA(self));
                 c.Emit(OpCodes.Brfalse, LabelKey);
                 if (c.TryGotoNext(
                     MoveType.After,
@@ -582,7 +839,7 @@ namespace TF2
                     ))
                 {
                     c.Emit(OpCodes.Ldarg_0);
-                    c.EmitDelegate(static (Player self) => TF2Weapon.CanSwitchWeapon(self));
+                    c.EmitDelegate(static (Player self) => TF2Weapon.CanSwitchWeapon(self) && !MannCoStoreActive && TF2Player.CanSwitchWeaponPDA(self));
                     c.Emit(OpCodes.Brfalse, LabelKey);
                 }
             }
@@ -598,6 +855,21 @@ namespace TF2
         private Color Hook_GetImmuneAlpha(On_Player.orig_GetImmuneAlpha orig, Player self, Color newColor, float alphaReduction) => self.GetModPlayer<TF2Player>().ClassSelected ? newColor : orig(self, newColor, alphaReduction);
 
         private Color Hook_GetImmuneAlphaPure(On_Player.orig_GetImmuneAlphaPure orig, Player self, Color newColor, float alphaReduction) => self.GetModPlayer<TF2Player>().ClassSelected ? newColor : orig(self, newColor, alphaReduction);
+
+        private void Hook_ApplyEquipFunctional(On_Player.orig_ApplyEquipFunctional orig, Player self, Item currentItem, bool hideVisual)
+        {
+            TF2Player p = self.GetModPlayer<TF2Player>();
+            if (p.currentClass == TF2Item.Scout)
+            {
+                p.extraJumps = 1;
+                if (self.GetModPlayer<SodaPopperPlayer>().buffActive)
+                    self.GetModPlayer<TF2Player>().extraJumps = 5;
+                else if (self.HeldItem.ModItem is Atomizer weapon && weapon.deployTimer >= weapon.deploySpeed)
+                    self.GetModPlayer<TF2Player>().extraJumps = 2;
+                self.GetJumpState<ScoutDoubleJump>().Enable();
+            }
+            orig(self, currentItem, hideVisual);
+        }
 
         private void Hook_HeadOnlySetup(On_PlayerDrawSet.orig_HeadOnlySetup orig, ref PlayerDrawSet self, Player drawPlayer2, List<DrawData> drawData, List<int> dust, List<int> gore, float X, float Y, float Alpha, float Scale)
         {
@@ -659,6 +931,7 @@ namespace TF2
 
         private void Hook_DrawMouseOver(On_Main.orig_DrawMouseOver orig, Main self)
         {
+            if (MannCoStoreActive) return;
             MethodInfo hoverOverNPCs = typeof(Main).GetMethod("HoverOverNPCs", BindingFlags.Instance | BindingFlags.NonPublic);
             Matrix _uiScaleMatrix = (Matrix)typeof(Main).GetField("_uiScaleMatrix", BindingFlags.Static | BindingFlags.NonPublic).GetValue(self);
             PlayerInput.SetZoom_Unscaled();
@@ -674,7 +947,7 @@ namespace TF2
             IngameFancyUI.MouseOver();
             if (!Main.mouseText)
             {
-                for (int i = 0; i < 400; i++)
+                for (int i = 0; i < Main.maxItems; i++)
                 {
                     if (!Main.item[i].active)
                         continue;
@@ -702,7 +975,7 @@ namespace TF2
                     }
                 }
             }
-            for (int j = 0; j < 255; j++)
+            for (int j = 0; j < Main.maxPlayers; j++)
             {
                 if (!Main.player[j].active || Main.myPlayer == j || Main.player[j].dead || Main.player[j].ShouldNotDraw || !(Main.player[j].stealth > 0.5))
                     continue;
@@ -722,8 +995,8 @@ namespace TF2
             }
             Main.HoveringOverAnNPC = false;
             if (!Main.mouseText)
-                hoverOverNPCs.Invoke(self, new object[] { mouseRectangle });
-            if (!Main.mouseText && Main.signHover != -1 && Main.sign[Main.signHover] != null && !Main.LocalPlayer.mouseInterface && !string.IsNullOrWhiteSpace(Main.sign[Main.signHover].text))
+                hoverOverNPCs.Invoke(self, [mouseRectangle]);
+            if (!Main.mouseText && Main.signHover > -1 && Main.sign[Main.signHover] != null && !Main.LocalPlayer.mouseInterface && !string.IsNullOrWhiteSpace(Main.sign[Main.signHover].text))
             {
                 string[] array = Utils.WordwrapString(Main.sign[Main.signHover].text, FontAssets.MouseText.Value, 460, 10, out int lineAmount);
                 lineAmount++;
@@ -759,7 +1032,7 @@ namespace TF2
                     color = Color.Lerp(color, Color.White, 1f);
                     int num7 = 10;
                     int num8 = 5;
-                    Utils.DrawInvBG(Main.spriteBatch, new Rectangle((int)vector.X - num7, (int)vector.Y - num8, (int)num6 + num7 * 2, 30 * lineAmount + num8 + num8 / 2), new Color(23, 25, 81, 255) * 0.925f * 0.85f);
+                    Utils.DrawInvBG(Main.spriteBatch, new Rectangle((int)vector.X - num7, (int)vector.Y - num8, (int)num6 + num7 * 2, 30 * lineAmount + num8 + num8 / 2), new Color(23, 25, 81) * 0.925f * 0.85f);
                 }
                 for (int l = 0; l < lineAmount; l++)
                     Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value, array[l], vector.X, vector.Y + l * 30, color, Color.Black, Vector2.Zero);
@@ -768,9 +1041,127 @@ namespace TF2
             PlayerInput.SetZoom_UI();
         }
 
+        private void Hook_HoverOverNPCs(On_Main.orig_HoverOverNPCs orig, Main self, Rectangle mouseRectangle)
+        {
+            MethodInfo tryFreeingElderSlime = typeof(Main).GetMethod("TryFreeingElderSlime", BindingFlags.Static | BindingFlags.NonPublic);
+            Player player = Main.LocalPlayer;
+            Rectangle value;
+            Rectangle rectangle;
+            Rectangle value2;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.ShowNameOnHover || !(npc.active & (npc.shimmerTransparency == 0f || npc.CanApplyHunterPotionEffects())))
+                    continue;
+                int type = npc.type;
+                self.LoadNPC(type);
+                npc.position += npc.netOffset;
+                value = new Rectangle((int)npc.Bottom.X - npc.frame.Width / 2, (int)npc.Bottom.Y - npc.frame.Height, npc.frame.Width, npc.frame.Height);
+                if (npc.type >= NPCID.WyvernHead && npc.type <= NPCID.WyvernTail)
+                    value = new Rectangle((int)(npc.position.X + npc.width * 0.5 - 32.0), (int)(npc.position.Y + npc.height * 0.5 - 32.0), 64, 64);
+                NPCLoader.ModifyHoverBoundingBox(npc, ref value);
+                bool flag = mouseRectangle.Intersects(value);
+                bool flag2 = flag || (Main.SmartInteractShowingGenuine && Main.SmartInteractNPC == i);
+                if (flag2 && ((npc.type != NPCID.Mimic && npc.type != NPCID.PresentMimic && npc.type != NPCID.IceMimic && npc.aiStyle != 87) || npc.ai[0] != 0f) && npc.type != NPCID.TargetDummy)
+                {
+                    if (npc.type == NPCID.BoundTownSlimeOld)
+                    {
+                        player.cursorItemIconEnabled = true;
+                        player.cursorItemIconID = 327;
+                        player.cursorItemIconText = "";
+                        player.noThrow = 2;
+                        if (!player.dead)
+                        {
+                            PlayerInput.SetZoom_MouseInWorld();
+                            if (Main.mouseRight && Main.npcChatRelease)
+                            {
+                                Main.npcChatRelease = false;
+                                if (PlayerInput.UsingGamepad)
+                                    player.releaseInventory = false;
+                                if (player.talkNPC != i && !player.tileInteractionHappened && (bool)tryFreeingElderSlime.Invoke(self, [i]))
+                                {
+                                    NPC.TransformElderSlime(i);
+                                    SoundEngine.PlaySound(SoundID.Unlock);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bool flag3 = Main.SmartInteractShowingGenuine && Main.SmartInteractNPC == i;
+                        bool vanillaCanChat = false;
+                        if (npc.townNPC || npc.type == NPCID.BoundGoblin || npc.type == NPCID.BoundWizard || npc.type == NPCID.BoundMechanic || npc.type == NPCID.WebbedStylist || npc.type == NPCID.SleepingAngler || npc.type == NPCID.BartenderUnconscious || npc.type == NPCID.SkeletonMerchant || npc.type == NPCID.GolferRescue)
+                            vanillaCanChat = true;
+                        if (NPCLoader.CanChat(npc) ?? vanillaCanChat)
+                        {
+                            rectangle = new Rectangle((int)(player.position.X + player.width / 2 - Player.tileRangeX * 16), (int)(player.position.Y + player.height / 2 - Player.tileRangeY * 16), Player.tileRangeX * 16 * 2, Player.tileRangeY * 16 * 2);
+                            value2 = new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height);
+                            if (rectangle.Intersects(value2))
+                                flag3 = true;
+                        }
+                        if (player.ownedProjectileCounts[651] > 0)
+                            flag3 = false;
+                        if (flag3 && !player.dead)
+                        {
+                            PlayerInput.SetZoom_MouseInWorld();
+                            Main.HoveringOverAnNPC = true;
+                            self.currentNPCShowingChatBubble = i;
+                            if (Main.mouseRight && Main.npcChatRelease)
+                            {
+                                Main.npcChatRelease = false;
+                                if (PlayerInput.UsingGamepad)
+                                    player.releaseInventory = false;
+                                if (player.talkNPC != i && !player.tileInteractionHappened)
+                                {
+                                    Main.CancelHairWindow();
+                                    Main.SetNPCShopIndex(0);
+                                    Main.InGuideCraftMenu = false;
+                                    player.dropItemCheck();
+                                    Main.npcChatCornerItem = 0;
+                                    player.sign = -1;
+                                    Main.editSign = false;
+                                    player.SetTalkNPC(i);
+                                    Main.playerInventory = false;
+                                    player.chest = -1;
+                                    Recipe.FindRecipes();
+                                    Main.npcChatText = npc.GetChat();
+                                    SoundEngine.PlaySound(SoundID.Chat);
+                                }
+                            }
+                        }
+                        if (flag && !player.mouseInterface)
+                        {
+                            player.cursorItemIconEnabled = false;
+                            string text = npc.GivenOrTypeName;
+                            int num = i;
+                            if (npc.realLife >= 0)
+                                num = npc.realLife;
+                            if (Main.npc[num].lifeMax > 1 && !Main.npc[num].dontTakeDamage)
+                            {
+                                text = (npc.ModNPC is Building building)
+                                    ? (building.BuildingName + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax + "\n"
+                                    + (!Building.MaxLevel(building) ? Language.GetTextValue("Mods.TF2.NPCs.Metal") + ": " + building.Metal + "/" + 200 : ""))
+                                    : text + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax;
+                            }
+                            self.MouseTextHackZoom(text);
+                            Main.mouseText = true;
+                            npc.position -= npc.netOffset;
+                            break;
+                        }
+                        if (flag2)
+                        {
+                            npc.position -= npc.netOffset;
+                            break;
+                        }
+                    }
+                }
+                npc.position -= npc.netOffset;
+            }
+        }
+
         private void Hook_GUIHotbarDrawInner(On_Main.orig_GUIHotbarDrawInner orig, Main self)
         {
-            if (Main.playerInventory || Main.LocalPlayer.ghost) return;
+            if (Main.playerInventory || Main.LocalPlayer.ghost || MannCoStoreActive) return;
             string text = Lang.inter[37].Value;
             Item item = Main.LocalPlayer.inventory[Main.LocalPlayer.selectedItem];
             TF2Item modItem = item.ModItem as TF2Item;
@@ -842,7 +1233,191 @@ namespace TF2
             damage *= self.TargetDamageMultiplier.Value;
             damage = Math.Max(damage, 1f);
             damage = (crit ? self.CritDamage : self.NonCritDamage).ApplyTo(damage);
-            return self.DamageType == ModContent.GetInstance<TF2DamageClass>() ? Math.Clamp(Round(self.FinalDamage.ApplyTo(damage)), 1, (int)typeof(NPC.HitModifiers).GetField("_damageLimit", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(self)) : orig(ref self, baseDamage, crit, damageVariation, luck);
+            damage = Round(self.FinalDamage.ApplyTo(damage));
+            return self.DamageType == ModContent.GetInstance<TF2DamageClass>() ? Math.Clamp((int)damage, 1, (int)typeof(NPC.HitModifiers).GetField("_damageLimit", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(self)) : orig(ref self, baseDamage, crit, damageVariation, luck);
+        }
+
+        private NPC.HitInfo Hook_CalculateHitInfo(On_NPC.orig_CalculateHitInfo orig, NPC self, int damage, int hitDirection, bool crit = false, float knockBack = 0f, DamageClass damageType = null, bool damageVariation = false, float luck = 0f)
+        {
+            NPC.HitModifiers baseModifier = new NPC.HitModifiers();
+            NPC.HitModifiers modifiers = self.GetIncomingStrikeModifiers(damageType, hitDirection);
+            bool superBullet = modifiers.CritDamage.Flat > 9000f;
+            if (superBullet && modifiers.SourceDamage.Base < damage)
+                modifiers.SourceDamage.Base = damage;
+            if (modifiers.FlatBonusDamage.Value < baseModifier.FlatBonusDamage.Value)
+                modifiers.FlatBonusDamage = baseModifier.FlatBonusDamage;
+            if (superBullet && modifiers.FinalDamage.Base < damage)
+                modifiers.FinalDamage.Base = damage;
+            if (superBullet && modifiers.TargetDamageMultiplier.Value < baseModifier.TargetDamageMultiplier.Value)
+                modifiers.TargetDamageMultiplier = baseModifier.TargetDamageMultiplier;
+            return modifiers.DamageType == ModContent.GetInstance<TF2DamageClass>() ? modifiers.ToHitInfo(damage, crit, knockBack, damageVariation, luck) : orig(self, damage, hitDirection, crit, knockBack, damageType, damageVariation, luck);
+        }
+
+        private void Hook_UpdateNPC_BuffApplyDOTs(On_NPC.orig_UpdateNPC_BuffApplyDOTs orig, NPC self)
+        {
+            if (self.ModNPC is Building)
+            {
+                MethodInfo strikeNPCNoInteraction = typeof(NPC).GetMethod("StrikeNPCNoInteraction", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (self.dontTakeDamage) return;
+                int num = self.lifeRegenExpectedLossPerSecond;
+                if (self.poisoned)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 12;
+                }
+                if (self.onFire)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 8;
+                }
+                if (self.onFire3)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 30;
+                    if (num < 5)
+                        num = 5;
+                }
+                if (self.onFrostBurn)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 16;
+                    if (num < 2)
+                        num = 2;
+                }
+                if (self.onFrostBurn2)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 50;
+                    if (num < 10)
+                        num = 10;
+                }
+                if (self.onFire2)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 48;
+                    if (num < 10)
+                        num = 10;
+                }
+                if (self.venom)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 60;
+                    if (num < 15)
+                        num = 15;
+                }
+                if (self.shadowFlame)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 30;
+                    if (num < 5)
+                        num = 5;
+                }
+                if (self.oiled && (self.onFire || self.onFire2 || self.onFire3 || self.onFrostBurn || self.onFrostBurn2 || self.shadowFlame))
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    self.lifeRegen -= 50;
+                    if (num < 10)
+                        num = 10;
+                }
+                if (self.javelined)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    int num7 = 0;
+                    int num8 = 1;
+                    for (int i = 0; i < Main.maxProjectiles; i++)
+                    {
+                        if (Main.projectile[i].active && Main.projectile[i].type == 598 && Main.projectile[i].ai[0] == 1f && Main.projectile[i].ai[1] == self.whoAmI)
+                            num7++;
+                    }
+                    self.lifeRegen -= num7 * 2 * 3;
+                    if (num < num7 * 3 / num8)
+                        num = num7 * 3 / num8;
+                }
+                if (self.tentacleSpiked)
+                {
+                    if (self.lifeRegen > 0)
+                        self.lifeRegen = 0;
+                    int num9 = 0;
+                    int num10 = 1;
+                    for (int j = 0; j < Main.maxProjectiles; j++)
+                    {
+                        if (Main.projectile[j].active && Main.projectile[j].type == 971 && Main.projectile[j].ai[0] == 1f && Main.projectile[j].ai[1] == self.whoAmI)
+                            num9++;
+                    }
+                    self.lifeRegen -= num9 * 2 * 3;
+                    if (num < num9 * 3 / num10)
+                        num = num9 * 3 / num10;
+                }
+                NPCLoader.UpdateLifeRegen(self, ref num);
+                if (self.lifeRegen <= -Time(4) && num < 2)
+                    num = 2;
+                self.lifeRegenCount += self.lifeRegen;
+                if (num > 0)
+                {
+                    while (self.lifeRegenCount <= -Time(2) * num)
+                    {
+                        self.lifeRegenCount += Time(2) * num;
+                        int num5 = self.whoAmI;
+                        if (self.realLife >= 0)
+                            num5 = self.realLife;
+                        if (!Main.npc[num5].immortal)
+                        {
+                            Main.npc[num5].life -= num;
+                            if (Main.npc[num5].ModNPC is Building building && !building.Initialized)
+                                building.preConstructedDamage += num;
+                        }
+                        CombatText.NewText(new Rectangle((int)self.position.X, (int)self.position.Y, self.width, self.height), CombatText.LifeRegenNegative, num, dramatic: false, dot: true);
+                        if (Main.npc[num5].life > 0 || Main.npc[num5].immortal) continue;
+                        Main.npc[num5].life = 1;
+                        if (Main.netMode != NetmodeID.MultiplayerClient)
+                        {
+                            strikeNPCNoInteraction.Invoke(Main.npc[num5], [9999, 0f, 0]);
+                            if (Main.netMode == NetmodeID.Server)
+                                NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, num5, 9999f);
+                        }
+                    }
+                    return;
+                }
+                while (self.lifeRegenCount <= -Time(2))
+                {
+                    self.lifeRegenCount += Time(2);
+                    int num6 = self.whoAmI;
+                    if (self.realLife >= 0)
+                        num6 = self.realLife;
+                    if (!Main.npc[num6].immortal)
+                    {
+                        Main.npc[num6].life--;
+                        if (Main.npc[num6].ModNPC is Building building && !building.Initialized)
+                            building.preConstructedDamage += num;
+                    }
+                    CombatText.NewText(new Rectangle((int)self.position.X, (int)self.position.Y, self.width, self.height), CombatText.LifeRegenNegative, 1, dramatic: false, dot: true);
+                    if (Main.npc[num6].life > 0 || Main.npc[num6].immortal) continue;
+                    Main.npc[num6].life = 1;
+                    if (Main.netMode != NetmodeID.MultiplayerClient)
+                    {
+                        strikeNPCNoInteraction.Invoke(Main.npc[num6], [9999, 0f, 0]);
+                        if (Main.netMode == NetmodeID.Server)
+                            NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, num6, 9999f);
+                    }
+                }
+            }
+            else orig(self);
+        }
+
+        private void Hook_CheckLifeRegen(On_NPC.orig_CheckLifeRegen orig, NPC self)
+        {
+            if (self.ModNPC is Building || self.ModNPC is MercenaryBuddy) return;
+            else orig(self);
         }
 
         private void Hook_NPCLoot_DropHeals(On_NPC.orig_NPCLoot_DropHeals orig, NPC self, Player closestPlayer)
@@ -857,15 +1432,149 @@ namespace TF2
                 orig(self, ref typeName);
         }
 
+        private void Hook_DrawNPCChatButtons(On_Main.orig_DrawNPCChatButtons orig, int superColor, Color chatColor, int numLines, string focusText, string focusText3)
+        {
+            if (Main.npc[Main.LocalPlayer.talkNPC].type == ModContent.NPCType<SaxtonHale>())
+            {
+                float y = 130 + numLines * 30;
+                int num = 180 + (Main.screenWidth - 800) / 2;
+                Vector2 vec = new Vector2(Main.mouseX, Main.mouseY);
+                Player player = Main.player[Main.myPlayer];
+                Vector2 val = new Vector2(num, y);
+                string text = focusText;
+                DynamicSpriteFont value = FontAssets.MouseText.Value;
+                Vector2 vector2 = val;
+                Vector2 vector3 = new Vector2(0.9f);
+                Vector2 stringSize = ChatManager.GetStringSize(value, text, vector3);
+                Color baseColor = chatColor;
+                Vector2 vector4 = new Vector2(1f);
+                float num2 = 1.2f;
+                if (stringSize.X > 260f)
+                    vector4.X *= 260f / stringSize.X;
+                if (vec.Between(vector2, vector2 + stringSize * vector3 * vector4.X) && !PlayerInput.IgnoreMouseInterface)
+                {
+                    player.mouseInterface = true;
+                    player.releaseUseItem = false;
+                    vector3 *= num2;
+                    if (!Main.npcChatFocus2)
+                        SoundEngine.PlaySound(SoundID.MenuTick);
+                    Main.npcChatFocus2 = true;
+                }
+                else
+                {
+                    if (Main.npcChatFocus2)
+                        SoundEngine.PlaySound(SoundID.MenuTick);
+                    Main.npcChatFocus2 = false;
+                }
+                ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, value, text, vector2 + stringSize * vector4 * 0.5f, baseColor, (!Main.npcChatFocus2) ? Color.Black : Color.Brown, 0f, stringSize * 0.5f, vector3 * vector4);
+                if (text.Length > 0)
+                {
+                    UILinkPointNavigator.SetPosition(2500, vector2 + stringSize * 0.5f);
+                    UILinkPointNavigator.Shortcuts.NPCCHAT_ButtonsLeft = true;
+                }
+                Vector2 vector5 = new Vector2(num + stringSize.X * vector4.X + 30f, y);
+                text = Lang.inter[52].Value;
+                value = FontAssets.MouseText.Value;
+                vector2 = vector5;
+                vector3 = new Vector2(0.9f);
+                stringSize = ChatManager.GetStringSize(value, text, vector3);
+                baseColor = new Color(superColor, (int)(superColor / 1.1), superColor / 2, superColor);
+                vector4 = new Vector2(1f);
+                if (vec.Between(vector2, vector2 + stringSize * vector3 * vector4.X) && !PlayerInput.IgnoreMouseInterface)
+                {
+                    player.mouseInterface = true;
+                    player.releaseUseItem = false;
+                    vector3 *= num2;
+                    if (!Main.npcChatFocus1)
+                        SoundEngine.PlaySound(SoundID.MenuTick);
+                    Main.npcChatFocus1 = true;
+                }
+                else
+                {
+                    if (Main.npcChatFocus1)
+                        SoundEngine.PlaySound(SoundID.MenuTick);
+                    Main.npcChatFocus1 = false;
+                }
+                ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, value, text, vector2 + stringSize * vector4 * 0.5f, baseColor, (!Main.npcChatFocus1) ? Color.Black : Color.Brown, 0f, stringSize * 0.5f, vector3 * vector4);
+                if (text.Length > 0)
+                {
+                    UILinkPointNavigator.SetPosition(2501, vector2 + stringSize * 0.5f);
+                    UILinkPointNavigator.Shortcuts.NPCCHAT_ButtonsMiddle = true;
+                }
+                if (string.IsNullOrWhiteSpace(focusText3))
+                {
+                    Main.npcChatFocus3 = false;
+                    UILinkPointNavigator.Shortcuts.NPCCHAT_ButtonsRight = false;
+                }
+                else
+                {
+                    Vector2 vector6 = new Vector2(vector5.X + stringSize.X * vector4.X + 30f, y);
+                    text = focusText3;
+                    value = FontAssets.MouseText.Value;
+                    vector2 = vector6;
+                    vector3 = new Vector2(0.9f);
+                    stringSize = ChatManager.GetStringSize(value, text, vector3);
+                    baseColor = chatColor;
+                    vector4 = new Vector2(1f);
+                    vector5.X = vector6.X;
+                    if (vec.Between(vector2, vector2 + stringSize * vector3 * vector4.X) && !PlayerInput.IgnoreMouseInterface)
+                    {
+                        player.mouseInterface = true;
+                        player.releaseUseItem = false;
+                        vector3 *= num2;
+                        if (!Main.npcChatFocus3)
+                            SoundEngine.PlaySound(SoundID.MenuTick);
+                        Main.npcChatFocus3 = true;
+                    }
+                    else
+                    {
+                        if (Main.npcChatFocus3)
+                            SoundEngine.PlaySound(SoundID.MenuTick);
+                        Main.npcChatFocus3 = false;
+                    }
+                    ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, value, text, vector2 + stringSize * vector4 * 0.5f, baseColor, (!Main.npcChatFocus3) ? Color.Black : Color.Brown, 0f, stringSize * 0.5f, vector3 * vector4);
+                    UILinkPointNavigator.SetPosition(2502, vector2 + stringSize * 0.5f);
+                    UILinkPointNavigator.Shortcuts.NPCCHAT_ButtonsRight = true;
+                }
+            }
+            else orig(superColor, chatColor, numLines, focusText, focusText3);
+        }
+
         public static int Time(double time) => Convert.ToInt32(time * 60);
 
         public static int GetHealth(Player player, double value) => Round(player.GetModPlayer<TF2Player>().healthMultiplier * value);
 
-        public static float GetHealthRaw(Player player, double value) => (float)(player.GetModPlayer<TF2Player>().healthMultiplier * value);
+        public static float GetRawHealth(Player player, double value) => (float)(player.GetModPlayer<TF2Player>().healthMultiplier * value);
 
         public static int Round(double value) => (int)Math.Round(value, 0, MidpointRounding.AwayFromZero);
 
-        public static int OverhealRound(double value) => (int)(value / 5f) * 5;
+        public static int RoundByMultiple(double value, int multiple) => Round(value / multiple) * multiple;
+
+        public static int OverhealRound(double value) => Round(value / 5f) * 5;
+
+        public static void Minimum(ref int value, int minimum)
+        {
+            if (value < minimum)
+                value = minimum;
+        }
+
+        public static void Minimum(ref float value, float minimum)
+        {
+            if (value < minimum)
+                value = minimum;
+        }
+
+        public static void Maximum(ref int value, int maximum)
+        {
+            if (value > maximum)
+                value = maximum;
+        }
+
+        public static void Maximum(ref float value, float maximum)
+        {
+            if (value > maximum)
+                value = maximum;
+        }
 
         public static bool IsItemInHotbar(Player player, Item item)
         {
@@ -895,14 +1604,14 @@ namespace TF2
             return foundItem;
         }
 
-        public static Item GetItemInHotbar(Player player, Item item)
+        public static bool IsItemTypeInHotbar(Player player, int[] type)
         {
-            Item foundItem = null;
+            bool foundItem = false;
             for (int i = 0; i < 10; i++)
             {
-                if (player.inventory[i] == item && player.inventory[i].ModItem is TF2Item weapon && weapon.equipped)
+                if (type.Contains(player.inventory[i].type) && player.inventory[i].ModItem is TF2Item weapon && weapon.equipped)
                 {
-                    foundItem = player.inventory[i];
+                    foundItem = true;
                     break;
                 }
             }
@@ -921,20 +1630,6 @@ namespace TF2
                 }
             }
             return foundItem;
-        }
-
-        public static int GetItemTypeInHotbar(Player player, int type)
-        {
-            int inventorySlot = 0;
-            for (int i = 0; i < 10; i++)
-            {
-                if (player.inventory[i].type == type && player.inventory[i].ModItem is TF2Item weapon && weapon.equipped)
-                {
-                    inventorySlot = i;
-                    break;
-                }
-            }
-            return inventorySlot;
         }
 
         public static Item GetItemInHotbar(Player player, int[] type)
@@ -963,22 +1658,41 @@ namespace TF2
                 projectile.crit = true;
             else if (player.miniCrit)
                 projectile.miniCrit = true;
+            projectile.Projectile.netUpdate = true;
             return projectile;
+        }
+
+        public static TF2Projectile NPCCreateProjectile(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = -1, float ai0 = 0, float ai1 = 0, float ai2 = 0, bool crit = false, bool miniCrit = false)
+        {
+            int i = Projectile.NewProjectile(spawnSource, position, velocity, type, damage, knockBack, owner, ai0, ai1, ai2);
+            TF2Projectile projectile = Main.projectile[i].ModProjectile as TF2Projectile;
+            if (crit)
+                projectile.crit = true;
+            else if (miniCrit)
+                projectile.miniCrit = true;
+            projectile.Projectile.netUpdate = true;
+            return projectile;
+        }
+
+        public static void NPCDistanceModifier(NPC npc, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (projectile.ModProjectile is TF2Projectile tf2Projectile)
+            {
+                if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
+                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 1f);
+                else
+                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 0.5f);
+            }
         }
 
         public static bool FindPlayer(Projectile projectile, float maxDetectDistance)
         {
             bool playerFound = false;
-
-            // Using squared values in distance checks will let us skip square root calculations, drastically improving this method's speed.
             float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
-
-            foreach (Player target in Main.player)
+            foreach (Player player in Main.ActivePlayers)
             {
-                float sqrDistanceToTarget = Vector2.DistanceSquared(target.Center, projectile.Center);
-
-                // Check if it is within the radius
-                if (sqrDistanceToTarget < sqrMaxDetectDistance && target == Main.player[projectile.owner])
+                float sqrDistanceToTarget = Vector2.DistanceSquared(player.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && player == Main.player[projectile.owner])
                 {
                     sqrMaxDetectDistance = sqrDistanceToTarget;
                     playerFound = true;
@@ -990,15 +1704,10 @@ namespace TF2
         public static bool FindNPC(Projectile projectile, float maxDetectDistance)
         {
             bool npcFound = false;
-
-            // Using squared values in distance checks will let us skip square root calculations, drastically improving this method's speed.
             float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
-
-            foreach (NPC target in Main.npc)
+            foreach (NPC target in Main.ActiveNPCs)
             {
                 float sqrDistanceToTarget = Vector2.DistanceSquared(target.Center, projectile.Center);
-
-                // Check if it is within the radius
                 if (sqrDistanceToTarget < sqrMaxDetectDistance && !target.friendly)
                 {
                     sqrMaxDetectDistance = sqrDistanceToTarget;
@@ -1006,6 +1715,22 @@ namespace TF2
                 }
             }
             return npcFound;
+        }
+
+        public static NPC FindBuilding(Player player, float maxDetectDistance)
+        {
+            NPC foundBuilding = null;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(npc.Center, player.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && npc.ModNPC is Building building && building.Owner == player.whoAmI)
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    foundBuilding = npc;
+                }
+            }
+            return foundBuilding;
         }
 
         public static void SetPlayerDirection(Player player)
@@ -1016,10 +1741,7 @@ namespace TF2
             if (vector != Vector2.Zero)
                 vector.Normalize();
             float num = Vector2.Dot(value, vector);
-            if (num > 0f)
-                player.ChangeDir(1);
-            else
-                player.ChangeDir(-1);
+            player.ChangeDir((num > 0f) ? 1 : -1);
         }
 
         public static Rectangle MeleeHitbox(Player player)
@@ -1067,7 +1789,6 @@ namespace TF2
                 Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, DustID.Smoke, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 1.4f;
             }
-
             for (int i = 0; i < 80; i++)
             {
                 Dust dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, DustID.Torch, 0f, 0f, 100, default, 3f);
@@ -1075,6 +1796,32 @@ namespace TF2
                 dust.velocity *= 5f;
                 dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, DustID.Torch, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 3f;
+            }
+        }
+
+        public static void RemoveAllDebuffs(Player player)
+        {
+            for (int i = 0; i < Player.MaxBuffs; i++)
+            {
+                int buffTypes = player.buffType[i];
+                if (Main.debuff[buffTypes] && player.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                {
+                    player.DelBuff(i);
+                    i = -1;
+                }
+            }
+        }
+
+        public static void RemoveAllDebuffs(NPC npc)
+        {
+            for (int i = 0; i < NPC.maxBuffs; i++)
+            {
+                int buffTypes = npc.buffType[i];
+                if (Main.debuff[buffTypes] && npc.buffTime[i] > 0 && !BuffID.Sets.NurseCannotRemoveDebuff[buffTypes] && !TF2BuffBase.cooldownBuff[buffTypes])
+                {
+                    npc.DelBuff(i);
+                    i = -1;
+                }
             }
         }
 
@@ -1097,22 +1844,55 @@ namespace TF2
 
         public static bool IsNPCOnFire(NPC npc) => npc.HasBuff(ModContent.BuffType<PyroFlames>()) || npc.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>());
 
+        public static void AddAmmo(Player player, double percentage)
+        {
+            float multiplier = (float)percentage / 100f;
+            foreach (Item item in player.inventory)
+            {
+                if (item.ModItem is TF2Weapon weapon)
+                {
+                    if (weapon.maxAmmoReserve > 0)
+                    {
+                        weapon.currentAmmoReserve += Round(weapon.maxAmmoReserve * multiplier);
+                        weapon.currentAmmoReserve = Utils.Clamp(weapon.currentAmmoReserve, 0, weapon.maxAmmoReserve);
+                    }
+                    else
+                    {
+                        weapon.currentAmmoClip += Round(weapon.maxAmmoClip * multiplier);
+                        weapon.currentAmmoClip = Utils.Clamp(weapon.currentAmmoClip, 0, weapon.maxAmmoClip);
+                    }
+                }
+            }
+        }
+
         public static void Overheal(Player player, int healAmount, float limit = 0.5f)
         {
             if (healAmount > 0)
             {
                 TF2Player p = player.GetModPlayer<TF2Player>();
                 int maxHealth = TF2Player.TotalHealth(player);
+                if (p.overheal >= OverhealRound(maxHealth * limit * p.overhealMultiplier)) return;
                 player.statLife += healAmount;
-                if (player.statLife > maxHealth && p.overheal < OverhealRound(maxHealth * limit * p.overhealMultiplier))
+                if (player.statLife > maxHealth)
                 {
                     int extraHealth = player.statLife - maxHealth - p.overheal;
                     p.overheal += extraHealth;
-                    if (p.overheal > OverhealRound(maxHealth * limit * p.overhealMultiplier))
-                        p.overheal = OverhealRound(maxHealth * limit * p.overhealMultiplier);
+                    Maximum(ref p.overheal, OverhealRound(maxHealth * limit * p.overhealMultiplier));
                     player.statLife = Round((p.BaseHealth + p.healthBonus) * p.healthMultiplier + p.overheal);
                 }
-                player.HealEffect(healAmount, broadcast: false);
+                player.HealEffect(healAmount);
+            }
+        }
+
+        public static void OverhealNPC(NPC target, int healAmount, float limit = 0.5f)
+        {
+            if (target.ModNPC is not MercenaryBuddy) return;
+            if (healAmount > 0)
+            {
+                int maxHealth = target.lifeMax;
+                target.life += healAmount;
+                Maximum(ref target.life, OverhealRound(maxHealth + maxHealth * limit));
+                target.HealEffect(healAmount);
             }
         }
 
@@ -1122,6 +1902,17 @@ namespace TF2
             ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
             packet.Write((byte)MessageType.Overheal);
             packet.Write((byte)player.whoAmI);
+            packet.Write(healAmount);
+            packet.Write(limit);
+            packet.Send(-1, Main.myPlayer);
+        }
+
+        public static void OverhealNPCMultiplayer(NPC target, int healAmount, float limit = 0.5f)
+        {
+            if (target.ModNPC is not MercenaryBuddy) return;
+            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+            packet.Write((byte)MessageType.OverhealNPC);
+            packet.Write((byte)target.whoAmI);
             packet.Write(healAmount);
             packet.Write(limit);
             packet.Send(-1, Main.myPlayer);
@@ -1143,12 +1934,36 @@ namespace TF2
             }
         }
 
+        public static bool BasicEnemiesThatCanDropMoney(NPC npc) => npc.TypeName == "Flower Fairy"
+                || npc.TypeName == "Snow Fairy"
+                || npc.TypeName == "Sand Fairy"
+                || npc.TypeName == "Water Fairy"
+                || npc.TypeName == "Spore Fairy"
+                || npc.TypeName == "Stone Fairy"
+                || npc.TypeName == "Metal Fairy"
+                || npc.TypeName == "Blood Fairy"
+                || npc.TypeName == "Bone Fairy"
+                || npc.TypeName == "Thorn Fairy"
+                || npc.TypeName == "Lava Fairy"
+                || npc.TypeName == "Hell Raven"
+                || npc.TypeName == "Yamawaro Scout"
+                || npc.TypeName == "Yamawaro Vanguard"
+                || npc.TypeName == "Sunflower Fairy"
+                || npc.TypeName == "Crystal Fairy"
+                || npc.TypeName == "Kappa Explorer"
+                || npc.TypeName == "Kappa Pathfinder"
+                || npc.TypeName == "Kappa Pioneer"
+                || npc.TypeName == "Kappa Adventurer"
+                || npc.TypeName == "Vengeful Spirit";
+
         public static void CreateSoulItem(NPC npc, float damage, float health, int pierce = 1)
         {
             SoulItem soulItem = Main.item[Item.NewItem(npc.GetSource_Loot(), (int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<SoulItem>())].ModItem as SoulItem;
             soulItem.damageMultiplier = damage;
             soulItem.healthMultiplier = health;
             soulItem.pierce = pierce;
+            if (Main.netMode != NetmodeID.SinglePlayer)
+                NetMessage.SendData(MessageID.SyncItem, number: soulItem.Item.whoAmI);
         }
 
         public static void UpgradeDrill(NPC npc, int miningPower)
@@ -1170,17 +1985,10 @@ namespace TF2
 
         public static bool IsTheSameAs(Item item, Item compareItem) => item.netID == compareItem.netID && item.type == compareItem.type;
 
-        public struct WeaponSize
+        public struct WeaponSize(int x, int y)
         {
-            public int X;
-            public int Y;
-
-            public WeaponSize(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-
+            public int X = x;
+            public int Y = y;
             public static WeaponSize MeleeWeaponSize = new WeaponSize(50, 50);
 
             public static explicit operator Vector2(WeaponSize v)

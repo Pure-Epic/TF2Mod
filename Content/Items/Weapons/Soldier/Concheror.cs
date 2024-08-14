@@ -26,31 +26,25 @@ namespace TF2.Content.Items.Weapons.Soldier
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            p.hasBanner = true;
             p.bannerType = 3;
         }
 
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient<BattalionsBackup>()
-                .AddIngredient<ScrapMetal>()
-                .AddTile<CraftingAnvil>()
-                .Register();
-        }
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BattalionsBackup>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
     public class ConcherorPlayer : BannerPlayer
     {
+        public override int BannerID => 3;
+
+        public override int MaxRage => TF2.Time(8);
+
         private int timer;
 
         public override void PostUpdate()
         {
-            bannerID = 3;
-            maxRage = 480;
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            rage = Utils.Clamp(rage, 0, maxRage);
-            if (!p.hasBanner)
+            rage = Utils.Clamp(rage, 0, MaxRage);
+            if (!p.HasBanner)
                 rage = 0;
             if (buffActive && Player.HasBuff<HealthRage>())
             {
@@ -58,12 +52,23 @@ namespace TF2.Content.Items.Weapons.Soldier
                 int buffIndex = Player.FindBuffIndex(ModContent.BuffType<HealthRage>());
                 buffDuration = Player.buffTime[buffIndex];
             }
-            if (p.stopRegen || !p.hasBanner || p.bannerType != 3) return;
+            if (p.stopRegen || !p.HasBanner || p.bannerType != 3) return;
             timer++;
-            if (timer >= 60 && !TF2Player.IsHealthFull(Player))
+            if (timer >= TF2.Time(1) && !TF2Player.IsHealthFull(Player))
             {
                 Player.Heal(TF2.GetHealth(Player, 4));
                 timer = 0;
+            }
+        }
+
+        protected override void PostHitPlayer(Player opponent, Player.HurtInfo info)
+        {
+            if (buffActive && opponent.statLife < opponent.statLifeMax2)
+            {
+                TF2Player p = opponent.GetModPlayer<TF2Player>();
+                int amount = TF2.Round(info.Damage / p.classMultiplier);
+                amount = Utils.Clamp(amount, 0, TF2Player.GetPlayerHealthFromPercentage(Player, 35));
+                opponent.Heal(amount);
             }
         }
 
@@ -72,22 +77,9 @@ namespace TF2.Content.Items.Weapons.Soldier
             if (buffActive && !TF2Player.IsHealthFull(Player) && target.type != NPCID.TargetDummy)
             {
                 TF2Player p = Player.GetModPlayer<TF2Player>();
-                int amount = (int)(damageDone / p.classMultiplier);
+                int amount = TF2.Round(damageDone / p.classMultiplier);
                 amount = Utils.Clamp(amount, 0, TF2Player.GetPlayerHealthFromPercentage(Player, 35));
                 Player.Heal(amount);
-            }
-        }
-
-        protected override void PostHitPlayer(Player.HurtInfo info)
-        {
-            if (!info.PvP) return;
-            Player opponent = Main.player[info.DamageSource.SourcePlayerIndex];
-            if (buffActive && opponent.statLife < opponent.statLifeMax2)
-            {
-                TF2Player p = opponent.GetModPlayer<TF2Player>();
-                int amount = (int)(info.Damage / p.classMultiplier);
-                amount = Utils.Clamp(amount, 0, TF2Player.GetPlayerHealthFromPercentage(Player, 35));
-                opponent.Heal(amount);
             }
         }
     }

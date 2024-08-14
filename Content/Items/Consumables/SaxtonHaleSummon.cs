@@ -18,8 +18,7 @@ namespace TF2.Content.Items.Consumables
         {
             Item.width = 20;
             Item.height = 20;
-            Item.useTime = 30;
-            Item.useAnimation = 30;
+            Item.useTime = Item.useAnimation = TF2.Time(0.5);
             Item.useStyle = ItemUseStyleID.HoldUp;
             Item.consumable = true;
             Item.maxStack = 20;

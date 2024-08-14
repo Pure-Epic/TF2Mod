@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons;
+using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Items.Weapons.Spy;
 
 namespace TF2.Content.UI.HUD
@@ -15,7 +16,7 @@ namespace TF2.Content.UI.HUD
     [Autoload(Side = ModSide.Client)]
     public class HeavyAmmoHUD : SingleAmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && !Weapon.IsWeaponType(TF2Item.Melee) && !Weapon.GetWeaponMechanic("Medi Gun") && !Weapon.GetWeaponMechanic("Sniper Rifle") && Weapon is not DeadRinger && Weapon is not Sapper && Weapon.maxAmmoReserve <= 0;
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && !Weapon.IsWeaponType(TF2Item.Melee) && !Weapon.GetWeaponMechanic("Medi Gun") && !Weapon.GetWeaponMechanic("Sniper Rifle") && Weapon is not Wrangler && Weapon is not ConstructionPDA && Weapon is not DestructionPDA && Weapon is not DeadRinger && Weapon is not Sapper && Weapon.maxAmmoReserve <= 0;
 
         protected override void HUDPreInitialize(out UIElement _area, out UIImage _texture)
         {
@@ -33,7 +34,7 @@ namespace TF2.Content.UI.HUD
                 Height = StyleDimension.FromPercent(1f),
                 IgnoresMouseInteraction = true
             };
-            UIText _currentAmmo = new UIText("", 1f, true)
+            currentAmmo = new UIText("", 1f, true)
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
@@ -42,7 +43,6 @@ namespace TF2.Content.UI.HUD
                 TextOriginX = 0f,
                 IgnoresMouseInteraction = true
             };
-            currentAmmo = _currentAmmo;
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(currentAmmo);
