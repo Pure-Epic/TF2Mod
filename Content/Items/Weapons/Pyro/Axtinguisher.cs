@@ -31,14 +31,14 @@ namespace TF2.Content.Items.Weapons.Pyro
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlames>());
-                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().damageMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
             else if (target.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>()))
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlamesDegreaser>());
-                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = (int)((44f + 8f * target.buffTime[buffIndex] / 60f) * player.GetModPlayer<TF2Player>().damageMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
         }
@@ -49,14 +49,14 @@ namespace TF2.Content.Items.Weapons.Pyro
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlames>());
-                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().damageMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
             else if (target.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>()))
             {
                 player.GetModPlayer<TF2Player>().miniCrit = true;
                 int buffIndex = target.FindBuffIndex(ModContent.BuffType<PyroFlamesDegreaser>());
-                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().classMultiplier);
+                modifiers.SourceDamage.Base = TF2.Round(8f * target.buffTime[buffIndex] / 60f * player.GetModPlayer<TF2Player>().damageMultiplier);
                 target.buffTime[buffIndex] = 0;
             }
         }

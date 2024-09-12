@@ -9,6 +9,8 @@ namespace TF2.Content.Items.Weapons.Heavy
 {
     public class WarriorsSpirit : TF2Weapon
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Heavy/WarriorsSpirit";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Melee, Unique, Craft);
@@ -29,6 +31,8 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
 
+        protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<WarriorsSpirit>(player);
+
         public override void AddRecipes() => CreateRecipe().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }
 
@@ -36,7 +40,7 @@ namespace TF2.Content.Items.Weapons.Heavy
     {
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (Player.HeldItem.ModItem is WarriorsSpirit && Player.inventory[58].ModItem is not WarriorsSpirit)
+            if (TF2Weapon.HoldingWeapon<WarriorsSpirit>(Player))
                 modifiers.FinalDamage *= 1.3f;
         }
     }

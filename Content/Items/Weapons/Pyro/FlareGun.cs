@@ -14,7 +14,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponCategory(Pyro, Secondary, Unique, Unlock);
             SetWeaponSize(40, 24);
             SetGunUseStyle(focus: true);
-            SetWeaponDamage(damage: 30, projectile: ModContent.ProjectileType<Flare>(), projectileSpeed: 25f, knockback: 5f, distanceModifier: false);
+            SetWeaponDamage(damage: 30, projectile: ModContent.ProjectileType<Flare>(), projectileSpeed: 25f, distanceModifier: false);
             SetWeaponAttackSpeed(0.25, hide: true);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/flaregun_shoot");
             SetWeaponAttackIntervals(maxAmmo: 16, noAmmo: true, customReloadTime: 2, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/flaregun_reload");

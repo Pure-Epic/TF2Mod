@@ -7,6 +7,17 @@ namespace TF2.Content.Projectiles.Demoman
 {
     public class StickyJumperStickybomb : Stickybomb
     {
+        protected override void ProjectileStatistics()
+        {
+            SetProjectileSize(22, 22);
+            Projectile.penetrate = -1;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
+            Stick = false;
+        }
+
         protected override void ProjectileAI()
         {
             if (Projectile.timeLeft == 0)
@@ -17,7 +28,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Projectile.tileCollide = false;
                 Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
-                if (TF2.FindPlayer(Projectile, 50f))
+                if (FindOwner(Projectile, 50f))
                 {
                     velocity *= 2.5f;
                     velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

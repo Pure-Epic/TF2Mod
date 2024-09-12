@@ -30,7 +30,7 @@ namespace TF2.Content.Projectiles.Demoman
 
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(25, 25);
+            SetProjectileSize(30, 30);
             Projectile.penetrate = -1;
             Projectile.ignoreWater = true;
             Projectile.extraUpdates = 1;
@@ -80,7 +80,7 @@ namespace TF2.Content.Projectiles.Demoman
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
             velocity = Projectile.velocity;
-            Projectile.velocity = Vector2.Zero;
+            Projectile.velocity.X = 0;
             Stick = true;
             return false;
         }
@@ -90,11 +90,11 @@ namespace TF2.Content.Projectiles.Demoman
         public void StartingAI()
         {
             if (!Stick)
-                Projectile.timeLeft = TF2.Time(60);
+                Projectile.timeLeft = TF2.Minute(1);
             if (Projectile.timeLeft == 0)
             {
                 Stick = true;
-                Projectile.velocity = Vector2.Zero;
+                Projectile.velocity.X = 0;
             }
             SetRotation();
         }
@@ -148,7 +148,7 @@ namespace TF2.Content.Projectiles.Demoman
 
         public virtual void StickyJump(Vector2 velocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 velocity *= 2.5f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

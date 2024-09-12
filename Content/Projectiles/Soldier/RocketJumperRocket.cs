@@ -35,7 +35,7 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 oldVelocity *= 5f;
                 oldVelocity.X = Utils.Clamp(oldVelocity.X, -25f, 25f);

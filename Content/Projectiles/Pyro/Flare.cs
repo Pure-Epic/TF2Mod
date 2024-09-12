@@ -10,7 +10,7 @@ namespace TF2.Content.Projectiles.Pyro
     {
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(20, 11);
+            SetProjectileSize(24, 14);
             AIType = ProjectileID.WoodenArrowFriendly;
             Projectile.penetrate = 1;
             Projectile.friendly = true;
@@ -37,7 +37,7 @@ namespace TF2.Content.Projectiles.Pyro
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
-            burntPlayer.damageMultiplier = p.classMultiplier;
+            burntPlayer.damageMultiplier = p.damageMultiplier;
             target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5), true);
         }
@@ -46,7 +46,7 @@ namespace TF2.Content.Projectiles.Pyro
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
-            npc.damageMultiplier = p.classMultiplier;
+            npc.damageMultiplier = p.damageMultiplier;
             TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlamesDegreaser>());
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5));
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -22,15 +21,15 @@ namespace TF2.Content.Projectiles.Medic
 
         protected virtual int UberCharge => ModContent.BuffType<UberCharge>();
 
-        protected int HealCooldown
+        public int HealCooldown
         {
-            get => Player.GetModPlayer<TF2Player>().multiplayerHealCooldown;
-            set => Player.GetModPlayer<TF2Player>().multiplayerHealCooldown = value;
+            get => Player.GetModPlayer<TF2Player>().healCooldown;
+            set => Player.GetModPlayer<TF2Player>().healCooldown = value;
         }
 
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(25, 25);
+            SetProjectileSize(50, 50);
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
             Projectile.hide = true;
@@ -39,133 +38,146 @@ namespace TF2.Content.Projectiles.Medic
 
         protected override void ProjectileAI()
         {
+            TF2Player p = Player.GetModPlayer<TF2Player>();
             if (Projectile.owner == Main.myPlayer)
             {
-                Projectile.position = Main.MouseWorld;
-                for (int i = 0; i < 10; i++)
+                Projectile.Center = Main.MouseWorld;
+                Vector2 velocity = Main.MouseWorld - Player.Center;
+                Vector2 maxVelocity = Utils.SafeNormalize(velocity, Vector2.UnitY) * 250f;
+                bool withinRange = velocity.Length() <= maxVelocity.Length();
+                if (!withinRange)
+                    Projectile.Center = Player.Center + maxVelocity;
+                Entity target = GetNearestPlayer(Projectile, 200f);
+                if (target != null && WithinHealRange(Player, Projectile, target))
                 {
-                    Vector2 spawn = Projectile.position + ((float)Main.rand.NextDouble() * 6.28f).ToRotationVector2() * (12f - i * 2);
-                    Dust dust = Main.dust[Dust.NewDust(Projectile.position, 20, 20, DustID.Clentaminator_Red, Projectile.velocity.X / 2f, Projectile.velocity.Y / 2f)];
-                    dust.velocity = Vector2.Normalize(Projectile.position - spawn) * 1.5f * (10f - i * 2f) / 10f;
-                    dust.noGravity = true;
-                    dust.scale = Main.rand.Next(10, 20) * 0.05f;
+                    Player targetPlayer = target as Player;
+                    if (!p.activateUberCharge)
+                        AddUberCharge(Player.HeldItem);
+                    else
+                    {
+                        if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                            TF2.RemoveAllDebuffs(targetPlayer);
+                        targetPlayer.AddBuff(UberCharge, TF2.Time(8), false);
+                    }
+                    HealPlayer(targetPlayer);
+                    Projectile.Center = target.Center;
+                }
+                else
+                {
+                    target = GetNearestBuddy(Projectile, 200f);
+                    if (target != null && WithinHealRange(Player, Projectile, target))
+                    {
+                        NPC npc = target as NPC;
+                        if (npc.friendly && npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
+                        {
+                            if (!p.activateUberCharge)
+                                AddUberCharge(Player.HeldItem);
+                            else
+                            {
+                                if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                                    TF2.RemoveAllDebuffs(npc);
+                                npc.AddBuff(UberCharge, TF2.Time(8));
+                            }
+                            HealNPC(npc);
+                        }
+                        Projectile.Center = target.Center;
+                    }
                 }
                 Player.itemTime = 2;
                 Player.itemAnimation = 2;
-                Vector2 velocity = Main.MouseWorld - Player.Center;
-                velocity.SafeNormalize(Vector2.UnitX);
-                Projectile.velocity = velocity;
-                Projectile.direction = Main.MouseWorld.X >= Player.position.X ? 1 : -1;
-                Player.itemRotation = (float)Math.Atan2(Projectile.velocity.Y * Projectile.direction, Projectile.velocity.X * Projectile.direction);
-                Player.ChangeDir(Projectile.direction);
+                Projectile.timeLeft = TF2.Time(0.05);
+                int direction = Projectile.Center.X > Player.position.X ? 1 : -1;
+                Player.ChangeDir(direction);
+                Player.itemRotation = (Utils.DirectionTo(Player.Center, Projectile.Center) * direction).ToRotation();
                 if (!Player.controlUseItem)
-                {
-                    if (Main.netMode == NetmodeID.Server)
-                    {
-                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
-                        packet.Write((byte)TF2.MessageType.KillProjectile);
-                        packet.Write((byte)Projectile.whoAmI);
-                        packet.Send();
-                    }
                     Projectile.Kill();
-                }
-                foreach (Player targetPlayer in Main.ActivePlayers)
-                {
-                    if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && !targetPlayer.dead && !targetPlayer.hostile && HealCooldown <= 0)
-                    {
-                        if (!Player.GetModPlayer<TF2Player>().activateUberCharge)
-                            AddUberCharge(Player.HeldItem);
-                        else
-                        {
-                            if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
-                                TF2.RemoveAllDebuffs(targetPlayer);
-                            targetPlayer.AddBuff(UberCharge, TF2.Time(8), false);
-                        }
-                        HealPlayer(targetPlayer);
-                        HealCooldown = 5;
-                        break;
-                    }
-                }
-                foreach (NPC npc in Main.ActiveNPCs)
-                {
-                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.life <= npc.lifeMax * 1.5f && HealCooldown <= 0)
-                    {
-                        if (!Player.GetModPlayer<TF2Player>().activateUberCharge)
-                            AddUberCharge(Player.HeldItem);
-                        else
-                        {
-                            if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
-                                TF2.RemoveAllDebuffs(npc);
-                            npc.AddBuff(UberCharge, TF2.Time(8));
-                        }
-                        if (Main.netMode != NetmodeID.SinglePlayer)
-                            HealCooldown = 5;
-                        break;
-                    }
-                }
             }
-            foreach (NPC npc in Main.ActiveNPCs)
+            float length = Vector2.Distance(Player.Center, Projectile.Center);
+            for (int i = 0; i < TF2.Round(length / 25f); i++)
             {
-                if (Main.netMode != NetmodeID.MultiplayerClient)
-                {
-                    if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && HealCooldown <= 0)
-                    {
-                        HealNPC(npc);
-                        break;
-                    }
-                }
+                Vector2 position = TF2.Lerp(Player.Center, Projectile.Center, Main.rand.NextFloat());
+                Dust dust = Main.dust[Dust.NewDust(position - Vector2.One * 10, 20, 20, DustID.RedTorch)];
+                dust.velocity = Player.velocity;
+                dust.noGravity = true;
+                dust.alpha = 128;
+                dust.scale = Main.rand.Next(10, 20) * 0.1f;
             }
-            if (Main.netMode == NetmodeID.SinglePlayer) return;
-            foreach (Player targetPlayer in Main.ActivePlayers)
-            {
-                if (Projectile.Hitbox.Intersects(targetPlayer.Hitbox) && targetPlayer.whoAmI != Projectile.owner && !targetPlayer.dead && !targetPlayer.hostile && Main.netMode == NetmodeID.Server)
-                {
-                    HealPlayer(targetPlayer);
-                    break;
-                }
-            }
-            if (HealCooldown > 0)
-                HealCooldown--;
-            Player.GetModPlayer<TF2Player>().SyncPlayer(-1, Main.myPlayer, false);
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+                p.SyncPlayer(-1, Main.myPlayer, false);
         }
 
         public override bool ShouldUpdatePosition() => false;
+
+        protected static Player GetNearestPlayer(Projectile projectile, float maxDetectDistance)
+        {
+            Player playerFound = null;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (Player player in Main.ActivePlayers)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(player.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && player != Main.player[projectile.owner] && !player.dead && !player.hostile)
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    playerFound = player;
+                }
+            }
+            return playerFound;
+        }
+
+        protected static NPC GetNearestBuddy(Projectile projectile, float maxDetectDistance)
+        {
+            NPC npcFound = null;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(npc.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && npc.ModNPC is MercenaryBuddy)
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    npcFound = npc;
+                }
+            }
+            return npcFound;
+        }
+
+        protected static bool WithinHealRange(Player player, Projectile projectile, Entity target) => Vector2.Distance(player.Center, target.Center) <= Vector2.Distance(player.Center, projectile.Center);
+
+        protected void HealPlayer(Player target)
+        {
+            if (HealCooldown <= 0)
+            {
+                int healingAmount = TF2.Round(TF2.GetRawHealth(target, (!target.GetModPlayer<TF2Player>().HealPenalty ? 1.2f : 0.4f) * HealMultiplier));
+                if (healingAmount <= 0)
+                    healingAmount = 1;
+                TF2.OverhealMultiplayer(target, healingAmount, OverhealLimit);
+                if (Player.HasBuff<QuickFixUberCharge>())
+                    TF2.Overheal(Player, healingAmount, OverhealLimit);
+                HealCooldown = TF2.Time(0.1);
+            }
+        }
 
         protected void HealNPC(NPC target)
         {
             if (target.ModNPC is not MercenaryBuddy buddy) return;
             if (HealCooldown <= 0)
             {
-                int healingAmount = TF2.Round(target.lifeMax / buddy.BaseHealth * 0.4f * HealMultiplier);
+                int healingAmount = TF2.Round(buddy.healthMultiplier * (!buddy.HealPenalty ? 1.2f : 0.4f) * HealMultiplier);
                 if (healingAmount <= 0)
                     healingAmount = 1;
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     TF2.OverhealNPC(target, healingAmount, OverhealLimit);
-                else if (Main.netMode == NetmodeID.Server)
+                else
                     TF2.OverhealNPCMultiplayer(target, healingAmount, OverhealLimit);
                 if (Player.HasBuff<QuickFixUberCharge>())
                     TF2.Overheal(Player, TF2.Round(TF2.GetRawHealth(Player, 0.4f * HealMultiplier)), OverhealLimit);
-                HealCooldown = 5;
-                Projectile.netUpdate = true;
+                HealCooldown = TF2.Time(0.1);
             }
         }
 
-        protected void HealPlayer(Player target)
+        protected void AddUberCharge(Item item)
         {
             if (HealCooldown <= 0)
-            {
-                int healingAmount = TF2.Round(TF2.GetRawHealth(target, 0.4f * HealMultiplier));
-                if (healingAmount <= 0)
-                    healingAmount = 1;
-                if (Main.netMode == NetmodeID.Server)
-                    TF2.OverhealMultiplayer(target, healingAmount, OverhealLimit);
-                if (Player.HasBuff<QuickFixUberCharge>())
-                    TF2.Overheal(Player, healingAmount, OverhealLimit);
-                HealCooldown = 5;
-                Projectile.netUpdate = true;
-            }
+                (item.ModItem as TF2Weapon).AddUberCharge(UberchargeMultiplier);
         }
-
-        protected void AddUberCharge(Item item) => (item.ModItem as TF2Weapon).AddUberCharge(UberchargeMultiplier);
     }
 }

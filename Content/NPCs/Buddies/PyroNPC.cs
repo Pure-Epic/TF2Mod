@@ -51,14 +51,13 @@ namespace TF2.Content.NPCs.Buddies
             AttackTimer++;
             if (AttackTimer >= AttackSpeed && Ammo > 0)
             {
-                NPC.velocity.X = 0;
-                NPC.netUpdate = true;
+                NPC.velocity.X = 0f;
                 Vector2 shootVel = NPC.DirectionTo(target.Center);
                 itemRotation = NPC.AngleTo(target.Center);
                 NPC.spriteDirection = NPC.direction = (itemRotation >= -MathHelper.PiOver2 && itemRotation <= MathHelper.PiOver2) ? 1 : -1;
                 float speed = 10f;
                 int type = ModContent.ProjectileType<Fire>();
-                int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                 IEntitySource projectileSource = NPC.GetSource_FromAI();
                 if (!SoundEngine.TryGetActiveSound(flameThrowerAttackSoundSlot, out var _))
                     flameThrowerAttackSoundSlot = SoundEngine.PlaySound(FlameThrowerAttackSound, NPC.Center);
@@ -80,7 +79,7 @@ namespace TF2.Content.NPCs.Buddies
             }
         }
 
-        public override void OnKill()
+        protected override void BuddyDie()
         {
             if (SoundEngine.TryGetActiveSound(flameThrowerAttackSoundSlot, out var attackSound))
                 attackSound.Stop();

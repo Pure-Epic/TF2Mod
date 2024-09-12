@@ -130,7 +130,7 @@ namespace TF2.Gensokyo.Content.NPCs
                     NPC.netUpdate = true;
                     finishedSwitchingAttacks = false;
                     finishedDialogue = false;
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
                     return;
 
@@ -195,7 +195,7 @@ namespace TF2.Gensokyo.Content.NPCs
                         BossAI = 0;
                         NPC.netUpdate = true;
                     }
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
                     return;
 
@@ -205,7 +205,7 @@ namespace TF2.Gensokyo.Content.NPCs
                         BossAI = 0;
                         NPC.netUpdate = true;
                     }
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
                     return;
             }
@@ -222,7 +222,7 @@ namespace TF2.Gensokyo.Content.NPCs
             MoveTowardsPlayer(speed);
             BossAI = 2;
             NPC.netUpdate = true;
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
         }
 
@@ -243,7 +243,7 @@ namespace TF2.Gensokyo.Content.NPCs
                 BossAI = 3;
                 NPC.netUpdate = true;
             }
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
         }
 
@@ -280,7 +280,7 @@ namespace TF2.Gensokyo.Content.NPCs
                     NPC.netUpdate = true;
                 }
             }
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
         }
 
@@ -291,7 +291,7 @@ namespace TF2.Gensokyo.Content.NPCs
                 BossAI = 6;
                 NPC.netUpdate = true;
             }
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(MessageID.SyncNPC, number: NPC.whoAmI);
         }
 

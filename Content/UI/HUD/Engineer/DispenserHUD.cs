@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
@@ -17,7 +18,7 @@ namespace TF2.Content.UI.HUD.Engineer
     {
         protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().currentClass == TF2Item.Engineer;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/DispenserHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.DispenserHUD;
 
         private UIText level;
 
@@ -48,15 +49,15 @@ namespace TF2.Content.UI.HUD.Engineer
             DispenserStatistics carriedDispenser = Player.GetModPlayer<TF2Player>().carriedDispenser;
             if (dispenserID > -1 && Main.npc[dispenserID].ModNPC is TF2Dispenser dispenser && Main.npc[dispenserID].active)
             {
-                Texture2D newTexture = HUDTextures.DispenserHUD;
+                Texture2D newTexture = Texture.Value;
                 if (!dispenser.Initialized && dispenser is DispenserLevel1)
-                    newTexture = HUDTextures.DispenserLevel1HUDInitial;
+                    newTexture = HUDTextures.DispenserLevel1HUDInitial.Value;
                 else if (dispenser is DispenserLevel1)
-                    newTexture = HUDTextures.DispenserLevel1HUD;
+                    newTexture = HUDTextures.DispenserLevel1HUD.Value;
                 else if (dispenser is DispenserLevel2)
-                    newTexture = HUDTextures.DispenserLevel2HUD;
+                    newTexture = HUDTextures.DispenserLevel2HUD.Value;
                 else if (dispenser is DispenserLevel3)
-                    newTexture = HUDTextures.DispenserLevel3HUD;
+                    newTexture = HUDTextures.DispenserLevel3HUD.Value;
                 spriteBatch.Draw(newTexture, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 232f), Color.White);
                 Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
                 if (!dispenser.Initialized && dispenser is DispenserLevel1)
@@ -94,9 +95,9 @@ namespace TF2.Content.UI.HUD.Engineer
                 }
             }
             else if (carriedDispenser == null)
-                spriteBatch.Draw(HUDTextures.DispenserHUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 232f), Color.White);
+                spriteBatch.Draw(HUDTextures.DispenserHUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 232f), Color.White);
             else
-                spriteBatch.Draw(HUDTextures.DispenserLevel1HUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 232f), Color.White);
+                spriteBatch.Draw(HUDTextures.DispenserLevel1HUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 232f), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime)

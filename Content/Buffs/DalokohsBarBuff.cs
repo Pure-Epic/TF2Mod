@@ -1,6 +1,5 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
-using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
@@ -16,11 +15,5 @@ namespace TF2.Content.Buffs
         public bool dalokohsBarBuff;
 
         public override void ResetEffects() => dalokohsBarBuff = false;
-
-        public override void PostUpdate()
-        {
-            if (dalokohsBarBuff)
-                TF2Player.SetPlayerHealth(Player, 50);
-        }
     }
 }

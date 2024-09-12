@@ -47,7 +47,7 @@ namespace TF2.Content.Items.Weapons.Scout
     {
         public override void PostUpdateBuffs()
         {
-            if (Player.HeldItem.ModItem is SunonaStick && Player.inventory[58].ModItem is not SunonaStick)
+            if (TF2Weapon.HoldingWeapon<SunonaStick>(Player))
             {
                 for (int i = 0; i < BuffLoader.BuffCount; i++)
                 {

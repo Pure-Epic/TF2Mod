@@ -36,11 +36,5 @@ namespace TF2.Content.Items.Weapons.Soldier
         public bool equalizerEquipped;
 
         public override void ResetEffects() => equalizerEquipped = false;
-
-        public override void PostUpdate()
-        {
-            if (equalizerEquipped && Main.netMode == NetmodeID.SinglePlayer)
-                Player.GetModPlayer<TF2Player>().healReduction *= 0.1f;
-        }
     }
 }

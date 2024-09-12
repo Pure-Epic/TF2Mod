@@ -31,7 +31,6 @@ namespace TF2.Content.Projectiles
 				SoundEngine.PlaySound(SoundID.Item22, Projectile.Center);
 				Projectile.soundDelay = TF2.Time(0.2);
 			}
-
 			Vector2 playerCenter = player.RotatedRelativePoint(player.MountedCenter);
 			if (Main.myPlayer == Projectile.owner)
 			{
@@ -46,9 +45,7 @@ namespace TF2.Content.Projectiles
 				else
 					Projectile.Kill();
 			}
-
 			player.ChangeDir(Projectile.velocity.X > 0f ? 1 : -1);
-
 			Projectile.spriteDirection = Projectile.direction;
 			player.ChangeDir(Projectile.direction);
 			player.heldProj = Projectile.whoAmI;

@@ -18,7 +18,7 @@ namespace TF2.Content.Projectiles.Scout
 
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(30, 30);
+            SetProjectileSize(20, 20);
             AIType = ProjectileID.WoodenArrowFriendly;
             Projectile.penetrate = -1;
             Projectile.friendly = true;

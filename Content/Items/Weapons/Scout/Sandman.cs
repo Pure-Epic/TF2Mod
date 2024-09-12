@@ -10,6 +10,8 @@ namespace TF2.Content.Items.Weapons.Scout
 {
     public class Sandman : TF2Weapon
     {
+        protected override int HealthBoost => -15;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Scout, Melee, Unique, Unlock);
@@ -36,7 +38,7 @@ namespace TF2.Content.Items.Weapons.Scout
                 player.itemAnimation = player.itemAnimationMax = TF2.Time(0.5);
                 timer[1] = TF2.Time(0.5);
                 timer[2] = TF2.Time(0.25);
-                int newDamage = TF2.Round(15 * player.GetModPlayer<TF2Player>().classMultiplier);
+                int newDamage = TF2.Round(15 * player.GetModPlayer<TF2Player>().damageMultiplier);
                 TF2Projectile projectile = TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, player.DirectionTo(Main.MouseWorld) * 25f, ModContent.ProjectileType<Baseball>(), newDamage, 0f, player.whoAmI);               
                 if (player.GetModPlayer<TF2Player>().focus)
                 {
@@ -52,7 +54,6 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponPassiveUpdate(Player player)
         {
-            TF2Player.SetPlayerHealth(player, -15);
             if (timer[0] < TF2.Time(10))
                 timer[0]++;
             if (timer[1] > 0)

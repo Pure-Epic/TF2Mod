@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
-using TF2.Content.Items.Weapons.Demoman;
 
 namespace TF2.Content.Projectiles.Demoman
 {
@@ -10,17 +9,6 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (Timer >= TF2.Time(5))
                 noDistanceModifier = true;
-            if (Timer >= 103 && TF2.FindNPC(Projectile, 50f))
-            {
-                Projectile.timeLeft = 0;
-                Timer = 0;
-                Player.GetModPlayer<ScottishResistancePlayer>().stickybombsReturned++;
-                for (int i = 0; i < Player.inventory.Length; i++)
-                {
-                    if (Player.inventory[i].ModItem is ScottishResistance thisWeapon && weapon == thisWeapon)
-                        (weapon as ScottishResistance).ReturnStickybombs(Player);
-                }
-            }
             if (Projectile.timeLeft == 0)
             {
                 Projectile.position = Projectile.Center;
@@ -44,6 +32,11 @@ namespace TF2.Content.Projectiles.Demoman
                     StickOnEnemy = true;
                     Projectile.netUpdate = true;
                 }
+            }
+            foreach (Projectile projectile in Main.ActiveProjectiles)
+            {
+                if (Projectile.Hitbox.Intersects(projectile.Hitbox) && TF2.CanParryProjectile(projectile) && projectile.hostile && !projectile.friendly)
+                    projectile.Kill();
             }
         }
     }

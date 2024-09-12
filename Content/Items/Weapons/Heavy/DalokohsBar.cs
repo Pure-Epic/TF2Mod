@@ -13,6 +13,10 @@ namespace TF2.Content.Items.Weapons.Heavy
 {
     public class DalokohsBar : TF2Weapon
     {
+        protected override int HealthBoost => 50;
+
+        protected override bool TemporaryHealthBoost => true;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Secondary, Unique, Craft);
@@ -32,6 +36,8 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         public override bool WeaponCanBeUsed(Player player) => timer[0] >= TF2.Time(10);
 
+        protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<DalokohsBarPlayer>().dalokohsBarBuff;
+
         protected override void WeaponActiveUpdate(Player player)
         {
             if (player.controlUseTile && !eatingSandvich && timer[0] >= TF2.Time(10) && WeaponCanAltClick(player))
@@ -41,9 +47,11 @@ namespace TF2.Content.Items.Weapons.Heavy
                 DroppedDalokohsBar spawnedItem = (DroppedDalokohsBar)Main.item[sandvichItem].ModItem;
                 spawnedItem.droppedPlayerName = player.name;
                 NetMessage.SendData(MessageID.SyncItem, number: sandvichItem);
+                timer[0] = 0;
             }
             else if (eatingSandvich)
             {
+                player.AddBuff(ModContent.BuffType<DalokohsBarBuff>(), TF2.Time(30));
                 timer[0] = 0;
                 timer[1]++;
                 if (timer[1] >= TF2.Time(1))
@@ -56,7 +64,6 @@ namespace TF2.Content.Items.Weapons.Heavy
                 }
                 if (timer[2] >= 4)
                 {
-                    player.AddBuff(ModContent.BuffType<DalokohsBarBuff>(), TF2.Time(30));
                     timer[2] = 0;
                     eatingSandvich = false;
                 }

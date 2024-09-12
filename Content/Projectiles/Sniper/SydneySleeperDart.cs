@@ -11,6 +11,19 @@ namespace TF2.Content.Projectiles.Sniper
     {
         public int jarateDuration;
 
+        protected override void ProjectileStatistics()
+        {
+            SetProjectileSize(30, 10);
+            AIType = ProjectileID.BulletHighVelocity;
+            Projectile.penetrate = 1;
+            Projectile.friendly = true;
+            Projectile.timeLeft = TF2.Time(6);
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 9;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
+        }
+
         protected override void ProjectileAI()
         {
             foreach (Player player in Main.ActivePlayers)
@@ -31,6 +44,7 @@ namespace TF2.Content.Projectiles.Sniper
                     Projectile.Kill();
                 }
             }
+            SetRotation();
         }
 
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)

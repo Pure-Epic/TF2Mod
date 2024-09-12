@@ -20,23 +20,28 @@ using TF2.Content.Items;
 using TF2.Content.Items.Buddies;
 using TF2.Content.Mounts;
 using TF2.Content.NPCs.Buddies;
+using TF2.Content.NPCs.Enemies;
 using TF2.Content.UI.MannCoStore;
+using static TF2.TF2;
 
 namespace TF2.Content.UI.Inventory
 {
     public class TF2Inventory : ModSystem
     {
+        internal static Asset<Texture2D>[] MercenaryItemSlotTexture { get; private set; }
+
+        internal static Asset<Texture2D>[] MercenaryHealthTexture { get; private set; }
+
         public static int mapHeight;
         public static int accSlotToSwapTo;
         public Hook DrawAccSlots;
         public Hook DrawVisibility;
         public delegate void DrawAccSlotsAction(AccessorySlotLoader self, int num20);
         public delegate bool DrawVisibilityFunction(AccessorySlotLoader self, ref bool visbility, int context, int xLoc, int yLoc, out int xLoc2, out int yLoc2, out Texture2D value4);
-        public Asset<Texture2D>[] MercenaryItemSlotTexture;
 
         public static bool MapOpen => !Main.mapFullscreen && Main.mapStyle == 1;
 
-        public static float MapMargin => -225f - (MapOpen ? 254f : 97f);
+        public static float MapMargin => -225f - (MapOpen ? 254f : 144f);
 
 
         public override void Load()
@@ -57,13 +62,18 @@ namespace TF2.Content.UI.Inventory
             On_ItemSlot.OverrideLeftClick += Hook_OverrideLeftClick;
             On_ItemSlot.PickItemMovementAction += Hook_PickItemMovementAction;
             On_ItemSlot.RightClick_ItemArray_int_int += Hook_RightClick;
-            On_Mount.SetMount += On_SetMount;
+            On_Mount.SetMount += Hook_SetMount;
             MercenaryItemSlotTexture =
             [
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Back"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Module"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Pet"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Light_Pet")
+            ];
+            MercenaryHealthTexture = 
+            [
+                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthBar"),
+                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthIcon")
             ];
         }
 
@@ -85,7 +95,9 @@ namespace TF2.Content.UI.Inventory
             On_ItemSlot.OverrideLeftClick -= Hook_OverrideLeftClick;
             On_ItemSlot.PickItemMovementAction -= Hook_PickItemMovementAction;
             On_ItemSlot.RightClick_ItemArray_int_int -= Hook_RightClick;
-            On_Mount.SetMount -= On_SetMount;
+            On_Mount.SetMount -= Hook_SetMount;
+            MercenaryItemSlotTexture = null;
+            MercenaryHealthTexture = null;
         }
 
         private static void Hook_DrawAccSlots(DrawAccSlotsAction orig, AccessorySlotLoader self, int num20)
@@ -105,7 +117,7 @@ namespace TF2.Content.UI.Inventory
                 {
                     yLoc2 = yLoc - 2;
                     xLoc2 = xLoc - 58 + 64 + 28;
-                    value4 = ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing").Value;
+                    value4 = BlankTexture.Value;
                     return false;
                 }
             }
@@ -114,7 +126,7 @@ namespace TF2.Content.UI.Inventory
 
         private void Hook_GUIBarsDrawInner(On_Main.orig_GUIBarsDrawInner orig, Main self)
         {
-            if (TF2.MannCoStoreActive) return;
+            if (MannCoStoreActive) return;
             if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected)
             {
                 MethodInfo drawInterface_Resources_Breath = typeof(Main).GetMethod("DrawInterface_Resources_Breath", BindingFlags.Static | BindingFlags.NonPublic);
@@ -143,7 +155,7 @@ namespace TF2.Content.UI.Inventory
             hitbox.Width = 194;
             hitbox.Height = 40;
             int steps = (int)((hitbox.Right - hitbox.Left) * amount);
-            spriteBatch.Draw(ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthBar", AssetRequestMode.ImmediateLoad).Value, new Vector2(Main.screenWidth - 296f, 3f), Color.White);
+            spriteBatch.Draw(MercenaryHealthTexture[0].Value, new Vector2(Main.screenWidth - 296f, 3f), Color.White);
             if (player.statLife > maxHealth / 4f)
             {
                 for (int i = 0; i < steps; i++)
@@ -153,17 +165,17 @@ namespace TF2.Content.UI.Inventory
                 }
             }
             else
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * (float)(player.statLife - p.overheal) / maxHealth), hitbox.Height), new Color(178, 0, 0));
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, Round(hitbox.Width * (float)(player.statLife - p.overheal) / maxHealth), hitbox.Height), new Color(178, 0, 0));
             if (p.overheal > 0)
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * Math.Clamp((float)p.overheal / TF2.OverhealRound(maxHealth * p.overhealMultiplier * 0.5f), 0f, 1f)), hitbox.Height), new Color(255, 255, 255, 128));
-            spriteBatch.Draw(ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthIcon", AssetRequestMode.ImmediateLoad).Value, new Rectangle(Main.screenWidth - 296, 3, 80, 80), Color.White);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, Round(hitbox.Width * Math.Clamp((float)p.overheal / OverhealRound(maxHealth * p.overhealMultiplier * 0.5f), 0f, 1f)), hitbox.Height), new Color(255, 255, 255, 128));
+            spriteBatch.Draw(MercenaryHealthTexture[1].Value, new Rectangle(Main.screenWidth - 296, 3, 80, 80), Color.White);
             string health = player.statLife.ToString();
             TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, health, new Vector2(Main.screenWidth - 256 - (FontAssets.MouseText.Value.MeasureString(health) / 2f).X, 46 - (FontAssets.MouseText.Value.MeasureString(health) / 2f).Y), Color.White, 0f, default, Vector2.One);
         }
 
         private void Hook_DrawInterface_16_MapOrMinimap(On_Main.orig_DrawInterface_16_MapOrMinimap orig, Main self)
         {
-            if (TF2.MannCoStoreActive) return;
+            if (MannCoStoreActive) return;
             mapHeight = 0;
             if (!Main.mapEnabled)
             {
@@ -365,7 +377,7 @@ namespace TF2.Content.UI.Inventory
             orig(inv, context, slot);
         }
 
-        private void On_SetMount(On_Mount.orig_SetMount orig, Mount self, int m, Player mountedPlayer, bool faceLeft)
+        private void Hook_SetMount(On_Mount.orig_SetMount orig, Mount self, int m, Player mountedPlayer, bool faceLeft)
         {
             if (mountedPlayer.GetModPlayer<TF2Player>().ClassSelected && m != ModContent.MountType<TF2Mount>())
                 return;
@@ -373,7 +385,50 @@ namespace TF2.Content.UI.Inventory
                 orig(self, m, mountedPlayer, faceLeft);
         }
 
-        private void DrawMercenaryItemSlot(SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position)
+        public override void PostUpdateWorld()
+        {
+            foreach (NPC npc in Main.npc)
+            {
+                if (npc.ModNPC is HeavyNPC heavy && !npc.active)
+                {
+                    if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
+                        spinUp.Stop();
+                    if (SoundEngine.TryGetActiveSound(heavy.minigunSpinDownSoundSlot, out var spinDown))
+                        spinDown.Stop();
+                    if (SoundEngine.TryGetActiveSound(heavy.minigunSpinSoundSlot, out var spinSound))
+                        spinSound.Stop();
+                    if (SoundEngine.TryGetActiveSound(heavy.minigunAttackSoundSlot, out var attackSound))
+                        attackSound.Stop();
+                    if (Main.netMode != NetmodeID.SinglePlayer)
+                    {
+                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                        packet.Write((byte)MessageType.DespawnHeavy);
+                        packet.Write((byte)npc.whoAmI);
+                        packet.Send(-1, Main.myPlayer);
+                    }
+                }
+                else if (npc.ModNPC is EnemyHeavyNPC enemyHeavy && !npc.active)
+                    {
+                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinUpSoundSlot, out var spinUp))
+                            spinUp.Stop();
+                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinDownSoundSlot, out var spinDown))
+                            spinDown.Stop();
+                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinSoundSlot, out var spinSound))
+                            spinSound.Stop();
+                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunAttackSoundSlot, out var attackSound))
+                            attackSound.Stop();
+                        if (Main.netMode != NetmodeID.SinglePlayer)
+                        {
+                            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                            packet.Write((byte)MessageType.DespawnHeavy);
+                            packet.Write((byte)npc.whoAmI);
+                            packet.Send(-1, Main.myPlayer);
+                        }
+                    }
+            }
+        }
+
+        private static void DrawMercenaryItemSlot(SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position)
         {
             Item item = inv[slot];
             float inventoryScale = Main.inventoryScale;
@@ -562,10 +617,10 @@ namespace TF2.Content.UI.Inventory
 
         public override void PostDraw(AccessorySlotType context, Item item, Vector2 position, bool isHovered)
         {
-            MercenaryBuddy[] buddies = Player.GetModPlayer<TF2Player>().buddies;
+            int[] buddies = Player.GetModPlayer<TF2Player>().buddies;
             int[] buddyCooldown = Player.GetModPlayer<TF2Player>().buddyCooldown;
-            if ((buddies[SlotIndex - 1] == null || !buddies[SlotIndex - 1].NPC.active) && buddyCooldown[SlotIndex - 1] > 0)
-                TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, TF2.Round(buddyCooldown[SlotIndex - 1] / 60f).ToString(), new Vector2(position.X + (26f * Main.inventoryScale - (FontAssets.MouseText.Value.MeasureString(TF2.Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).X), position.Y + 26f - (FontAssets.MouseText.Value.MeasureString(TF2.Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).Y), Color.White, 0f, default, Vector2.One);
+            if ((buddies[SlotIndex - 1] < 0) && buddyCooldown[SlotIndex - 1] > 0)
+                TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, Round(buddyCooldown[SlotIndex - 1] / 60f).ToString(), new Vector2(position.X + (26f * Main.inventoryScale - (FontAssets.MouseText.Value.MeasureString(Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).X), position.Y + 26f - (FontAssets.MouseText.Value.MeasureString(Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).Y), Color.White, 0f, default, Vector2.One);
         }
 
         public override bool IsHidden() => Main.EquipPage != 4 || SlotIndex == 0;
@@ -580,22 +635,22 @@ namespace TF2.Content.UI.Inventory
 
         public override void ApplyEquipEffects()
         {
-            if (SlotIndex <= 0) return;
-            ref MercenaryBuddy[] buddies = ref Player.GetModPlayer<TF2Player>().buddies;
-            ref int[] buddyCooldown = ref Player.GetModPlayer<TF2Player>().buddyCooldown;
+            if (SlotIndex <= 0 || Main.dedServ || Player.whoAmI != Main.myPlayer) return;
+            TF2Player p = Main.LocalPlayer.GetModPlayer<TF2Player>();
+            ref int[] buddies = ref p.buddies;
+            ref int[] buddyCooldown = ref p.buddyCooldown;
             if (FunctionalItem.ModItem is BuddyItem item)
             {
-                if (buddies[SlotIndex - 1] == null && buddyCooldown[SlotIndex - 1] <= 0)
+                if (buddies[SlotIndex - 1] < 0 && buddyCooldown[SlotIndex - 1] <= 0)
                 {
-                    int i = NPC.NewNPC(Player.GetSource_FromThis(), (int)Player.Center.X, (int)Player.Center.Y, item.BuddyType, 0, 0, 0, 0, Main.myPlayer);
-                    NPC npc = Main.npc[i];
-                    Main.npc[i].netUpdate = true;
-                    buddies[SlotIndex - 1] = npc.ModNPC as MercenaryBuddy;
+                    NPC newBuddy = SpawnBuddy(Main.LocalPlayer, item.BuddyType);
+                    buddies[SlotIndex - 1] = newBuddy.whoAmI;
                     buddyCooldown[SlotIndex - 1] = item.BuddyCooldown;
                 }
-                else if (buddies[SlotIndex - 1] != null && (buddies[SlotIndex - 1].NPC.type != item.BuddyType || buddyCooldown[SlotIndex - 1] <= 0))
+                else if (buddies[SlotIndex - 1] >= 0 && (Main.npc[buddies[SlotIndex - 1]].type != item.BuddyType || buddyCooldown[SlotIndex - 1] <= 0)) //(Main.npc[buddies[SlotIndex - 1]].type != item.BuddyType || buddyCooldown[SlotIndex - 1] <= 0)
                 {
-                    if (buddies[SlotIndex - 1] is HeavyNPC heavy)
+                    NPC npc = Main.npc[buddies[SlotIndex - 1]];
+                    if (npc.ModNPC is HeavyNPC heavy)
                     {
                         if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                             spinUp.Stop();
@@ -606,19 +661,17 @@ namespace TF2.Content.UI.Inventory
                         if (SoundEngine.TryGetActiveSound(heavy.minigunAttackSoundSlot, out var attackSound))
                             attackSound.Stop();
                     }
-                    buddies[SlotIndex - 1].NPC.active = false;
-                    buddies[SlotIndex - 1].NPC.netUpdate = true;
-                    buddies[SlotIndex - 1] = null;
-                    int i = NPC.NewNPC(Player.GetSource_FromThis(), (int)Player.Center.X, (int)Player.Center.Y, item.BuddyType, 0, 0, 0, 0, Main.myPlayer);
-                    NPC npc = Main.npc[i];
-                    Main.npc[i].netUpdate = true;
-                    buddies[SlotIndex - 1] = npc.ModNPC as MercenaryBuddy;
+                    KillNPC(npc);
+                    buddies[SlotIndex - 1] = -1;
+                    NPC newBuddy = SpawnBuddy(Main.LocalPlayer, item.BuddyType);
+                    buddies[SlotIndex - 1] = newBuddy.whoAmI;
                     buddyCooldown[SlotIndex - 1] = item.BuddyCooldown;
                 }
             }
-            else if (buddies[SlotIndex - 1] != null)
+            else if (buddies[SlotIndex - 1] >= 0)
             {
-                if (buddies[SlotIndex - 1] is HeavyNPC heavy)
+                NPC npc = Main.npc[buddies[SlotIndex - 1]];
+                if (npc.ModNPC is HeavyNPC heavy)
                 {
                     if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                         spinUp.Stop();
@@ -629,10 +682,17 @@ namespace TF2.Content.UI.Inventory
                     if (SoundEngine.TryGetActiveSound(heavy.minigunAttackSoundSlot, out var attackSound))
                         attackSound.Stop();
                 }
-                buddies[SlotIndex - 1].NPC.active = false;
-                buddies[SlotIndex - 1].NPC.netUpdate = true;
-                buddies[SlotIndex - 1] = null;
+                KillNPC(npc);
+                buddies[SlotIndex - 1] = -1;
             }
+        }
+
+        private static NPC SpawnBuddy(Player player, int type)
+        {
+            NPC npc = NPC.NewNPCDirect(player.GetSource_FromThis(), (int)player.Center.X, (int)player.Center.Y, type, 0, 0, 0, 0, player.whoAmI);
+            npc.netUpdate = true;
+            SpawnNPCMultiplayer(player, npc, type);
+            return npc;
         }
     }
 

@@ -49,7 +49,7 @@ namespace TF2.Content.Items.Weapons.Scout
             BostonBasherPlayer p = player.GetModPlayer<BostonBasherPlayer>();
             p.miss = true;
             p.resetHit = false;
-            TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<BostonBasherHitbox>(), TF2.Round(35 * player.GetModPlayer<TF2Player>().classMultiplier), 0f);
+            TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<BostonBasherHitbox>(), TF2.Round(35 * player.GetModPlayer<TF2Player>().damageMultiplier), 0f);
             return true;
         }
 

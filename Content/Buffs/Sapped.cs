@@ -18,22 +18,22 @@ namespace TF2.Content.Buffs
             BuffID.Sets.IsATagBuff[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<SappedPlayer>().lifeRegenDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<SappedPlayer>().sapperDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SappedNPC>().lifeRegenDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SappedNPC>().sapperDebuff = true;
     }
 
     public class SappedPlayer : ModPlayer
     {
-        public bool lifeRegenDebuff;
+        private int timer;
+        public bool sapperDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects() => lifeRegenDebuff = false;
+        public override void ResetEffects() => sapperDebuff = false;
 
         public override void UpdateBadLifeRegen()
         {
-            if (lifeRegenDebuff)
+            if (sapperDebuff)
             {
                 TF2.Maximum(ref Player.lifeRegen, 0);
                 Player.lifeRegenTime = 0;
@@ -45,6 +45,11 @@ namespace TF2.Content.Buffs
                         Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[6].Format(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
+                Dust dust = Dust.NewDustDirect(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Electric);
+                dust.velocity *= 2f;
+                dust.noGravity = true;
+                dust.alpha = 128;
+                dust.scale = Main.rand.Next(10, 20) * 0.1f;
             }
         }
     }
@@ -53,15 +58,15 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
-        public bool lifeRegenDebuff;
+        private int timer;
+        public bool sapperDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects(NPC npc) => lifeRegenDebuff = false;
+        public override void ResetEffects(NPC npc) => sapperDebuff = false;
 
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
-            if (lifeRegenDebuff)
+            if (sapperDebuff)
             {
                 timer++;
                 TF2.Maximum(ref npc.lifeRegen, 0);
@@ -75,16 +80,28 @@ namespace TF2.Content.Buffs
                         npc.netUpdate = true;
                     timer = 0;
                 }
-                int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Electric, 0f, 0f, 100, default, 3f);
-                Main.dust[dustIndex].noGravity = true;
-                Main.dust[dustIndex].velocity *= 5f;
+                Dust dust = Dust.NewDustDirect(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Electric);
+                dust.velocity *= 2f;
+                dust.noGravity = true;
+                dust.alpha = 128;
+                dust.scale = Main.rand.Next(10, 20) * 0.1f;
             }
             else
                 timer = 0;
         }
 
-        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(timer);
+            binaryWriter.Write(sapperDebuff);
+            binaryWriter.Write(damageMultiplier);
+        }
 
-        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => timer = binaryReader.ReadInt32();
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            timer = binaryReader.ReadInt32();
+            sapperDebuff = binaryReader.ReadBoolean();
+            damageMultiplier = binaryReader.ReadSingle();
+        }
     }
 }

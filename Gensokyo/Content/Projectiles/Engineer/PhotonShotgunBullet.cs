@@ -15,7 +15,7 @@ namespace TF2.Gensokyo.Content.Projectiles.Engineer
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
-            burntPlayer.damageMultiplier = p.classMultiplier;
+            burntPlayer.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(5), true);
         }
 
@@ -23,7 +23,7 @@ namespace TF2.Gensokyo.Content.Projectiles.Engineer
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
-            npc.damageMultiplier = p.classMultiplier;
+            npc.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(5));
         }
     }

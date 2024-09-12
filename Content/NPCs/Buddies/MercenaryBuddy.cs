@@ -13,6 +13,8 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Mounts;
+using TF2.Content.Projectiles;
+using TF2.Content.Projectiles.Medic;
 using static TF2.Content.Tiles.TF2Tile;
 
 namespace TF2.Content.NPCs.Buddies
@@ -30,12 +32,6 @@ namespace TF2.Content.NPCs.Buddies
         {
             get => (byte)NPC.ai[1];
             set => NPC.ai[1] = value;
-        }
-
-        protected int JumpTimer
-        {
-            get => (int)NPC.ai[2];
-            set => NPC.ai[2] = value;
         }
 
         public int Owner
@@ -72,7 +68,16 @@ namespace TF2.Content.NPCs.Buddies
 
         protected bool CanMiniCrit => NPC.HasBuff<Rage>();
 
-        public Player Player => Main.player[Owner];
+        public Player Player
+        {
+            get
+            {
+                Player player = Main.player[Owner];
+                if (!player.active || player.dead)
+                    TF2.KillNPC(NPC);
+                return Main.player[Owner];
+            }
+        }
 
         protected bool Standing => NPC.velocity.X == 0f;
 
@@ -116,6 +121,8 @@ namespace TF2.Content.NPCs.Buddies
 
         protected virtual bool MagazineReload => false;
 
+        public bool HealPenalty => healPenalty > 0;
+
         protected float walkSpeed = 1f;
         protected float moveAcceleration = 0.05f;
         protected float moveDeceleration = 0.10f;
@@ -123,6 +130,12 @@ namespace TF2.Content.NPCs.Buddies
         protected float jumpHeight = 6 * 16f;
         protected float jumpSpeed = 3f;
         protected short jumpCooldown = 15;
+        internal int finalBaseHealth;
+        internal bool temporaryBuddy;
+        internal float healthMultiplier;
+        internal int overheal;
+        protected int overhealDecayTimer;
+        private int healPenalty;
         public float temporarySpeedMultiplier = 1f;
         public bool focus;
         protected bool onSolidGround;
@@ -152,121 +165,7 @@ namespace TF2.Content.NPCs.Buddies
         protected virtual void BuddySpawn()
         { }
 
-        protected virtual void BuddyAttack(Player target)
-        { }
-
-        protected virtual void BuddyAttack(NPC target)
-        { }
-
-        protected virtual void BuddyMovement()
-        {
-            Timer++;
-            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * SpeedMuliplier * temporarySpeedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
-            if (OnLedge(NPC.position, NPC.direction, NPC.width, NPC.height))
-                NPC.velocity.X = 0;
-            if (Timer == TF2.Time(2))
-            {
-                Timer = 0;
-                NPC.velocity.X = 0;
-                State = StateIdle;
-            }
-            NPC.netUpdate = true;
-        }
-
-        protected virtual void BuddyFollow()
-        {
-            Timer = 0;
-            int direction = Player.position.X >= NPC.position.X ? 1 : -1;
-            AdjustMoveSpeed(ref NPC.velocity, direction, walkSpeed * SpeedMuliplier * temporarySpeedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
-            NPC.direction = direction;
-            if (Math.Abs(Player.position.X - NPC.position.X) <= 50f || (NPC.position.Y - Player.position.Y >= 250f))
-            {
-                NPC.velocity.X = 0;
-                State = StateIdle;
-            }
-            NPC.netUpdate = true;
-        }
-
-        protected virtual void BuddyUpdateAmmo()
-        {
-            if (Reloading)
-            {
-                ReloadCooldownTimer++;
-                if (ReloadCooldownTimer >= InitialReloadSpeed)
-                {
-                    if (MagazineReload && ReloadTimer == 0 && ReloadSound != "")
-                        SoundEngine.PlaySound(new SoundStyle(ReloadSound), NPC.Center);
-                    if (ReloadTimer >= ReloadSpeed)
-                    {
-                        if (MagazineReload)
-                            Ammo = ClipSize;
-                        else
-                            Ammo++;
-                        if (ReloadSound != "" && !MagazineReload)
-                            SoundEngine.PlaySound(new SoundStyle(ReloadSound), NPC.Center);
-                        ReloadTimer = 0;
-                        NPC.netUpdate = true;
-                    }
-                }
-                ReloadTimer++;
-            }
-            else
-                ReloadTimer = 0;
-            NPC.netUpdate = true;
-            if (Ammo == ClipSize)
-            {
-                AttackTimer = AttackSpeed;
-                ReloadCooldownTimer = 0;
-                ReloadTimer = 0;
-                State = StateIdle;
-                NPC.netUpdate = true;
-            }
-        }
-
-        protected virtual void BuddyUpdate()
-        { }
-
-        protected virtual void BuddyUpdateWithTarget(NPC target)
-        { }
-
-        protected virtual void BuddySendExtraAI(BinaryWriter writer)
-        { }
-
-        protected virtual void BuddyReceiveExtraAI(BinaryReader binaryReader)
-        { }
-
-        protected virtual bool EnableBasicMovement() => !focus;
-
-        protected void SetBuddyStatistics(int damage, string hurtSound, string deathSound)
-        {
-            NPC.damage = damage;
-            NPC.HitSound = new SoundStyle(hurtSound);
-            NPC.DeathSound = new SoundStyle(deathSound);
-        }
-
-        protected void BuddyShoot(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = -1, float ai0 = 0, float ai1 = 0, float ai2 = 0) => TF2.NPCCreateProjectile(spawnSource, position, velocity, type, damage, knockBack, owner, ai0, ai1, ai2, CanCrit, CanMiniCrit);
-
-        public override bool CheckActive() => false;
-
-        public override void SetStaticDefaults()
-        {
-            Main.npcFrameCount[NPC.type] = 2;
-            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
-        }
-
-        public sealed override void SetDefaults()
-        {
-            NPC.width = 24;
-            NPC.height = 42;
-            NPC.aiStyle = -1;
-            NPC.defense = 0;
-            NPC.lifeMax = BaseHealth;
-            NPC.knockBackResist = 0f;
-            NPC.friendly = true;
-            BuddyStatistics();
-        }
-
-        public override void FindFrame(int frameHeight)
+        protected virtual void BuddyFrame()
         {
             NPC npc = NPC;
             if (Falling)
@@ -304,6 +203,135 @@ namespace TF2.Content.NPCs.Buddies
             }
         }
 
+        protected virtual void BuddyAttack(Player target)
+        { }
+
+        protected virtual void BuddyAttack(NPC target)
+        { }
+
+        protected virtual void BuddyDie()
+        { }
+
+        protected virtual void BuddyMovement()
+        {
+            Timer++;
+            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * SpeedMuliplier * temporarySpeedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
+            if (OnLedge(NPC.position, NPC.direction, NPC.width, NPC.height))
+                NPC.velocity.X = 0f;
+            if (Timer == TF2.Time(2))
+            {
+                Timer = 0;
+                NPC.velocity.X = 0f;
+                State = StateIdle;
+                NPC.netUpdate = true;
+            }
+        }
+
+        protected virtual void BuddyFollow()
+        {
+            Timer = 0;
+            int direction = Player.position.X >= NPC.position.X ? 1 : -1;
+            AdjustMoveSpeed(ref NPC.velocity, direction, walkSpeed * SpeedMuliplier * temporarySpeedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
+            NPC.direction = direction;
+            if (Math.Abs(Player.position.X - NPC.position.X) <= 50f || (NPC.position.Y - Player.position.Y >= 250f))
+            {
+                NPC.velocity.X = 0f;
+                State = StateIdle;
+                NPC.netUpdate = true;
+            }
+        }
+
+        protected virtual void BuddyUpdateAmmo()
+        {
+            if (Reloading)
+            {
+                ReloadCooldownTimer++;
+                ReloadTimer++;
+                if (ReloadCooldownTimer == (InitialReloadSpeed - ReloadSpeed) && !MagazineReload && ReloadSound != "")
+                    SoundEngine.PlaySound(new SoundStyle(ReloadSound), NPC.Center);
+                if (ReloadCooldownTimer >= InitialReloadSpeed)
+                {
+                    if (MagazineReload && ReloadTimer == 0 && ReloadSound != "")
+                        SoundEngine.PlaySound(new SoundStyle(ReloadSound), NPC.Center);
+                    if (ReloadTimer >= ReloadSpeed)
+                    {
+                        if (MagazineReload)
+                            Ammo = ClipSize;
+                        else
+                            Ammo++;
+                        if (ReloadSound != "" && !MagazineReload)
+                            SoundEngine.PlaySound(new SoundStyle(ReloadSound), NPC.Center);
+                        ReloadTimer = 0;
+                    }
+                }
+            }
+            else
+                ReloadTimer = 0;
+            if (Ammo == ClipSize)
+            {
+                AttackTimer = AttackSpeed;
+                ReloadCooldownTimer = 0;
+                ReloadTimer = 0;
+                State = StateIdle;
+                NPC.netUpdate = true;
+            }
+        }
+
+        protected virtual void BuddyUpdate()
+        { }
+
+        protected virtual void BuddyUpdateWithTarget(NPC target)
+        { }
+
+        protected virtual void BuddyDamage(ref NPC.HitModifiers modifiers)
+        { }
+
+        protected virtual void BuddySendExtraAI(BinaryWriter writer)
+        { }
+
+        protected virtual void BuddyReceiveExtraAI(BinaryReader binaryReader)
+        { }
+
+        protected virtual bool EnableBasicMovement() => !focus;
+
+        protected void SetBuddyStatistics(int damage, string hurtSound, string deathSound)
+        {
+            NPC.damage = damage;
+            NPC.HitSound = new SoundStyle(hurtSound);
+            NPC.DeathSound = new SoundStyle(deathSound);
+        }
+
+        protected void BuddyShoot(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = -1, float ai0 = 0, float ai1 = 0, float ai2 = 0)
+        {
+            TF2Projectile projectile = TF2.NPCCreateProjectile(spawnSource, position, velocity, type, damage, knockBack, owner, ai0, ai1, ai2, CanCrit, CanMiniCrit);
+            if (this is SniperNPC)
+                projectile.crit = true;
+        }
+
+        public override bool CheckActive() => false;
+
+        public override void SetStaticDefaults()
+        {
+            Main.npcFrameCount[NPC.type] = 2;
+            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
+        }
+
+        public sealed override void SetDefaults()
+        {
+            NPC.width = 24;
+            NPC.height = 42;
+            NPC.aiStyle = -1;
+            NPC.defense = 0;
+            NPC.lifeMax = BaseHealth;
+            NPC.knockBackResist = 0f;
+            NPC.friendly = true;
+            BuddyStatistics();
+        }
+
+        public override void FindFrame(int frameHeight) => BuddyFrame();
+
+        public override void ModifyHoverBoundingBox(ref Rectangle boundingBox) => boundingBox = NPC.Hitbox;
+
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             Texture2D sprite = NPC.direction == -1 ? Spritesheet.Value : SpritesheetReverse.Value;
@@ -311,13 +339,13 @@ namespace TF2.Content.NPCs.Buddies
             int height = sprite.Height / 2;
             float frameWidth = width - TrueWidthAndHeight.X;
             float frameHeight = height - TrueWidthAndHeight.Y;
-            spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(horizontalFrame * width, verticalFrame * height, width, height)), Color.Lerp(drawColor, Color.White, 0.3f), 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+            spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(horizontalFrame * width, verticalFrame * height, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
             if ((weaponAnimation > 0) || forceWeaponDraw)
             {
                 float rotation = NPC.direction == -1 ? (itemRotation - MathHelper.Pi) : itemRotation;
                 bool firingUp = itemRotation >= (-MathHelper.PiOver4 * 3) && itemRotation <= -MathHelper.PiOver4;
                 if (firingUp)
-                    spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(3 * width, 0, width, height)), Color.Lerp(drawColor, Color.White, 0.3f), 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+                    spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(3 * width, 0, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
                 float scale = 1f;
                 Vector2 offset = new Vector2(2f, 20f);
                 Main.GetItemDrawFrame(Weapon, out var itemTexture, out var weaponHitbox);
@@ -336,14 +364,15 @@ namespace TF2.Content.NPCs.Buddies
                     arm = 6;
                 else if (firingUp)
                     arm = 4;
-                spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(arm * width, 0, width, height)), Color.Lerp(drawColor, Color.White, 0.3f), 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+                spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(arm * width, 0, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
             }
             return false;
         }
 
         public sealed override void OnSpawn(IEntitySource source)
         {
-            NPC.lifeMax = TF2.Round(BaseHealth * Player.GetModPlayer<TF2Player>().healthMultiplier);
+            healthMultiplier = Player.GetModPlayer<TF2Player>().healthMultiplier;
+            finalBaseHealth = NPC.lifeMax = TF2.Round(BaseHealth * healthMultiplier);
             NPC.life = NPC.lifeMax;
             NPC.direction = -1;
             horizontalFrame = 0;
@@ -353,161 +382,189 @@ namespace TF2.Content.NPCs.Buddies
                 AttackTimer++;
             Ammo = ClipSize;
             BuddySpawn();
-            NPC.netUpdate = true;
         }
 
         public sealed override void AI()
         {
-            if (Main.netMode != NetmodeID.MultiplayerClient)
+            NPC.spriteDirection = NPC.direction;
+            steppedUp = false;
+            steppedDown = false;
+            atDoor = false;
+            jumped = false;
+            fallingThroughPlatforms = false;
+            onSolidGround = IsOnSolidGround(NPC.Bottom, NPC.velocity, NPC.width);
+            NPC.oldPosition = NPC.position;
+            focus = Player.HasBuff<TF2MountBuff>() && !temporaryBuddy;
+            NPC.noGravity = focus;
+            NPC.lifeMax = finalBaseHealth + overheal;
+            TF2.Maximum(ref NPC.life, NPC.lifeMax);
+            if (NPC.life < NPC.lifeMax && overheal > 0)
             {
-                NPC.spriteDirection = NPC.direction;
-                steppedUp = false;
-                steppedDown = false;
-                atDoor = false;
-                jumped = false;
-                fallingThroughPlatforms = false;
-                onSolidGround = IsOnSolidGround(NPC.Bottom, NPC.velocity, NPC.width);
-                NPC.oldPosition = NPC.position;
-                focus = Player.HasBuff<TF2MountBuff>();
-                NPC.noGravity = focus;
-                if (jumping && onSolidGround && Math.Abs(NPC.velocity.Y) <= 0.1f)
+                overheal -= NPC.lifeMax - NPC.life;
+                if (overheal < 0)
+                    overheal = 0;
+            }
+            if (jumping && onSolidGround && Math.Abs(NPC.velocity.Y) <= 0.1f)
+            {
+                jumping = false;
+                jumpCooldown = (short)TF2.Time(1);
+                jumpsLeft = ExtraJumps;
+                oldJumpHeight = 0f;
+                jumpType = 0;
+            }
+            if (jumpCooldown > 0)
+                jumpCooldown--;
+            if (focus)
+            {
+                NPC.velocity = Vector2.Zero;
+                SetHoverPosition();
+                if (State == StateWalk || State == StateFollow)
                 {
-                    jumping = false;
-                    jumpCooldown = (short)TF2.Time(1);
-                    jumpsLeft = ExtraJumps;
-                    oldJumpHeight = 0f;
-                    jumpType = 0;
+                    State = StateIdle;
                     NPC.netUpdate = true;
                 }
-                if (jumpCooldown > 0)
-                    jumpCooldown--;
-                if (focus)
-                {
-                    NPC.velocity = Vector2.Zero;
-                    SetHoverPosition();
-                    if (State == StateWalk || State == StateFollow)
+                if ((State == StateIdle || State == StateReload) && weaponAnimation <= 0 && !forceWeaponDraw)
+                    NPC.direction = Player.direction;
+            }
+            if (FindTargetNPC(Range, out NPC target) && target != null && State != StateReload && (onSolidGround || focus))
+                State = StateAttack;
+            switch (State)
+            {
+                case StateIdle:
+                    if (forceWeaponDraw || focus) break;
+                    Timer++;
+                    if (Timer >= TF2.Time(2))
+                    {
+                        State = StateWalk;
+                        int direction = Main.rand.NextBool() ? 1 : -1;
+                        if (OnLedge(NPC.position, direction, NPC.width, NPC.height))
+                            direction *= -1;
+                        NPC.direction = direction;
+                        Timer = 0;
+                        NPC.netUpdate = true;
+                    }
+                    break;
+                case StateWalk:
+                    if (forceWeaponDraw || focus) break;
+                    BuddyMovement();
+                    break;
+                case StateFollow:
+                    if (forceWeaponDraw || focus) break;
+                    BuddyFollow();
+                    break;
+                case StateAttack:
+                    if (target == null || !target.active)
+                    {
                         State = StateIdle;
-                    if ((State == StateIdle || State == StateReload) && weaponAnimation <= 0 && !forceWeaponDraw)
-                        NPC.direction = Player.direction;
-                    NPC.netUpdate = true;
-                }
-                if (FindTargetNPC(Range, out NPC target) && target != null && State != StateReload && (onSolidGround || focus))
-                    State = StateAttack;
-                switch (State)
-                {
-                    case StateIdle:
-                        if (forceWeaponDraw || focus) break;
-                        Timer++;
-                        if (Timer >= TF2.Time(2))
-                        {
-                            State = StateWalk;
-                            int direction = Main.rand.NextBool() ? 1 : -1;
-                            if (OnLedge(NPC.position, direction, NPC.width, NPC.height))
-                                direction *= -1;
-                            NPC.direction = direction;
-                            Timer = 0;
-                        }
                         NPC.netUpdate = true;
                         break;
-                    case StateWalk:
-                        if (forceWeaponDraw || focus) break;
-                        BuddyMovement();
-                        break;
-                    case StateFollow:
-                        if (forceWeaponDraw || focus) break;
-                        BuddyFollow();
-                        break;
-                    case StateAttack:
-                        if (target == null || !target.active)
-                        {
-                            State = StateIdle;
-                            break;
-                        }
-                        BuddyAttack(target);
-                        break;
-                    case StateReload:
-                        BuddyUpdateAmmo();
-                        break;
-                }
-                if (weaponAnimation > 0)
-                    weaponAnimation--;
-                if (UsesAmmo && Ammo <= 0 && weaponAnimation <= 0)
-                {
-                    AttackTimer = 0;
-                    State = StateReload;
-                    NPC.netUpdate = true;
-                }
-                if (EnableBasicMovement())
-                {
-                    if (NPC.position.Distance(Player.position) >= 250f && (NPC.position.Y - Player.position.Y <= 250f) && State != StateAttack && State != StateReload)
-                    {
-                        State = StateFollow;
-                        NPC.netUpdate = true;
                     }
-                    if (State == StateWalk || State == StateFollow)
-                    {
-                        if (CanStepUp() && StepUp(ref NPC.position, ref NPC.velocity, NPC.direction, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY, ref fallingThroughPlatforms))
-                            steppedUp = true;
-                        else if (CanStepDown() && StepDown(ref NPC.position, ref NPC.velocity, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY))
-                            steppedDown = true;
-                        else if (Moving && HandleDoors())
-                            atDoor = true;
-                        else if (CanJump() && JumpWall(NPC.position, NPC.direction, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float height, !NPC.wet))
-                        {
-                            jumping = true;
-                            jumped = true;
-                            jumpType = 1;
-                            NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height - 4f);
-                            NPC.netUpdate = true;
-                        }
-                        else if (CanJump() && Player.Center.Y <= NPC.Bottom.Y && JumpGaps(NPC.position, NPC.direction, NPC.width, NPC.height))
-                        {
-                            jumping = true;
-                            jumped = true;
-                            jumpType = 2;
-                            NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 1);
-                            NPC.netUpdate = true;
-                        }
-                        else if (CanJump() && Player.Center.Y < NPC.Top.Y && JumpUpSolidTop(NPC.position, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float height2))
-                        {
-                            jumping = true;
-                            jumped = true;
-                            jumpType = 3;
-                            NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height2 - 4f);
-                            NPC.netUpdate = true;
-                        }
-                        else if (CanFallThroughSolidTops() && OnSolidTops(NPC.Bottom, NPC.width))
-                            fallingThroughPlatforms = true;
-                        if (jumpType > 0 && Math.Abs(NPC.velocity.Y) <= 0.1f && jumpsLeft >= 1)
-                        {
-                            bool jump = jumpType switch
-                            {
-                                1 => JumpWall(NPC.position, NPC.direction, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float _, !NPC.wet),
-                                2 => Player.Center.Y <= NPC.Bottom.Y && JumpGaps(NPC.position, NPC.direction, NPC.width, NPC.height),
-                                3 => Player.Center.Y < NPC.Top.Y && JumpUpSolidTop(NPC.position, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float _),
-                                _ => false
-                            };
-                            if (jump)
-                            {
-                                NPC.velocity.Y = oldJumpHeight;
-                                jumpsLeft--;
-                                oldJumpHeight = 0f;
-                                jumpType = 0;
-                                NPC.netUpdate = true;
-                            }
-                        }
-                    }
-                    if ((State == StateIdle || State == StateWalk || State == StateFollow) && NPC.position.Distance(Player.position) >= 1000f)
-                    {
-                        NPC.Bottom = Player.Bottom;
-                        NPC.netUpdate = true;
-                    }
-                }
-                BuddyUpdate();
-                BuddyUpdateWithTarget(target);
-                temporarySpeedMultiplier = 1f;
+                    BuddyAttack(target);
+                    break;
+                case StateReload:
+                    BuddyUpdateAmmo();
+                    break;
+            }
+            if (weaponAnimation > 0)
+                weaponAnimation--;
+            if (UsesAmmo && Ammo <= 0 && weaponAnimation <= 0)
+            {
+                AttackTimer = 0;
+                State = StateReload;
                 NPC.netUpdate = true;
             }
+            if (EnableBasicMovement())
+            {
+                if (NPC.position.Distance(Player.position) >= 250f && (NPC.position.Y - Player.position.Y <= 250f) && State != StateAttack && State != StateReload)
+                {
+                    State = StateFollow;
+                    NPC.netUpdate = true;
+                }
+                if (State == StateWalk || State == StateFollow)
+                {
+                    if (CanStepUp() && StepUp(ref NPC.position, ref NPC.velocity, NPC.direction, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY, ref fallingThroughPlatforms))
+                        steppedUp = true;
+                    else if (CanStepDown() && StepDown(ref NPC.position, ref NPC.velocity, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY))
+                        steppedDown = true;
+                    else if (Moving && HandleDoors())
+                        atDoor = true;
+                    else if (CanJump() && JumpWall(NPC.position, NPC.direction, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float height, !NPC.wet))
+                    {
+                        jumping = true;
+                        jumped = true;
+                        jumpType = 1;
+                        NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height - 4f);
+                    }
+                    else if (CanJump() && Player.Center.Y <= NPC.Bottom.Y && JumpGaps(NPC.position, NPC.direction, NPC.width, NPC.height))
+                    {
+                        jumping = true;
+                        jumped = true;
+                        jumpType = 2;
+                        NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 1);
+                    }
+                    else if (CanJump() && Player.Center.Y < NPC.Top.Y && JumpUpSolidTop(NPC.position, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float height2))
+                    {
+                        jumping = true;
+                        jumped = true;
+                        jumpType = 3;
+                        NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height2 - 4f);
+                    }
+                    else if (CanFallThroughSolidTops() && OnSolidTops(NPC.Bottom, NPC.width))
+                        fallingThroughPlatforms = true;
+                    if (jumpType > 0 && Math.Abs(NPC.velocity.Y) <= 0.1f && jumpsLeft >= 1)
+                    {
+                        bool jump = jumpType switch
+                        {
+                            1 => JumpWall(NPC.position, NPC.direction, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float _, !NPC.wet),
+                            2 => Player.Center.Y <= NPC.Bottom.Y && JumpGaps(NPC.position, NPC.direction, NPC.width, NPC.height),
+                            3 => Player.Center.Y < NPC.Top.Y && JumpUpSolidTop(NPC.position, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float _),
+                            _ => false
+                        };
+                        if (jump)
+                        {
+                            NPC.velocity.Y = oldJumpHeight;
+                            jumpsLeft--;
+                            oldJumpHeight = 0f;
+                            jumpType = 0;
+                        }
+                    }
+                }
+                if ((State == StateIdle || State == StateWalk || State == StateFollow) && NPC.position.Distance(Player.position) >= 1000f)
+                    NPC.Bottom = Player.Bottom;
+            }
+            BuddyUpdate();
+            BuddyUpdateWithTarget(target);
+            if (overheal > 0)
+                overhealDecayTimer++;
+            bool healed = false;
+            foreach (Projectile projectile in Main.ActiveProjectiles)
+            {
+                if ((projectile.ModProjectile is HealingBeam)
+                    && projectile.Hitbox.Intersects(NPC.Hitbox))
+                    healed = true;
+            }
+            if (overhealDecayTimer > TF2.Time(0.5) && !healed)
+            {
+                overhealDecayTimer = 0;
+                overheal--;
+            }
+            healPenalty--;
+            healPenalty = Math.Clamp(healPenalty, 0, TF2.Time(10));
+            temporarySpeedMultiplier = 1f;
+        }
+
+        public sealed override void ModifyIncomingHit(ref NPC.HitModifiers modifiers)
+        {
+            healPenalty = TF2.Time(10);
+            BuddyDamage(ref modifiers);
+        }
+
+        public sealed override void OnKill()
+        {
+            BuddyDie();
+            int slot = GetBuddySlot();
+            if (slot != -1)
+                Player.GetModPlayer<TF2Player>().buddies[slot] = -1;
         }
 
         public override void SendExtraAI(BinaryWriter writer)
@@ -516,6 +573,13 @@ namespace TF2.Content.NPCs.Buddies
             writer.Write(Ammo);
             writer.Write(ReloadTimer);
             writer.Write(ReloadCooldownTimer);
+            writer.Write(finalBaseHealth);
+            writer.Write(healthMultiplier);
+            writer.Write(overheal);
+            writer.Write(overhealDecayTimer);
+            writer.Write(healPenalty);
+            writer.Write(temporaryBuddy);
+            writer.Write(temporarySpeedMultiplier);
             writer.Write(focus);
             writer.Write(onSolidGround);
             writer.Write(fallingThroughPlatforms);
@@ -531,7 +595,6 @@ namespace TF2.Content.NPCs.Buddies
             writer.Write(itemRotation);
             writer.Write(weaponAnimation);
             writer.Write(forceWeaponDraw);
-            writer.Write(temporarySpeedMultiplier);
             BuddySendExtraAI(writer);
         }
 
@@ -541,6 +604,13 @@ namespace TF2.Content.NPCs.Buddies
             Ammo = reader.ReadInt32();
             ReloadTimer = reader.ReadInt32();
             ReloadCooldownTimer = reader.ReadInt32();
+            finalBaseHealth = reader.ReadInt32();
+            healthMultiplier = reader.ReadSingle();
+            overheal = reader.ReadInt32();
+            overhealDecayTimer = reader.ReadInt32();
+            healPenalty = reader.ReadInt32();
+            temporaryBuddy = reader.ReadBoolean();
+            temporarySpeedMultiplier = reader.ReadSingle();
             focus = reader.ReadBoolean();
             onSolidGround = reader.ReadBoolean();
             fallingThroughPlatforms = reader.ReadBoolean();
@@ -549,7 +619,6 @@ namespace TF2.Content.NPCs.Buddies
             atDoor = reader.ReadBoolean();
             jumping = reader.ReadBoolean();
             jumped = reader.ReadBoolean();
-            jumped = reader.ReadBoolean();
             jumpsLeft = reader.ReadInt32();
             jumpType = reader.ReadByte();
             horizontalFrame = reader.ReadByte();
@@ -557,7 +626,6 @@ namespace TF2.Content.NPCs.Buddies
             itemRotation = reader.ReadSingle();
             weaponAnimation = reader.ReadInt32();
             forceWeaponDraw = reader.ReadBoolean();
-            temporarySpeedMultiplier = reader.ReadSingle();
             BuddyReceiveExtraAI(reader);
         }
 
@@ -570,7 +638,7 @@ namespace TF2.Content.NPCs.Buddies
 
         protected bool CanFallThroughSolidTops() => Moving && !jumping && !Falling && !jumped && !steppedDown && !steppedUp && !atDoor && !(jumpCooldown > 0 && NPC.position.X == NPC.oldPosition.X) && (NPC.collideX || Player.Center.Y > NPC.Bottom.Y);
 
-        protected static bool OnLedge(Vector2 position, int direction, int width, int height)
+        public static bool OnLedge(Vector2 position, int direction, int width, int height)
         {
             int tileX = (int)((position.X + width / 2 + 15 * direction) / 16f);
             int tileY = (int)((position.Y + height - 16f) / 16f);
@@ -613,7 +681,7 @@ namespace TF2.Content.NPCs.Buddies
             return avoidFalling;
         }
 
-        protected static bool IsOnSolidGround(Vector2 bottom, Vector2 velocity, float width, bool fallThrough = false)
+        public static bool IsOnSolidGround(Vector2 bottom, Vector2 velocity, float width, bool fallThrough = false)
         {
             if (Math.Abs(velocity.Y) > 0.5f && Framing.GetTileSafely(bottom + new Vector2(0, 2f)).TopSlope)
                 return false;
@@ -626,7 +694,7 @@ namespace TF2.Content.NPCs.Buddies
             return false;
         }
 
-        protected static void AdjustMoveSpeed(ref Vector2 velocity, int direction, float speed, float accel, float decel, float friction, bool? onSolidGround = null, float airMultiplier = 0.5f)
+        public static void AdjustMoveSpeed(ref Vector2 velocity, int direction, float speed, float accel, float decel, float friction, bool? onSolidGround = null, float airMultiplier = 0.5f)
         {
             speed = Math.Max(speed, 0f);
             accel = Math.Max(accel, 0f);
@@ -673,7 +741,7 @@ namespace TF2.Content.NPCs.Buddies
             }
         }
 
-        protected static bool StepUp(ref Vector2 position, ref Vector2 velocity, int direction, int width, int height, ref float stepSpeed, ref float gfxOffY, ref bool fallThrough, bool midAirPossible = false)
+        public static bool StepUp(ref Vector2 position, ref Vector2 velocity, int direction, int width, int height, ref float stepSpeed, ref float gfxOffY, ref bool fallThrough, bool midAirPossible = false)
         {
             if (!midAirPossible && velocity.Y < 0f || velocity.X == 0f) return false;
             Vector2 predictedPosition = position + new Vector2(velocity.X, 0f);
@@ -760,7 +828,7 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool StepDown(ref Vector2 position, ref Vector2 velocity, int width, int height, ref float stepSpeed, ref float gfxOffY)
+        public static bool StepDown(ref Vector2 position, ref Vector2 velocity, int width, int height, ref float stepSpeed, ref float gfxOffY)
         {
             if (velocity.X == 0f || velocity.Y < 0f) return false;
             Vector2 predictedPosition = position + new Vector2(velocity.X, 0f);
@@ -792,7 +860,7 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool AtClosedDoor(Vector2 position, int direction, int width, int height, out int tileX, out int tileY)
+        public static bool AtClosedDoor(Vector2 position, int direction, int width, int height, out int tileX, out int tileY)
         {
             tileX = (int)((position.X + width / 2f + (width / 2f + 1f) * direction) / 16f);
             tileY = (int)((position.Y + height - 1f) / 16f);
@@ -809,7 +877,7 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool AtAnyDoor(Vector2 position, int direction, int width, int height)
+        public static bool AtAnyDoor(Vector2 position, int direction, int width, int height)
         {
             int tileX = (int)((position.X + width / 2f + (width / 2f + 1f) * direction) / 16f);
             int tileY = (int)((position.Y + height - 1f) / 16f);
@@ -826,13 +894,13 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool TryOpenDoor(int tileX, int tileY, int direction, bool breakDoor = false)
+        public static bool TryOpenDoor(int tileX, int tileY, int direction, bool breakDoor = false)
         {
             Tile doorTile = Framing.GetTileSafely(tileX, tileY);
             if (breakDoor && (TileLoader.IsClosedDoor(doorTile) || doorTile.TileType == TileID.TallGateClosed))
             {
                 WorldGen.KillTile(tileX, tileY);
-                if (Main.netMode == NetmodeID.Server)
+                if (Main.dedServ)
                     NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 0, tileX, tileY);
                 return true;
             }
@@ -840,13 +908,13 @@ namespace TF2.Content.NPCs.Buddies
             {
                 if (WorldGen.OpenDoor(tileX, tileY, direction))
                 {
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 0, tileX, tileY, direction);
                     return true;
                 }
                 if (WorldGen.OpenDoor(tileX, tileY, -direction))
                 {
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 0, tileX, tileY, -direction);
                     return true;
                 }
@@ -856,7 +924,7 @@ namespace TF2.Content.NPCs.Buddies
             {
                 if (WorldGen.ShiftTallGate(tileX, tileY, false))
                 {
-                    if (Main.netMode == NetmodeID.Server) NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 4, tileX, tileY);
+                    if (Main.dedServ) NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 4, tileX, tileY);
                     return true;
                 }
                 return false;
@@ -864,7 +932,7 @@ namespace TF2.Content.NPCs.Buddies
             return false;
         }
 
-        protected static bool JumpWall(Vector2 position, int direction, int width, int height, float maxJumpHeight, out float jumpHeight, bool onlyJumpIfReachable = false)
+        public static bool JumpWall(Vector2 position, int direction, int width, int height, float maxJumpHeight, out float jumpHeight, bool onlyJumpIfReachable = false)
         {
             jumpHeight = 0f;
             int tileX = (int)((position.X + width / 2f + (width / 2f + 1f) * direction) / 16f);
@@ -951,7 +1019,7 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool CheckJumpClearance(int tileX, int tileY, int direction, int widthInTiles, int heightInTiles, out int jumpTileY)
+        public static bool CheckJumpClearance(int tileX, int tileY, int direction, int widthInTiles, int heightInTiles, out int jumpTileY)
         {
             jumpTileY = tileY;
             for (int x = tileX; direction == 1 ? x > tileX - widthInTiles : x < tileX + widthInTiles; x += direction == 1 ? -1 : 1)
@@ -968,7 +1036,7 @@ namespace TF2.Content.NPCs.Buddies
             return true;
         }
 
-        protected static bool JumpGaps(Vector2 position, int direction, int width, int height)
+        public static bool JumpGaps(Vector2 position, int direction, int width, int height)
         {
             int tileX = (int)((position.X + width / 2f + (width / 2f + 1f) * direction) / 16f);
             int tileY = (int)((position.Y + height - 1f) / 16f);
@@ -983,7 +1051,7 @@ namespace TF2.Content.NPCs.Buddies
             return CheckJumpClearance(tileX - (direction == 1 ? 1 : -1), tileY, direction, widthInTiles, heightInTiles, out int _);
         }
 
-        protected static bool JumpUpSolidTop(Vector2 position, int width, int height, float maxJumpHeight, out float jumpHeight)
+        public static bool JumpUpSolidTop(Vector2 position, int width, int height, float maxJumpHeight, out float jumpHeight)
         {
             jumpHeight = 0f;
             int tileY = (int)((position.Y + height - 1f) / 16f);
@@ -1098,14 +1166,14 @@ namespace TF2.Content.NPCs.Buddies
             {
                 if (!targetPlayer.invis && !Player.dead)
                 {
-                    float between = Vector2.Distance(targetPlayer.Center, NPC.Center);
-                    bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                    bool inRange = between < range;
+                    float distance = Vector2.Distance(targetPlayer.Center, NPC.Center);
+                    bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                    bool inRange = distance <= range;
                     bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetPlayer.position, targetPlayer.width, targetPlayer.height);
-                    bool closeThroughWall = between < (range / 10f);
+                    bool closeThroughWall = distance < (range / 10f);
                     if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                     {
-                        range = between;
+                        range = distance;
                         targetCenter = targetPlayer.Center;
                         target = targetPlayer;
                         foundTarget = true;
@@ -1125,14 +1193,14 @@ namespace TF2.Content.NPCs.Buddies
             {
                 if (targetNPC.CanBeChasedBy())
                 {
-                    float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                    bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                    bool inRange = between < range;
+                    float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                    bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                    bool inRange = distance <= range;
                     bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                    bool closeThroughWall = between < (range / 10f);
-                    if ((trueRange >= between) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
+                    bool closeThroughWall = distance < (range / 10f);
+                    if ((trueRange >= distance) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                     {
-                        range = between;
+                        range = distance;
                         targetCenter = targetNPC.Center;
                         target = targetNPC;
                         foundTarget = true;
@@ -1144,10 +1212,10 @@ namespace TF2.Content.NPCs.Buddies
 
         protected int GetBuddySlot()
         {
-            MercenaryBuddy[] buddies = Player.GetModPlayer<TF2Player>().buddies;
+            int[] buddies = Player.GetModPlayer<TF2Player>().buddies;
             for (int i = 0; i < buddies.Length; i++)
             {
-                if (buddies[i] == this)
+                if (buddies[i] == NPC.whoAmI)
                     return i;
             }
             return -1;
@@ -1168,11 +1236,15 @@ namespace TF2.Content.NPCs.Buddies
 
         public void Heal(int amount)
         {
-            if (NPC.life > NPC.lifeMax) return;
-            int healingAmount = (NPC.life + amount > NPC.lifeMax) ? (NPC.lifeMax - NPC.life) : amount;
-            NPC.lifeMax += healingAmount;
-            NPC.HealEffect(healingAmount);
-            NPC.netUpdate = true;
+            if (NPC.life > finalBaseHealth) return;
+            int healingAmount = (NPC.life + amount > finalBaseHealth) ? (finalBaseHealth - NPC.life) : amount;
+            if (healingAmount > 0)
+            {
+                NPC.life += healingAmount;
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                    NPC.HealEffect(healingAmount);
+                NPC.netUpdate = true;
+            }
         }
         #endregion
     }

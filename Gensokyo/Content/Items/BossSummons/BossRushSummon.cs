@@ -38,7 +38,7 @@ namespace TF2.Gensokyo.Content.Items.BossSummons
                     string text = "Boss Rush Initiated!";
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Main.NewText(text, 175, 75, 255);
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(25, -1, -1, NetworkText.FromLiteral(text), 255, 175f, 75f, 255f, 0, 0, 0);
                     SoundEngine.PlaySound(SoundID.ForceRoar, player.position);
                     GensokyoBossRush.GetPlayer(player);
@@ -49,7 +49,7 @@ namespace TF2.Gensokyo.Content.Items.BossSummons
                     string text = "Boss Rush Canceled";
                     if (Main.netMode == NetmodeID.SinglePlayer)
                         Main.NewText(text, 175, 75, 255);
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(25, -1, -1, NetworkText.FromLiteral(text), 255, 175f, 75f, 255f, 0, 0, 0);
                     GensokyoBossRush.EndBossRush();
                 }

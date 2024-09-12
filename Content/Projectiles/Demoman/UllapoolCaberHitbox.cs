@@ -38,7 +38,7 @@ namespace TF2.Content.Projectiles.Demoman
 
         protected override void ProjectileDestroy(int timeLeft)
         {
-            if (TF2.FindPlayer(Projectile, 100f))
+            if (FindOwner(Projectile, 100f))
             {   
                 Vector2 velocity = new Vector2(15f * Player.direction, 15f);
                 Player.velocity -= velocity;

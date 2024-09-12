@@ -15,7 +15,7 @@ namespace TF2.Content.UI.HUD.Scout
     {
         protected override bool CanDisplay => Player.GetModPlayer<SodaPopperPlayer>().sodaPopperEquipped;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/LeftChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.LeftChargeHUDTexture;
 
         protected static bool HasSecondary => TF2.IsItemTypeInHotbar(Player, [ModContent.ItemType<BonkAtomicPunch>(), ModContent.ItemType<MadMilk>()]);
 
@@ -33,7 +33,7 @@ namespace TF2.Content.UI.HUD.Scout
                 Height = StyleDimension.FromPixels(56f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

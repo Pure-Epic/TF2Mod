@@ -11,6 +11,12 @@ namespace TF2.Content.Items.Weapons.Heavy
 {
     public class GlovesOfRunningUrgently : TF2Weapon
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Heavy/GlovesOfRunningUrgently";
+
+        protected override int HealthBoost => -20;
+
+        protected override bool TemporaryHealthBoost => true;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Melee, Unique, Craft);
@@ -30,6 +36,10 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
 
+        protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<GlovesOfRunningUrgently>(player);
+
+        protected override bool WeaponModifyHealthCondition(Player player) => HoldingWeapon<GlovesOfRunningUrgently>(player);
+
         protected override void WeaponActiveBonus(Player player) => TF2Player.SetPlayerSpeed(player, 133);
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<KillingGlovesOfBoxing>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
@@ -41,20 +51,14 @@ namespace TF2.Content.Items.Weapons.Heavy
         public int returnedHealth;
         public bool giveBackInitialHealth;
 
-        public override void PostUpdate()
-        {
-            if ((Player.HeldItem.ModItem is GlovesOfRunningUrgently || Player.HeldItem.ModItem is EvictionNotice) && (Player.inventory[58].ModItem is not GlovesOfRunningUrgently && Player.inventory[58].ModItem is not EvictionNotice))
-                TF2Player.SetPlayerHealth(Player, -20);
-        }
-
         public override void UpdateBadLifeRegen()
         {
-            if ((Player.HeldItem.ModItem is GlovesOfRunningUrgently || Player.HeldItem.ModItem is EvictionNotice) && Player.inventory[58].ModItem is not GlovesOfRunningUrgently && Player.inventory[58].ModItem is not EvictionNotice && Player.statLife > TF2.GetHealth(Player, 100))
+            if ((TF2Weapon.HoldingWeapon<GlovesOfRunningUrgently>(Player) || TF2Weapon.HoldingWeapon<EvictionNotice>(Player)) && Player.statLife > TF2.GetHealth(Player, 100))
             {
-                if (Player.statLife < TF2.GetHealth(Player, 280 + Player.GetModPlayer<TF2Player>().healthBonus))
+                if (Player.statLife < TF2.GetHealth(Player, Player.GetModPlayer<TF2Player>().cachedHealth))
                     giveBackInitialHealth = true;
                 timer++;
-                if (timer >= 12)
+                if (timer >= TF2.Time(0.2))
                 {
                     int decayAmount = TF2.GetHealth(Player, 1);
                     if (Player.statLife >= TF2.GetHealth(Player, 100) + decayAmount)

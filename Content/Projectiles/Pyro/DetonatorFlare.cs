@@ -3,9 +3,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
-using Terraria.ModLoader;
-using TF2.Common;
-using TF2.Content.Buffs;
 
 namespace TF2.Content.Projectiles.Pyro
 {
@@ -13,7 +10,7 @@ namespace TF2.Content.Projectiles.Pyro
     {
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(24, 12);
+            SetProjectileSize(24, 14);
             AIType = ProjectileID.WoodenArrowFriendly;
             Projectile.penetrate = -1;
             Projectile.friendly = true;
@@ -62,7 +59,7 @@ namespace TF2.Content.Projectiles.Pyro
 
         public void FlareJump(Vector2 velocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 velocity *= 5f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

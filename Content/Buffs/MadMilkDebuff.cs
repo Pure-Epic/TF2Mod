@@ -63,7 +63,7 @@ namespace TF2.Content.Buffs
             if (madMilkDebuff)
             {
                 if (TF2Player.IsHealthFull(player)) return;
-                float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
+                float classMultiplier = player.GetModPlayer<TF2Player>().damageMultiplier;
                 player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
         }
@@ -74,7 +74,7 @@ namespace TF2.Content.Buffs
             {
                 Player player = Main.player[projectile.owner];
                 if (TF2Player.IsHealthFull(player)) return;
-                float classMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
+                float classMultiplier = player.GetModPlayer<TF2Player>().damageMultiplier;
                 player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
         }
@@ -83,7 +83,7 @@ namespace TF2.Content.Buffs
         {
             if (madMilkDebuff)
             {
-                int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.CursedTorch, 0f, 0f, 100, default, 3f);
+                int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.WhiteTorch, 0f, 0f, 100, default, 3f);
                 Main.dust[dustIndex].noGravity = true;
                 Main.dust[dustIndex].velocity *= 5f;
             }

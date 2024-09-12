@@ -14,6 +14,7 @@ namespace TF2.Content.Buffs
         public override void Update(Player player, ref int buffIndex)
         {
             player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff = true;
+            TF2Player.SetPlayerSpeed(player, 130);
             player.GetModPlayer<TF2Player>().miniCrit = true;
         }
     }
@@ -27,7 +28,13 @@ namespace TF2.Content.Buffs
         public override void PostUpdate()
         {
             if (buffaloSteakSandvichBuff)
-                TF2Player.SetPlayerSpeed(Player, 130);
+                Player.noKnockback = true;
+        }
+
+        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
+        {
+            if (buffaloSteakSandvichBuff)
+                modifiers.FinalDamage *= 0.2f;
         }
     }
 

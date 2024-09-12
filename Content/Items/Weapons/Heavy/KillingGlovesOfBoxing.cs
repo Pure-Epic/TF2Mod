@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
+using TF2.Common;
 using TF2.Content.Projectiles.Heavy;
 
 namespace TF2.Content.Items.Weapons.Heavy
 {
     public class KillingGlovesOfBoxing : TF2Weapon
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Heavy/KillingGlovesOfBoxing";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Melee, Unique, Unlock);
@@ -24,5 +27,7 @@ namespace TF2.Content.Items.Weapons.Heavy
         }
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
+
+        protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<KillingGlovesOfBoxing>(player);
     }
 }

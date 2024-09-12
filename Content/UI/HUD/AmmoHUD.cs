@@ -20,7 +20,7 @@ namespace TF2.Content.UI.HUD
             && !Weapon.GetWeaponMechanic("Medi Gun")
             && !Weapon.GetWeaponMechanic("Sniper Rifle");
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/AmmoHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.AmmoHUDTexture;
 
         protected UIText currentAmmo;
         protected UIText currentAmmoReserve;
@@ -35,7 +35,7 @@ namespace TF2.Content.UI.HUD
                 Height = StyleDimension.FromPixels(60f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

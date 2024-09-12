@@ -13,7 +13,7 @@ namespace TF2.Content.Projectiles.Soldier
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (!TF2Player.IsHealthFull(Player) && target.whoAmI != Projectile.owner)
             {
-                int amount = (int)(0.22222f * info.Damage / p.classMultiplier * TF2.GetHealth(Player, 1));
+                int amount = (int)(0.22222f * info.Damage / p.damageMultiplier * TF2.GetHealth(Player, 1));
                 amount = Utils.Clamp(amount, 0, TF2.GetHealth(Player, 20));
                 Player.Heal(amount);
             }
@@ -25,7 +25,7 @@ namespace TF2.Content.Projectiles.Soldier
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (!TF2Player.IsHealthFull(Player) && target.type != NPCID.TargetDummy)
             {
-                int amount = (int)(0.22222f * damageDone / p.classMultiplier * TF2.GetHealth(Player, 1));
+                int amount = (int)(0.22222f * damageDone / p.damageMultiplier * TF2.GetHealth(Player, 1));
                 amount = Utils.Clamp(amount, 0, TF2.GetHealth(Player, 20));
                 Player.Heal(amount);
             }

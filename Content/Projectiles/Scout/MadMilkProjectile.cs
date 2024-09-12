@@ -11,9 +11,11 @@ namespace TF2.Content.Projectiles.Scout
 {
     public class MadMilkProjectile : TF2Projectile
     {
+        public override string Texture => "TF2/Content/Items/Weapons/Scout/MadMilk";
+
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(32, 32);
+            SetProjectileSize(24, 50);
             Projectile.aiStyle = ProjAIStyleID.Arrow;
             Projectile.penetrate = 1;
             Projectile.friendly = true;
@@ -45,9 +47,9 @@ namespace TF2.Content.Projectiles.Scout
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/jar_explode"), Projectile.Center);
             for (int i = 0; i < 25; i++)
             {
-                int dustIndex = Dust.NewDust(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.CursedTorch, 0f, 0f, 100, default, 3f);
+                int dustIndex = Dust.NewDust(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.WhiteTorch, 0f, 0f, 100, default, 3f);
                 Main.dust[dustIndex].velocity *= 5f;
-                dustIndex = Dust.NewDust(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.CursedTorch, 0f, 0f, 100, default, 2f);
+                dustIndex = Dust.NewDust(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.WhiteTorch, 0f, 0f, 100, default, 2f);
                 Main.dust[dustIndex].velocity *= 3f;
             }
         }

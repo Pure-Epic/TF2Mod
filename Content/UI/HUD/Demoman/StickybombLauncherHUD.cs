@@ -16,7 +16,7 @@ namespace TF2.Content.UI.HUD.Demoman
     {
         protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && !Weapon.noAmmoClip && Weapon.equipped && Weapon.GetWeaponMechanic("Stickybomb Launcher");
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/AmmoChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.AmmoChargeHUDTexture;
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
@@ -37,7 +37,7 @@ namespace TF2.Content.UI.HUD.Demoman
             || TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<ScottishResistance>())
             || TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<StickyJumper>());
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/StickybombAmountHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.StickybombAmountHUDTexture;
 
         private UIText amount;
 
@@ -51,7 +51,7 @@ namespace TF2.Content.UI.HUD.Demoman
                 Height = StyleDimension.FromPixels(50f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

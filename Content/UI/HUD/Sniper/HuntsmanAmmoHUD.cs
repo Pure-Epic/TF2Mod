@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
@@ -14,7 +15,7 @@ namespace TF2.Content.UI.HUD.Sniper
     {
         protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && Weapon.GetWeaponMechanic("Sniper Rifle") && (Weapon is Huntsman || Weapon.maxAmmoReserve > 0);
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/AmmoChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.AmmoChargeHUDTexture;
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {

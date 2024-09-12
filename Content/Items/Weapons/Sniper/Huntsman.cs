@@ -31,30 +31,27 @@ namespace TF2.Content.Items.Weapons.Sniper
                 player.GetModPlayer<TF2Player>().crit = true;
                 timer[0]++;
             }
-
             if (!player.controlUseItem && isCharging && !player.dead)
             {
                 Vector2 shootDirection = timer[0] >= TF2.Time(5) ? player.DirectionTo(Main.MouseWorld).RotatedByRandom(MathHelper.ToRadians(60f)) : player.DirectionTo(Main.MouseWorld);
-                Shoot(player, player.GetSource_ItemUse(Item), player.Center, shootDirection * Item.shootSpeed, ModContent.ProjectileType<Arrow>(), (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().classMultiplier), 0f);
+                Shoot(player, player.GetSource_ItemUse(Item), player.Center, shootDirection * Item.shootSpeed, ModContent.ProjectileType<Arrow>(), (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().damageMultiplier), 0f);
                 SetCustomItemTime(player);
                 sniperReload = true;
                 chargeUpDamage = Item.damage;
                 chargeTime = 0f;
                 cooldownTimer = 0;
                 timer[0] = 0;
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot"), player.Center);
+                TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot"), player.Center);
                 isCharging = false;
             }
-
             if (player.controlUseTile && timer[0] > 0)
             {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull_reverse"), player.Center);
+                TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull_reverse"), player.Center);
                 timer[0] = 0;
                 chargeTime = 0f;
                 isCharging = false;
                 player.itemTime = 116;
             }
-
             if (player.dead)
                 isCharging = false;
         }
@@ -78,7 +75,7 @@ namespace TF2.Content.Items.Weapons.Sniper
             if (player.controlUseItem && GetCustomItemTime(player) == 0)
             {
                 if (!isCharging)
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull"), player.Center);
+                    TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull"), player.Center);
                 isCharging = true;
                 SniperRifleCharge();
                 return false;

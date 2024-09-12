@@ -201,7 +201,7 @@ namespace TF2.Content.NPCs.TownNPCs
             AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<VitaSaw>(), 0.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<Amputator>(), 0.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Medic, ModContent.ItemType<SolemnVow>(), 0.99f);
-            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Huntsman>(), 1);
+            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Huntsman>(), 1.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<SydneySleeper>(), 1.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Sniper, ModContent.ItemType<BazaarBargain>(), 1.99f);
             AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<Jarate>(), 0.99f);
@@ -281,14 +281,14 @@ namespace TF2.Content.NPCs.TownNPCs
                     ai = 0;
                     if (targetNPC.CanBeChasedBy() && targetNPC.type != NPCID.TargetDummy)
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        bool closeThroughWall = between < 100f;
+                        bool closeThroughWall = distance < 100f;
                         if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
@@ -300,7 +300,7 @@ namespace TF2.Content.NPCs.TownNPCs
                     Vector2 shootVel = NPC.DirectionTo(targetCenter);
                     direction = (targetCenter - NPC.Center).X > 0f ? 1 : -1;
                     float speed = 10f;
-                    int type = ModContent.ProjectileType<KnifeProjectileNPC>();
+                    int type = ModContent.ProjectileType<MeleeProjectileNPC>();
                     int damage = NPC.damage;
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/melee_swing"), NPC.Center);
@@ -309,7 +309,7 @@ namespace TF2.Content.NPCs.TownNPCs
                     if ((targetCenter - NPC.Center).Y <= 0f)
                         NPC.velocity = new Vector2(25f * direction, -15f);
                     TF2Projectile projectile = TF2.CreateProjectile(null, projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Main.myPlayer, 0f, 0f);
-                    KnifeProjectileNPC spawnedModProjectile = (KnifeProjectileNPC)projectile;
+                    MeleeProjectileNPC spawnedModProjectile = (MeleeProjectileNPC)projectile;
                     spawnedModProjectile.thisNPC = NPC;
                     NetMessage.SendData(MessageID.SyncProjectile, number: projectile.Projectile.whoAmI);
                     NPC.spriteDirection = NPC.direction = NPC.velocity.X >= 0f ? 1 : -1;

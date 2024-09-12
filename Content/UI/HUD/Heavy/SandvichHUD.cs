@@ -26,7 +26,7 @@ namespace TF2.Content.UI.HUD.Heavy
             || TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<DalokohsBar>())
             || TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<BuffaloSteakSandvich>());
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/RightChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.RightChargeHUDTexture;
 
         private UIText food;
 
@@ -40,7 +40,7 @@ namespace TF2.Content.UI.HUD.Heavy
                 Height = StyleDimension.FromPixels(54f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

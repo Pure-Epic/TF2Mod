@@ -9,7 +9,7 @@ namespace TF2.Content.Projectiles.Scout
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 oldVelocity.X = Utils.Clamp(oldVelocity.X, -2f, 2f);
                 oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -2f, 2f);

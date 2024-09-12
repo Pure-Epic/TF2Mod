@@ -7,12 +7,12 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.WorldBuilding;
 using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.NPCs.Buddies;
+using TF2.Content.NPCs.Enemies;
 
 namespace TF2.Content.Projectiles
 {
@@ -170,7 +170,7 @@ namespace TF2.Content.Projectiles
                 TF2.Minimum(ref npc.velocity.Y, knockbackPower);
             }
         }
-        
+
         protected static void KnockbackNPC(NPC npc, int direction, float knockbackPower)
         {
             if (direction < 0 && npc.velocity.X > -knockbackPower)
@@ -198,7 +198,7 @@ namespace TF2.Content.Projectiles
         public sealed override void SetDefaults()
         {
             ProjectileStatistics();
-            Projectile.DamageType = ModContent.GetInstance<TF2DamageClass>();
+            Projectile.DamageType = ModContent.GetInstance<MercenaryDamage>();
         }
 
         public override bool PreDraw(ref Color lightColor) => ProjectileDraw(Projectile, ref lightColor);
@@ -322,17 +322,38 @@ namespace TF2.Content.Projectiles
 
         public sealed override bool OnTileCollide(Vector2 oldVelocity) => ProjectileTileCollide(oldVelocity);
 
+        public override bool CanHitPlayer(Player target)
+        {
+            if (Main.npc[npcOwner].ModNPC is BLUMercenary)
+                return target.GetModPlayer<TF2Player>().projectileImmunity[Projectile.whoAmI] <= 0;
+            else return base.CanHitPlayer(target);
+        }
+
         public sealed override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
             if (modifiers.PvP)
                 ProjectileHitPlayer(target, ref modifiers);
+            else if (Main.npc[npcOwner].ModNPC is BLUMercenary npc)
+            {
+                if (Main.expertMode)
+                    modifiers.FinalDamage /= 4;
+                if (npc is not EnemySniperNPC)
+                    TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers);
+            }
         }
 
         public sealed override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             modifiers.DamageVariationScale *= 0;
-            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy)
+            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy && buddy is not SniperNPC)
                 TF2.NPCDistanceModifier(buddy.NPC, Projectile, target, ref modifiers);
+            else if (Main.npc[npcOwner].ModNPC is BLUMercenary npc)
+            {
+                if (Main.expertMode)
+                    modifiers.FinalDamage /= 4;
+                if (npc is not EnemySniperNPC)
+                    TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers);
+            }
             if (reserveShooterProjectile && target.noGravity)
                 miniCrit = true;
             ProjectileHitNPC(target, ref modifiers);
@@ -349,6 +370,12 @@ namespace TF2.Content.Projectiles
                     heads++;
             }
             ProjectilePostHitPlayer(target, info);
+            TF2Player p = target.GetModPlayer<TF2Player>();
+            if (Main.npc[npcOwner].ModNPC is BLUMercenary)
+            {
+                p.removeImmunityFrames = true;
+                p.projectileImmunity[Projectile.whoAmI] = TF2.Time(0.5);
+            }
         }
 
         public sealed override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -407,6 +434,70 @@ namespace TF2.Content.Projectiles
             ammoShot = binaryReader.ReadBoolean();
             healthShot = binaryReader.ReadBoolean();
             ProjectileReceiveExtraAI(binaryReader);
+        }
+
+        public static bool FindOwner(Projectile projectile, float maxDetectDistance)
+        {
+            bool playerFound = false;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (Player player in Main.ActivePlayers)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(player.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && player == Main.player[projectile.owner])
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    playerFound = true;
+                }
+            }
+            return playerFound;
+        }
+
+        public static Player GetOwner(Projectile projectile, float maxDetectDistance)
+        {
+            Player playerFound = null;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (Player player in Main.ActivePlayers)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(player.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && player == Main.player[projectile.owner])
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    playerFound = player;
+                }
+            }
+            return playerFound;
+        }
+
+        public static bool NearestNPCFound(Projectile projectile, float maxDetectDistance)
+        {
+            bool npcFound = false;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(npc.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && !npc.friendly)
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    npcFound = true;
+                }
+            }
+            return npcFound;
+        }
+
+        public static NPC GetNearestNPC(Projectile projectile, float maxDetectDistance)
+        {
+            NPC npcFound = null;
+            float sqrMaxDetectDistance = maxDetectDistance * maxDetectDistance;
+            foreach (NPC npc in Main.ActiveNPCs)
+            {
+                float sqrDistanceToTarget = Vector2.DistanceSquared(npc.Center, projectile.Center);
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && !npc.friendly)
+                {
+                    sqrMaxDetectDistance = sqrDistanceToTarget;
+                    npcFound = npc;
+                }
+            }
+            return npcFound;
         }
     }
 }

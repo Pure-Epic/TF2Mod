@@ -12,6 +12,8 @@ namespace TF2.Content.Projectiles.Spy
 {
     public class SapperProjectile : TF2Projectile
     {
+        public override string Texture => "TF2/Content/Items/Weapons/Spy/Sapper";
+
         public int TargetWhoAmI
         {
             get => (int)Projectile.ai[1];
@@ -39,9 +41,8 @@ namespace TF2.Content.Projectiles.Spy
 
         private const int maxSappers = 1;
         private readonly Point[] activeSappers = new Point[maxSappers];
-        private const int GravityDelay = 45;
-        private const int stickTime = 600;
-        private const int AlphaFadeInSpeed = 25;
+        private readonly int gravityDelay = TF2.Time(0.75);
+        private readonly int stickTime = TF2.Time(10);
 
         protected override void ProjectileStatistics()
         {
@@ -50,10 +51,7 @@ namespace TF2.Content.Projectiles.Spy
             Projectile.penetrate = 1;
             Projectile.friendly = true;
             Projectile.timeLeft = TF2.Time(10);
-            Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
-            Projectile.ownerHitCheck = true;
-            Projectile.alpha = 255;
             Projectile.hide = true;
             Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
@@ -62,7 +60,6 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileAI()
         {
-            UpdateAlpha();
             if (!StickOnEnemy)
                 StartingAI();
             else
@@ -80,12 +77,8 @@ namespace TF2.Content.Projectiles.Spy
                     Projectile.localAI[0] = ProjectileSqrt;
                     ai = ProjectileSqrt;
                 }
-                if (Projectile.alpha > 0)
-                    Projectile.alpha -= 25;
-                if (Projectile.alpha < 0)
-                    Projectile.alpha = 0;
-                float ProjectileX = Projectile.position.X;
-                float ProjectileY = Projectile.position.Y;
+                float projectileX = Projectile.position.X;
+                float projectileY = Projectile.position.Y;
                 float maxDetectRadius = Player.GetModPlayer<TF2Player>().homingPower switch
                 {
                     0 => 250f,
@@ -107,8 +100,8 @@ namespace TF2.Content.Projectiles.Spy
                             if (closestNPCDistance < maxDetectRadius && Collision.CanHit(new Vector2(Projectile.position.X + (Projectile.width / 2), Projectile.position.Y + (Projectile.height / 2)), 1, 1, Main.npc[i].position, Main.npc[i].width, Main.npc[i].height))
                             {
                                 maxDetectRadius = closestNPCDistance;
-                                ProjectileX = npcX;
-                                ProjectileY = npcY;
+                                projectileX = npcX;
+                                projectileY = npcY;
                                 canSeek = true;
                                 nextAI = i;
                             }
@@ -128,8 +121,8 @@ namespace TF2.Content.Projectiles.Spy
                         if (Math.Abs(Projectile.position.X + (Projectile.width / 2) - npcX) + Math.Abs(Projectile.position.Y + (Projectile.height / 2) - npcY) < 1000f)
                         {
                             canSeek = true;
-                            ProjectileX = Main.npc[previousAI].position.X + (Main.npc[previousAI].width / 2);
-                            ProjectileY = Main.npc[previousAI].position.Y + (Main.npc[previousAI].height / 2);
+                            projectileX = Main.npc[previousAI].position.X + (Main.npc[previousAI].width / 2);
+                            projectileY = Main.npc[previousAI].position.Y + (Main.npc[previousAI].height / 2);
                         }
                     }
                     else
@@ -139,8 +132,8 @@ namespace TF2.Content.Projectiles.Spy
                 {
                     float newAI = ai;
                     Vector2 vector25 = new(Projectile.position.X + Projectile.width * 0.5f, Projectile.position.Y + Projectile.height * 0.5f);
-                    float newProjectileX = ProjectileX - vector25.X;
-                    float newProjectileY = ProjectileY - vector25.Y;
+                    float newProjectileX = projectileX - vector25.X;
+                    float newProjectileY = projectileY - vector25.Y;
                     float newProjectileSqrt = (float)Math.Sqrt(newProjectileX * newProjectileX + newProjectileY * newProjectileY);
                     newProjectileSqrt = newAI / newProjectileSqrt;
                     newProjectileX *= newProjectileSqrt;
@@ -152,9 +145,9 @@ namespace TF2.Content.Projectiles.Spy
             }
             Projectile.netUpdate = true;
             GravityDelayTimer++;
-            if (GravityDelayTimer >= GravityDelay)
+            if (GravityDelayTimer >= gravityDelay)
             {
-                GravityDelayTimer = GravityDelay;
+                GravityDelayTimer = gravityDelay;
                 Projectile.velocity.X *= 0.98f;
                 Projectile.velocity.Y += 0.12f;
             }
@@ -181,7 +174,7 @@ namespace TF2.Content.Projectiles.Spy
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             SappedPlayer sappedPlayer = target.GetModPlayer<SappedPlayer>();
-            sappedPlayer.damageMultiplier = p.classMultiplier;
+            sappedPlayer.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10), true);
         }
 
@@ -189,7 +182,7 @@ namespace TF2.Content.Projectiles.Spy
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
             SappedNPC npc = target.GetGlobalNPC<SappedNPC>();
-            npc.damageMultiplier = p.classMultiplier;
+            npc.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10));
             StickOnEnemy = true;
             TargetWhoAmI = target.whoAmI;
@@ -231,14 +224,6 @@ namespace TF2.Content.Projectiles.Spy
                 }
             }
             behindNPCsAndTiles.Add(index);
-        }
-
-        private void UpdateAlpha()
-        {
-            if (Projectile.alpha > 0)
-                Projectile.alpha -= AlphaFadeInSpeed;
-            if (Projectile.alpha < 0)
-                Projectile.alpha = 0;
         }
     }
 }

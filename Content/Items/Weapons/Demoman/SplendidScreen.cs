@@ -16,6 +16,10 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class SplendidScreen : TF2Accessory
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Demoman/SplendidScreen";
+
+        protected override string ArmTextureReverse => "TF2/Content/Textures/Items/Demoman/SplendidScreenReverse";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Demoman, Secondary, Unique, Craft);
@@ -32,6 +36,8 @@ namespace TF2.Content.Items.Weapons.Demoman
                 AddOtherAttribute(description, currentShieldChargeKey[0] + (string)this.GetLocalization("Notes2"));
         }
 
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().shieldType == 2;
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -40,7 +46,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             if (shield.chargeActive && !shield.chargeProjectileCreated)
             {
                 Vector2 chargeDirection = player.DirectionTo(Main.MouseWorld);
-                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((85f + player.GetModPlayer<EyelanderPlayer>().heads * 8.5f) * p.classMultiplier), 0f, player.whoAmI);
+                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((85f + player.GetModPlayer<EyelanderPlayer>().heads * 8.5f) * p.damageMultiplier), 0f, player.whoAmI);
                 if (p.miniCrit)
                 {
                     projectile.miniCrit = true;

@@ -11,9 +11,11 @@ namespace TF2.Content.Projectiles.Sniper
 {
     public class JarateProjectile : TF2Projectile
     {
+        public override string Texture => "TF2/Content/Items/Weapons/Sniper/Jarate";
+
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(32, 32);
+            SetProjectileSize(27, 50);
             Projectile.aiStyle = ProjAIStyleID.Arrow;
             AIType = ProjectileID.ToxicFlask;
             Projectile.penetrate = 1;

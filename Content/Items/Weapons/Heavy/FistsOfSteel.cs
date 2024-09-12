@@ -11,6 +11,8 @@ namespace TF2.Content.Items.Weapons.Heavy
 {
     public class FistsOfSteel : TF2Weapon
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Heavy/FistsOfSteel";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Melee, Unique, Craft);
@@ -30,6 +32,8 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
 
+        protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<FistsOfSteel>(player);
+
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped = true;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<KillingGlovesOfBoxing>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
@@ -41,24 +45,15 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         public override void ResetEffects() => fistsOfSteelEquipped = false;
 
-        public override void PostUpdate()
-        {
-            if (fistsOfSteelEquipped && Main.netMode == NetmodeID.SinglePlayer)
-            {
-                Player.GetModPlayer<TF2Player>().healReduction *= 0.6f;
-                Player.GetModPlayer<TF2Player>().overhealMultiplier *= 0.6f;
-            }
-        }
-
         public override void ModifyHitByNPC(NPC npc, ref Player.HurtModifiers modifiers)
         {
-            if (Player.HeldItem.ModItem is FistsOfSteel && Player.inventory[58].ModItem is not FistsOfSteel)
+            if (TF2Weapon.HoldingWeapon<FistsOfSteel>(Player))
                 modifiers.FinalDamage *= 2f;
         }
 
         public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
         {
-            if (Player.HeldItem.ModItem is FistsOfSteel && Player.inventory[58].ModItem is not FistsOfSteel)
+            if (TF2Weapon.HoldingWeapon<FistsOfSteel>(Player))
                 modifiers.FinalDamage *= 0.6f;
         }
     }

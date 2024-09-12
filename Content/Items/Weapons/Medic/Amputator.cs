@@ -4,6 +4,7 @@ using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 using TF2.Content.Items.Materials;
 using TF2.Content.NPCs.Buddies;
 using TF2.Content.Tiles.Crafting;
@@ -46,6 +47,11 @@ namespace TF2.Content.Items.Weapons.Medic
                 if (player.controlUseTile && WeaponCanAltClick(player) && !player.ItemAnimationActive)
                 {
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/amputator_heal"), player.Center);
+                    foreach (NPC healedNPC in Main.ActiveNPCs)
+                    {
+                        if (healedNPC.ModNPC is MercenaryBuddy)
+                            healedNPC.AddBuff(ModContent.BuffType<AmputatorBuff>(), TF2.Time(4.2));                        
+                    }
                     timer[1] = 1;
                     timer[0] = 0;
                 }
@@ -81,15 +87,13 @@ namespace TF2.Content.Items.Weapons.Medic
                     }
                     foreach (NPC healedNPC in Main.ActiveNPCs)
                     {
-                        if (healedNPC.life < healedNPC.lifeMax && healedNPC.ModNPC is MercenaryBuddy buddy)
+                        if (healedNPC.ModNPC is MercenaryBuddy buddy && healedNPC.life < buddy.finalBaseHealth)
                         {
-                            int healingAmount = TF2.Round(healedNPC.lifeMax / buddy.BaseHealth * 6.25f);
-                            buddy.Heal(healingAmount);
                             for (int j = 0; j < player.inventory.Length; j++)
                             {
                                 Item item = player.inventory[j];
                                 if (item.ModItem is TF2Weapon weapon && weapon.GetWeaponMechanic("Medi Gun"))
-                                    weapon.uberCharge += TF2.Round(healingAmount * weapon.uberChargeCapacity / 100f * 0.1275510204f);
+                                    weapon.uberCharge += TF2.Round(6.25f * weapon.uberChargeCapacity / 100f * 0.1275510204f);
                             }
                         }
                     }

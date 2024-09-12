@@ -67,7 +67,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 Height = MaxHeight,
                 HAlign = 0f,
                 VAlign = 0.5f,
-                BackgroundTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MercenaryCreationMenu/Mercenary", AssetRequestMode.ImmediateLoad).Value,
+                BackgroundTexture = UITextures.MercenaryCreationMenuTextures[11].Value,
                 BackgroundColor = Color.White,
                 BorderColor = new Color(3, 3, 3)
             };
@@ -89,7 +89,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 Height = MaxHeight,
                 HAlign = 1f,
                 VAlign = 0.5f,
-                BackgroundTexture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MercenaryCreationMenu/Classless", AssetRequestMode.ImmediateLoad).Value,
+                BackgroundTexture = UITextures.MercenaryCreationMenuTextures[12].Value,
                 BackgroundColor = Color.White,
                 BorderColor = new Color(3, 3, 3)
             };
@@ -371,8 +371,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 Width = MaxWidth,
                 Height = MaxHeight,
                 PaddingTop = 25f,
-                PaddingLeft = 50f,
-                PaddingRight = 50f,
+                PaddingLeft = 25f,
+                PaddingRight = 25f,
                 IgnoresMouseInteraction = true,
                 IsWrapped = true
             };
@@ -415,14 +415,15 @@ namespace TF2.Content.UI.MercenaryCreationMenu
         {
             mercenaryPlayer.currentClass = ((TF2MercenaryRender)evt.Target).classID;
             SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/UI/class_menu_{mercenaryPlayer.currentClass}"));
-            classDescription.SetText(Language.GetText($"Mods.TF2.UI.TF2MercenaryCreation.{(TF2Player.ClassName)mercenaryPlayer.currentClass}"));
+            LocalizedText description = Language.GetText($"Mods.TF2.UI.TF2MercenaryCreation.{(TF2Player.ClassName)mercenaryPlayer.currentClass}");
+            classDescription.SetText(description);
         }
 
         private void Click_RandomClass(UIMouseEvent evt, UIElement listeningElement)
         {
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/UI/class_menu_random"));
             mercenaryPlayer.currentClass = -1;
-            classDescription.SetText("");
+            classDescription.SetText(Language.GetText("Mods.TF2.UI.TF2MercenaryCreation.Random"));
         }
 
         private void Click_GoBack(UIMouseEvent evt, UIElement listeningElement)
@@ -736,14 +737,14 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             int width = (int)Math.Ceiling(dimensions.Width);
             int height = (int)Math.Ceiling(dimensions.Height);
             spriteBatch.Draw(BackgroundTexture, new Rectangle(point.X, point.Y, width, height), Color.White);
-            spriteBatch.Draw(ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MercenaryCreationMenu/IconBorder", AssetRequestMode.ImmediateLoad).Value, new Rectangle(point.X, point.Y, width, height), BorderColor);
+            spriteBatch.Draw(UITextures.MercenaryCreationMenuTextures[10].Value, new Rectangle(point.X, point.Y, width, height), BorderColor);
         }
     }
 
     [Autoload(Side = ModSide.Client)]
     internal class TF2MercenaryRender(int mercenary) : UIState
     {
-        public Asset<Texture2D> BackgroundTexture = ModContent.Request<Texture2D>($"TF2/Content/Textures/UI/MercenaryCreationMenu/{(TF2Player.ClassName)mercenary}", AssetRequestMode.ImmediateLoad);
+        public Asset<Texture2D> BackgroundTexture = UITextures.MercenaryCreationMenuTextures[mercenary - 1];
         public Color BackgroundColor = Color.White;
         public int classID = mercenary;
 
@@ -793,7 +794,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             Rectangle rectangle = new Rectangle(point.X, point.Y, width, height);
             if (_player.GetModPlayer<TF2Player>().currentClass == -1)
             {
-                spriteBatch.Draw(ModContent.Request<Texture2D>($"TF2/Content/Textures/UI/MercenaryCreationMenu/RandomClass", AssetRequestMode.ImmediateLoad).Value, rectangle, Color.White);
+                spriteBatch.Draw(UITextures.MercenaryCreationMenuTextures[9].Value, rectangle, Color.White);
                 return;
             }
             int num = (int)(Main.GlobalTimeWrappedHourly / 0.07f) % 14 + 6;
@@ -837,7 +838,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
         private void DrawPlayerInternal(Player drawPlayer, Vector2 position, float rotation, Vector2 rotationOrigin, float shadow = 0f, float alpha = 1f, float scale = 1f, bool headOnly = false)
         {
             if (drawPlayer.ShouldNotDraw) return;
-
             PlayerDrawSet drawInfo = default;
             _drawData.Clear();
             _dust.Clear();
@@ -846,7 +846,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 drawInfo.HeadOnlySetup(drawPlayer, _drawData, _dust, _gore, position.X, position.Y, alpha, scale);
             else
                 drawInfo.BoringSetup(drawPlayer, _drawData, _dust, _gore, position, shadow, rotation, rotationOrigin);
-
             PlayerLoader.ModifyDrawInfo(ref drawInfo);
             PlayerDrawLayer[] drawLayers = PlayerDrawLayerLoader.GetDrawLayers(drawInfo);
             foreach (PlayerDrawLayer playerDrawLayer in drawLayers)
@@ -854,15 +853,12 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 if (!headOnly || playerDrawLayer.IsHeadLayer)
                     playerDrawLayer.DrawWithTransformationAndChildren(ref drawInfo);
             }
-
             PlayerDrawLayers.DrawPlayer_MakeIntoFirstFractalAfterImage(ref drawInfo);
             PlayerDrawLayers.DrawPlayer_TransformDrawData(ref drawInfo);
             if (scale != 1f)
                 PlayerDrawLayers.DrawPlayer_ScaleDrawData(ref drawInfo, scale);
-
             PlayerDrawLayers.DrawPlayer_RenderAllLayers(ref drawInfo);
             if (!drawInfo.drawPlayer.mount.Active || !drawInfo.drawPlayer.UsingSuperCart) return;
-
             for (int j = 0; j < 1000; j++)
             {
                 if (Main.projectile[j].active && Main.projectile[j].owner == drawInfo.drawPlayer.whoAmI && Main.projectile[j].type == 591)
@@ -876,11 +872,9 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             SamplerState samplerState = camera.Sampler;
             if (drawPlayer.mount.Active && drawPlayer.fullRotation != 0f)
                 samplerState = MountedSamplerState;
-
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState, DepthStencilState.None, camera.Rasterizer, null, camera.GameViewMatrix.TransformationMatrix);
             if (Main.gamePaused)
                 drawPlayer.PlayerFrame();
-
             if (drawPlayer.ghost)
             {
                 for (int i = 0; i < 3; i++)
@@ -905,7 +899,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         }
                     }
                 }
-
                 if (drawPlayer.armorEffectDrawShadowEOCShield)
                 {
                     int num = drawPlayer.eocDash / 4;
@@ -915,7 +908,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     for (int k = 0; k < num; k++)
                         DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[k], drawPlayer.shadowRotation[k], drawPlayer.shadowOrigin[k], 0.5f + 0.2f * k);
                 }
-
                 Vector2 position = default;
                 if (drawPlayer.invis)
                 {
@@ -932,13 +924,11 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         drawPlayer.invis = true;
                     }
                 }
-
                 if (drawPlayer.armorEffectDrawOutlines)
                 {
                     _ = drawPlayer.position;
                     if (!Main.gamePaused)
                         drawPlayer.ghostFade += drawPlayer.ghostDir * 0.075f;
-
                     if (drawPlayer.ghostFade < 0.1)
                     {
                         drawPlayer.ghostDir = 1f;
@@ -949,7 +939,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         drawPlayer.ghostDir = -1f;
                         drawPlayer.ghostFade = 0.9f;
                     }
-
                     float num2 = drawPlayer.ghostFade * 5f;
                     for (int l = 0; l < 4; l++)
                     {
@@ -961,34 +950,28 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                                 num3 = num2;
                                 num4 = 0f;
                                 break;
-
                             case 1:
                                 num3 = 0f - num2;
                                 num4 = 0f;
                                 break;
-
                             case 2:
                                 num3 = 0f;
                                 num4 = num2;
                                 break;
-
                             case 3:
                                 num3 = 0f;
                                 num4 = 0f - num2;
                                 break;
                         }
-
                         position = new Vector2(drawPlayer.position.X + num3, drawPlayer.position.Y + drawPlayer.gfxOffY + num4);
                         DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, drawPlayer.ghostFade);
                     }
                 }
-
                 if (drawPlayer.armorEffectDrawOutlinesForbidden)
                 {
                     _ = drawPlayer.position;
                     if (!Main.gamePaused)
                         drawPlayer.ghostFade += drawPlayer.ghostDir * 0.025f;
-
                     if (drawPlayer.ghostFade < 0.1)
                     {
                         drawPlayer.ghostDir = 1f;
@@ -999,7 +982,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         drawPlayer.ghostDir = -1f;
                         drawPlayer.ghostFade = 0.9f;
                     }
-
                     float num5 = drawPlayer.ghostFade * 5f;
                     for (int m = 0; m < 4; m++)
                     {
@@ -1011,28 +993,23 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                                 num6 = num5;
                                 num7 = 0f;
                                 break;
-
                             case 1:
                                 num6 = 0f - num5;
                                 num7 = 0f;
                                 break;
-
                             case 2:
                                 num6 = 0f;
                                 num7 = num5;
                                 break;
-
                             case 3:
                                 num6 = 0f;
                                 num7 = 0f - num5;
                                 break;
                         }
-
                         position = new Vector2(drawPlayer.position.X + num6, drawPlayer.position.Y + drawPlayer.gfxOffY + num7);
                         DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, drawPlayer.ghostFade);
                     }
                 }
-
                 if (drawPlayer.armorEffectDrawShadowBasilisk)
                 {
                     int num8 = (int)(drawPlayer.basiliskCharge * 3f);
@@ -1044,13 +1021,11 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     for (int num9 = 0; num9 < 3; num9++)
                         DrawPlayer(camera, drawPlayer, drawPlayer.shadowPos[num9], drawPlayer.shadowRotation[num9], drawPlayer.shadowOrigin[num9], 0.5f + 0.2f * num9);
                 }
-
                 if (drawPlayer.armorEffectDrawShadowLokis)
                 {
                     for (int num10 = 0; num10 < 3; num10++)
                         DrawPlayer(camera, drawPlayer, Vector2.Lerp(drawPlayer.shadowPos[num10], drawPlayer.position + new Vector2(0f, drawPlayer.gfxOffY), 0.5f), drawPlayer.shadowRotation[num10], drawPlayer.shadowOrigin[num10], MathHelper.Lerp(1f, 0.5f + 0.2f * num10, 0.5f));
                 }
-
                 if (drawPlayer.armorEffectDrawShadowSubtle)
                 {
                     for (int num11 = 0; num11 < 4; num11++)
@@ -1060,7 +1035,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.9f);
                     }
                 }
-
                 if (drawPlayer.shadowDodge)
                 {
                     drawPlayer.shadowDodgeCount += 1f;
@@ -1073,7 +1047,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     if (drawPlayer.shadowDodgeCount < 0f)
                         drawPlayer.shadowDodgeCount = 0f;
                 }
-
                 if (drawPlayer.shadowDodgeCount > 0f)
                 {
                     _ = drawPlayer.position;
@@ -1083,7 +1056,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     position.X = drawPlayer.position.X - drawPlayer.shadowDodgeCount;
                     DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.5f + Main.rand.Next(-10, 11) * 0.005f);
                 }
-
                 if (drawPlayer.brainOfConfusionDodgeAnimationCounter > 0)
                 {
                     Vector2 vector2 = drawPlayer.position + new Vector2(0f, drawPlayer.gfxOffY);
@@ -1098,7 +1070,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         }
                     }
                 }
-
                 position = drawPlayer.position;
                 position.Y += drawPlayer.gfxOffY;
                 if (drawPlayer.stoned)
@@ -1106,7 +1077,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                 else if (!drawPlayer.invis)
                     DrawPlayer(camera, drawPlayer, position, drawPlayer.fullRotation, drawPlayer.fullRotationOrigin);
             }
-
             spriteBatch.End();
         }
 

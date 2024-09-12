@@ -4,6 +4,7 @@ using ReLogic.Content;
 using System;
 using Terraria;
 using Terraria.ModLoader;
+using TF2.Content.UI;
 
 namespace TF2.Common
 {
@@ -38,12 +39,12 @@ namespace TF2.Common
         {
             // Made with help from the Stars Above Mod
             // Take notes, Example Mod!
-            Main.time = 27000;
+            Main.time = TF2.Minute(7.5);
             Main.dayTime = true;
             Main.raining = false;
             logoRotation = 0f;
             logoScale = 1f;
-            Texture2D background = (Texture2D)ModContent.Request<Texture2D>("TF2/Content/Textures/" + (!ScreamFortress ? "Background" : "BackgroundScreamFortress"), AssetRequestMode.ImmediateLoad);
+            Texture2D background = !ScreamFortress ? UITextures.MainMenuBackgroundTextures[0].Value : UITextures.MainMenuBackgroundTextures[1].Value;
             float width = (float)Main.screenWidth / background.Width;
             float height = (float)Main.screenHeight / background.Height;
             Vector2 center = Vector2.Zero;
@@ -62,10 +63,7 @@ namespace TF2.Common
         private static void DrawClass(int mercenary, SpriteBatch spriteBatch, Vector2 position, float scale)
         {
             if (mercenary != 0)
-            {
-                Texture2D mercenaryImage = (Texture2D)ModContent.Request<Texture2D>($"TF2/Content/Textures/Main_Menu_{(TF2Player.ClassName)mercenary}", AssetRequestMode.ImmediateLoad);
-                spriteBatch.Draw(mercenaryImage, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
-            }
+                spriteBatch.Draw(UITextures.MainMenuMercenaryTextures[mercenary - 1].Value, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Gensokyo.Projectiles;
 using Microsoft.Xna.Framework;
 using System.IO;
 using Terraria;
@@ -19,22 +18,22 @@ namespace TF2.Content.Buffs
             BuffID.Sets.IsATagBuff[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BleedingPlayer>().lifeRegenDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BleedingPlayer>().bleedDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<BleedingNPC>().lifeRegenDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<BleedingNPC>().bleedDebuff = true;
     }
 
     public class BleedingPlayer : ModPlayer
     {
-        public bool lifeRegenDebuff;
+        private int timer;
+        public bool bleedDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects() => lifeRegenDebuff = false;
+        public override void ResetEffects() => bleedDebuff = false;
 
         public override void UpdateBadLifeRegen()
         {
-            if (lifeRegenDebuff)
+            if (bleedDebuff)
             {
                 timer++;
                 TF2.Maximum(ref Player.lifeRegen, 0);
@@ -57,15 +56,15 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
-        public bool lifeRegenDebuff;
+        private int timer;
+        public bool bleedDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects(NPC npc) => lifeRegenDebuff = false;
+        public override void ResetEffects(NPC npc) => bleedDebuff = false;
 
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
-            if (lifeRegenDebuff)
+            if (bleedDebuff)
             {
                 timer++;
                 TF2.Maximum(ref npc.lifeRegen, 0);
@@ -86,8 +85,18 @@ namespace TF2.Content.Buffs
                 timer = 0;
         }
 
-        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(timer);
+            binaryWriter.Write(bleedDebuff);
+            binaryWriter.Write(damageMultiplier);
+        }
 
-        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => timer = binaryReader.ReadInt32();
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            timer = binaryReader.ReadInt32();
+            bleedDebuff = binaryReader.ReadBoolean();
+            damageMultiplier = binaryReader.ReadSingle();
+        }
     }
 }

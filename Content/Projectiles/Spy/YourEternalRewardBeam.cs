@@ -10,12 +10,12 @@ namespace TF2.Content.Projectiles.Spy
     {
         protected override void ProjectileStatistics()
         {
-            Projectile.CloneDefaults(ProjectileID.Bullet);
-            Projectile.width = 69;
-            Projectile.height = 16;
+            SetProjectileSize(40, 14);
+            AIType = ProjectileID.Bullet;
             Projectile.penetrate = 1;
             Projectile.friendly = true;
-            AIType = ProjectileID.Bullet;
+            Projectile.timeLeft = TF2.Time(6);
+            Projectile.ignoreWater = true;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
@@ -33,10 +33,10 @@ namespace TF2.Content.Projectiles.Spy
         protected override void ProjectileAI()
         {
             SetRotation();
-            for (int num178 = 0; num178 < 10; num178++)
+            for (int i = 0; i < 10; i++)
             {
-                float x2 = Projectile.Center.X - Projectile.velocity.X / 10f * num178;
-                float y2 = Projectile.Center.Y - Projectile.velocity.Y / 10f * num178;
+                float x2 = Projectile.Center.X - Projectile.velocity.X / 10f * i;
+                float y2 = Projectile.Center.Y - Projectile.velocity.Y / 10f * i;
                 int num179 = Dust.NewDust(new Vector2(x2, y2), 1, 1, DustID.IceTorch);
                 Main.dust[num179].alpha = Projectile.alpha;
                 Main.dust[num179].position.X = x2;

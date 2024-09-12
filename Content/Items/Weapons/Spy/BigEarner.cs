@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using Terraria;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Items.Materials;
 using TF2.Content.Projectiles.Spy;
 using TF2.Content.Tiles.Crafting;
@@ -10,6 +8,8 @@ namespace TF2.Content.Items.Weapons.Spy
 {
     public class BigEarner : TF2Weapon
     {
+        protected override int HealthBoost => -25;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Spy, Melee, Unique, Craft);
@@ -26,8 +26,6 @@ namespace TF2.Content.Items.Weapons.Spy
             AddPositiveAttribute(description);
             AddNegativeAttribute(description);
         }
-
-        protected override void WeaponPassiveUpdate(Player player) => TF2Player.SetPlayerHealth(player, -25);
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<ConniversKunai>().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
     }

@@ -17,8 +17,6 @@ namespace TF2.Content.Items.Weapons.Sniper
         {
             RazorbackPlayer razorbackPlayer = player.GetModPlayer<RazorbackPlayer>();
             razorbackPlayer.razorbackEquipped = true;
-            if (Main.netMode == NetmodeID.SinglePlayer)
-                player.GetModPlayer<TF2Player>().overhealMultiplier = 0f;
         }
     }
 

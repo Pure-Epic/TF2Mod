@@ -18,7 +18,7 @@ namespace TF2.Content.UI.HUD.Medic
     {
         protected override bool CanDisplay => !(Player.HeldItem.ModItem is TF2Weapon weapon && weapon.IsWeaponType(TF2Item.Primary)) && TF2.IsItemTypeInHotbar(Player, [ModContent.ItemType<MediGun>(), ModContent.ItemType<Kritzkrieg>(), ModContent.ItemType<QuickFix>()]);
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/UberchargeHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.UberchargeHUDTexture;
 
         private UIText ubercharge;
 
@@ -32,7 +32,7 @@ namespace TF2.Content.UI.HUD.Medic
                 Height = StyleDimension.FromPixels(60f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

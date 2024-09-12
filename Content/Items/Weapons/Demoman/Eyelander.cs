@@ -9,6 +9,8 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class Eyelander : TF2Weapon
     {
+        protected override int HealthBoost => -25;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Demoman, Melee, Unique, Unlock);
@@ -37,9 +39,12 @@ namespace TF2.Content.Items.Weapons.Demoman
             player.itemLocation = player.MountedCenter + Vector2.UnitX.RotatedBy(currentAngle);
         }
 
+        protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<EyelanderPlayer>().eyelanderEquipped;
+
+        protected override int WeaponModifyHealth(Player player) => player.GetModPlayer<EyelanderPlayer>().heads * 15 - 25;
+
         protected override void WeaponPassiveUpdate(Player player)
         {
-            TF2Player.SetPlayerHealth(player, player.GetModPlayer<EyelanderPlayer>().heads * 15 - 25);
             EyelanderPlayer p = player.GetModPlayer<EyelanderPlayer>();
             p.eyelanderEquipped = true;
             TF2Player.SetPlayerSpeed(player, 100 + (10 * p.heads));

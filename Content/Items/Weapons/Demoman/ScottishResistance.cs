@@ -24,15 +24,18 @@ namespace TF2.Content.Items.Weapons.Demoman
             AddNegativeAttribute(description);
         }
 
-        public void ReturnStickybombs(Player player)
+        protected override void StickybombLauncherDetonate(Player player)
         {
-            stickybombsAmount -= player.GetModPlayer<ScottishResistancePlayer>().stickybombsReturned;
-            player.GetModPlayer<ScottishResistancePlayer>().stickybombsReturned = 0;
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                Stickybomb stickybombProjectile = projectile.ModProjectile as Stickybomb;
+                if (projectile.Distance(Main.MouseWorld) <= 50f && projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer >= armTime)
+                {
+                    projectile.timeLeft = 0;
+                    stickybombsAmount--;
+                }
+            }
         }
-    }
-
-    public class ScottishResistancePlayer : ModPlayer
-    {
-        public int stickybombsReturned;
     }
 }

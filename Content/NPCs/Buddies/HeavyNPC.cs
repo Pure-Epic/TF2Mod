@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using ReLogic.Utilities;
-using System;
 using System.IO;
 using Terraria;
 using Terraria.Audio;
@@ -40,14 +39,12 @@ namespace TF2.Content.NPCs.Buddies
 
         protected static SoundStyle MinigunSpinSound => new SoundStyle("TF2/Content/Sounds/SFX/Weapons/minigun_spin")
         {
-            IsLooped = true,
-            SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+            SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
         };
 
         protected static SoundStyle MinigunAttackSound => new SoundStyle("TF2/Content/Sounds/SFX/Weapons/minigun_shoot")
         {
-            IsLooped = true,
-            SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+            SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
         };
 
         protected static SoundStyle MinigunSpinUpSound => new SoundStyle("TF2/Content/Sounds/SFX/Weapons/minigun_wind_up");
@@ -72,32 +69,13 @@ namespace TF2.Content.NPCs.Buddies
         protected override void BuddyMovement()
         {
             if (spinTimer > 0) return;
-            Timer++;
-            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * SpeedMuliplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
-            if (OnLedge(NPC.position, NPC.direction, NPC.width, NPC.height))
-                NPC.velocity.X = 0;
-            if (Timer == TF2.Time(2))
-            {
-                Timer = 0;
-                NPC.velocity.X = 0;
-                State = StateIdle;
-            }
-            NPC.netUpdate = true;
+            base.BuddyMovement();
         }
 
         protected override void BuddyFollow()
         {
             if (spinTimer > 0) return;
-            Timer = 0;
-            int direction = Player.position.X >= NPC.position.X ? 1 : -1;
-            AdjustMoveSpeed(ref NPC.velocity, direction, walkSpeed * SpeedMuliplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
-            NPC.direction = direction;
-            if (Math.Abs(Player.position.X - NPC.position.X) <= 50f || (NPC.position.Y - Player.position.Y >= 250f))
-            {
-                NPC.velocity.X = 0;
-                State = StateIdle;
-            }
-            NPC.netUpdate = true;
+            base.BuddyFollow();
         }
 
         protected override bool EnableBasicMovement() => spinTimer <= 0 && !focus;
@@ -129,15 +107,14 @@ namespace TF2.Content.NPCs.Buddies
                 AttackTimer++;
                 if (AttackTimer >= AttackSpeed && Ammo > 0)
                 {
-                    NPC.velocity.X = 0;
-                    NPC.netUpdate = true;
+                    NPC.velocity.X = 0f;
                     Vector2 shootVel = NPC.DirectionTo(target.Center);
                     itemRotation = NPC.AngleTo(target.Center);
                     NPC.spriteDirection = NPC.direction = (itemRotation >= -MathHelper.PiOver2 && itemRotation <= MathHelper.PiOver2) ? 1 : -1;
                     float speed = 10f;
                     Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(10f));
                     int type = ModContent.ProjectileType<Bullet>();
-                    int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                    int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     if (SoundEngine.TryGetActiveSound(minigunSpinSoundSlot, out var spinSound))
                         spinSound.Stop();
@@ -194,7 +171,7 @@ namespace TF2.Content.NPCs.Buddies
             }
         }
 
-        public override void OnKill()
+        protected override void BuddyDie()
         {
             if (SoundEngine.TryGetActiveSound(minigunSpinUpSoundSlot, out var spinUp))
                 spinUp.Stop();

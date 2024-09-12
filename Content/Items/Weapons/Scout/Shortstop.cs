@@ -62,7 +62,7 @@ namespace TF2.Content.Items.Weapons.Scout
     {
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (Player.HeldItem.ModItem is Shortstop && Player.inventory[58].ModItem is not Shortstop)
+            if (TF2Weapon.HoldingWeapon<Shortstop>(Player))
                 modifiers.Knockback *= 1.2f;
         }
     }

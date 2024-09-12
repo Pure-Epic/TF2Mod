@@ -1,6 +1,5 @@
 ﻿using Terraria;
 using Terraria.ID;
-using Terraria.WorldBuilding;
 using TF2.Common;
 using TF2.Content.Buffs;
 

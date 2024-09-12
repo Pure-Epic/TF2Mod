@@ -145,6 +145,10 @@ namespace TF2.Content.Items.Weapons
         protected virtual void WeaponPostWeaponStatistics(Player player)
         { }
 
+        protected override void WeaponSetSlot(int weaponCategory) => weaponType = weaponCategory;
+
+        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => true;
+
         protected virtual void WeaponAttackAnimation(Player player) => Item.noUseGraphic = isKnife || noUseGraphic;
 
         protected virtual void WeaponSetAmmo(int maxAmmo, int maxReserve, int currentAmmo = 0)
@@ -257,7 +261,7 @@ namespace TF2.Content.Items.Weapons
             {
                 if (currentAmmoClip <= 0 && currentAmmoReserve > 0 && !noAmmoClip && player.itemAnimation == 0)
                     reload = true;
-                if (Item != Main.mouseItem && player.whoAmI == Main.myPlayer)
+                if (Item != player.inventory[58] && player.whoAmI == Main.myPlayer)
                     UpdateAmmo(player);
             }
         }
@@ -292,7 +296,7 @@ namespace TF2.Content.Items.Weapons
                 if (!noAmmoClip && WeaponCanConsumeAmmo(player))
                     currentAmmoClip -= ammoCost;
                 Vector2 newVelocity = fullAutomatic && spreadRecovery >= Time(1.25) ? velocity : velocity.RotatedByRandom(MathHelper.ToRadians(2.5f));
-                int newDamage = !isSniperRifle ? damage : (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().classMultiplier);
+                int newDamage = !isSniperRifle ? damage : (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().damageMultiplier);
                 WeaponFireProjectile(player, source, position, newVelocity, type, newDamage, knockback);
                 if (fullAutomatic)
                     spreadRecovery = 0;
@@ -333,6 +337,16 @@ namespace TF2.Content.Items.Weapons
         protected virtual void WeaponPostFireProjectile(Player player, int projectile)
         { }
 
+        protected virtual void WeaponMeleeHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
+        {
+            if (isSword)
+            {
+                if (player.ItemAnimationJustStarted)
+                    noHitbox = true;
+                hitbox = MeleeHitbox(player);
+            }
+        }
+
         protected virtual void WeaponPostAttack(Player player)
         { }
 
@@ -357,6 +371,20 @@ namespace TF2.Content.Items.Weapons
 
         public virtual void WeaponReset()
         { }
+
+        protected virtual void StickybombLauncherDetonate(Player player)
+        {
+            for (int i = 0; i < Main.maxProjectiles; i++)
+            {
+                Projectile projectile = Main.projectile[i];
+                Stickybomb stickybombProjectile = projectile.ModProjectile as Stickybomb;
+                if (projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer >= armTime)
+                {
+                    projectile.timeLeft = 0;
+                    stickybombsAmount--;
+                }
+            }
+        }
 
         protected void SetWeaponSize(int width = 25, int height = 25) => Item.Size = weaponType != Melee ? (Vector2)new WeaponSize(width, height) : (Vector2)WeaponSize.MeleeWeaponSize;
 
@@ -579,7 +607,7 @@ namespace TF2.Content.Items.Weapons
         {
             float damageValue = decimalDamage == 0 ? Item.damage : decimalDamage;
             TooltipLine damage = new TooltipLine(Mod, "Damage",
-                Language.GetText("Mods.TF2.UI.Items.Damage").Format(Main.LocalPlayer.GetDamage<TF2DamageClass>().ApplyTo(damageValue)))
+                Language.GetText("Mods.TF2.UI.Items.Damage").Format(Main.LocalPlayer.GetDamage<MercenaryDamage>().ApplyTo(damageValue)))
             {
                 OverrideColor = new Color(192, 192, 192)
             };
@@ -637,16 +665,27 @@ namespace TF2.Content.Items.Weapons
                 cooldownTimer++;
             else
                 cooldownTimer = 0;
+            if (reload)
+            {
+                ammoReloadRateTimer++;
+                if (!isGrenadeLauncher && cooldownTimer >= (initialReloadRate - reloadRate) && !finishReloadSound)
+                {
+                    PlaySound(reloadSound, player.Center);
+                    finishReloadSound = true;
+                }
+            }
+            else
+                ammoReloadRateTimer = 0;
             if (!startReloadSound && reload && isGrenadeLauncher)
             {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/grenade_launcher_drum_open"), player.Center);
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/grenade_launcher_drum_open"), player.Center);
                 startReloadSound = true;
             }
             if (reload && cooldownTimer >= (isGrenadeLauncher ? (initialReloadRate - reloadRate) : initialReloadRate))
             {
-                if (!isGrenadeLauncher ? !finishReloadSound : (!finishReloadSound && startReloadSound))
+                if (isGrenadeLauncher && !finishReloadSound && startReloadSound)
                 {
-                    SoundEngine.PlaySound(reloadSound, player.Center);
+                    PlaySound(reloadSound, player.Center);
                     finishReloadSound = true;
                 }
                 if (ammoReloadRateTimer >= reloadRate && currentAmmoReserve > 0)
@@ -666,10 +705,6 @@ namespace TF2.Content.Items.Weapons
                     ammoReloadRateTimer = 0;
                 }
             }
-            if (reload)
-                ammoReloadRateTimer++;
-            else
-                ammoReloadRateTimer = 0;
             currentAmmoClip = Utils.Clamp(currentAmmoClip, 0, maxAmmoClip);
             if ((currentAmmoClip == maxAmmoClip) || currentAmmoReserve <= 0)
             {
@@ -679,7 +714,7 @@ namespace TF2.Content.Items.Weapons
             }
             if (closeDrum && !reload && isGrenadeLauncher)
             {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/grenade_launcher_drum_close"), player.Center);
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/grenade_launcher_drum_close"), player.Center);
                 closeDrum = false;
             }
             if (!reload)
@@ -688,7 +723,7 @@ namespace TF2.Content.Items.Weapons
                 finishReloadSound = false;
             }
             else
-                spreadRecovery = 75;
+                spreadRecovery = Time(1.25);
         }
 
         public void StopReload() => reload = false;
@@ -779,8 +814,8 @@ namespace TF2.Content.Items.Weapons
                 if (stickybombsAmount >= maxStickybombs)
                     RemoveOldestStickybomb(player);
                 Vector2 newVelocity = new Vector2(shootDirection.X * Item.shootSpeed + chargeTime / 60, shootDirection.Y * Item.shootSpeed - chargeTime / 60);
-                SoundEngine.PlaySound(stickbombLauncherAttackSound, player.Center);
-                int i = Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, newVelocity, type, (int)(Item.damage * p.classMultiplier), Item.knockBack, player.whoAmI);
+                PlaySound(stickbombLauncherAttackSound, player.Center);
+                int i = Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, newVelocity, type, (int)(Item.damage * p.damageMultiplier), Item.knockBack, player.whoAmI);
                 Stickybomb projectile = (Stickybomb)Main.projectile[i].ModProjectile;
                 projectile.weapon = this;
                 NetMessage.SendData(MessageID.SyncProjectile, number: i);
@@ -795,17 +830,11 @@ namespace TF2.Content.Items.Weapons
             {
                 rightClick = true;
                 SetCustomItemTime(player);
-                for (int i = 0; i < Main.maxProjectiles; i++)
-                {
-                    Projectile projectile = Main.projectile[i];
-                    Stickybomb stickybombProjectile = projectile.ModProjectile as Stickybomb;
-                    if (projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer >= armTime)
-                    {
-                        projectile.timeLeft = 0;
-                        stickybombsAmount--;
-                    }
-                }
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/stickybomblauncher_detonate"), player.Center);
+                StickybombLauncherDetonate(player);
+                int direction = Main.MouseWorld.X > player.position.X ? 1 : -1;
+                player.ChangeDir(direction);
+                player.itemRotation = (Utils.DirectionTo(player.Center, Main.MouseWorld) * direction).ToRotation();
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/stickybomblauncher_detonate"), player.Center);
             }
             if (player.dead)
                 rightClick = false;
@@ -883,7 +912,7 @@ namespace TF2.Content.Items.Weapons
                     if (SoundEngine.TryGetActiveSound(minigunEmptySoundSlot, out var emptySound))
                         emptySound.Stop();
                     if (!SoundEngine.TryGetActiveSound(minigunAttackSoundSlot, out var _))
-                        minigunAttackSoundSlot = SoundEngine.PlaySound(minigunAttackSound, player.Center);
+                        minigunAttackSoundSlot = PlaySound(minigunAttackSound, player.Center);
                 }
                 else
                 {
@@ -892,7 +921,7 @@ namespace TF2.Content.Items.Weapons
                     if (SoundEngine.TryGetActiveSound(minigunAttackSoundSlot, out var attackSound))
                         attackSound.Stop();
                     if (!SoundEngine.TryGetActiveSound(minigunEmptySoundSlot, out var _))
-                        minigunEmptySoundSlot = SoundEngine.PlaySound(minigunEmptySound, player.Center);
+                        minigunEmptySoundSlot = PlaySound(minigunEmptySound, player.Center);
                 }
             }
             else if (player.altFunctionUse == 2)
@@ -910,7 +939,7 @@ namespace TF2.Content.Items.Weapons
                     if (SoundEngine.TryGetActiveSound(minigunSpinDownSoundSlot, out var spinDown))
                         spinDown.Stop();
                     if (!SoundEngine.TryGetActiveSound(minigunSpinUpSoundSlot, out var _))
-                        minigunSpinUpSoundSlot = SoundEngine.PlaySound(minigunSpinUpSound, player.Center);
+                        minigunSpinUpSoundSlot = PlaySound(minigunSpinUpSound, player.Center);
                     endSpinUpSound = true;
                 }
             }
@@ -920,8 +949,8 @@ namespace TF2.Content.Items.Weapons
                 {
                     if (!endSpinDownSound)
                     {
-                        if (!SoundEngine.TryGetActiveSound(minigunSpinDownSoundSlot, out var spinDown))
-                            minigunSpinDownSoundSlot = SoundEngine.PlaySound(minigunSpinDownSound, player.Center);
+                        if (!SoundEngine.TryGetActiveSound(minigunSpinDownSoundSlot, out var _))
+                            minigunSpinDownSoundSlot = PlaySound(minigunSpinDownSound, player.Center);
                         endSpinDownSound = true;
                     }
                     spinTimer--;
@@ -946,10 +975,13 @@ namespace TF2.Content.Items.Weapons
             if (player.itemAnimation > 0)
             {
                 if (endSpinUpSound && !SoundEngine.TryGetActiveSound(minigunSpinUpSoundSlot, out var _) && !SoundEngine.TryGetActiveSound(minigunSpinSoundSlot, out var _) && !SoundEngine.TryGetActiveSound(minigunSpinDownSoundSlot, out var _) && !SoundEngine.TryGetActiveSound(minigunAttackSoundSlot, out var _) && !SoundEngine.TryGetActiveSound(minigunEmptySoundSlot, out var _))
-                    minigunSpinSoundSlot = SoundEngine.PlaySound(minigunSpinSound, player.position);
+                    minigunSpinSoundSlot = PlaySound(minigunSpinSound, player.position);
                 TF2Player.SetPlayerSpeed(player, speedPercentage);
-                if (!player.mount.Active)
-                    player.controlJump = false;
+                if (!player.mount.Active && spinTimer > 0)
+                {
+                    player.jumpSpeedBoost = 0;
+                    player.jumpSpeedBoost -= Player.jumpSpeed;
+                }
             }
             if (!player.controlUseItem && !player.controlUseTile)
             {
@@ -969,11 +1001,12 @@ namespace TF2.Content.Items.Weapons
             p.maxUberCharge = uberChargeCapacity;
             if (!endHealSound && player.controlUseItem)
             {
-                SoundEngine.PlaySound(mediGunHealSound, player.Center);
+                PlaySound(mediGunHealSound, player.Center);
                 endHealSound = true;
             }
             if (uberCharge == uberChargeCapacity && uberChargeCapacity > 0 && !p.fullyCharged)
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/medigun_charged"), player.Center);
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/medigun_charged"), player.Center);
+            lockWeapon = p.activateUberCharge;
         }
 
         private void MediGunPassiveUpdate(Player player)
@@ -996,7 +1029,7 @@ namespace TF2.Content.Items.Weapons
                 player.AddBuff(uberChargeBuff, uberChargeDuration, false);
                 if (uberChargeBuff == ModContent.BuffType<QuickFixUberCharge>())
                     RemoveAllDebuffs(player);
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_on"), player.Center);
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_on"), player.Center);
             }
             return false;
         }
@@ -1065,7 +1098,7 @@ namespace TF2.Content.Items.Weapons
                 {
                     position += muzzleOffset;
                     if (!SoundEngine.TryGetActiveSound(flameThrowerAttackSoundSlot, out var _))
-                        flameThrowerAttackSoundSlot = SoundEngine.PlaySound(flameThrowerAttackSound, player.Center);
+                        flameThrowerAttackSoundSlot = PlaySound(flameThrowerAttackSound, player.Center);
                     Shoot(player, source, position, velocity, type, damage, knockback, 1, 0f, player.whoAmI);
                 }
             }
@@ -1074,7 +1107,7 @@ namespace TF2.Content.Items.Weapons
                 if (WeaponCanConsumeAmmo(player))
                     currentAmmoClip -= airblastCost;
                 player.itemAnimationMax = Item.useTime;
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/flame_thrower_airblast"), player.Center);
+                PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/flame_thrower_airblast"), player.Center);
                 Shoot(player, source, position, velocity, ModContent.ProjectileType<Airblast>(), 0, knockback, 1, 0f, player.whoAmI);
             }
         }
@@ -1113,9 +1146,7 @@ namespace TF2.Content.Items.Weapons
             }
         }
 
-        protected override void SetWeaponSlot(int weaponCategory) => weaponType = weaponCategory;
-
-        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => true;
+        public static bool HoldingWeapon<T>(Player player) => player.HeldItem.ModItem is T && player.inventory[58].ModItem is not T;
 
         public override sealed void SetStaticDefaults()
         {
@@ -1131,7 +1162,7 @@ namespace TF2.Content.Items.Weapons
             if (availability == Unlock)
                 metalValue += Item.buyPrice(platinum: 1);
             Item.value = metalValue;
-            Item.DamageType = ModContent.GetInstance<TF2DamageClass>();
+            Item.DamageType = ModContent.GetInstance<MercenaryDamage>();
             if (weaponType == Melee || maxAmmoClip <= 0)
                 noAmmoClip = true;
             if (weaponType == Melee)
@@ -1209,16 +1240,6 @@ namespace TF2.Content.Items.Weapons
                 WeaponAttackAnimation(player);
         }
 
-        public sealed override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox)
-        {
-            if (isSword)
-            {
-                if (player.ItemAnimationJustStarted)
-                    noHitbox = true;
-                hitbox = MeleeHitbox(player);
-            }
-        }
-
         public override sealed bool CanUseItem(Player player)
         {
             if (player.whoAmI != Main.myPlayer || !equipped || Item == player.inventory[58] || reload && !noAmmoClip && !ModContent.GetInstance<TF2ConfigClient>().SingleReload || isSniperRifle && maxAmmoReserve <= 0 && currentAmmoClip <= 0) return false;
@@ -1292,6 +1313,8 @@ namespace TF2.Content.Items.Weapons
                 critDuration--;
         }
 
+        protected override bool WeaponModifyHealthCondition(Player player) => IsItemTypeInHotbar(player, Item.type);
+
         public override sealed bool AltFunctionUse(Player player) => usesAltClick && WeaponCanAltClick(player);
 
         public override sealed bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -1299,7 +1322,7 @@ namespace TF2.Content.Items.Weapons
             if (Item.shoot != ProjectileID.None)
             {
                 int damageValue = decimalDamage == 0 ? Item.damage : (int)Math.Round(decimalDamage);
-                WeaponAttack(player, source, position, velocity, Item.shoot, (int)player.GetDamage<TF2DamageClass>().ApplyTo(damageValue), knockback);
+                WeaponAttack(player, source, position, velocity, Item.shoot, (int)player.GetDamage<MercenaryDamage>().ApplyTo(damageValue), knockback);
                 WeaponPostAttack(player);
             }
             if (ModContent.GetInstance<TF2ConfigClient>().SingleReload)
@@ -1308,6 +1331,35 @@ namespace TF2.Content.Items.Weapons
                 singleReloadShotReload = false;
             }
             return false;
+        }
+
+        public sealed override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) => WeaponMeleeHitbox(player, ref hitbox, ref noHitbox);
+
+        public sealed override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            PlaySound(meleeHitSound, target.Center);
+            if (weaponType == Melee)
+            {
+                TF2Player p = player.GetModPlayer<TF2Player>();
+                if (p.critMelee)
+                    p.crit = true;
+            }
+            WeaponHitNPC(player, target, ref modifiers);
+            DemomanMeleeCrit(player);
+        }
+
+        public sealed override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
+        {
+            if (meleeHitSound != null)
+                PlaySound(meleeHitSound, target.Center);
+            if (weaponType == Melee)
+            {
+                TF2Player p = player.GetModPlayer<TF2Player>();
+                if (p.critMelee)
+                    p.crit = true;
+            }
+            WeaponHitPlayer(player, target, ref modifiers);
+            DemomanMeleeCrit(player);
         }
 
         public override sealed bool? UseItem(Player player)
@@ -1340,33 +1392,6 @@ namespace TF2.Content.Items.Weapons
                 return WeaponOnUse(player);
             }
             return base.UseItem(player);
-        }
-
-        public sealed override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            SoundEngine.PlaySound(meleeHitSound, target.Center);
-            if (weaponType == Melee)
-            {
-                TF2Player p = player.GetModPlayer<TF2Player>();
-                if (p.critMelee)
-                    p.crit = true;
-            }
-            WeaponHitNPC(player, target, ref modifiers);
-            DemomanMeleeCrit(player);
-        }
-
-        public sealed override void ModifyHitPvp(Player player, Player target, ref Player.HurtModifiers modifiers)
-        {
-            if (meleeHitSound != null)
-                SoundEngine.PlaySound(meleeHitSound, target.Center);
-            if (weaponType == Melee)
-            {
-                TF2Player p = player.GetModPlayer<TF2Player>();
-                if (p.critMelee)
-                    p.crit = true;
-            }
-            WeaponHitPlayer(player, target, ref modifiers);
-            DemomanMeleeCrit(player);
         }
     }
 }

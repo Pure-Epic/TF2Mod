@@ -40,7 +40,7 @@ namespace TF2.Content.Projectiles.Scout
         {
             crit = false;
             if (target.hostile && target.whoAmI != Main.myPlayer)
-                KnockbackPlayer(target, ref modifiers, 10f);
+                KnockbackPlayer(target, Player.position.X < target.position.X ? 1 : -1, 10f);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
@@ -48,7 +48,7 @@ namespace TF2.Content.Projectiles.Scout
             modifiers.DisableCrit();
             crit = miniCrit = false;
             if (!target.friendly && target.type != NPCID.TargetDummy)
-                KnockbackNPC(target, ref modifiers, 10f);
+                KnockbackNPC(target, Player.position.X < target.position.X ? 1 : -1, 10f);
         }
     }
 }

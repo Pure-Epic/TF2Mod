@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using ReLogic.Utilities;
 using Terraria;
 using Terraria.Audio;
@@ -8,22 +9,24 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items;
+using static TF2.TF2;
 
 namespace TF2.Content.NPCs.Buildings.Teleporter
 {
     public abstract class TF2Teleporter : Building
     {
-        public override int BuildingCooldown => TF2.Time(21);
+        public override int BuildingCooldown => Time(21);
 
-        public override int BuildingCooldownHauled => TF2.Time(5.25);
+        public override int BuildingCooldownHauled => Time(5.25);
 
         protected override int ScrapMetalAmount => 25;
 
-        protected override string BuildingTexture => "TF2/Content/NPCs/Buildings/Teleporter/Teleporter";
+        protected override Asset<Texture2D> BuildingTexture => BuildingTextures.TeleporterTexture;
 
-        public override string Texture => BuildingTexture;
+        public override string Texture => "TF2/Content/NPCs/Buildings/Teleporter/Teleporter";
 
-        protected SoundStyle teleporterSound;
+        protected virtual SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin");
+
         internal SlotId teleporterSoundSlot;
 
         protected virtual void TeleporterSpawn()
@@ -32,74 +35,74 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
         protected virtual void TeleporterAI()
         { }
 
-        public override void SetStaticDefaults() => Main.npcFrameCount[NPC.type] = 4;
+        public override void SetStaticDefaults()
+        {
+            Main.npcFrameCount[NPC.type] = 4;
+            NPC.netAlways = true;
+        }
 
         protected override void BuildingSpawn()
         {
             UpgradeCooldown = BuildingCooldown;
-            Timer2 = TF2.Time(5.12);
+            Timer2 = Time(5.12);
             TeleporterSpawn();
         }
 
         protected override void BuildingAI()
         {
-            if (Main.netMode != NetmodeID.MultiplayerClient)
+            if (!Initialized)
             {
-                if (!Initialized)
-                {
-                    int buildDuration = !hauled ? BuildingCooldown : BuildingCooldownHauled;
-                    int health = TF2.Round(Utils.Lerp(InitialHealth * Player.GetModPlayer<TF2Player>().healthMultiplier, NPC.lifeMax, (float)(buildDuration - UpgradeCooldown) / buildDuration)) - preConstructedDamage;
-                    if (InitialHealth != TF2.Round(NPC.lifeMax / Player.GetModPlayer<TF2Player>().healthMultiplier))
-                        NPC.life = health;
-                    if (NPC.life < 0)
-                        NPC.checkDead();
-                    UpgradeCooldown -= constructionSpeed;
-                    if (UpgradeCooldown < 0)
-                        UpgradeCooldown = 0;
-                    if (UpgradeCooldown <= 0)
-                    {
-                        NPC.life = NPC.lifeMax - preConstructedDamage;
-                        if (this is TeleporterEntrance)
-                        {
-                            (this as TeleporterEntrance).FindTeleporterExit(out TeleporterExit exit);
-                            if (!Initialized && exit != null && !hauled)
-                            {
-                                Metal = exit.Metal;
-                                if (exit is TeleporterExitLevel2 && this is TeleporterEntranceLevel1)
-                                    SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel2>(), exit);
-                                else if (exit is TeleporterExitLevel3 && (this is TeleporterEntranceLevel2 || this is TeleporterEntranceLevel1))
-                                    SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel3>(), exit);
-                            }
-                        }
-                        else if (this is TeleporterExit)
-                        {
-                            (this as TeleporterExit).FindTeleporterEntrance(out TeleporterEntrance entrance);
-                            if (!Initialized && entrance != null && !hauled)
-                            {
-                                Metal = entrance.Metal;
-                                if (entrance is TeleporterEntranceLevel2 && this is TeleporterExitLevel1)
-                                    SyncTeleporter(ModContent.NPCType<TeleporterExitLevel2>(), entrance);
-                                else if (entrance is TeleporterEntranceLevel3 && (this is TeleporterExitLevel2 || this is TeleporterExitLevel1))
-                                    SyncTeleporter(ModContent.NPCType<TeleporterExitLevel3>(), entrance);
-                            }
-                        }
-                        Initialized = true;
-                    }
-                    NPC.netUpdate = true;
-                    return;
-                }
-                if (UpgradeCooldown > 0)
-                {
-                    Timer = 0;
-                    Timer2 = 0;
-                    return;
-                }
-                UpgradeCooldown--;
+                int buildDuration = !hauled ? BuildingCooldown : BuildingCooldownHauled;
+                int health = Round(Utils.Lerp(InitialHealth * Player.GetModPlayer<TF2Player>().healthMultiplier, NPC.lifeMax, (float)(buildDuration - UpgradeCooldown) / buildDuration)) - preConstructedDamage;
+                if (InitialHealth != Round(NPC.lifeMax / Player.GetModPlayer<TF2Player>().healthMultiplier))
+                    NPC.life = health;
+                if (NPC.life < 0)
+                    NPC.checkDead();
+                UpgradeCooldown -= constructionSpeed;
                 if (UpgradeCooldown < 0)
                     UpgradeCooldown = 0;
-                TeleporterAI();
-                NPC.netUpdate = true;
+                if (UpgradeCooldown <= 0)
+                {
+                    NPC.life = NPC.lifeMax - preConstructedDamage;
+                    if (this is TeleporterEntrance)
+                    {
+                        (this as TeleporterEntrance).FindTeleporterExit(out TeleporterExit exit);
+                        if (!Initialized && exit != null && !hauled)
+                        {
+                            Metal = exit.Metal;
+                            if (exit is TeleporterExitLevel2 && this is TeleporterEntranceLevel1)
+                                SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel2>(), exit);
+                            else if (exit is TeleporterExitLevel3 && (this is TeleporterEntranceLevel2 || this is TeleporterEntranceLevel1))
+                                SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel3>(), exit);
+                        }
+                    }
+                    else if (this is TeleporterExit)
+                    {
+                        (this as TeleporterExit).FindTeleporterEntrance(out TeleporterEntrance entrance);
+                        if (!Initialized && entrance != null && !hauled)
+                        {
+                            Metal = entrance.Metal;
+                            if (entrance is TeleporterEntranceLevel2 && this is TeleporterExitLevel1)
+                                SyncTeleporter(ModContent.NPCType<TeleporterExitLevel2>(), entrance);
+                            else if (entrance is TeleporterEntranceLevel3 && (this is TeleporterExitLevel2 || this is TeleporterExitLevel1))
+                                SyncTeleporter(ModContent.NPCType<TeleporterExitLevel3>(), entrance);
+                        }
+                    }
+                    Initialized = true;
+                    NPC.netUpdate = true;
+                }
+                return;
             }
+            if (UpgradeCooldown > 0)
+            {
+                Timer = 0;
+                Timer2 = 0;
+                return;
+            }
+            UpgradeCooldown--;
+            if (UpgradeCooldown < 0)
+                UpgradeCooldown = 0;
+            TeleporterAI();
         }
 
         internal void SyncTeleporter(int newTeleporter, TF2Teleporter oldTeleporter = null)
@@ -118,9 +121,26 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
                 player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI = i;
             else if (building is TeleporterExit)
                 player.GetModPlayer<TF2Player>().teleporterExitWhoAmI = i;
-            NPC.active = false;
-            NPC.netUpdate = true;
+            KillNPC(NPC);
         }
+
+        public void HaulTeleporter(int metal)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                UpgradeCooldown = BuildingCooldownHauled;
+                hauled = true;
+            }
+            else
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)MessageType.SyncTeleporter);
+                packet.Write((byte)NPC.whoAmI);
+                packet.Write(metal);
+                packet.Send(-1, Main.myPlayer);
+            }
+        }
+
     }
 
     public class TeleporterStatistics
@@ -132,9 +152,7 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
     public abstract class TeleporterEntrance : TF2Teleporter
     {
-        protected virtual int TeleporterCooldown => TF2.Time(10);
-
-        protected virtual string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin";
+        protected virtual int TeleporterCooldown => Time(10);
 
         protected virtual int NextUpgrade => ModContent.NPCType<TeleporterEntranceLevel2>();
 
@@ -142,18 +160,14 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         protected override void BuildingDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D sprite = spriteSheet.Value;
+            Texture2D sprite = BuildingTexture.Value;
             int height = sprite.Height / 4;
             float frameWidth = 0;
             float frameHeight = height - NPC.height;
             spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle(0, height * frame, sprite.Width, height), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, SpriteEffects.None, 0f);
         }
 
-        protected override void TeleporterSpawn()
-        {
-            teleporterSound = new SoundStyle(TeleporterSoundName);
-            Timer = TeleporterCooldown;
-        }
+        protected override void TeleporterSpawn() => Timer = TeleporterCooldown;
 
         protected override void TeleporterAI()
         {
@@ -164,9 +178,9 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
             Timer++;
             Timer2++;
             if (Timer < TeleporterCooldown)
-                frame = (Timer % Utils.Clamp(TeleporterCooldown - Timer, TF2.Time(0.1), TeleporterCooldown) == 0) ? 1 : 0;
+                frame = (Timer % Utils.Clamp(TeleporterCooldown - Timer, Time(0.1), TeleporterCooldown) == 0) ? 1 : 0;
             else
-                frame = Timer % TF2.Time(0.1) == 0 ? 3 : 2;
+                frame = Timer % Time(0.1) == 0 ? 3 : 2;
             NPC.netUpdate = true;
             if (Timer >= TeleporterCooldown)
             {
@@ -188,11 +202,11 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
                             exitSound?.Stop();
                     }
                 }
-                if (Timer2 >= TF2.Time(5.12))
+                if (Timer2 >= Time(5.12))
                 {
-                    teleporterSoundSlot = SoundEngine.PlaySound(teleporterSound, NPC.position);
+                    teleporterSoundSlot = SoundEngine.PlaySound(TeleporterSound, NPC.position);
                     if (exit != null)
-                        exit.teleporterSoundSlot = SoundEngine.PlaySound(teleporterSound, NPC.position);
+                        exit.teleporterSoundSlot = SoundEngine.PlaySound(TeleporterSound, NPC.position);
                     Timer2 = 0;
                 }
             }
@@ -243,15 +257,15 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
     public class TeleporterEntranceLevel2 : TeleporterEntrance
     {
-        protected override int TeleporterCooldown => TF2.Time(5);
+        protected override int TeleporterCooldown => Time(5);
 
-        protected override string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin2";
+        protected override SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin2");
 
         protected override int NextUpgrade => ModContent.NPCType<TeleporterEntranceLevel3>();
 
         public override int InitialHealth => 180;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {
@@ -268,13 +282,13 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
     public class TeleporterEntranceLevel3 : TeleporterEntrance
     {
-        protected override int TeleporterCooldown => TF2.Time(3);
+        protected override int TeleporterCooldown => Time(3);
 
-        protected override string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin3";
+        protected override SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin3");
 
         public override int InitialHealth => 216;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {
@@ -293,20 +307,16 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
     {
         public override string BuildingName => Language.GetTextValue("Mods.TF2.NPCs.TeleporterExit");
 
-        protected virtual string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin";
-
         protected virtual int NextUpgrade => ModContent.NPCType<TeleporterExitLevel2>();
 
         protected override void BuildingDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D sprite = spriteSheet.Value;
+            Texture2D sprite = BuildingTexture.Value;
             int height = sprite.Height / 4;
             float frameWidth = 0;
             float frameHeight = height - NPC.height;
             spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle(0, height * frame, sprite.Width, height), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, SpriteEffects.None, 0f);
         }
-
-        protected override void TeleporterSpawn() => teleporterSound = new SoundStyle(TeleporterSoundName);
 
         protected override void TeleporterAI()
         {
@@ -367,13 +377,13 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
     public class TeleporterExitLevel2 : TeleporterExit
     {
-        protected override string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin2";
+        protected override SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin2");
 
         protected override int NextUpgrade => ModContent.NPCType<TeleporterExitLevel3>();
 
         public override int InitialHealth => 180;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {
@@ -390,11 +400,11 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
     public class TeleporterExitLevel3 : TeleporterExit
     {
-        protected override string TeleporterSoundName => "TF2/Content/Sounds/SFX/NPCs/teleporter_spin3";
+        protected override SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin3");
 
         public override int InitialHealth => 216;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {

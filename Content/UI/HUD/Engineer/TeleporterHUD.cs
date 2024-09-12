@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
@@ -17,7 +18,7 @@ namespace TF2.Content.UI.HUD.Engineer
     {
         protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().currentClass == TF2Item.Engineer;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/TeleporterEntranceHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.TeleporterEntranceHUD;
 
         private UIText level;
 
@@ -48,13 +49,13 @@ namespace TF2.Content.UI.HUD.Engineer
             TeleporterStatistics carriedTeleporter = Player.GetModPlayer<TF2Player>().carriedTeleporter;
             if (teleporterID > -1 && Main.npc[teleporterID].ModNPC is TeleporterEntrance entrance && Main.npc[teleporterID].active)
             {
-                Texture2D newTexture = HUDTextures.TeleporterEntranceHUD;
+                Texture2D newTexture = Texture.Value;
                 if (!entrance.Initialized && entrance is TeleporterEntranceLevel1)
-                    newTexture = HUDTextures.TeleporterEntranceHUDInitial;
+                    newTexture = HUDTextures.TeleporterEntranceHUDInitial.Value;
                 else if (entrance is TeleporterEntranceLevel1 || entrance is TeleporterEntranceLevel2)
-                    newTexture = HUDTextures.TeleporterEntranceLevel1HUD;
+                    newTexture = HUDTextures.TeleporterEntranceLevel1HUD.Value;
                 else if (entrance is TeleporterEntranceLevel3)
-                    newTexture = HUDTextures.TeleporterEntranceLevel3HUD;
+                    newTexture = HUDTextures.TeleporterEntranceLevel3HUD.Value;
                 spriteBatch.Draw(newTexture, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 291f), Color.White);
                 Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
                 if (!entrance.Initialized && entrance is TeleporterEntranceLevel1)
@@ -71,9 +72,8 @@ namespace TF2.Content.UI.HUD.Engineer
                 hitbox.Y += 2;
                 hitbox.Width = 14;
                 hitbox.Height = 52;
-                int left = hitbox.Left;
                 int height = TF2.Round(hitbox.Height * ((float)entrance.NPC.life / entrance.NPC.lifeMax));
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Bottom - height, hitbox.Width, height), ((float)entrance.NPC.life / entrance.NPC.lifeMax) >= 0.2f ? new Color(243, 243, 187) : Color.Red);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Bottom - height, hitbox.Width, height), ((float)entrance.NPC.life / entrance.NPC.lifeMax) >= 0.2f ? new Color(243, 243, 187) : Color.Red);
                 if (!entrance.Initialized || entrance is TeleporterEntranceLevel3) return;
                 hitbox = area.GetInnerDimensions().ToRectangle();
                 hitbox.X += 106;
@@ -81,12 +81,12 @@ namespace TF2.Content.UI.HUD.Engineer
                 hitbox.Width = 68;
                 hitbox.Height = 10;
                 int metal = Utils.Clamp(entrance.Metal, 0, 200);
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(left, hitbox.Y, TF2.Round(hitbox.Width * (float)metal / 200), hitbox.Height), Color.White);
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * (float)metal / 200), hitbox.Height), Color.White);
             }
             else if (carriedTeleporter == null || carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel1>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel2>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel3>())
-                spriteBatch.Draw(HUDTextures.TeleporterEntranceHUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 291f), Color.White);
+                spriteBatch.Draw(HUDTextures.TeleporterEntranceHUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 291f), Color.White);
             else if (carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel1>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel2>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel3>())
-                spriteBatch.Draw(HUDTextures.TeleporterEntranceLevel1HUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 291f), Color.White);
+                spriteBatch.Draw(HUDTextures.TeleporterEntranceLevel1HUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 291f), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime)
@@ -112,7 +112,7 @@ namespace TF2.Content.UI.HUD.Engineer
     {
         protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().currentClass == TF2Item.Engineer;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/TeleporterExitHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.TeleporterExitHUD;
 
         private UIText level;
 
@@ -143,13 +143,13 @@ namespace TF2.Content.UI.HUD.Engineer
             TeleporterStatistics carriedTeleporter = Player.GetModPlayer<TF2Player>().carriedTeleporter;
             if (teleporterID > -1 && Main.npc[teleporterID].ModNPC is TeleporterExit exit && Main.npc[teleporterID].active)
             {
-                Texture2D newTexture = HUDTextures.TeleporterExitHUD;
+                Texture2D newTexture = Texture.Value;
                 if (!exit.Initialized && exit is TeleporterExitLevel1)
-                    newTexture = HUDTextures.TeleporterExitHUDInitial;
+                    newTexture = HUDTextures.TeleporterExitHUDInitial.Value;
                 else if (exit is TeleporterExitLevel1 || exit is TeleporterExitLevel2)
-                    newTexture = HUDTextures.TeleporterExitLevel1HUD;
+                    newTexture = HUDTextures.TeleporterExitLevel1HUD.Value;
                 else if (exit is TeleporterExitLevel3)
-                    newTexture = HUDTextures.TeleporterExitLevel3HUD;
+                    newTexture = HUDTextures.TeleporterExitLevel3HUD.Value;
                 spriteBatch.Draw(newTexture, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 351f), Color.White);
                 Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
                 if (!exit.Initialized && exit is TeleporterExitLevel1)
@@ -178,9 +178,9 @@ namespace TF2.Content.UI.HUD.Engineer
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * (float)metal / 200), hitbox.Height), Color.White);
             }
             else if (carriedTeleporter == null || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel1>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel2>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel3>())
-                spriteBatch.Draw(HUDTextures.TeleporterExitHUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 351f), Color.White);
+                spriteBatch.Draw(HUDTextures.TeleporterExitHUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 351f), Color.White);
             else if (carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel1>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel2>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterExitLevel3>())
-                spriteBatch.Draw(HUDTextures.TeleporterExitLevel1HUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 351f), Color.White);
+                spriteBatch.Draw(HUDTextures.TeleporterExitLevel1HUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 351f), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime)

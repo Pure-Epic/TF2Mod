@@ -10,6 +10,8 @@ namespace TF2.Content.Items.Weapons.Spy
 {
     public class ConniversKunai : TF2Weapon
     {
+        protected override int HealthBoost => -55;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Spy, Melee, Unique, Craft);
@@ -28,11 +30,7 @@ namespace TF2.Content.Items.Weapons.Spy
             AddNeutralAttribute(description);
         }
 
-        protected override void WeaponPassiveUpdate(Player player)
-        {
-            TF2Player.SetPlayerHealth(player, -55);
-            player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
-        }
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
     }

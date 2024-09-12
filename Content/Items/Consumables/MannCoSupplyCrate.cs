@@ -17,36 +17,43 @@ namespace TF2.Content.Items.Consumables
     {
         public bool keyFound;
 
-        public static int[] PossibleDrops =
-        [
-            ModContent.ItemType<ForceANature>(),
-            ModContent.ItemType<Sandman>(),
-            ModContent.ItemType<BonkAtomicPunch>(),
-            ModContent.ItemType<Equalizer>(),
-            ModContent.ItemType<DirectHit>(),
-            ModContent.ItemType<BuffBanner>(),
-            ModContent.ItemType<FlareGun>(),
-            ModContent.ItemType<Backburner>(),
-            ModContent.ItemType<Axtinguisher>(),
-            ModContent.ItemType<CharginTarge>(),
-            ModContent.ItemType<Eyelander>(),
-            ModContent.ItemType<ScottishResistance>(),
-            ModContent.ItemType<Sandvich>(),
-            ModContent.ItemType<Natascha>(),
-            ModContent.ItemType<KillingGlovesOfBoxing>(),
-            ModContent.ItemType<FrontierJustice>(),
-            ModContent.ItemType<Gunslinger>(),
-            ModContent.ItemType<Wrangler>(),
-            ModContent.ItemType<Blutsauger>(),
-            ModContent.ItemType<Kritzkrieg>(),
-            ModContent.ItemType<Ubersaw>(),
-            ModContent.ItemType<Huntsman>(),
-            ModContent.ItemType<Jarate>(),
-            ModContent.ItemType<Razorback>(),
-            ModContent.ItemType<Ambassador>(),
-            ModContent.ItemType<CloakAndDagger>(),
-            ModContent.ItemType<DeadRinger>(),
-        ];
+        public static int GetPossibleDrop
+        {
+            get
+            {
+                int[] weaponList =
+                [
+                    ModContent.ItemType<ForceANature>(),
+                    ModContent.ItemType<Sandman>(),
+                    ModContent.ItemType<BonkAtomicPunch>(),
+                    ModContent.ItemType<Equalizer>(),
+                    ModContent.ItemType<DirectHit>(),
+                    ModContent.ItemType<BuffBanner>(),
+                    ModContent.ItemType<FlareGun>(),
+                    ModContent.ItemType<Backburner>(),
+                    ModContent.ItemType<Axtinguisher>(),
+                    ModContent.ItemType<CharginTarge>(),
+                    ModContent.ItemType<Eyelander>(),
+                    ModContent.ItemType<ScottishResistance>(),
+                    ModContent.ItemType<Sandvich>(),
+                    ModContent.ItemType<Natascha>(),
+                    ModContent.ItemType<KillingGlovesOfBoxing>(),
+                    ModContent.ItemType<FrontierJustice>(),
+                    ModContent.ItemType<Gunslinger>(),
+                    ModContent.ItemType<Wrangler>(),
+                    ModContent.ItemType<Blutsauger>(),
+                    ModContent.ItemType<Kritzkrieg>(),
+                    ModContent.ItemType<Ubersaw>(),
+                    ModContent.ItemType<Huntsman>(),
+                    ModContent.ItemType<Jarate>(),
+                    ModContent.ItemType<Razorback>(),
+                    ModContent.ItemType<Ambassador>(),
+                    ModContent.ItemType<CloakAndDagger>(),
+                    ModContent.ItemType<DeadRinger>()
+                ];
+                return Main.rand.Next(weaponList);
+            }
+        }
 
         public override void SetStaticDefaults() => Item.ResearchUnlockCount = 50;
 
@@ -84,7 +91,7 @@ namespace TF2.Content.Items.Consumables
             for (int i = 0; i < 3; i++)
             {
                 Item item = new Item();
-                item.SetDefaults(PossibleDrops[Main.rand.Next(PossibleDrops.Length + 1)]);
+                item.SetDefaults(GetPossibleDrop);
                 (item.ModItem as TF2Item).availability = Uncrate;
                 player.QuickSpawnItem(player.GetSource_GiftOrReward(), item);
             }

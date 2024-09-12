@@ -1902,8 +1902,7 @@ namespace TF2.Gensokyo.Content.NPCs
         {
             string info = Language.GetTextValue("Mods.Gensokyo.Miscellaneous.NewShopInventory");
             Color textColor = Color.DodgerBlue;
-
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(info), textColor);
             else
                 Main.NewText(info, textColor);
@@ -1914,7 +1913,7 @@ namespace TF2.Gensokyo.Content.NPCs
         /*
         protected void PlayCustomSound(string name, Vector2 position, float volume = 1f, float pitchVariance = 0f)
         {
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
             {
                 ModPacket packet = Mod.GetPacket();
                 packet.Write((byte)Gensokyo.GensokyoMessageType.PlayCustomSound);
@@ -2008,7 +2007,7 @@ namespace TF2.Gensokyo.Content.NPCs
             }
 
             // If the boss AI is exectuted by the server, also send the target list to all players
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
             {
                 ModPacket packet = Mod.GetPacket();
                 packet.Write((byte)Gensokyo.GensokyoMessageType.Boss);

@@ -192,16 +192,16 @@ namespace TF2.Content.NPCs.TownNPCs
                     ai = 0;
                     if (targetNPC.CanBeChasedBy() && targetNPC.type != NPCID.TargetDummy)
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
                         // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                         // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
-                        bool closeThroughWall = between < 100f;
+                        bool closeThroughWall = distance < 100f;
                         if ((closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }

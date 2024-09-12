@@ -10,6 +10,8 @@ namespace TF2.Content.Items.Weapons.Soldier
 {
     public class Gunboats : TF2Accessory
     {
+        protected override string LegTexture => "TF2/Content/Textures/Items/Soldier/Gunboats";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Soldier, Secondary, Unique, Craft);
@@ -21,6 +23,8 @@ namespace TF2.Content.Items.Weapons.Soldier
             AddPositiveAttribute(description);
             AddNegativeAttribute(description);
         }
+
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<GunboatsPlayer>().gunboatsEquipped;
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {

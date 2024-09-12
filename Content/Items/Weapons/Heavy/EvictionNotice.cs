@@ -10,6 +10,12 @@ namespace TF2.Content.Items.Weapons.Heavy
 {
     public class EvictionNotice : TF2Weapon
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Heavy/EvictionNotice";
+
+        protected override int HealthBoost => -20;
+
+        protected override bool TemporaryHealthBoost => true;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Heavy, Melee, Unique, Craft);
@@ -28,6 +34,10 @@ namespace TF2.Content.Items.Weapons.Heavy
         }
 
         protected override void WeaponAttackAnimation(Player player) => Item.noUseGraphic = true;
+
+        protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<EvictionNotice>(player);
+
+        protected override bool WeaponModifyHealthCondition(Player player) => HoldingWeapon<EvictionNotice>(player);
 
         protected override void WeaponActiveBonus(Player player) => TF2Player.SetPlayerSpeed(player, 115);
 

@@ -10,7 +10,7 @@ namespace TF2.Content.Projectiles.Soldier
 
         public override void RocketJump(Vector2 velocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 velocity *= 5f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

@@ -15,7 +15,7 @@ namespace TF2.Content.UI.HUD.Spy
     {
         protected override bool CanDisplay => Player.GetModPlayer<CloakPlayer>().invisWatchEquipped;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/RightChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.RightChargeHUDTexture;
 
         private UIText cloak;
 
@@ -29,7 +29,7 @@ namespace TF2.Content.UI.HUD.Spy
                 Height = StyleDimension.FromPixels(54f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

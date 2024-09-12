@@ -8,6 +8,8 @@ namespace TF2.Content.Items.Weapons
 {
     public class HorselessHeadlessHorsemannsHeadtaker : Eyelander
     {
+        protected override bool Reskin => true;
+
         public override string Texture => "TF2/Content/Textures/HorselessHeadlessHorsemannsHeadtaker";
 
         protected override void WeaponStatistics()

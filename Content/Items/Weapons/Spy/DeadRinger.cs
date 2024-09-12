@@ -8,6 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
+using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.NPCs.Buddies;
 using TF2.Content.Projectiles;
 
@@ -40,8 +41,8 @@ namespace TF2.Content.Items.Weapons.Spy
         public bool feignDeath;
         public float cloakMeter = TF2.Time(14);
         public float cloakMeterMax = TF2.Time(14);
-        public int timer;
-        public int timer2;
+        private int timer;
+        private int timer2;
         private bool playDecloakingSound;
         public bool fullCloak;
 
@@ -55,6 +56,12 @@ namespace TF2.Content.Items.Weapons.Spy
             feignDeath = false;
             Player.opacityForAnimation = 1f;
             cloakMeterMax = TF2.Time(14);
+        }
+
+        public override void PreUpdate()
+        {
+            if (Player.HasBuff(ModContent.BuffType<FeignDeath>()) && timer2 <= TF2.Time(3))
+                TF2Player.SetPlayerSpeed(Player, 200);
         }
 
         public override void PostUpdate()
@@ -97,11 +104,6 @@ namespace TF2.Content.Items.Weapons.Spy
                 Player.opacityForAnimation = 0.5f;
                 playDecloakingSound = true;
                 timer = 0;
-                if (timer2 <= TF2.Time(3))
-                {
-                    Player.GetModPlayer<TF2Player>().damageReduction += 0.65f;
-                    TF2Player.SetPlayerSpeed(Player, 200);
-                }
             }
         }
 
@@ -124,6 +126,8 @@ namespace TF2.Content.Items.Weapons.Spy
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
+            if (feignDeath && Player.HasBuff<FeignDeath>() && timer2 <= TF2.Time(3))
+                modifiers.FinalDamage *= 0.35f;
             if (!modifiers.PvP) return;
             Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
             if (opponent.GetModPlayer<FeignDeathPlayer>().feignDeath && opponent.HasBuff<FeignDeath>())
@@ -144,7 +148,7 @@ namespace TF2.Content.Items.Weapons.Spy
 
         public override bool FreeDodge(Player.HurtInfo info)
         {
-            if (Player.HeldItem.ModItem is DeadRinger && Player.inventory[58].ModItem is not DeadRinger && deadRingerEquipped)
+            if (TF2Weapon.HoldingWeapon<DeadRinger>(Player) && deadRingerEquipped)
             {
                 if (cloakMeter >= cloakMeterMax)
                     cloakMeter /= 2f;
@@ -156,19 +160,11 @@ namespace TF2.Content.Items.Weapons.Spy
                 }
                 info.Damage = TF2.Round(info.Damage * 0.25f);
                 Player.AddBuff(ModContent.BuffType<FeignDeath>(), TF2.Time(7));
-                if (Main.netMode == NetmodeID.SinglePlayer)
-                {
-                    IEntitySource source = Player.GetSource_FromThis();
-                    int npc = NPC.NewNPC(source, (int)Player.position.X, (int)Player.position.Y, ModContent.NPCType<SpyNPC>(), Player.whoAmI);
-                    SpyNPC spawnedModNPC = (SpyNPC)Main.npc[npc].ModNPC;
-                    spawnedModNPC.Owner = Player.whoAmI;
-                    NetMessage.SendData(MessageID.SyncNPC, number: npc);
-                }
-                else
-                {
-                    Player.stealth = 1000f;
-                    Player.stealthTimer = TF2.Round(cloakMeter);
-                }
+                NPC npc = NPC.NewNPCDirect(Player.GetSource_FromThis(), (int)Player.Center.X, (int)Player.Center.Y, ModContent.NPCType<SpyNPC>(), 0, 0, 0, 0, Player.whoAmI);
+                TF2.SpawnNPCMultiplayer(Player, npc, npc.type);
+                TF2.SetFeignDeathSpy(npc);
+                Player.stealth = 1000f;
+                Player.stealthTimer = TF2.Round(cloakMeter);
                 for (int i = 0; i < Player.MaxBuffs; i++)
                 {
                     int buffTypes = Player.buffType[i];

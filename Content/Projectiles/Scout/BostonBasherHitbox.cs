@@ -39,7 +39,7 @@ namespace TF2.Content.Projectiles.Scout
             p.miss = false;
             p.resetHit = true;
             BleedingPlayer player = target.GetModPlayer<BleedingPlayer>();
-            player.damageMultiplier = Player.GetModPlayer<TF2Player>().classMultiplier;
+            player.damageMultiplier = Player.GetModPlayer<TF2Player>().damageMultiplier;
             target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5), true);
         }
 
@@ -50,7 +50,7 @@ namespace TF2.Content.Projectiles.Scout
             p.miss = false;
             p.resetHit = true;
             BleedingNPC npc = target.GetGlobalNPC<BleedingNPC>();
-            npc.damageMultiplier = player.GetModPlayer<TF2Player>().classMultiplier;
+            npc.damageMultiplier = player.GetModPlayer<TF2Player>().damageMultiplier;
             target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5));
             target.immune[player.whoAmI] = player.itemAnimation;
         }

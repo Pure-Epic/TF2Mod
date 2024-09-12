@@ -28,6 +28,7 @@ namespace TF2.Content.Buffs
             p.uberChargeTime = 0;
             p.uberCharge = 0;
             p.activateUberCharge = false;
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_off"), Main.LocalPlayer.Center);
             return true;
         }
     }
@@ -67,11 +68,13 @@ namespace TF2.Content.Buffs
 
         protected static void SpawnDusts(Player player)
         {
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 4; i++)
             {
-                Dust dust = Main.dust[Dust.NewDust(player.position, 8, 8, DustID.Clentaminator_Red, 0.0f, 0.0f, 100, new Color(), 1.5f)];
-                dust.velocity *= 0.5f;
-                dust.velocity.Y = -Math.Abs(dust.velocity.Y);
+                Dust dust = Main.dust[Dust.NewDust(player.Bottom - Vector2.One * 5, 10, 10, DustID.RedTorch, Main.rand.NextFloat(-5f, 5f), -5f)];
+                dust.velocity.Y = -7.5f;
+                dust.noGravity = true;
+                dust.alpha = 128;
+                dust.scale = Main.rand.Next(10, 20) * 0.1f;
             }
         }
     }
@@ -80,7 +83,7 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
-        public int timer = 0;
+        private int timer;
         public bool uberCharge;
 
         public override void ResetEffects(NPC npc)
@@ -95,22 +98,25 @@ namespace TF2.Content.Buffs
             {
                 if (npc.HasBuff<UberCharge>())
                     npc.immortal = true;
-                SpawnDusts(npc);
+                for (int i = 0; i < 2; i++)
+                {
+                    Dust dust = Main.dust[Dust.NewDust(npc.position, 8, 8, DustID.Clentaminator_Red, 0.0f, 0.0f, 100, new Color(), 1.5f)];
+                    dust.velocity *= 0.5f;
+                    dust.velocity.Y = -Math.Abs(dust.velocity.Y);
+                }
             }
         }
 
-        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);
-
-        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => timer = binaryReader.ReadInt32();
-
-        protected static void SpawnDusts(NPC npc)
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
-            for (int i = 0; i < 2; i++)
-            {
-                Dust dust = Main.dust[Dust.NewDust(npc.position, 8, 8, DustID.Clentaminator_Red, 0.0f, 0.0f, 100, new Color(), 1.5f)];
-                dust.velocity *= 0.5f;
-                dust.velocity.Y = -Math.Abs(dust.velocity.Y);
-            }
+            binaryWriter.Write(timer);
+            binaryWriter.Write(uberCharge);
+        }
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            timer = binaryReader.ReadInt32();
+            uberCharge = binaryReader.ReadBoolean();
         }
     }
 }

@@ -24,8 +24,8 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
+        private int timer;
         public bool slowDebuff;
-        public int timer;
 
         public override void ResetEffects(NPC npc) => slowDebuff = false;
 

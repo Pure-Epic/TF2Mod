@@ -56,14 +56,13 @@ namespace TF2.Content.NPCs.Buddies
             AttackTimer++;
             if (AttackTimer >= AttackSpeed && Ammo > 0)
             {
-                NPC.velocity.X = 0;
-                NPC.netUpdate = true;
+                NPC.velocity.X = 0f;
                 Vector2 shootVel = NPC.DirectionTo(target.Center);
                 itemRotation = NPC.AngleTo(target.Center);
                 NPC.spriteDirection = NPC.direction = (itemRotation >= -MathHelper.PiOver2 && itemRotation <= MathHelper.PiOver2) ? 1 : -1;
                 float speed = 25f;
                 int type = ModContent.ProjectileType<Syringe>();
-                int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                int damage = TF2.Round(NPC.damage / 2 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                 IEntitySource projectileSource = NPC.GetSource_FromAI();
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/syringegun_shoot"), NPC.Center);
                 BuddyShoot(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
@@ -83,7 +82,8 @@ namespace TF2.Content.NPCs.Buddies
                 if ((health + NPC.life) > NPC.lifeMax)
                     health = NPC.lifeMax - NPC.life;
                 NPC.life += health;
-                NPC.HealEffect(health);
+                if (Main.netMode != NetmodeID.MultiplayerClient)
+                    NPC.HealEffect(health);
                 regenerationTimer = 0;
                 NPC.netUpdate = true;
             }

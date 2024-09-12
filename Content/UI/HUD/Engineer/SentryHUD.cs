@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
@@ -17,7 +18,7 @@ namespace TF2.Content.UI.HUD.Engineer
     {
         protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().currentClass == TF2Item.Engineer;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/SentryHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.SentryHUD;
 
         private UIText level;
 
@@ -48,26 +49,26 @@ namespace TF2.Content.UI.HUD.Engineer
             SentryStatistics carriedSentry = Player.GetModPlayer<TF2Player>().carriedSentry;
             if (sentryID > -1 && Main.npc[sentryID].ModNPC is TF2Sentry sentry && Main.npc[sentryID].active)
             {
-                Texture2D newTexture = HUDTextures.SentryHUD;
+                Texture2D newTexture = Texture.Value;
                 if (!sentry.Initialized)
                 {
                     if (sentry is SentryLevel1)
-                        newTexture = HUDTextures.SentryLevel1HUDInitial;
+                        newTexture = HUDTextures.SentryLevel1HUDInitial.Value;
                     else if (sentry is SentryLevel2)
-                        newTexture = HUDTextures.SentryLevel2HUD;
+                        newTexture = HUDTextures.SentryLevel2HUD.Value;
                     else if (sentry is SentryLevel3)
-                        newTexture = HUDTextures.SentryLevel3HUD;
+                        newTexture = HUDTextures.SentryLevel3HUD.Value;
                     else if (sentry is MiniSentry)
-                        newTexture = HUDTextures.MiniSentryHUDInitial;
+                        newTexture = HUDTextures.MiniSentryHUDInitial.Value;
                 }
                 else if (sentry is SentryLevel1)
-                    newTexture = HUDTextures.SentryLevel1HUD;
+                    newTexture = HUDTextures.SentryLevel1HUD.Value;
                 else if (sentry is SentryLevel2)
-                    newTexture = HUDTextures.SentryLevel2HUD;
+                    newTexture = HUDTextures.SentryLevel2HUD.Value;
                 else if (sentry is SentryLevel3)
-                    newTexture = HUDTextures.SentryLevel3HUD;
+                    newTexture = HUDTextures.SentryLevel3HUD.Value;
                 else if (sentry is MiniSentry)
-                    newTexture = HUDTextures.MiniSentryHUD;
+                    newTexture = HUDTextures.MiniSentryHUD.Value;
                 spriteBatch.Draw(newTexture, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
                 Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
                 if (!sentry.Initialized && (sentry is SentryLevel1 || sentry is MiniSentry))
@@ -105,11 +106,11 @@ namespace TF2.Content.UI.HUD.Engineer
                 }
             }
             else if (carriedSentry == null)
-                spriteBatch.Draw(HUDTextures.SentryHUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
+                spriteBatch.Draw(HUDTextures.SentryHUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
             else if (carriedSentry.Type == ModContent.NPCType<SentryLevel1>() || carriedSentry.Type == ModContent.NPCType<SentryLevel2>() || carriedSentry.Type == ModContent.NPCType<SentryLevel3>())
-                spriteBatch.Draw(HUDTextures.SentryLevel1HUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
+                spriteBatch.Draw(HUDTextures.SentryLevel1HUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
             else if (carriedSentry.Type == ModContent.NPCType<MiniSentry>())
-                spriteBatch.Draw(HUDTextures.MiniSentryHUD, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
+                spriteBatch.Draw(HUDTextures.MiniSentryHUD.Value, new Vector2(Main.screenWidth + TF2Inventory.MapMargin, 133f), Color.White);
         }
 
         protected override void HUDUpdate(GameTime gameTime)

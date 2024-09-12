@@ -8,11 +8,14 @@ using TF2.Content.Mounts;
 using Terraria.DataStructures;
 using TF2.Content.Dusts;
 using Terraria.Audio;
+using TF2.Content.NPCs.Enemies;
 
 namespace TF2.Content.Items.Weapons.Soldier
 {
     public class Mantreads : TF2Accessory
     {
+        protected override string LegTexture => "TF2/Content/Textures/Items/Soldier/Mantreads";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Soldier, Secondary, Unique, Craft);
@@ -21,7 +24,13 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);
 
-        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<MantreadsPlayer>().mantreadsEquipped = true;
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<MantreadsPlayer>().mantreadsEquipped;
+
+        public override void UpdateAccessory(Player player, bool hideVisual)
+        {
+            player.GetModPlayer<MantreadsPlayer>().mantreadsEquipped = true;
+            player.noFallDmg = true;
+        }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Gunboats>().AddIngredient<RefinedMetal>().AddTile<CraftingAnvil>().Register();
     }
@@ -40,9 +49,23 @@ namespace TF2.Content.Items.Weapons.Soldier
                 {
                     if (Player.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Main.myPlayer && Player.velocity.Y > 0)
                     {
-                        player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[3].Format(player.name, Player.name)), TF2.Round((10 + TF2.Round((Player.position.Y / 16f - Player.fallStart) * Player.gravDir - 25 + Player.extraFall) * 30) * Player.GetModPlayer<TF2Player>().classMultiplier), player.direction, true, knockback: 10f, scalingArmorPenetration: 1f);
+                        player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[3].Format(player.name, Player.name)), TF2.Round((10 + TF2.Round((Player.position.Y / 16f - Player.fallStart) * Player.gravDir - 25 + Player.extraFall) * 30) * Player.GetModPlayer<TF2Player>().damageMultiplier), player.direction, true, knockback: 10f, scalingArmorPenetration: 1f);
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/mantreads"), player.Center);
                         Dust.NewDust(player.Center, 0, 0, ModContent.DustType<Stomp>(), Scale: 1f);
+                        break;
+                    }
+                }
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (Player.Hitbox.Intersects(npc.Hitbox) && npc.ModNPC is BLUMercenary && Player.velocity.Y > 0)
+                    {
+                        if (npc.immune[Player.whoAmI] > 0) return;
+                        int damage = TF2.Round((Player.position.Y / 16f - Player.fallStart) * Player.gravDir - 25 - Player.extraFall) * 30;
+                        TF2.Minimum(ref damage, 0);
+                        Player.GetModPlayer<TF2Player>().HitNPC(npc, TF2.Round((10 + damage) * Player.GetModPlayer<TF2Player>().damageMultiplier), 10f, Player.direction);
+                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/mantreads"), npc.Center);
+                        Dust.NewDust(npc.Center, 0, 0, ModContent.DustType<Stomp>(), Scale: 1f);
+                        npc.immune[Player.whoAmI] += TF2.Time(0.2);
                         break;
                     }
                 }
@@ -67,7 +90,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             TF2.Minimum(ref damage, 0);
             if (mantreadsEquipped && Player.velocity.Y >= 5)
             {
-                Player.GetModPlayer<TF2Player>().HitNPC(npc, TF2.Round((10 + damage) * Player.GetModPlayer<TF2Player>().classMultiplier), 10f, modifiers.HitDirection);
+                Player.GetModPlayer<TF2Player>().HitNPC(npc, TF2.Round((10 + damage) * Player.GetModPlayer<TF2Player>().damageMultiplier), 10f, modifiers.HitDirection);
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/mantreads"), npc.Center);
                 Dust.NewDust(npc.Center, 0, 0, ModContent.DustType<Stomp>(), Scale: 1f);
             }

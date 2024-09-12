@@ -16,6 +16,7 @@ using TF2.Content.UI.HUD;
 using TF2.Content.NPCs.Buildings.Dispenser;
 using TF2.Content.NPCs.Buildings.Teleporter;
 using TF2.Content.Items.Weapons;
+using Terraria.ID;
 
 namespace TF2.Content.UI.MercenaryCreationMenu
 {
@@ -47,7 +48,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             uIElement.SetPadding(0f);
             mainPanel.Append(uIElement);
-            ConstructionPDAPanel sentryPanel = new ConstructionPDAPanel(HUDTextures.SentryIcon, 130, 1)
+            ConstructionPDAPanel sentryPanel = new ConstructionPDAPanel(HUDTextures.SentryIcon.Value, 130, 1)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -56,7 +57,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             sentryPanel.SetPadding(0f);
             uIElement.Append(sentryPanel);
-            ConstructionPDAPanel dispenserPanel = new ConstructionPDAPanel(HUDTextures.DispenserIcon, 100, 2)
+            ConstructionPDAPanel dispenserPanel = new ConstructionPDAPanel(HUDTextures.DispenserIcon.Value, 100, 2)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -65,7 +66,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             dispenserPanel.SetPadding(0f);
             uIElement.Append(dispenserPanel);
-            ConstructionPDAPanel teleporterEntrancePanel = new ConstructionPDAPanel(HUDTextures.TeleporterEntranceIcon, 50, 3)
+            ConstructionPDAPanel teleporterEntrancePanel = new ConstructionPDAPanel(HUDTextures.TeleporterEntranceIcon.Value, 50, 3)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -74,7 +75,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             teleporterEntrancePanel.SetPadding(0f);
             uIElement.Append(teleporterEntrancePanel);
-            ConstructionPDAPanel teleporterExitPanel = new ConstructionPDAPanel(HUDTextures.TeleporterExitIcon, 50, 4)
+            ConstructionPDAPanel teleporterExitPanel = new ConstructionPDAPanel(HUDTextures.TeleporterExitIcon.Value, 50, 4)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -178,18 +179,22 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     switch (key)
                     {
                         case 1:
+                            if (p.sentryWhoAmI > -1) return;
                             Building.ConstructBuilding(!player.GetModPlayer<GunslingerPlayer>().gunslingerEquipped ? ModContent.NPCType<SentryLevel1>() : ModContent.NPCType<MiniSentry>(), player.whoAmI, -player.direction, 0, false, player.HasBuff<TF2MountBuff>());
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingsentry01"), player.Center);
                             break;
                         case 2:
+                            if (p.dispenserWhoAmI > -1) return;
                             Building.ConstructBuilding(ModContent.NPCType<DispenserLevel1>(), player.whoAmI, -player.direction, 0, false, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingdispenser01"), player.Center);
                             break;
                         case 3:
+                            if (p.teleporterEntranceWhoAmI > -1) return;
                             Building.ConstructBuilding(ModContent.NPCType<TeleporterEntranceLevel1>(), player.whoAmI, -player.direction, 0, false, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingteleporter01"), player.Center);
                             break;
                         case 4:
+                            if (p.teleporterExitWhoAmI > -1) return;
                             Building.ConstructBuilding(ModContent.NPCType<TeleporterExitLevel1>(), player.whoAmI, -player.direction, 0, false, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingteleporter01"), player.Center);
                             break;
@@ -240,7 +245,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             uIElement.SetPadding(0f);
             mainPanel.Append(uIElement);
-            DestructionPDAPanel sentryPanel = new DestructionPDAPanel(HUDTextures.SentryIcon, 1)
+            DestructionPDAPanel sentryPanel = new DestructionPDAPanel(HUDTextures.SentryIcon.Value, 1)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -249,7 +254,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             sentryPanel.SetPadding(0f);
             uIElement.Append(sentryPanel);
-            DestructionPDAPanel dispenserPanel = new DestructionPDAPanel(HUDTextures.DispenserIcon, 2)
+            DestructionPDAPanel dispenserPanel = new DestructionPDAPanel(HUDTextures.DispenserIcon.Value, 2)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -258,7 +263,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             dispenserPanel.SetPadding(0f);
             uIElement.Append(dispenserPanel);
-            DestructionPDAPanel teleporterEntrancePanel = new DestructionPDAPanel(HUDTextures.TeleporterEntranceIcon, 3)
+            DestructionPDAPanel teleporterEntrancePanel = new DestructionPDAPanel(HUDTextures.TeleporterEntranceIcon.Value, 3)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -267,7 +272,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             teleporterEntrancePanel.SetPadding(0f);
             uIElement.Append(teleporterEntrancePanel);
-            DestructionPDAPanel teleporterExitPanel = new DestructionPDAPanel(HUDTextures.TeleporterExitIcon, 4)
+            DestructionPDAPanel teleporterExitPanel = new DestructionPDAPanel(HUDTextures.TeleporterExitIcon.Value, 4)
             {
                 Width = StyleDimension.FromPixels(180f),
                 Height = MaxHeight,
@@ -308,7 +313,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             };
             mainPanel.SetPadding(0f);
             Append(mainPanel);
-            BuildingIcon destructionBackground = new BuildingIcon(HUDTextures.DestructionPDABackground, 160f)
+            BuildingIcon destructionBackground = new BuildingIcon(HUDTextures.DestructionPDABackground.Value, 160f)
             {
                 HAlign = 0.5f,
                 VAlign = 0.5f,
@@ -356,16 +361,20 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         int sentryID = player.GetModPlayer<TF2Player>().sentryWhoAmI;
                         if (sentryID > -1 && Main.npc[sentryID].ModNPC is TF2Sentry sentry && sentry.Initialized)
                         {
-                            Main.npc[sentryID].ModNPC.NPC.active = false;
+                            TF2.KillNPC(sentry.NPC);
+                            if (Main.netMode == NetmodeID.SinglePlayer)
+                                sentry.NPC.checkDead();
                             player.GetModPlayer<TF2Player>().sentryWhoAmI = -1;
-                            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/sentry_explode"), sentry.NPC.Center);
+                            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_explode"), sentry.NPC.Center);
                         }
                         break;
                     case 2:
                         int dispenserID = player.GetModPlayer<TF2Player>().dispenserWhoAmI;
                         if (dispenserID > -1 && Main.npc[dispenserID].ModNPC is TF2Dispenser dispenser && dispenser.Initialized)
                         {
-                            Main.npc[dispenserID].ModNPC.NPC.active = false;
+                            TF2.KillNPC(dispenser.NPC);
+                            if (Main.netMode == NetmodeID.SinglePlayer)
+                                dispenser.NPC.checkDead();
                             player.GetModPlayer<TF2Player>().dispenserWhoAmI = -1;
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/dispenser_explode"), dispenser.NPC.Center);
                         }
@@ -374,7 +383,9 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         int entranceID = player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI;
                         if (entranceID > -1 && Main.npc[entranceID].ModNPC is TeleporterEntrance entrance && entrance.Initialized)
                         {
-                            Main.npc[entranceID].ModNPC.NPC.active = false;
+                            TF2.KillNPC(entrance.NPC);
+                            if (Main.netMode == NetmodeID.SinglePlayer)
+                                entrance.NPC.checkDead();
                             player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI = -1;
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_explode"), entrance.NPC.Center);
                         }
@@ -383,7 +394,9 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         int exitID = player.GetModPlayer<TF2Player>().teleporterExitWhoAmI;
                         if (exitID > -1 && Main.npc[exitID].ModNPC is TeleporterExit exit && exit.Initialized)
                         {
-                            Main.npc[exitID].ModNPC.NPC.active = false;
+                            TF2.KillNPC(exit.NPC);
+                            if (Main.netMode == NetmodeID.SinglePlayer)
+                                exit.NPC.checkDead();
                             player.GetModPlayer<TF2Player>().teleporterExitWhoAmI = -1;
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_explode"), exit.NPC.Center);
                         }

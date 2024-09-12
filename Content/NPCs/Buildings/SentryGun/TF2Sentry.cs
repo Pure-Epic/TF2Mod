@@ -14,6 +14,7 @@ using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Projectiles.NPCs;
+using static TF2.TF2;
 
 namespace TF2.Content.NPCs.Buildings.SentryGun
 {
@@ -39,20 +40,21 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         public virtual int Rounds => 150;
 
+        protected virtual SoundStyle SentrySound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan");
+
         public override string BuildingName => Language.GetTextValue("Mods.TF2.NPCs.SentryGun");
 
-        public override int BuildingCooldown => TF2.Time(10.5);
+        public override int BuildingCooldown => Time(10.5);
 
-        public override int BuildingCooldownHauled => TF2.Time(3.5);
+        public override int BuildingCooldownHauled => Time(3.5);
 
-        protected override int ScrapMetalAmount => 60;
+        protected override int ScrapMetalAmount => 65;
 
         protected int rocketAttackAnimationTimer;
         public bool wrangled;
         protected int wranglerCooldown;
         protected int scanTimer;
         protected bool playTargetSound;
-        protected SoundStyle sentrySound;
         internal SlotId sentrySoundSlot;
         private static Asset<Texture2D> wranglerShield;
 
@@ -71,7 +73,11 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
         protected virtual void SentryAI()
         { }
 
-        public override void SetStaticDefaults() => Main.npcFrameCount[NPC.type] = 2;
+        public override void SetStaticDefaults()
+        {
+            Main.npcFrameCount[NPC.type] = 2;
+            NPC.netAlways = true;
+        }
 
         protected override void BuildingSpawn()
         {
@@ -86,62 +92,56 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
         {
             SentryDraw(spriteBatch, screenPos, drawColor);
             if (wrangled)
-                spriteBatch.Draw(wranglerShield.Value, NPC.Center - screenPos - new Vector2(wranglerShield.Value.Width / 2f, wranglerShield.Value.Height / 2f), Color.White);                
+                spriteBatch.Draw(wranglerShield.Value, NPC.Center - screenPos - new Vector2(wranglerShield.Value.Width / 2f, wranglerShield.Value.Height / 2f), Color.White);
         }
 
         protected override void BuildingAI()
         {
-            if (Main.netMode != NetmodeID.MultiplayerClient)
+            NPC.noGravity = air;
+            if (!Initialized)
             {
-                NPC.noGravity = air;
-                if (!Initialized)
-                {
-                    int buildDuration = !hauled ? BuildingCooldown : BuildingCooldownHauled;
-                    int health = TF2.Round(Utils.Lerp(InitialHealth * Player.GetModPlayer<TF2Player>().healthMultiplier, NPC.lifeMax, (float)(buildDuration - UpgradeCooldown) / buildDuration)) - preConstructedDamage;
-                    if (InitialHealth != TF2.Round(NPC.lifeMax / Player.GetModPlayer<TF2Player>().healthMultiplier))
-                        NPC.life = health;
-                    if (NPC.life < 0)
-                        NPC.checkDead();
-                    UpgradeCooldown -= constructionSpeed;
-                    if (UpgradeCooldown < 0)
-                        UpgradeCooldown = 0;
-                    if (UpgradeCooldown <= 0)
-                    {
-                        NPC.life = NPC.lifeMax - preConstructedDamage;
-                        Initialized = true;
-                    }
-                    NPC.netUpdate = true;
-                    return;
-                }
-                if (Player.HeldItem.ModItem is Wrangler)
-                {
-                    wrangled = true;
-                    if (SoundEngine.TryGetActiveSound(sentrySoundSlot, out var scanSound))
-                        scanSound?.Stop();
-                    NPC.netUpdate = true;
-                }
-                else if (wrangled)
-                {
-                    wranglerCooldown++;
-                    if (wranglerCooldown >= TF2.Time(3))
-                    {
-                        wrangled = false;
-                        wranglerCooldown = 0;
-                    }
-                    NPC.netUpdate = true;
-                }
-                if (UpgradeCooldown > 0)
-                {
-                    Timer = 0;
-                    Timer2 = 0;
-                    return;
-                }
-                UpgradeCooldown--;
+                int buildDuration = !hauled ? BuildingCooldown : BuildingCooldownHauled;
+                int health = Round(Utils.Lerp(InitialHealth * Player.GetModPlayer<TF2Player>().healthMultiplier, NPC.lifeMax, (float)(buildDuration - UpgradeCooldown) / buildDuration)) - preConstructedDamage;
+                if (InitialHealth != Round(NPC.lifeMax / Player.GetModPlayer<TF2Player>().healthMultiplier))
+                    NPC.life = health;
+                if (NPC.life < 0)
+                    NPC.checkDead();
+                UpgradeCooldown -= constructionSpeed;
                 if (UpgradeCooldown < 0)
                     UpgradeCooldown = 0;
-                SentryAI();
-                NPC.netUpdate = true;
+                if (UpgradeCooldown <= 0)
+                {
+                    NPC.life = NPC.lifeMax - preConstructedDamage;
+                    Initialized = true;
+                    NPC.netUpdate = true;
+                }
+                return;
             }
+            if (Player.HeldItem.ModItem is Wrangler)
+            {
+                wrangled = true;
+                if (SoundEngine.TryGetActiveSound(sentrySoundSlot, out var scanSound))
+                    scanSound?.Stop();
+            }
+            else if (wrangled)
+            {
+                wranglerCooldown++;
+                if (wranglerCooldown >= Time(3))
+                {
+                    wrangled = false;
+                    wranglerCooldown = 0;
+                }
+            }
+            if (UpgradeCooldown > 0)
+            {
+                Timer = 0;
+                Timer2 = 0;
+                return;
+            }
+            UpgradeCooldown--;
+            if (UpgradeCooldown < 0)
+                UpgradeCooldown = 0;
+            SentryAI();
         }
 
         protected override void BuildingDestroy()
@@ -156,6 +156,54 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                 f.revenge += 3;
             }
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autodestroyedsentry01"), Player.Center);
+        }
+
+        public void HaulSentry(int metal, int ammo, int ammo2, bool isAir)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+            {
+                UpgradeCooldown = BuildingCooldownHauled;
+                hauled = true;
+            }
+            else
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)MessageType.SyncSentry);
+                packet.Write((byte)NPC.whoAmI);
+                packet.Write(metal);
+                packet.Write(ammo);
+                packet.Write(ammo2);
+                packet.Write(isAir);
+                packet.Send(-1, Main.myPlayer);
+            }
+        }
+
+        public void AddSentryAmmo(int ammo)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+                Ammo += ammo;
+            else
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)MessageType.SyncSentryAmmo);
+                packet.Write((byte)NPC.whoAmI);
+                packet.Write(ammo);
+                packet.Send(-1, Main.myPlayer);
+            }
+        }
+
+        public void AddSentryRocketAmmo(int ammo)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer)
+                RocketAmmo += ammo;
+            else
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)MessageType.SyncSentryRocketAmmo);
+                packet.Write((byte)NPC.whoAmI);
+                packet.Write(ammo);
+                packet.Send(-1, Main.myPlayer);
+            }
         }
 
         protected override void BuildingSendExtraAI(BinaryWriter writer)
@@ -202,7 +250,9 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
     public class SentryLevel1 : TF2Sentry
     {
-        protected override string BuildingTexture => "TF2/Content/NPCs/Buildings/SentryGun/SentryLevel1";
+        protected override Asset<Texture2D> BuildingTexture => BuildingTextures.SentryLevel1Texture;
+
+        protected override Asset<Texture2D> BuildingTextureAir => BuildingTextures.SentryLevel1AirTexture;
 
         public override void SetDefaults()
         {
@@ -222,11 +272,7 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                 new FlavorTextBestiaryInfoElement("The answer: use a gun."),
             ]);
 
-        protected override void SentrySpawn()
-        {
-            sentrySound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan");
-            Timer = TF2.Time(0.2);
-        }
+        protected override void SentrySpawn() => Timer = Time(0.2);
 
         protected override void SentryAI()
         {
@@ -238,20 +284,20 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             float distanceFromTarget = 500f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if (!foundTarget && Timer >= TF2.Time(0.2) && !wrangled || (Timer >= TF2.Time(0.1) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
+            if (!foundTarget && Timer >= Time(0.2) && !wrangled || (Timer >= Time(0.1) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
             {
                 foreach (NPC targetNPC in Main.ActiveNPCs)
                 {
                     if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        bool closeThroughWall = between < 100f;
-                        if ((1000f >= between) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
+                        bool closeThroughWall = distance < 100f;
+                        if ((1000f >= distance) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
@@ -278,29 +324,25 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         NPC.spriteDirection = NPC.direction = -1;
                     float speed = 10f;
                     int type = ModContent.ProjectileType<SentryBullet>();
-                    int damage = TF2.Round(16 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                    int damage = Round(16 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_shoot"), NPC.Center);
-                    TF2.NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
-                    AttackAnimationTimer = TF2.Time(0.25);
+                    NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
+                    AttackAnimationTimer = Time(0.25);
                     Ammo--;
                     Timer = 0;
                     NPC.netUpdate = true;
                 }
                 else
-                {
                     playTargetSound = false;
-                    NPC.netUpdate = true;
-                }
             }
             if (!playTargetSound && !wrangled)
             {
                 scanTimer++;
-                if (scanTimer % TF2.Time(2) == 0)
+                if (scanTimer % Time(2) == 0)
                 {
-                    sentrySoundSlot = SoundEngine.PlaySound(sentrySound, NPC.Center);
+                    sentrySoundSlot = SoundEngine.PlaySound(SentrySound, NPC.Center);
                     scanTimer = 0;
-                    NPC.netUpdate = true;
                 }
             }
         }
@@ -308,13 +350,17 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
     public class SentryLevel2 : TF2Sentry
     {
-        protected override string BuildingTexture => "TF2/Content/NPCs/Buildings/SentryGun/SentryLevel2";
+        protected override Asset<Texture2D> BuildingTexture => BuildingTextures.SentryLevel2Texture;
+
+        protected override Asset<Texture2D> BuildingTextureAir => BuildingTextures.SentryLevel2AirTexture;
+
+        protected override SoundStyle SentrySound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan2");
 
         public override int Rounds => 200;
 
         public override int InitialHealth => 180;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {
@@ -334,11 +380,7 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                 new FlavorTextBestiaryInfoElement("And if that don't work... use more gun."),
             ]);
 
-        protected override void SentrySpawn()
-        {
-            sentrySound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan2");
-            Timer = TF2.Time(0.1);
-        }
+        protected override void SentrySpawn() => Timer = Time(0.1);
 
         protected override void SentryAI()
         {
@@ -350,20 +392,20 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             float distanceFromTarget = 500f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if (!foundTarget && Timer >= TF2.Time(0.1) && !wrangled || (Timer >= TF2.Time(0.05) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
+            if (!foundTarget && Timer >= Time(0.1) && !wrangled || (Timer >= Time(0.05) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
             {
                 foreach (NPC targetNPC in Main.ActiveNPCs)
                 {
                     if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        bool closeThroughWall = between < 100f;
-                        if ((1000f >= between) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
+                        bool closeThroughWall = distance < 100f;
+                        if ((1000f >= distance) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
@@ -390,29 +432,25 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         NPC.spriteDirection = NPC.direction = -1;
                     float speed = 10f;
                     int type = ModContent.ProjectileType<SentryBullet>();
-                    int damage = TF2.Round(16 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                    int damage = Round(16 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_shoot"), NPC.Center);
-                    TF2.NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
-                    AttackAnimationTimer = TF2.Time(0.25);
+                    NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
+                    AttackAnimationTimer = Time(0.25);
                     Ammo--;
                     Timer = 0;
                     NPC.netUpdate = true;
                 }
                 else
-                {
                     playTargetSound = false;
-                    NPC.netUpdate = true;
-                }
             }
             if (!playTargetSound && !wrangled)
             {
                 scanTimer++;
-                if (scanTimer % TF2.Time(2) == 0)
+                if (scanTimer % Time(2) == 0)
                 {
-                    sentrySoundSlot = SoundEngine.PlaySound(sentrySound, NPC.Center);
+                    sentrySoundSlot = SoundEngine.PlaySound(SentrySound, NPC.Center);
                     scanTimer = 0;
-                    NPC.netUpdate = true;
                 }
             }
         }
@@ -420,15 +458,21 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
     public class SentryLevel3 : TF2Sentry
     {
-        protected override string BuildingTexture => "TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3";
+        protected override Asset<Texture2D> BuildingTexture => BuildingTextures.SentryLevel3Texture;
 
-        protected override string BuildingSecondaryTexture => "TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3_Rockets";
+        protected override Asset<Texture2D> BuildingTextureAir => BuildingTextures.SentryLevel3AirTexture;
+
+        protected override Asset<Texture2D> BuildingSecondaryTexture => BuildingTextures.SentryLevel3SecondaryTexture;
+
+        protected override Asset<Texture2D> BuildingSecondaryTextureAir => BuildingTextures.SentryLevel3SecondaryAirTexture;
+
+        protected override SoundStyle SentrySound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan3");
 
         public override int Rounds => 200;
 
         public override int InitialHealth => 216;
 
-        public override int BuildingCooldown => TF2.Time(1.6);
+        public override int BuildingCooldown => Time(1.6);
 
         public override void SetDefaults()
         {
@@ -450,9 +494,9 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         protected override void SentryDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            if (Timer2 >= TF2.Time(3) && !wrangled || Timer2 >= TF2.Time(1.5) && wrangled || rocketAttackAnimationTimer > 0)
+            if (Timer2 >= Time(3) && !wrangled || Timer2 >= Time(1.5) && wrangled || rocketAttackAnimationTimer > 0)
             {
-                Texture2D sprite = !air ? spriteSheet2.Value : spriteSheetAir2.Value;
+                Texture2D sprite = !air ? BuildingSecondaryTexture.Value : BuildingSecondaryTextureAir.Value;
                 int height = sprite.Height / 2;
                 spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle(0, 0, sprite.Width, height), drawColor, 0f, new Vector2(NPC.direction == 1 ? sprite.Width - NPC.width : 0, height - NPC.height), NPC.scale, (SpriteEffects)((NPC.direction == 1) ? 1 : 0), 0f);
             }
@@ -460,9 +504,8 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         protected override void SentrySpawn()
         {
-            sentrySound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan3");
-            Timer = TF2.Time(0.1);
-            Timer2 = TF2.Time(3);
+            Timer = Time(0.1);
+            Timer2 = Time(3);
         }
 
         protected override void SentryAI()
@@ -483,14 +526,14 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                 {
                     if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        bool closeThroughWall = between < 100f;
-                        if ((1000f >= between) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
+                        bool closeThroughWall = distance < 100f;
+                        if ((1000f >= distance) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
@@ -510,7 +553,7 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_spot"), NPC.Center);
                         playTargetSound = true;
                     }
-                    if (Ammo > 0 && (Timer >= TF2.Time(0.1) && !wrangled || (Timer >= TF2.Time(0.05) && wrangled && Main.mouseLeft && Player.HeldItem.ModItem is Wrangler)))
+                    if (Ammo > 0 && (Timer >= Time(0.1) && !wrangled || (Timer >= Time(0.05) && wrangled && Main.mouseLeft && Player.HeldItem.ModItem is Wrangler)))
                     {
                         Vector2 shootVel = NPC.DirectionTo(targetCenter);
                         if ((targetCenter - NPC.Center).X > 0f)
@@ -519,16 +562,16 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                             NPC.spriteDirection = NPC.direction = -1;
                         float speed = 10f;
                         int type = ModContent.ProjectileType<SentryBullet>();
-                        int damage = TF2.Round(16 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                        int damage = Round(16 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                         IEntitySource projectileSource = NPC.GetSource_FromAI();
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_shoot"), NPC.Center);
-                        TF2.NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
-                        AttackAnimationTimer = TF2.Time(0.25);
+                        NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
+                        AttackAnimationTimer = Time(0.25);
                         Ammo--;
                         Timer = 0;
                         NPC.netUpdate = true;
                     }
-                    if (RocketAmmo > 0 && (Timer2 >= TF2.Time(3) && !wrangled || (Timer2 >= TF2.Time(1.5) && wrangled && Main.mouseRight && Player.HeldItem.ModItem is Wrangler)))
+                    if (RocketAmmo > 0 && (Timer2 >= Time(3) && !wrangled || (Timer2 >= Time(1.5) && wrangled && Main.mouseRight && Player.HeldItem.ModItem is Wrangler)))
                     {
                         Vector2 shootVel = NPC.DirectionTo(targetCenter);
                         if ((targetCenter - NPC.Center).X > 0f)
@@ -536,35 +579,31 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         else if ((targetCenter - NPC.Center).X < 0f)
                             NPC.spriteDirection = NPC.direction = -1;
                         float speed = 25f;
-                        int type = ModContent.ProjectileType<SentryRocket>();
-                        int damage = TF2.Round(100 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                        int type = ModContent.ProjectileType<RocketNPC>();
+                        int damage = Round(100 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                         IEntitySource projectileSource = NPC.GetSource_FromAI();
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_rocket"), NPC.Center);
                         for (int i = 0; i < 4; i++)
                         {
                             Vector2 newVelocity = shootVel.RotatedByRandom(MathHelper.ToRadians(15f));
-                            TF2.NPCCreateProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, Owner);
+                            NPCCreateProjectile(projectileSource, NPC.Center, newVelocity * speed, type, damage, 0f, Owner);
                         }
-                        rocketAttackAnimationTimer = TF2.Time(1);
+                        rocketAttackAnimationTimer = Time(1);
                         RocketAmmo--;
                         Timer2 = 0;
                         NPC.netUpdate = true;
                     }
                 }
                 if (!foundTarget || (Ammo <= 0 && RocketAmmo <= 0))
-                {
                     playTargetSound = false;
-                    NPC.netUpdate = true;
-                }
             }
             if (!playTargetSound && !wrangled)
             {
                 scanTimer++;
-                if (scanTimer % TF2.Time(2) == 0)
+                if (scanTimer % Time(2) == 0)
                 {
-                    sentrySoundSlot = SoundEngine.PlaySound(sentrySound, NPC.Center);
+                    sentrySoundSlot = SoundEngine.PlaySound(SentrySound, NPC.Center);
                     scanTimer = 0;
-                    NPC.netUpdate = true;
                 }
             }
         }
@@ -574,13 +613,21 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
     {
         public override string BuildingName => Language.GetTextValue("Mods.TF2.NPCs.MiniSentryGun");
 
-        protected override string BuildingTexture => "TF2/Content/NPCs/Buildings/SentryGun/MiniSentry";
+        protected override Asset<Texture2D> BuildingTexture => BuildingTextures.MiniSentryTexture;
 
-        protected override string BuildingSecondaryTexture => "TF2/Content/NPCs/Buildings/SentryGun/MiniSentry_Glowmask";
+        protected override Asset<Texture2D> BuildingTextureAir => BuildingTextures.MiniSentryAirTexture;
+
+        protected override Asset<Texture2D> BuildingSecondaryTexture => BuildingTextures.MiniSentrySecondaryTexture;
+
+        protected override Asset<Texture2D> BuildingSecondaryTextureAir => BuildingTextures.MiniSentrySecondaryAirTexture;
 
         public override int InitialHealth => 50;
 
-        public override int BuildingCooldown => TF2.Time(4.2f);
+        public override int BuildingCooldown => Time(4.2f);
+
+        public override int BuildingCooldownHauled => Time(2.333);
+
+        protected override int ScrapMetalAmount => 0;
 
         public override void SetDefaults()
         {
@@ -602,16 +649,12 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         protected override void SentryDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D sprite = !air ? spriteSheet2.Value : spriteSheetAir2.Value;
+            Texture2D sprite = !air ? BuildingSecondaryTexture.Value : BuildingSecondaryTextureAir.Value;
             int height = sprite.Height / 2;
             spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle(0, height * frame, sprite.Width, sprite.Height / 2), Color.White, 0f, new Vector2(NPC.direction == 1 ? sprite.Width - NPC.width : 0, height - NPC.height), NPC.scale, (SpriteEffects)((NPC.direction == 1) ? 1 : 0), 0f);
         }
 
-        protected override void SentrySpawn()
-        {
-            sentrySound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_scan");
-            Timer = TF2.Time(0.15);
-        }
+        protected override void SentrySpawn() => Timer = Time(0.15);
 
         protected override void SentryAI()
         {
@@ -622,20 +665,20 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             float distanceFromTarget = 500f;
             Vector2 targetCenter = NPC.Center;
             bool foundTarget = false;
-            if (!foundTarget && Timer >= TF2.Time(0.15) && !wrangled || (Timer >= TF2.Time(0.075) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
+            if (!foundTarget && Timer >= Time(0.15) && !wrangled || (Timer >= Time(0.075) && wrangled && Player.controlUseItem && Player.HeldItem.ModItem is Wrangler))
             {
                 foreach (NPC targetNPC in Main.ActiveNPCs)
                 {
                     if (targetNPC.CanBeChasedBy())
                     {
-                        float between = Vector2.Distance(targetNPC.Center, NPC.Center);
-                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > between;
-                        bool inRange = between < distanceFromTarget;
+                        float distance = Vector2.Distance(targetNPC.Center, NPC.Center);
+                        bool closest = Vector2.Distance(NPC.Center, targetCenter) > distance;
+                        bool inRange = distance < distanceFromTarget;
                         bool lineOfSight = Collision.CanHitLine(NPC.position, NPC.width, NPC.height, targetNPC.position, targetNPC.width, targetNPC.height);
-                        bool closeThroughWall = between < 100f;
-                        if ((1000f >= between) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
+                        bool closeThroughWall = distance < 100f;
+                        if ((1000f >= distance) && (closest && inRange || !foundTarget) && (lineOfSight || closeThroughWall))
                         {
-                            distanceFromTarget = between;
+                            distanceFromTarget = distance;
                             targetCenter = targetNPC.Center;
                             foundTarget = true;
                         }
@@ -662,29 +705,25 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         NPC.spriteDirection = NPC.direction = -1;
                     float speed = 10f;
                     int type = ModContent.ProjectileType<SentryBullet>();
-                    int damage = TF2.Round(8 * Player.GetModPlayer<TF2Player>().classMultiplier);
+                    int damage = Round(8 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                     IEntitySource projectileSource = NPC.GetSource_FromAI();
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_shoot_mini"), NPC.Center);
-                    TF2.NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
-                    AttackAnimationTimer = TF2.Time(0.25);
+                    NPCCreateProjectile(projectileSource, NPC.Center, shootVel * speed, type, damage, 0f, Owner);
+                    AttackAnimationTimer = Time(0.25);
                     Ammo--;
                     Timer = 0;
                     NPC.netUpdate = true;
                 }
                 else
-                {
                     playTargetSound = false;
-                    NPC.netUpdate = true;
-                }
             }
             if (!playTargetSound && !wrangled)
             {
                 scanTimer++;
-                if (scanTimer % TF2.Time(2) == 0)
+                if (scanTimer % Time(2) == 0)
                 {
-                    sentrySoundSlot = SoundEngine.PlaySound(sentrySound, NPC.Center);
+                    sentrySoundSlot = SoundEngine.PlaySound(SentrySound, NPC.Center);
                     scanTimer = 0;
-                    NPC.netUpdate = true;
                 }
             }
         }

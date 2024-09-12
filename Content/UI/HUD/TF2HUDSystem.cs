@@ -9,6 +9,7 @@ using TF2.Common;
 using TF2.Content.UI.HUD.Demoman;
 using TF2.Content.UI.HUD.Engineer;
 using TF2.Content.UI.HUD.Heavy;
+using TF2.Content.UI.HUD.Inventory;
 using TF2.Content.UI.HUD.Medic;
 using TF2.Content.UI.HUD.Pyro;
 using TF2.Content.UI.HUD.Scout;
@@ -108,6 +109,9 @@ namespace TF2.Content.UI.HUD
         internal DeadRingerChargeMeterHUD deadRingerChargeMeterHUD = new DeadRingerChargeMeterHUD();
         internal UserInterface deadRingerChargeMeterHUDUserInterface = new UserInterface();
 
+        internal ItemDropHUD itemDropHUD = new ItemDropHUD();
+        internal UserInterface itemDropHUDUserInterface = new UserInterface();
+
         internal static LocalizedText[] TF2HUDLocalization { get; private set; }
 
         public static void DrawHUD(List<GameInterfaceLayer> layers, UserInterface ui)
@@ -116,7 +120,7 @@ namespace TF2.Content.UI.HUD
             if (resourceBarIndex > -1)
             {
                 layers.Insert(resourceBarIndex, new LegacyGameInterfaceLayer(
-                    "TF2: Ammo Bar",
+                    "TF2 HUD",
                     delegate
                     {
                         ui.Draw(Main.spriteBatch, new GameTime());
@@ -188,7 +192,8 @@ namespace TF2.Content.UI.HUD
                     razorbackChargeMeterHUD,
                     invisWatchChargeMeterHUD,
                     cloakAndDaggerChargeMeterHUD,
-                    deadRingerChargeMeterHUD
+                    deadRingerChargeMeterHUD,
+                    itemDropHUD
                 ];
                 userInterfaces =
                 [
@@ -228,7 +233,8 @@ namespace TF2.Content.UI.HUD
                     razorbackChargeMeterHUDUserInterface,
                     invisWatchChargeMeterHUDUserInterface,
                     cloakAndDaggerChargeMeterHUDUserInterface,
-                    deadRingerChargeMeterHUDUserInterface
+                    deadRingerChargeMeterHUDUserInterface,
+                    itemDropHUDUserInterface
                 ];
                 var fullHUD = hudType.Zip(userInterfaces, (hud, ui) => new { HUD = hud, UI = ui });
                 foreach (var eachHUD in fullHUD)

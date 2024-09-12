@@ -30,7 +30,7 @@ namespace TF2.Content.Items.Weapons.Sniper
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             BleedingNPC npc = target.GetGlobalNPC<BleedingNPC>();
-            npc.damageMultiplier = p.classMultiplier;
+            npc.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<Bleeding>(), 360);
         }
 
@@ -38,7 +38,7 @@ namespace TF2.Content.Items.Weapons.Sniper
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             BleedingPlayer bleedPlayer = target.GetModPlayer<BleedingPlayer>();
-            bleedPlayer.damageMultiplier = p.classMultiplier;
+            bleedPlayer.damageMultiplier = p.damageMultiplier;
             target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(6));
         }
 

@@ -56,7 +56,7 @@ namespace TF2.Content.Projectiles.Demoman
 
         protected override void GrenadeJump(Vector2 velocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 velocity *= 10f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Materials;
 using TF2.Content.Items.Weapons.Sniper;

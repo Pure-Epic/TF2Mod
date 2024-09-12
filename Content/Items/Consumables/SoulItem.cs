@@ -92,8 +92,8 @@ namespace TF2.Content.Items.Consumables
         public override bool? UseItem(Player player)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.classMultiplier < damageMultiplier)
-                p.classMultiplier = damageMultiplier;
+            if (p.damageMultiplier < damageMultiplier)
+                p.damageMultiplier = damageMultiplier;
             if (p.healthMultiplier < healthMultiplier)
             {
                 p.healthMultiplier = healthMultiplier;

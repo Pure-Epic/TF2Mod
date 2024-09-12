@@ -15,10 +15,9 @@ namespace TF2.Content.UI.HUD
 
         protected virtual bool CanDisplay => false;
 
-        protected virtual string Texture => "TF2/Content/Textures/Nothing";
+        protected virtual Asset<Texture2D> Texture { get; private set; }
 
         protected UIElement area;
-        protected UIImage texture;
         private bool updating;
 
         protected virtual void HUDCreate()
@@ -27,17 +26,16 @@ namespace TF2.Content.UI.HUD
             Height = StyleDimension.Fill;
             HUDPreInitialize(out UIElement _area, out UIImage _texture);
             area = _area;
-            texture = _texture;
-            if (texture != null)
-                area.Append(texture);
             Append(area);
+            if (_texture != null)
+                area.Append(_texture);
             HUDPostInitialize(area);
         }
 
         protected virtual void HUDPreInitialize(out UIElement _area, out UIImage _texture)
         {
             _area = new UIElement();
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value);
+            _texture = new UIImage(Texture);
         }
 
         protected virtual void HUDPostInitialize(UIElement area)
@@ -49,7 +47,8 @@ namespace TF2.Content.UI.HUD
         protected virtual void HUDUpdate(GameTime gameTime)
         { }
 
-        public sealed override void OnInitialize() => HUDCreate();
+        protected virtual void HUDSilentUpdate(GameTime gameTime)
+        { }
 
         public sealed override void Draw(SpriteBatch spriteBatch)
         {
@@ -65,6 +64,9 @@ namespace TF2.Content.UI.HUD
 
         public sealed override void Update(GameTime gameTime)
         {
+            RemoveAllChildren();
+            HUDCreate();
+            HUDSilentUpdate(gameTime);
             if (CanDisplay && !TF2.MannCoStoreActive)
             {
                 updating = true;
@@ -76,100 +78,147 @@ namespace TF2.Content.UI.HUD
 
     public class HUDTextures : ModSystem
     {
-        public static Asset<Texture2D>[] PDATextures;
-        public static Asset<Texture2D>[] SentryHUDTextures;
-        public static Asset<Texture2D>[] DispenserHUDTextures;
-        public static Asset<Texture2D>[] TeleporterHUDTextures;
+        internal static Asset<Texture2D>[] WeaponHUDTextures { get; private set; }
 
-        public static Texture2D SentryIcon => PDATextures[0].Value;
+        internal static Asset<Texture2D>[] PDAHUDTextures { get; private set; }
 
-        public static Texture2D DispenserIcon => PDATextures[1].Value;
+        internal static Asset<Texture2D>[] SentryHUDTextures { get; private set; }
 
-        public static Texture2D TeleporterEntranceIcon => PDATextures[2].Value;
+        internal static Asset<Texture2D>[] DispenserHUDTextures { get; private set; }
 
-        public static Texture2D TeleporterExitIcon => PDATextures[3].Value;
+        internal static Asset<Texture2D>[] TeleporterHUDTextures { get; private set; }
 
-        public static Texture2D DestructionPDABackground => PDATextures[4].Value;
+        public static Asset<Texture2D> AmmoHUDTexture => WeaponHUDTextures[0];
 
-        public static Texture2D SentryHUD => SentryHUDTextures[0].Value;
+        public static Asset<Texture2D> AmmoChargeHUDTexture => WeaponHUDTextures[1];
 
-        public static Texture2D SentryLevel1HUDInitial => SentryHUDTextures[1].Value;
+        public static Asset<Texture2D> LeftChargeHUDTexture => WeaponHUDTextures[2];
 
-        public static Texture2D MiniSentryHUDInitial => SentryHUDTextures[2].Value;
+        public static Asset<Texture2D> MiddleChargeHUDTexture => WeaponHUDTextures[3];
 
-        public static Texture2D SentryLevel1HUD => SentryHUDTextures[3].Value;
+        public static Asset<Texture2D> RightChargeHUDTexture => WeaponHUDTextures[4];
 
-        public static Texture2D SentryLevel2HUD => SentryHUDTextures[4].Value;
+        public static Asset<Texture2D> WeaponCounterHUDTexture => WeaponHUDTextures[5];
 
-        public static Texture2D SentryLevel3HUD => SentryHUDTextures[5].Value;
+        public static Asset<Texture2D> StickybombAmountHUDTexture => WeaponHUDTextures[6];
 
-        public static Texture2D MiniSentryHUD => SentryHUDTextures[6].Value;
+        public static Asset<Texture2D> ShieldChargeHUDTexture => WeaponHUDTextures[7];
 
-        public static Texture2D DispenserHUD => DispenserHUDTextures[0].Value;
+        public static Asset<Texture2D> MetalHUDTexture => WeaponHUDTextures[8];
 
-        public static Texture2D DispenserLevel1HUDInitial => DispenserHUDTextures[1].Value;
+        public static Asset<Texture2D> UberchargeHUDTexture => WeaponHUDTextures[9];
 
-        public static Texture2D DispenserLevel1HUD => DispenserHUDTextures[2].Value;
+        public static Asset<Texture2D> OrganCounterHUDTexture => WeaponHUDTextures[10];
 
-        public static Texture2D DispenserLevel2HUD => DispenserHUDTextures[3].Value;
+        public static Asset<Texture2D> SentryIcon => PDAHUDTextures[0];
 
-        public static Texture2D DispenserLevel3HUD => DispenserHUDTextures[4].Value;
+        public static Asset<Texture2D> DispenserIcon => PDAHUDTextures[1];
 
-        public static Texture2D TeleporterEntranceHUD => TeleporterHUDTextures[0].Value;
+        public static Asset<Texture2D> TeleporterEntranceIcon => PDAHUDTextures[2];
 
-        public static Texture2D TeleporterExitHUD => TeleporterHUDTextures[1].Value;
+        public static Asset<Texture2D> TeleporterExitIcon => PDAHUDTextures[3];
 
-        public static Texture2D TeleporterEntranceHUDInitial => TeleporterHUDTextures[2].Value;
+        public static Asset<Texture2D> DestructionPDABackground => PDAHUDTextures[4];
 
-        public static Texture2D TeleporterExitHUDInitial => TeleporterHUDTextures[3].Value;
+        public static Asset<Texture2D> SentryHUD => SentryHUDTextures[0];
 
-        public static Texture2D TeleporterEntranceLevel1HUD => TeleporterHUDTextures[4].Value;
+        public static Asset<Texture2D> SentryLevel1HUDInitial => SentryHUDTextures[1];
 
-        public static Texture2D TeleporterExitLevel1HUD => TeleporterHUDTextures[5].Value;
+        public static Asset<Texture2D> MiniSentryHUDInitial => SentryHUDTextures[2];
 
-        public static Texture2D TeleporterEntranceLevel3HUD => TeleporterHUDTextures[6].Value;
+        public static Asset<Texture2D> SentryLevel1HUD => SentryHUDTextures[3];
 
-        public static Texture2D TeleporterExitLevel3HUD => TeleporterHUDTextures[7].Value;
+        public static Asset<Texture2D> SentryLevel2HUD => SentryHUDTextures[4];
+
+        public static Asset<Texture2D> SentryLevel3HUD => SentryHUDTextures[5];
+
+        public static Asset<Texture2D> MiniSentryHUD => SentryHUDTextures[6];
+
+        public static Asset<Texture2D> DispenserHUD => DispenserHUDTextures[0];
+
+        public static Asset<Texture2D> DispenserLevel1HUDInitial => DispenserHUDTextures[1];
+
+        public static Asset<Texture2D> DispenserLevel1HUD => DispenserHUDTextures[2];
+
+        public static Asset<Texture2D> DispenserLevel2HUD => DispenserHUDTextures[3];
+
+        public static Asset<Texture2D> DispenserLevel3HUD => DispenserHUDTextures[4];
+
+        public static Asset<Texture2D> TeleporterEntranceHUD => TeleporterHUDTextures[0];
+
+        public static Asset<Texture2D> TeleporterExitHUD => TeleporterHUDTextures[1];
+
+        public static Asset<Texture2D> TeleporterEntranceHUDInitial => TeleporterHUDTextures[2];
+
+        public static Asset<Texture2D> TeleporterExitHUDInitial => TeleporterHUDTextures[3];
+
+        public static Asset<Texture2D> TeleporterEntranceLevel1HUD => TeleporterHUDTextures[4];
+
+        public static Asset<Texture2D> TeleporterExitLevel1HUD => TeleporterHUDTextures[5];
+
+        public static Asset<Texture2D> TeleporterEntranceLevel3HUD => TeleporterHUDTextures[6];
+
+        public static Asset<Texture2D> TeleporterExitLevel3HUD => TeleporterHUDTextures[7];
+
+        public static Asset<Texture2D> ItemDropIcon { get; private set; }
 
         public override void Load()
         {
-            PDATextures =
-            [
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryGun"),
-                ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Dispenser/DispenserLevel1"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntrance"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExit"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DestructionPDABackground")
-            ];
-            SentryHUDTextures =
-            [
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryHUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel1HUDInitial"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MiniSentryHUDInitial"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel1HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel2HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel3HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MiniSentryHUD")
-            ];
-            DispenserHUDTextures =
-            [
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserHUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel1HUDInitial"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel1HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel2HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel3HUD")
-            ];
-            TeleporterHUDTextures =
-            [
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceHUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitHUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceHUDInitial"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitHUDInitial"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceLevel1HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitLevel1HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceLevel3HUD"),
-                ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitLevel3HUD")
-            ];
+            if (!Main.dedServ)
+            {
+                WeaponHUDTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/AmmoHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/AmmoChargeMeterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/LeftChargeMeterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MiddleChargeMeterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/RightChargeMeterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/CounterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/StickybombAmountHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/ShieldChargeMeterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MetalHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/UberchargeHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/OrganCounterHUD")
+                ];
+                PDAHUDTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryGun"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Dispenser/DispenserLevel1"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntrance"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExit"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DestructionPDABackground")
+                ];
+                SentryHUDTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel1HUDInitial"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MiniSentryHUDInitial"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel1HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel2HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/SentryLevel3HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MiniSentryHUD")
+                ];
+                DispenserHUDTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel1HUDInitial"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel1HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel2HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/DispenserLevel3HUD")
+                ];
+                TeleporterHUDTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceHUDInitial"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitHUDInitial"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceLevel1HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitLevel1HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterEntranceLevel3HUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/TeleporterExitLevel3HUD")
+                ];
+                ItemDropIcon = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Alert");
+            }
         }
     }
 }

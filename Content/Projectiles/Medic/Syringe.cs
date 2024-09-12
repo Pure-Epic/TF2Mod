@@ -7,7 +7,7 @@ namespace TF2.Content.Projectiles.Medic
     {
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(50, 8);
+            SetProjectileSize(30, 10);
             AIType = ProjectileID.WoodenArrowFriendly;
             Projectile.penetrate = 1;
             Projectile.friendly = true;

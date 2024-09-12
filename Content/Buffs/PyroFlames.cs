@@ -19,22 +19,22 @@ namespace TF2.Content.Buffs
             TF2BuffBase.fireBuff[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<PyroFlamesPlayer>().lifeRegenDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<PyroFlamesPlayer>().burnDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<PyroFlamesNPC>().lifeRegenDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<PyroFlamesNPC>().burnDebuff = true;
     }
 
     public class PyroFlamesPlayer : ModPlayer
     {
-        public bool lifeRegenDebuff;
+        protected int timer;
+        public bool burnDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects() => lifeRegenDebuff = false;
+        public override void ResetEffects() => burnDebuff = false;
 
         public override void UpdateBadLifeRegen()
         {
-            if (lifeRegenDebuff)
+            if (burnDebuff)
             {
                 timer++;
                 TF2.Maximum(ref Player.lifeRegen, 0);
@@ -57,15 +57,15 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
-        public bool lifeRegenDebuff;
+        protected int timer;
+        public bool burnDebuff;
         public float damageMultiplier = 1f;
-        public int timer;
 
-        public override void ResetEffects(NPC npc) => lifeRegenDebuff = false;
+        public override void ResetEffects(NPC npc) => burnDebuff = false;
 
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
-            if (lifeRegenDebuff)
+            if (burnDebuff)
             {
                 timer++;
                 TF2.Maximum(ref npc.lifeRegen, 0);
@@ -86,8 +86,18 @@ namespace TF2.Content.Buffs
                 timer = 0;
         }
 
-        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(timer);
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(timer);
+            binaryWriter.Write(burnDebuff);
+            binaryWriter.Write(damageMultiplier);
+        }
 
-        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => timer = binaryReader.ReadInt32();
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            timer = binaryReader.ReadInt32();
+            burnDebuff = binaryReader.ReadBoolean();
+            damageMultiplier = binaryReader.ReadSingle();
+        }
     }
 }

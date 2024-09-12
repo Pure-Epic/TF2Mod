@@ -29,6 +29,7 @@ namespace TF2.Content.Buffs
             p.uberChargeTime = 0;
             p.uberCharge = 0;
             p.activateUberCharge = false;
+            SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_off"), Main.LocalPlayer.Center);
             return true;
         }
     }

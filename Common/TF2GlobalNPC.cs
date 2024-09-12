@@ -10,8 +10,8 @@ using TF2.Content.Items.Materials;
 using TF2.Content.Items.Placeables.Crafting;
 using TF2.Content.Items.Weapons;
 using TF2.Content.NPCs.Buildings;
+using TF2.Content.NPCs.Enemies;
 using TF2.Content.Projectiles;
-using TF2.Content.Projectiles.Medic;
 
 namespace TF2.Common
 {
@@ -51,31 +51,6 @@ namespace TF2.Common
         {
             if (pickupCooldown > 0)
                 pickupCooldown--;
-            if (npc.life > TF2.Round(npc.lifeMax * 1.5f))
-                npc.life = TF2.Round(npc.lifeMax * 1.5f);
-            bool healed = false;
-            if (npc.friendly)
-            {
-                foreach (Projectile projectile in Main.ActiveProjectiles)
-                {
-                    if ((projectile.type == ModContent.ProjectileType<HealingBeam>()
-                        || projectile.type == ModContent.ProjectileType<HealingBeamKritzkrieg>())
-                        && projectile.Hitbox.Intersects(npc.Hitbox))
-                        healed = true;
-                }
-            }
-            if (npc.life > npc.lifeMax && !healed)
-            {
-                if (overhealTimer < TF2.Time(0.5))
-                    overhealTimer++;
-                else
-                {
-                    npc.life--;
-                    overhealTimer = 0;
-                    if (Main.netMode == NetmodeID.Server)
-                        npc.netUpdate = true;
-                }
-            }
         }
 
         public override void OnKill(NPC npc)
@@ -84,14 +59,19 @@ namespace TF2.Common
             {
                 if (!ModContent.GetInstance<TF2Config>().Loot)
                 {
-                    TF2.DropLoot(npc, ModContent.ItemType<SmallAmmoBox>());
-                    TF2.DropLoot(npc, ModContent.ItemType<MediumAmmoBox>(), 5);
-                    TF2.DropLoot(npc, ModContent.ItemType<LargeAmmoBox>(), 10);
-                    TF2.DropLoot(npc, ModContent.ItemType<SmallHealth>());
-                    TF2.DropLoot(npc, ModContent.ItemType<MediumHealth>(), 5);
-                    TF2.DropLoot(npc, ModContent.ItemType<LargeHealth>(), 10);
+                    if (Main.rand.Next(0, 10) == 0)
+                        TF2.DropLoot(npc, ModContent.ItemType<LargeAmmoBox>());
+                    else if (Main.rand.Next(0, 5) == 0)
+                        TF2.DropLoot(npc, ModContent.ItemType<MediumAmmoBox>());
+                    else
+                        TF2.DropLoot(npc, ModContent.ItemType<SmallAmmoBox>());
+                    if (Main.rand.Next(0, 10) == 0)
+                        TF2.DropLoot(npc, ModContent.ItemType<LargeHealth>());
+                    else if (Main.rand.Next(0, 5) == 0)
+                        TF2.DropLoot(npc, ModContent.ItemType<MediumHealth>());
+                    else
+                        TF2.DropLoot(npc, ModContent.ItemType<SmallHealth>());
                 }
-
                 if (npc.boss)
                 {
                     TF2.DropLoot(npc, ModContent.ItemType<Australium>(), 5);
@@ -101,10 +81,8 @@ namespace TF2.Common
                     TF2.DropLoot(npc, ModContent.ItemType<RefinedMetal>(), 9);
                 }
             }
-
-            if (npc.boss || TF2.BasicEnemiesThatCanDropMoney(npc))
-                Main.player[npc.lastInteraction].GetModPlayer<TF2Player>().money += 0.05f;
-
+            if (npc.ModNPC is BLUMercenary || npc.boss || TF2.BasicEnemiesThatCanDropMoney(npc))
+                TF2.AddMoney(Main.player[npc.lastInteraction], 0.05f, npc.Center);
             if (npc.type == NPCID.EyeofCthulhu)
                 TF2.CreateSoulItem(npc, 0.75f, 1f);
             if ((npc.type == NPCID.EaterofWorldsHead && EaterOfWorldsDrop() == 1 && NPC.CountNPCS(NPCID.EaterofWorldsBody) == 0) || npc.type == NPCID.BrainofCthulhu)
@@ -169,7 +147,7 @@ namespace TF2.Common
             }
             else
             {
-                // In case the Gensokyo DLC gets removed from the mod, the rest of the mod can still be compiled
+                // In case Gensokyo DLC gets removed from the mod, the rest of the mod can still be compiled
                 if (Mod.TryFind("ByakurenHijiri", out ModNPC byakuren) && npc.type == byakuren.Type)
                 {
                     TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
@@ -244,9 +222,6 @@ namespace TF2.Common
                     if (calamity.TryFind("DevourerofGodsTail", out ModNPC theDevourerofGodsNPC3) && npc.type == theDevourerofGodsNPC3.Type)
                         modifiers.SourceDamage *= 5f;
                 }
-
-                if (projectile.type == ModContent.ProjectileType<HealingBeam>())
-                    modifiers.DisableCrit();
             }
         }
 

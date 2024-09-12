@@ -14,6 +14,10 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class CharginTarge : TF2Accessory
     {
+        protected override string ArmTexture => "TF2/Content/Textures/Items/Demoman/CharginTarge";
+
+        protected override string ArmTextureReverse => "TF2/Content/Textures/Items/Demoman/CharginTargeReverse";
+
         protected override void WeaponStatistics() => SetWeaponCategory(Demoman, Secondary, Unique, Unlock);
 
         protected override void WeaponDescription(List<TooltipLine> description)
@@ -26,6 +30,8 @@ namespace TF2.Content.Items.Weapons.Demoman
                 AddOtherAttribute(description, currentShieldChargeKey[0] + (string)this.GetLocalization("Notes2"));
         }
 
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().shieldType == 1;
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -34,7 +40,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             if (shield.chargeActive && !shield.chargeProjectileCreated)
             {
                 Vector2 chargeDirection = player.DirectionTo(Main.MouseWorld);
-                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((50f + player.GetModPlayer<EyelanderPlayer>().heads * 5f) * p.classMultiplier), 0f, player.whoAmI);
+                TF2Projectile projectile = TF2.CreateProjectile(null, player.GetSource_Accessory(Item), player.Center, chargeDirection * 2.5f, ModContent.ProjectileType<ShieldHitbox>(), TF2.Round((50f + player.GetModPlayer<EyelanderPlayer>().heads * 5f) * p.damageMultiplier), 0f, player.whoAmI);
                 if (p.miniCrit)
                 {
                     projectile.miniCrit = true;
@@ -89,15 +95,12 @@ namespace TF2.Content.Items.Weapons.Demoman
             }
         }
 
-        public static ShieldPlayer GetShield(Player player)
+        public static ShieldPlayer GetShield(Player player) => player.GetModPlayer<TF2Player>().shieldType switch
         {
-            return player.GetModPlayer<TF2Player>().shieldType switch
-            {
-                1 => player.GetModPlayer<CharginTargePlayer>(),
-                2 => player.GetModPlayer<SplendidScreenPlayer>(),
-                _ => player.GetModPlayer<CharginTargePlayer>()
-            };
-        }
+            1 => player.GetModPlayer<CharginTargePlayer>(),
+            2 => player.GetModPlayer<SplendidScreenPlayer>(),
+            _ => player.GetModPlayer<CharginTargePlayer>()
+        };
     }
 
     public class CharginTargePlayer : ShieldPlayer

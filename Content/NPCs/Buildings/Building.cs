@@ -13,6 +13,7 @@ using TF2.Content.Items.Consumables;
 using TF2.Content.NPCs.Buildings.Dispenser;
 using TF2.Content.NPCs.Buildings.SentryGun;
 using TF2.Content.NPCs.Buildings.Teleporter;
+using static TF2.TF2;
 
 namespace TF2.Content.NPCs.Buildings
 {
@@ -50,9 +51,13 @@ namespace TF2.Content.NPCs.Buildings
 
         public virtual string BuildingName => NPC.TypeName;
 
-        protected virtual string BuildingTexture => "";
+        protected virtual Asset<Texture2D> BuildingTexture => null;
 
-        protected virtual string BuildingSecondaryTexture => "";
+        protected virtual Asset<Texture2D> BuildingSecondaryTexture => null;
+
+        protected virtual Asset<Texture2D> BuildingTextureAir => null;
+
+        protected virtual Asset<Texture2D> BuildingSecondaryTextureAir => null;
 
         protected Player Player => Main.player[Owner];
 
@@ -60,21 +65,18 @@ namespace TF2.Content.NPCs.Buildings
 
         public virtual int InitialHealth => 1;
 
-        public virtual int BuildingCooldown => TF2.Time(10);
+        public virtual int BuildingCooldown => Time(10);
 
         public virtual int BuildingCooldownHauled => BuildingCooldown;
 
         protected virtual int ScrapMetalAmount => 0;
 
-        protected Asset<Texture2D> spriteSheet;
-        protected Asset<Texture2D> spriteSheet2;
-        protected Asset<Texture2D> spriteSheetAir;
-        protected Asset<Texture2D> spriteSheetAir2;
-        public int preConstructedDamage;
-        public bool hauled;
-        protected bool air;
-        public int frame;
-        public float constructionSpeed = 1f;
+        internal float healthMultiplier;
+        internal int preConstructedDamage;
+        internal bool hauled;
+        internal bool air;
+        internal int frame;
+        internal float constructionSpeed = 1f;
 
         protected virtual void BuildingSpawn()
         { }
@@ -94,27 +96,29 @@ namespace TF2.Content.NPCs.Buildings
         protected virtual void BuildingReceiveExtraAI(BinaryReader binaryReader)
         { }
 
-        public static Building ConstructBuilding(int npc = -1, int owner = 0, int direction = 1, int metal = 0, bool hauled = false, bool isAir = false)
+        public static Building ConstructBuilding(int type = -1, int owner = 0, int direction = 1, int metal = 0, bool hauled = false, bool isAir = false)
         {
             Player player = Main.player[owner];
-            int i = NPC.NewNPC(player.GetSource_FromThis(), (int)player.Center.X, (int)player.Center.Y, npc, 0, 0, metal, 0, owner);
-            Main.npc[i].Bottom = player.Bottom;
-            Main.npc[i].direction = direction;
-            Building building = (Building)Main.npc[i].ModNPC;
-            building.hauled = hauled;
-            if (building.hauled)
-                building.UpgradeCooldown = building.BuildingCooldownHauled;
-            if (building is TF2Sentry)
-                building.air = isAir;
-            Main.npc[i].netUpdate = true;
-            if (building is TF2Sentry)
-                player.GetModPlayer<TF2Player>().sentryWhoAmI = i;
-            else if (building is TF2Dispenser)
-                player.GetModPlayer<TF2Player>().dispenserWhoAmI = i;
-            else if (building is TeleporterEntrance)
-                player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI = i;
-            else if (building is TeleporterExit)
-                player.GetModPlayer<TF2Player>().teleporterExitWhoAmI = i;
+            NPC npc = NPC.NewNPCDirect(player.GetSource_FromThis(), (int)player.Center.X, (int)player.Center.Y, type, 0, 0, metal, 0, owner);
+            SpawnNPCMultiplayer(player, npc, type);
+            npc.Bottom = player.Bottom;
+            npc.direction = direction;
+            Building building = npc.ModNPC as Building;
+            if (!Main.dedServ)
+            {
+                if (building is TF2Sentry)
+                    building.air = isAir;
+                if (building is TF2Sentry)
+                    player.GetModPlayer<TF2Player>().sentryWhoAmI = npc.whoAmI;
+                else if (building is TF2Dispenser)
+                    player.GetModPlayer<TF2Player>().dispenserWhoAmI = npc.whoAmI;
+                else if (building is TeleporterEntrance)
+                    player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI = npc.whoAmI;
+                else if (building is TeleporterExit)
+                    player.GetModPlayer<TF2Player>().teleporterExitWhoAmI = npc.whoAmI;
+            }
+            else
+                building.ConstuctBuildingMultiplayer(isAir);
             return building;
         }
 
@@ -123,16 +127,32 @@ namespace TF2.Content.NPCs.Buildings
             if (Metal >= 200)
             {
                 Metal -= 200;
-                Player player = Main.player[Owner];
-                int i = NPC.NewNPC(player.GetSource_FromThis(), (int)NPC.position.X, (int)NPC.position.Y, upgradedNPC, 0, 0, Metal, 0, Owner);
-                Main.npc[i].Bottom = NPC.Bottom;
-                Main.npc[i].direction = NPC.direction;
-                Building building = (Building)Main.npc[i].ModNPC;
-                if (building is TF2Sentry)
-                    building.air = air;
-                if (building is TF2Teleporter teleporter)
+                int metal = Metal;
+                if (this is TF2Sentry sentry)
                 {
-                    building.hauled = hauled;
+                    int ammo = sentry.Ammo;
+                    bool isAir = air;
+                    NPC.Transform(upgradedNPC);
+                    NPC.ModNPC.OnSpawn(NPC.GetSource_FromAI());
+                    Metal = metal;
+                    sentry.Ammo = ammo;
+                    sentry.air = isAir;
+                    if (SoundEngine.TryGetActiveSound(sentry.sentrySoundSlot, out var scanSound))
+                        scanSound?.Stop();
+                }
+                else if (this is TF2Dispenser dispenser)
+                {
+                    int reservedMetal = dispenser.ReservedMetal;
+                    NPC.Transform(upgradedNPC);
+                    NPC.ModNPC.OnSpawn(NPC.GetSource_FromAI());
+                    Metal = metal;
+                    dispenser.ReservedMetal = reservedMetal;
+                }
+                else if (this is TF2Teleporter teleporter)
+                {
+                    NPC.Transform(upgradedNPC);
+                    NPC.ModNPC.OnSpawn(NPC.GetSource_FromAI());
+                    Metal = metal;
                     if (teleporter is TeleporterEntrance)
                     {
                         (teleporter as TeleporterEntrance).FindTeleporterExit(out TeleporterExit exit);
@@ -150,20 +170,6 @@ namespace TF2.Content.NPCs.Buildings
                             exitSound?.Stop();
                     }
                 }
-                building.Metal = Metal;
-                if (this is TF2Sentry sentry && building is TF2Sentry newSentry)
-                    newSentry.Ammo = sentry.Ammo;
-                Main.npc[i].netUpdate = true;
-                if (building is TF2Sentry)
-                    player.GetModPlayer<TF2Player>().sentryWhoAmI = i;
-                else if (building is TF2Dispenser)
-                    player.GetModPlayer<TF2Player>().dispenserWhoAmI = i;
-                else if (building is TeleporterEntrance)
-                    player.GetModPlayer<TF2Player>().teleporterEntranceWhoAmI = i;
-                else if (building is TeleporterExit)
-                    player.GetModPlayer<TF2Player>().teleporterExitWhoAmI = i;
-                NPC.active = false;
-                NPC.netUpdate = true;
             }
         }
 
@@ -175,24 +181,15 @@ namespace TF2.Content.NPCs.Buildings
 
         public override void OnSpawn(IEntitySource source)
         {
-            spriteSheet = ModContent.Request<Texture2D>(BuildingTexture);
-            if (BuildingSecondaryTexture != "" && this is TF2Sentry)
-                spriteSheet2 = ModContent.Request<Texture2D>(BuildingSecondaryTexture);
-            if (this is TF2Sentry)
-            {
-                spriteSheetAir = ModContent.Request<Texture2D>(BuildingTexture + "_Air");
-                if (BuildingSecondaryTexture != "")
-                    spriteSheetAir2 = ModContent.Request<Texture2D>(BuildingSecondaryTexture + "_Air");
-            }
+            healthMultiplier = Player.GetModPlayer<TF2Player>().healthMultiplier;
             NPC.life = InitialHealth;
-            NPC.lifeMax = TF2.Round(NPC.lifeMax * Player.GetModPlayer<TF2Player>().healthMultiplier);
+            NPC.lifeMax = Round(NPC.lifeMax * healthMultiplier);
             BuildingSpawn();
-            NPC.netUpdate = true;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
-            Texture2D sprite = !air ? spriteSheet.Value : spriteSheetAir.Value;
+            Texture2D sprite = !air ? BuildingTexture.Value : BuildingTextureAir.Value;
             int height = sprite.Height / Main.npcFrameCount[NPC.type];
             spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle(0, height * frame, sprite.Width, height), drawColor, 0f, new Vector2(NPC.direction == 1 ? sprite.Width - NPC.width : 0, height - NPC.height), NPC.scale, (SpriteEffects)((NPC.direction == 1) ? 1 : 0), 0f);
             BuildingDraw(spriteBatch, screenPos, drawColor);
@@ -203,8 +200,11 @@ namespace TF2.Content.NPCs.Buildings
 
         public override void OnHitByProjectile(Projectile projectile, NPC.HitInfo hit, int damageDone)
         {
-            preConstructedDamage = damageDone;
-            NPC.netUpdate = true;
+            if (!Initialized)
+            {
+                preConstructedDamage = damageDone;
+                NPC.netUpdate = true;
+            }
         }
 
         public override void OnKill()
@@ -218,14 +218,60 @@ namespace TF2.Content.NPCs.Buildings
         {
             BuildingPoint scrapMetal = Main.item[Item.NewItem(npc.GetSource_Loot(), (int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<BuildingPoint>())].ModItem as BuildingPoint;
             scrapMetal.metal = amount;
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(MessageID.SyncItem, number: scrapMetal.Item.whoAmI);
+        }
+
+        public void Repair(int amount)
+        {
+            if (amount > 0)
+            {
+                if (Main.netMode == NetmodeID.SinglePlayer)
+                {
+                    NPC.life += amount;
+                    NPC.HealEffect(amount);
+                }
+                else
+                {
+                    ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                    packet.Write((byte)MessageType.RepairBuilding);
+                    packet.Write((byte)NPC.whoAmI);
+                    packet.Write(amount);
+                    packet.Send(-1, Main.myPlayer);
+                }
+            }
+        }
+
+        public void SyncBuilding()
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
+            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+            packet.Write((byte)MessageType.SyncBuilding);
+            packet.Write((byte)NPC.whoAmI);
+            packet.Write(Timer);
+            packet.Write(Metal);
+            packet.Write(UpgradeCooldown);
+            packet.Write(Timer2);
+            packet.Write(preConstructedDamage);
+            packet.Write(constructionSpeed);
+            packet.Send(-1, Main.myPlayer);
+        }
+
+        public void ConstuctBuildingMultiplayer(bool isAir)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
+            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+            packet.Write((byte)MessageType.ConstructBuilding);
+            packet.Write((byte)NPC.whoAmI);
+            packet.Write(isAir);
+            packet.Send(-1, Main.myPlayer);
         }
 
         public override void SendExtraAI(BinaryWriter writer)
         {
             writer.Write(Timer2);
             writer.Write(Initialized);
+            writer.Write(healthMultiplier);
             writer.Write(preConstructedDamage);
             writer.Write(hauled);
             writer.Write(air);
@@ -238,6 +284,7 @@ namespace TF2.Content.NPCs.Buildings
         {
             Timer2 = reader.ReadInt32();
             Initialized = reader.ReadBoolean();
+            healthMultiplier = reader.ReadSingle();
             preConstructedDamage = reader.ReadInt32();
             hauled = reader.ReadBoolean();
             air = reader.ReadBoolean();
@@ -270,6 +317,73 @@ namespace TF2.Content.NPCs.Buildings
                 player.GetModPlayer<TF2Player>().metal += metal;
             Item.TurnToAir();
             return true;
+        }
+
+        public override void NetSend(BinaryWriter writer) => writer.Write(metal);
+
+        public override void NetReceive(BinaryReader reader) => metal = reader.ReadInt32();
+    }
+
+    public class BuildingTextures : ModSystem
+    {
+        public static Asset<Texture2D> SentryLevel1Texture => buildingTextures[0];
+
+        public static Asset<Texture2D> SentryLevel1AirTexture => buildingTextures[1];
+
+        public static Asset<Texture2D> SentryLevel2Texture => buildingTextures[2];
+
+        public static Asset<Texture2D> SentryLevel2AirTexture => buildingTextures[3];
+
+        public static Asset<Texture2D> SentryLevel3Texture => buildingTextures[4];
+
+        public static Asset<Texture2D> SentryLevel3AirTexture => buildingTextures[5];
+
+        public static Asset<Texture2D> SentryLevel3SecondaryTexture => buildingTextures[6];
+
+        public static Asset<Texture2D> SentryLevel3SecondaryAirTexture => buildingTextures[7];
+
+        public static Asset<Texture2D> MiniSentryTexture => buildingTextures[8];
+
+        public static Asset<Texture2D> MiniSentryAirTexture => buildingTextures[9];
+
+        public static Asset<Texture2D> MiniSentrySecondaryTexture => buildingTextures[10];
+
+        public static Asset<Texture2D> MiniSentrySecondaryAirTexture => buildingTextures[11];
+
+        public static Asset<Texture2D> DispenserLevel1Texture => buildingTextures[12];
+
+        public static Asset<Texture2D> DispenserLevel2Texture => buildingTextures[13];
+
+        public static Asset<Texture2D> DispenserLevel3Texture => buildingTextures[14];
+
+        public static Asset<Texture2D> TeleporterTexture => buildingTextures[15];
+
+        internal static Asset<Texture2D>[] buildingTextures;
+
+        public override void Load()
+        {
+            if (!Main.dedServ)
+            {
+                buildingTextures =
+                [
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel1"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel1_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel2"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel2_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3_Rockets"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/SentryLevel3_Rockets_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/MiniSentry"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/MiniSentry_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/MiniSentry_Glowmask"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/SentryGun/MiniSentry_Glowmask_Air"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Dispenser/DispenserLevel1"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Dispenser/DispenserLevel2"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Dispenser/DispenserLevel3"),
+                    ModContent.Request<Texture2D>("TF2/Content/NPCs/Buildings/Teleporter/Teleporter")
+                ];
+            }
         }
     }
 }

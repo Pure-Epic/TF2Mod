@@ -17,7 +17,7 @@ namespace TF2.Content.UI.HUD.Demoman
     {
         protected override bool CanDisplay => Player.GetModPlayer<TF2Player>().HasShield;
 
-        protected override string Texture => "TF2/Content/Textures/UI/HUD/ShieldChargeMeterHUD";
+        protected override Asset<Texture2D> Texture => HUDTextures.ShieldChargeHUDTexture;
 
         private UIText charge;
 
@@ -31,7 +31,7 @@ namespace TF2.Content.UI.HUD.Demoman
                 Height = StyleDimension.FromPixels(50f),
                 IgnoresMouseInteraction = true
             };
-            _texture = new UIImage(ModContent.Request<Texture2D>(Texture, AssetRequestMode.ImmediateLoad).Value)
+            _texture = new UIImage(Texture)
             {
                 Width = StyleDimension.FromPercent(1f),
                 Height = StyleDimension.FromPercent(1f),

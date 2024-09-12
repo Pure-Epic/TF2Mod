@@ -42,7 +42,7 @@ namespace TF2.Content.Projectiles.Engineer
                 Player.ChangeDir(Projectile.direction);
                 if (!Player.controlUseItem)
                 {
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
                         packet.Write((byte)TF2.MessageType.KillProjectile);

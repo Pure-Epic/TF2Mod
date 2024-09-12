@@ -21,11 +21,11 @@ namespace TF2.Content.Projectiles.Demoman
         }
 
         public readonly int maxPower = 10;
-        public const int fuseTime = 139;
+        public readonly int fuseTime = TF2.Time(2.3);
 
         protected override void ProjectileStatistics()
         {
-            SetProjectileSize(25, 15);
+            SetProjectileSize(24, 14);
             Projectile.penetrate = -1;
             Projectile.friendly = true;
             Projectile.ignoreWater = true;
@@ -84,7 +84,7 @@ namespace TF2.Content.Projectiles.Demoman
 
         protected virtual void GrenadeJump(Vector2 velocity)
         {
-            if (TF2.FindPlayer(Projectile, 50f))
+            if (FindOwner(Projectile, 50f))
             {
                 velocity *= 10f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);

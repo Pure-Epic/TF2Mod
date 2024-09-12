@@ -38,7 +38,7 @@ namespace TF2.Content.Items.Weapons.Scout
             if (player.controlUseTile && p.sodaPopperEquipped && p.hype >= 350)
             {
                 player.AddBuff(ModContent.BuffType<Hype>(), TF2.Time(10));
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), player.Center);
+                TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), player.Center);
             }
             usesFocusShot = p.buffActive;
         }
@@ -76,7 +76,7 @@ namespace TF2.Content.Items.Weapons.Scout
             }
             else if (playBuffSound)
             {
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_down"), Player.Center);
+                TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_down"), Player.Center);
                 playBuffSound = false;
             }
         }
@@ -87,13 +87,13 @@ namespace TF2.Content.Items.Weapons.Scout
             Player opponent = Main.player[info.DamageSource.SourcePlayerIndex];
             SodaPopperPlayer sodaPopper = opponent.GetModPlayer<SodaPopperPlayer>();
             if (sodaPopper.sodaPopperEquipped)
-                sodaPopper.hype += TF2.Round(info.Damage / opponent.GetModPlayer<TF2Player>().classMultiplier);
+                sodaPopper.hype += TF2.Round(info.Damage / opponent.GetModPlayer<TF2Player>().damageMultiplier);
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (sodaPopperEquipped && target.type != NPCID.TargetDummy)
-                hype += TF2.Round(damageDone / Player.GetModPlayer<TF2Player>().classMultiplier);
+                hype += TF2.Round(damageDone / Player.GetModPlayer<TF2Player>().damageMultiplier);
         }
     }
 }

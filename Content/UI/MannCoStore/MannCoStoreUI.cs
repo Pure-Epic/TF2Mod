@@ -107,12 +107,12 @@ namespace TF2.Content.UI.MannCoStore
             shoppingCart.OnMouseOver += delegate (UIMouseEvent evt, UIElement _)
             {
                 SoundEngine.PlaySound(SoundID.MenuTick);
-                ((MannCoStoreShoppingCartButton)evt.Target).Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ShoppingCartHovered", AssetRequestMode.ImmediateLoad);
+                ((MannCoStoreShoppingCartButton)evt.Target).Texture = UITextures.MannCoStoreShopTextures[1];
             };
             shoppingCart.OnMouseOut += delegate (UIMouseEvent evt, UIElement _)
             {
                 SoundEngine.PlaySound(SoundID.MenuTick);
-                ((MannCoStoreShoppingCartButton)evt.Target).Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ShoppingCart", AssetRequestMode.ImmediateLoad);
+                ((MannCoStoreShoppingCartButton)evt.Target).Texture = UITextures.MannCoStoreShopTextures[0];
             };
             mainPanel.Append(shoppingCart);
             MakeBackAndCheckoutButton(uIElement);
@@ -185,7 +185,7 @@ namespace TF2.Content.UI.MannCoStore
 
         private void MakeNavigationButtons(UIElement outerContainer)
         {
-            previous = new MannCoStoreNavigationUI(ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/First", AssetRequestMode.ImmediateLoad), false)
+            previous = new MannCoStoreNavigationUI(UITextures.MannCoStoreNavigationTextures[0], false)
             {
                 Width = StyleDimension.FromPixels(46f),
                 Height = StyleDimension.FromPixels(46f),
@@ -209,7 +209,7 @@ namespace TF2.Content.UI.MannCoStore
                 ((MannCoStoreNavigationUI)evt.Target).hovered = false;
             };
             outerContainer.Append(previous);
-            next = new MannCoStoreNavigationUI(ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/Last", AssetRequestMode.ImmediateLoad), true)
+            next = new MannCoStoreNavigationUI(UITextures.MannCoStoreNavigationTextures[6], true)
             {
                 Width = StyleDimension.FromPixels(46f),
                 Height = StyleDimension.FromPixels(46f),
@@ -362,11 +362,11 @@ namespace TF2.Content.UI.MannCoStore
                             slot.OnMouseOver += delegate (UIMouseEvent evt, UIElement _)
                             {
                                 SoundEngine.PlaySound(SoundID.MenuTick);
-                                ((MannCoStoreItemSlot)evt.Target).Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ItemBackgroundHovered", AssetRequestMode.ImmediateLoad);
+                                ((MannCoStoreItemSlot)evt.Target).Texture = UITextures.MannCoStoreBackgroundTextures[1];
                             };
                             slot.OnMouseOut += delegate (UIMouseEvent evt, UIElement _)
                             {
-                                ((MannCoStoreItemSlot)evt.Target).Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ItemBackground", AssetRequestMode.ImmediateLoad);
+                                ((MannCoStoreItemSlot)evt.Target).Texture = UITextures.MannCoStoreBackgroundTextures[0];
                             };
                             itemGrid.Items.Add(slot);
                             itemGrid.InnerList.Append(slot);
@@ -385,7 +385,7 @@ namespace TF2.Content.UI.MannCoStore
     {
         public readonly MannCoStoreCategory Category = category;
         public bool enabled = true;
-        private static readonly Asset<Texture2D> Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ClassFilters");
+        private static readonly Asset<Texture2D> Texture = UITextures.MannCoStoreNavigationTextures[11];
 
         public override void OnInitialize()
         {
@@ -466,7 +466,7 @@ namespace TF2.Content.UI.MannCoStore
 
     internal class MannCoStoreItemSlot : UIElement
     {
-        public Asset<Texture2D> Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ItemBackground", AssetRequestMode.ImmediateLoad);
+        public Asset<Texture2D> Texture = UITextures.MannCoStoreBackgroundTextures[0];
         public readonly MannCoStoreItem Item;
         public readonly MannCoStoreCategory Category;
         public readonly int ListID;
@@ -543,13 +543,13 @@ namespace TF2.Content.UI.MannCoStore
         }
 
         public override void Update(GameTime gameTime) => Texture = !_next
-                ? (end ? ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/First" + (hovered ? "Hovered" : ""), AssetRequestMode.ImmediateLoad) : ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/Previous" + (hovered ? "Hovered" : ""), AssetRequestMode.ImmediateLoad))
-                : (end ? ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/Last" + (hovered ? "Hovered" : ""), AssetRequestMode.ImmediateLoad) : ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/Next" + (hovered ? "Hovered" : ""), AssetRequestMode.ImmediateLoad));
+                ? (end ? (!hovered ? UITextures.MannCoStoreNavigationTextures[0] : UITextures.MannCoStoreNavigationTextures[1]) : (!hovered ? UITextures.MannCoStoreNavigationTextures[2] : UITextures.MannCoStoreNavigationTextures[3]))
+                : (!end ? (!hovered ? UITextures.MannCoStoreNavigationTextures[4] : UITextures.MannCoStoreNavigationTextures[5]) : (!hovered ? UITextures.MannCoStoreNavigationTextures[6] : UITextures.MannCoStoreNavigationTextures[7]));
     }
 
     internal class MannCoStoreShoppingCartButton : UIElement
     {
-        public Asset<Texture2D> Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ShoppingCart", AssetRequestMode.ImmediateLoad);
+        public Asset<Texture2D> Texture = UITextures.MannCoStoreShopTextures[0];
         private readonly UIText items;
 
         public MannCoStoreShoppingCartButton()
@@ -627,11 +627,11 @@ namespace TF2.Content.UI.MannCoStore
                 scrollBar.SetView(100f, 1000f);
                 scrollBar.OnMouseOver += delegate (UIMouseEvent evt, UIElement _)
                 {
-                    ((UIScrollbar)evt.Target).texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ScrollbarInnerHovered");
+                    ((UIScrollbar)evt.Target).texture = UITextures.MannCoStoreNavigationTextures[10];
                 };
                 scrollBar.OnMouseOut += delegate (UIMouseEvent evt, UIElement _)
                 {
-                    ((UIScrollbar)evt.Target).texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ScrollbarInner");
+                    ((UIScrollbar)evt.Target).texture = UITextures.MannCoStoreNavigationTextures[9];
                 };
                 mainPanel.Append(scrollBar);
                 itemGrid.SetScrollbar(scrollBar);
@@ -776,7 +776,7 @@ namespace TF2.Content.UI.MannCoStore
 
     internal class MannCoStoreShoppingCartItem : UIElement
     {
-        public Asset<Texture2D> Texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ShoppingListBackground", AssetRequestMode.ImmediateLoad);
+        public Asset<Texture2D> Texture = UITextures.MannCoStoreShopTextures[2];
         public readonly MannCoStoreItem Item;
         public readonly int ListID;
         private readonly UIText name;
@@ -1045,8 +1045,8 @@ namespace TF2.Content.UI.MannCoStore
         {
             Width.Set(20f, 0f);
             MaxWidth.Set(20f, 0f);
-            _texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/Scrollbar");
-            texture = ModContent.Request<Texture2D>("TF2/Content/Textures/UI/MannCoStore/ScrollbarInner");
+            _texture = UITextures.MannCoStoreNavigationTextures[8];
+            texture = UITextures.MannCoStoreNavigationTextures[9];
             PaddingTop = 5f;
             PaddingBottom = 5f;
         }

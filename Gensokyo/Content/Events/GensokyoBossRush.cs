@@ -74,7 +74,7 @@ namespace TF2.Gensokyo.Content.Events
                 Main.NewText(text, 175, 75);
                 return;
             }
-            if (Main.netMode == NetmodeID.Server)
+            if (Main.dedServ)
                 NetMessage.SendData(25, -1, -1, NetworkText.FromLiteral(text), 255, 175f, 75f, 255f, 0, 0, 0);
         }
 
@@ -105,7 +105,7 @@ namespace TF2.Gensokyo.Content.Events
             }
         }
 
-        public static bool FailCheck() => targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer || Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.netMode == NetmodeID.Server;
+        public static bool FailCheck() => targetPlayer.dead && Main.netMode == NetmodeID.SinglePlayer || Main.player.Take(Main.maxPlayers).Where(x => x.active).All(x => x.dead || x.ghost) && Main.dedServ;
 
         public static void NextBoss()
         {
@@ -238,7 +238,7 @@ namespace TF2.Gensokyo.Content.Events
                 Main.npc[i].GetGlobalNPC<GensokyoBossRushMarker>().realBoss = true;
                 if (Main.netMode == NetmodeID.SinglePlayer)
                     Main.NewText(Language.GetTextValue("Announcement.HasAwoken", Main.npc[i].TypeName), 175, 75, 255);
-                else if (Main.netMode == NetmodeID.Server)
+                else if (Main.dedServ)
                     ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Announcement.HasAwoken", Main.npc[i].GetTypeNetName()), new Color(175, 75, 255));
                 bossActive = true;
             }

@@ -24,20 +24,20 @@ namespace TF2.Content.Items.Weapons.MultiClass
             switch (player.GetModPlayer<TF2Player>().currentClass)
             {
                 case Soldier:
-                    SetWeaponSlot(Secondary);
+                    WeaponSetSlot(Secondary);
                     initialReloadRate = TF2.Time(1.005);
                     break;
                 case Pyro:
-                    SetWeaponSlot(Secondary);
+                    WeaponSetSlot(Secondary);
                     initialReloadRate = TF2.Time(1.035);
                     break;
                 case Heavy:
-                    SetWeaponSlot(Secondary);
+                    WeaponSetSlot(Secondary);
                     initialReloadRate = TF2.Time(0.87);
                     break;
                 case Engineer:
                 default:
-                    SetWeaponSlot(Primary);
+                    WeaponSetSlot(Primary);
                     initialReloadRate = TF2.Time(0.87);
                     break;
             }
@@ -51,7 +51,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 Soldier or Pyro or Heavy => Secondary,
                 _ => Primary
             };
-            SetWeaponSlot(type);
+            WeaponSetSlot(type);
             equipped = Item == GetWeapon(player, type);
         }
     }

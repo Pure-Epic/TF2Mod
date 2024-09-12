@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
@@ -10,6 +12,12 @@ namespace TF2.Content.Items.Weapons.Soldier
 {
     public class BattalionsBackup : TF2Accessory
     {
+        protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/BattalionsBackup";
+        
+        protected override string BackTextureReverse => "TF2/Content/Textures/Items/Soldier/BattalionsBackupReverse";
+
+        protected override int HealthBoost => 20;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Soldier, Secondary, Unique, Craft);
@@ -22,9 +30,14 @@ namespace TF2.Content.Items.Weapons.Soldier
             AddNeutralAttribute(description);
         }
 
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 2;
+
+        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<BattalionsBackupPlayer>().buffActive ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.BattalionsBackupTextures[0] : ItemTextures.BattalionsBackupTextures[1]);
+
+        protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 2;
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            TF2Player.SetPlayerHealth(player, 20);
             TF2Player p = player.GetModPlayer<TF2Player>();
             p.bannerType = 2;
         }

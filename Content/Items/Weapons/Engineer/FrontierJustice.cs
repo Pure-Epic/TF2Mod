@@ -65,7 +65,7 @@ namespace TF2.Content.Items.Weapons.Engineer
         public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
         {
             if (!frontierJusticeEquipped) return;
-            if (proj.ModProjectile is not TF2Projectile projectile || (proj.ModProjectile == projectile && projectile.spawnedFromNPC && !projectile.healingProjectile))
+            if (proj.ModProjectile is not TF2Projectile projectile || (proj.ModProjectile == projectile && projectile.spawnedFromNPC))
                 hitCounter++;
         }
 

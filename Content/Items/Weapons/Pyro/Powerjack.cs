@@ -4,6 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Materials;
+using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Pyro
@@ -48,7 +49,7 @@ namespace TF2.Content.Items.Weapons.Pyro
     {
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (Player.HeldItem.ModItem is Powerjack && Player.inventory[58].ModItem is not Powerjack)
+            if (TF2Weapon.HoldingWeapon<Powerjack>(Player))
                 modifiers.FinalDamage *= 1.2f;
         }
     }

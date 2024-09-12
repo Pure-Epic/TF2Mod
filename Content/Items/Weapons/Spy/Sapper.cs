@@ -11,7 +11,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponCategory(Spy, PDA2, Stock, Starter);
             SetWeaponSize(50, 35);
             SetThrowableUseStyle(focus: true);
-            SetWeaponDamage(damage: 25, projectile: ModContent.ProjectileType<SapperProjectile>(), projectileSpeed: 25f);
+            SetWeaponDamage(damage: 25, projectile: ModContent.ProjectileType<SapperProjectile>(), projectileSpeed: 25f, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(1, hide: true);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/melee_swing");
             SetUtilityWeapon(itemUseGraphic: false);

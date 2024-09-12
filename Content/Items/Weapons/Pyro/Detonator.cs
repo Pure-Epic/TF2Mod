@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Projectiles.Demoman;
 using TF2.Content.Projectiles.Pyro;
 
 namespace TF2.Content.Items.Weapons.Pyro

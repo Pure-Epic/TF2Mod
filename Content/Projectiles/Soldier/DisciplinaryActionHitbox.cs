@@ -1,6 +1,5 @@
 ﻿using Terraria;
 using Terraria.Audio;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Buffs;
 using TF2.Content.NPCs.Buddies;
@@ -29,14 +28,14 @@ namespace TF2.Content.Projectiles.Engineer
                 Projectile.Center = Player.Center;
             foreach (Player player in Main.ActivePlayers)
             {
-                if (TF2.MeleeHitbox(Player).Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && !player.dead && !player.hostile && Main.netMode == NetmodeID.Server)
+                if (TF2.MeleeHitbox(Player).Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && !player.dead && !player.hostile && Main.dedServ)
                 {
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_hit"), player.Center);
                     if (!Player.HasBuff<Whipped>())
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), Player.Center);
                     player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(2), false);
                     Player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(3));
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
                         packet.Write((byte)TF2.MessageType.KillProjectile);
@@ -49,14 +48,14 @@ namespace TF2.Content.Projectiles.Engineer
             }
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (TF2.MeleeHitbox(Player).Intersects(npc.Hitbox) && npc.ModNPC is MercenaryBuddy && Main.netMode != NetmodeID.MultiplayerClient)
+                if (TF2.MeleeHitbox(Player).Intersects(npc.Hitbox) && npc.ModNPC is MercenaryBuddy)
                 {
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_hit"), npc.Center);
                     if (!Player.HasBuff<Whipped>())
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), Player.Center);
                     npc.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(2));
                     Player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(3));
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
                         packet.Write((byte)TF2.MessageType.KillProjectile);

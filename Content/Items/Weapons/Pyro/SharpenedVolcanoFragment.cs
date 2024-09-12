@@ -30,7 +30,7 @@ namespace TF2.Content.Items.Weapons.Pyro
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
-            burntPlayer.damageMultiplier = p.classMultiplier;
+            burntPlayer.damageMultiplier = p.damageMultiplier;
             target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5), false);
         }
@@ -39,7 +39,7 @@ namespace TF2.Content.Items.Weapons.Pyro
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
             PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
-            npc.damageMultiplier = p.classMultiplier;
+            npc.damageMultiplier = p.damageMultiplier;
             TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlamesDegreaser>());
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5));
         }

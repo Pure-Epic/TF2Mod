@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using ReLogic.Graphics;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,144 @@ using Terraria.UI;
 using Terraria.UI.Chat;
 using Terraria.Utilities;
 using TF2.Common;
+using TF2.Content.Items.Weapons;
+using TF2.Content.Items.Weapons.Demoman;
+using TF2.Content.Items.Weapons.Engineer;
+using TF2.Content.Items.Weapons.Heavy;
+using TF2.Content.Items.Weapons.Medic;
+using TF2.Content.Items.Weapons.MultiClass;
+using TF2.Content.Items.Weapons.Pyro;
+using TF2.Content.Items.Weapons.Scout;
+using TF2.Content.Items.Weapons.Sniper;
+using TF2.Content.Items.Weapons.Soldier;
+using TF2.Content.Items.Weapons.Spy;
 
 namespace TF2.Content.Items
 {
     public abstract class TF2Item : ModItem
     {
         protected virtual string CustomDescription => "";
+
+        protected virtual string BackTexture => null;
+
+        protected virtual string BackTextureReverse => BackTexture;
+
+        protected virtual string ArmTexture => null;
+
+        protected virtual string ArmTextureReverse => ArmTexture;
+
+        protected virtual string LegTexture => null;
+
+        protected virtual string LegTextureReverse => LegTexture;
+
+        protected virtual int HealthBoost => 0;
+
+        protected virtual bool TemporaryHealthBoost => false;
+
+        protected virtual bool Reskin => false;
+
+        internal static int GetRandomWeapon
+        {
+            get
+            {
+                int[] weaponList =
+                [
+                    ModContent.ItemType<ForceANature>(),
+                    ModContent.ItemType<Shortstop>(),
+                    ModContent.ItemType<SodaPopper>(),
+                    ModContent.ItemType<BonkAtomicPunch>(),
+                    ModContent.ItemType<CritaCola>(),
+                    ModContent.ItemType<MadMilk>(),
+                    ModContent.ItemType<Winger>(),
+                    ModContent.ItemType<Sandman>(),
+                    ModContent.ItemType<HolyMackerel>(),
+                    ModContent.ItemType<CandyCane>(),
+                    ModContent.ItemType<BostonBasher>(),
+                    ModContent.ItemType<SunonaStick>(),
+                    ModContent.ItemType<FanOWar>(),
+                    ModContent.ItemType<Atomizer>(),
+                    ModContent.ItemType<DirectHit>(),
+                    ModContent.ItemType<BlackBox>(),
+                    ModContent.ItemType<RocketJumper>(),
+                    ModContent.ItemType<LibertyLauncher>(),
+                    ModContent.ItemType<BuffBanner>(),
+                    ModContent.ItemType<Gunboats>(),
+                    ModContent.ItemType<BattalionsBackup>(),
+                    ModContent.ItemType<Concheror>(),
+                    ModContent.ItemType<ReserveShooter>(),
+                    ModContent.ItemType<Mantreads>(),
+                    ModContent.ItemType<Equalizer>(),
+                    ModContent.ItemType<PainTrain>(),
+                    ModContent.ItemType<MarketGardener>(),
+                    ModContent.ItemType<DisciplinaryAction>(),
+                    ModContent.ItemType<Backburner>(),
+                    ModContent.ItemType<Degreaser>(),
+                    ModContent.ItemType<FlareGun>(),
+                    ModContent.ItemType<Detonator>(),
+                    ModContent.ItemType<Axtinguisher>(),
+                    ModContent.ItemType<Homewrecker>(),
+                    ModContent.ItemType<Powerjack>(),
+                    ModContent.ItemType<BackScratcher>(),
+                    ModContent.ItemType<SharpenedVolcanoFragment>(),
+                    ModContent.ItemType<LochnLoad>(),
+                    ModContent.ItemType<AliBabasWeeBooties>(),
+                    ModContent.ItemType<ScottishResistance>(),
+                    ModContent.ItemType<CharginTarge>(),
+                    ModContent.ItemType<SplendidScreen>(),
+                    ModContent.ItemType<StickyJumper>(),
+                    ModContent.ItemType<Eyelander>(),
+                    ModContent.ItemType<ScotsmansSkullcutter>(),
+                    ModContent.ItemType<UllapoolCaber>(),
+                    ModContent.ItemType<ClaidheamhMor>(),
+                    ModContent.ItemType<HalfZatoichi>(),
+                    ModContent.ItemType<PersianPersuader>(),
+                    ModContent.ItemType<Natascha>(),
+                    ModContent.ItemType<BrassBeast>(),
+                    ModContent.ItemType<Tomislav>(),
+                    ModContent.ItemType<Sandvich>(),
+                    ModContent.ItemType<DalokohsBar>(),
+                    ModContent.ItemType<BuffaloSteakSandvich>(),
+                    ModContent.ItemType<FamilyBusiness>(),
+                    ModContent.ItemType<KillingGlovesOfBoxing>(),
+                    ModContent.ItemType<GlovesOfRunningUrgently>(),
+                    ModContent.ItemType<WarriorsSpirit>(),
+                    ModContent.ItemType<FistsOfSteel>(),
+                    ModContent.ItemType<EvictionNotice>(),
+                    ModContent.ItemType<FrontierJustice>(),
+                    ModContent.ItemType<Wrangler>(),
+                    ModContent.ItemType<Gunslinger>(),
+                    ModContent.ItemType<SouthernHospitality>(),
+                    ModContent.ItemType<Jag>(),
+                    ModContent.ItemType<Blutsauger>(),
+                    ModContent.ItemType<CrusadersCrossbow>(),
+                    ModContent.ItemType<Overdose>(),
+                    ModContent.ItemType<Kritzkrieg>(),
+                    ModContent.ItemType<QuickFix>(),
+                    ModContent.ItemType<Ubersaw>(),
+                    ModContent.ItemType<VitaSaw>(),
+                    ModContent.ItemType<Amputator>(),
+                    ModContent.ItemType<SolemnVow>(),
+                    ModContent.ItemType<Huntsman>(),
+                    ModContent.ItemType<SydneySleeper>(),
+                    ModContent.ItemType<BazaarBargain>(),
+                    ModContent.ItemType<Jarate>(),
+                    ModContent.ItemType<Razorback>(),
+                    ModContent.ItemType<DarwinsDangerShield>(),
+                    ModContent.ItemType<TribalmansShiv>(),
+                    ModContent.ItemType<Bushwacka>(),
+                    ModContent.ItemType<Shahanshah>(),
+                    ModContent.ItemType<Ambassador>(),
+                    ModContent.ItemType<LEtranger>(),
+                    ModContent.ItemType<Enforcer>(),
+                    ModContent.ItemType<YourEternalReward>(),
+                    ModContent.ItemType<ConniversKunai>(),
+                    ModContent.ItemType<BigEarner>(),
+                    ModContent.ItemType<CloakAndDagger>(),
+                    ModContent.ItemType<DeadRinger>(),
+                ];
+                return Main.rand.Next(weaponList);
+            }
+        }
 
         public int classType;
         public int weaponType;
@@ -60,6 +193,13 @@ namespace TF2.Content.Items
         public int[] timer = new int[5];
         protected readonly HashSet<int> classHashSet = new HashSet<int>();
         protected HashSet<int> qualityHashSet = new HashSet<int>();
+        private Asset<Texture2D> backTexture;
+        private Asset<Texture2D> backTextureReverse;
+        private Asset<Texture2D> armTexture;
+        private Asset<Texture2D> armTextureReverse;
+        private Asset<Texture2D> legTexture;
+        private Asset<Texture2D> legTextureReverse;
+
 
         protected readonly int[] qualityTypes =
         [
@@ -146,8 +286,31 @@ namespace TF2.Content.Items
         protected virtual void WeaponEarlyUpdate(Player player)
         { }
 
-        protected virtual void SetWeaponSlot(int weaponCategory)
+        protected virtual void UpdateInventoryInternal(Player player)
         { }
+
+        protected virtual void WeaponSetSlot(int weaponCategory)
+        { }
+
+        protected virtual bool WeaponModifyHealthCondition(Player player) => false;
+
+        protected virtual bool WeaponAddTextureCondition(Player player) => false;
+
+        protected virtual Asset<Texture2D> WeaponBackTexture(Player player) => player.direction == 1 ? backTexture : backTextureReverse;
+
+        protected virtual Asset<Texture2D> WeaponArmTexture(Player player) => player.direction == 1 ? armTexture : armTextureReverse;
+
+        protected virtual Asset<Texture2D> WeaponLegTexture(Player player) => player.direction == 1 ? legTexture : legTextureReverse;
+
+        protected virtual int WeaponModifyHealth(Player player) => HealthBoost;
+
+        private int ModifyHealth(Player player) => WeaponModifyHealthCondition(player) ? WeaponModifyHealth(player) : 0;
+
+        private Asset<Texture2D> AddBackTexture(Player player) => WeaponAddTextureCondition(player) ? WeaponBackTexture(player) : null;
+
+        private Asset<Texture2D> AddArmTexture(Player player) => WeaponAddTextureCondition(player) ? WeaponArmTexture(player) : null;
+
+        private Asset<Texture2D> AddLegTexture(Player player) => WeaponAddTextureCondition(player) ? WeaponLegTexture(player) : null;
 
         protected void SetWeaponClass(int[] classes)
         {
@@ -568,6 +731,46 @@ namespace TF2.Content.Items
             return finalString;
         }
 
+        public sealed override void Load()
+        {
+            if (BackTexture != null)
+            {
+                backTexture = ModContent.Request<Texture2D>(BackTexture);
+                backTextureReverse = ModContent.Request<Texture2D>(BackTextureReverse);
+                TF2Player.backTextures.Add(AddBackTexture);
+            }
+            if (ArmTexture != null)
+            {
+                armTexture = ModContent.Request<Texture2D>(ArmTexture);
+                armTextureReverse = ModContent.Request<Texture2D>(ArmTextureReverse);
+                TF2Player.armTextures.Add(AddArmTexture);
+            }
+            if (LegTexture != null)
+            {
+                legTexture = ModContent.Request<Texture2D>(LegTexture);
+                legTextureReverse = ModContent.Request<Texture2D>(LegTextureReverse);
+                TF2Player.legTextures.Add(AddLegTexture);
+            }
+            if (!(Reskin || HealthBoost == 0))
+            {
+                TF2Player.healthModifiers.Add(ModifyHealth);
+                if (!TemporaryHealthBoost)
+                    TF2Player.cachedHealthModifiers.Add(ModifyHealth);
+            }
+        }
+
+        public sealed override void Unload()
+        {
+            if (BackTexture != null)
+                TF2Player.backTextures.Remove(AddBackTexture);
+            if (ArmTexture != null)
+                TF2Player.armTextures.Remove(AddArmTexture);
+            if (LegTexture != null)
+                TF2Player.legTextures.Remove(AddLegTexture);
+            if (!(Reskin || HealthBoost == 0))
+                TF2Player.healthModifiers.Remove(ModifyHealth);
+        }
+
         public override sealed bool? PrefixChance(int pre, UnifiedRandom rand) => false;
 
         public override sealed bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y)
@@ -717,7 +920,7 @@ namespace TF2.Content.Items
         {
             if (tag.GetInt("availability") > 0)
                 availability = tag.GetInt("availability");
-            else
+            else if (Item.ModItem is TF2Weapon || Item.ModItem is TF2Accessory)
             {
                 availability = Exclusive;
                 qualityHashSet.Add(Vintage);

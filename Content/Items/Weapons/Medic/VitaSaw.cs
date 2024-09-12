@@ -10,6 +10,8 @@ namespace TF2.Content.Items.Weapons.Medic
 {
     public class VitaSaw : TF2Weapon
     {
+        protected override int HealthBoost => -10;
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Medic, Melee, Unique, Unlock);
@@ -26,8 +28,6 @@ namespace TF2.Content.Items.Weapons.Medic
             AddNegativeAttribute(description);
             AddNeutralAttribute(description);
         }
-
-        protected override void WeaponPassiveUpdate(Player player) => TF2Player.SetPlayerHealth(player, -10);
 
         public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo)
         {

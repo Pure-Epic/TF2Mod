@@ -13,7 +13,7 @@ namespace TF2.Content.Items.Weapons.Scout
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Scout, Secondary, Unique, Craft);
-            SetWeaponSize(21, 50);
+            SetWeaponSize(24, 50);
             SetThrowableUseStyle();
             SetWeaponDamage(projectile: ModContent.ProjectileType<MadMilkProjectile>());
             SetWeaponAttackSpeed(0.5, hide: true);

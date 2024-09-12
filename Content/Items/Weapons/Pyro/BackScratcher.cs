@@ -36,11 +36,5 @@ namespace TF2.Content.Items.Weapons.Pyro
         public bool backScratcherEquipped;
 
         public override void ResetEffects() => backScratcherEquipped = false;
-
-        public override void PostUpdate()
-        {
-            if (backScratcherEquipped && Main.netMode == NetmodeID.SinglePlayer)
-                Player.GetModPlayer<TF2Player>().healReduction *= 0.25f;
-        }
     }
 }

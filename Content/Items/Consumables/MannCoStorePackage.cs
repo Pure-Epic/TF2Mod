@@ -27,7 +27,7 @@ namespace TF2.Content.Items.Consumables
         public override void RightClick(Player player)
         {
             Item item = new Item();
-            item.SetDefaults(MannCoSupplyCrate.PossibleDrops[Main.rand.Next(MannCoSupplyCrate.PossibleDrops.Length + 1)]);
+            item.SetDefaults(MannCoSupplyCrate.GetPossibleDrop);
             (item.ModItem as TF2Item).availability = Uncrate;
             player.QuickSpawnItem(player.GetSource_GiftOrReward(), item);
         }

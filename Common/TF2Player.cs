@@ -10,6 +10,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TF2.Content.Buffs;
@@ -18,7 +19,6 @@ using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Currencies;
 using TF2.Content.Items.Weapons;
-using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.Items.Weapons.Medic;
@@ -75,8 +75,21 @@ namespace TF2.Common
 
         public bool Cloaked => Player.GetModPlayer<CloakPlayer>().cloakBuff || Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerBuff || Player.GetModPlayer<FeignDeathPlayer>().feignDeath;
 
-        public float classMultiplier = 0.5f;
+        public bool HealPenalty => healPenalty > 0;
+
+        public bool ItemDropReady
+        {
+            get
+            {
+                ulong time = (ulong)TF2.Minute(30);
+                if (itemDropTime == time)
+                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/UI/notification_alert"));
+                return itemDropTime >= time;
+            }
+        }
+
         public float healthMultiplier = 1f;
+        public float damageMultiplier = 0.5f;
         public float speedMultiplier = 1f;
         public float overhealMultiplier = 1f;
         public float primaryAmmoMultiplier = 1f;
@@ -85,7 +98,6 @@ namespace TF2.Common
         public int overheal;
         public int overhealDecayTimer;
         public int pierce = 1;
-        public float damageReduction;
         public float healReduction = 1f;
         public bool focus;
         public bool disableFocusSlowdown;
@@ -93,18 +105,14 @@ namespace TF2.Common
         public int mountSpeed;
         public float damage;
         public float superDamage;
-
         public bool initializedClass;
         public bool primaryEquipped;
         public bool secondaryEquipped;
         public bool pdaEquipped;
-
         public int extraJumps;
         public int jumpsConsumed;
-
         public int bannerType;
         public int shieldType;
-
         public int metal;
         public int maxMetal = 200;
         public int sentryWhoAmI = -1;
@@ -119,7 +127,6 @@ namespace TF2.Common
         public SentryStatistics carriedSentry;
         public DispenserStatistics carriedDispenser;
         public TeleporterStatistics carriedTeleporter;
-
         private int healTimer;
         public float regenerationMultiplier = 1f;
         public bool stopRegen;
@@ -130,40 +137,35 @@ namespace TF2.Common
         public int uberChargeDuration;
         public bool fullyCharged;
         public int organs;
-
         public bool backStab;
         public bool brokenCloak;
         public int cloakImmuneTime;
-
         public int currentClass;
-
         public bool crit;
         public bool miniCrit;
         public bool critMelee;
         public bool noRandomAmmoBoxes;
         public bool noRandomHealthKits;
-
+        internal bool removeImmunityFrames;
+        internal int[] projectileImmunity = new int[Main.maxProjectiles];
         public float money;
+        public ulong itemDropTime;
         public int miningPower = 55;
-
-        public int multiplayerHealCooldown;
+        public int healCooldown;
+        internal int healPenalty;
         public int activePlayers = Main.player.Take(Main.maxPlayers).Count(x => x.active);
         public List<MannCoStoreItem> shoppingCart = new List<MannCoStoreItem>();
         public int page = 1;
         private bool newPlayer;
         public bool lockPDA;
         public int cachedHealth;
-        public MercenaryBuddy[] buddies = new MercenaryBuddy[3];
+        public int[] buddies = [-1, -1, -1];
         public int[] buddyCooldown = new int[3];
-
-        public override IEnumerable<Item> AddStartingItems(bool mediumCoreDeath) => !(ModLoader.TryGetMod("Gensokyo", out Mod _) && Mod.TryFind("GensokyoDLC_StarterBox", out ModItem starterBox))
-                ? ([
-                new Item(ModContent.ItemType<Australium>()),
-                new Item(ModContent.ItemType<SaxtonHaleSummon>())])
-                : ([
-                new Item(ModContent.ItemType<Australium>()),
-                new Item(ModContent.ItemType<SaxtonHaleSummon>()),
-                new Item(starterBox.Type)]);
+        internal static List<Func<Player, int>> healthModifiers = new List<Func<Player, int>>();
+        internal static List<Func<Player, int>> cachedHealthModifiers = new List<Func<Player, int>>();
+        internal static List<Func<Player, Asset<Texture2D>>> backTextures = new List<Func<Player, Asset<Texture2D>>>();
+        internal static List<Func<Player, Asset<Texture2D>>> armTextures = new List<Func<Player, Asset<Texture2D>>>();
+        internal static List<Func<Player, Asset<Texture2D>>> legTextures = new List<Func<Player, Asset<Texture2D>>>();
 
         public override void Initialize()
         {
@@ -174,8 +176,8 @@ namespace TF2.Common
         public override void LoadData(TagCompound tag)
         {
             currentClass = tag.GetInt("class");
-            classMultiplier = tag.GetFloat("power");
             healthMultiplier = tag.GetFloat("health");
+            damageMultiplier = tag.GetFloat("damage");
             money = tag.GetFloat("money");
             miningPower = tag.GetInt("miningPower");
             cachedHealth = tag.GetInt("totalHealth");
@@ -183,21 +185,23 @@ namespace TF2.Common
             mountSpeed = tag.GetInt("mountSpeed");
             newPlayer = tag.GetBool("newPlayer");
             healthBonus = tag.GetInt("bonusHealth");
+            itemDropTime = tag.Get<ulong>("itemDropTime");
         }
 
         public override void SaveData(TagCompound tag)
         {
             tag["class"] = currentClass;
-            tag["power"] = classMultiplier;
             tag["health"] = healthMultiplier;
+            tag["damage"] = damageMultiplier;
             tag["money"] = money;
             tag["miningPower"] = miningPower;
-            tag["totalHealth"] = cachedHealth;
+            tag["totalHealth"] = TF2.Round((BaseHealth + CachedHealthModifiers()) * healthMultiplier);
             tag["homingPower"] = homingPower;
             tag["mountSpeed"] = mountSpeed;
             tag["newPlayer"] = newPlayer;
             if (healthBonus > 0)
                 tag["bonusHealth"] = healthBonus;
+            tag["itemDropTime"] = itemDropTime;
         }
 
         public override void OnEnterWorld()
@@ -231,21 +235,14 @@ namespace TF2.Common
         public override void ResetEffects()
         {
             CloakSound();
-            Player.GetDamage<TF2DamageClass>() *= classMultiplier;
-            if (Main.netMode == NetmodeID.SinglePlayer)
-            {
-                if ((initializedClass && healthBonus > 0) || healthBonus < 0)
-                    healthBonus = 0;
-                overhealMultiplier = 1f;
-                healReduction = 1f;
+            Player.GetDamage<MercenaryDamage>() *= damageMultiplier;
+            if (Main.netMode != NetmodeID.Server)
                 focus = false;
-            }
             Player.moveSpeed = BaseSpeed;
             Player.accRunSpeed *= BaseSpeed;
             speedMultiplier = Player.moveSpeed;
             primaryAmmoMultiplier = 1f;
             secondaryAmmoMultiplier = 1f;
-            damageReduction = 0f;
             disableFocusSlowdown = false;
             miniCrit = false;
             crit = false;
@@ -320,24 +317,12 @@ namespace TF2.Common
                 if (overheal < 0)
                     overheal = 0;
             }
-            if (Main.netMode == NetmodeID.MultiplayerClient)
+            for (int i = 0; i < projectileImmunity.Length; i++)
             {
-                healthBonus = SaveHealth();
-                var overheal = 1f;
-                if (Player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped)
-                    overheal *= 0.6f;
-                if (Player.GetModPlayer<RazorbackPlayer>().razorbackEquipped)
-                    overheal = 0f;
-                overhealMultiplier = overheal;
-                var healResistance = 1f;
-                if (Player.GetModPlayer<EqualizerPlayer>().equalizerEquipped)
-                    healResistance *= 0.1f;
-                if (Player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped)
-                    healResistance *= 0.25f;
-                if (Player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped)
-                    healResistance *= 0.6f;
-                healReduction = healResistance;
-                focus = Player.controlJump && Player.mount.Type == ModContent.MountType<TF2Mount>() && Player.HasBuff<TF2MountBuff>();
+                projectileImmunity[i]--;
+                if (!Main.projectile[i].active)
+                    projectileImmunity[i] = 0;
+                TF2.Minimum(ref projectileImmunity[i], 0);
             }
             Player.buffImmune[BuffID.VortexDebuff] = true;
             if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
@@ -352,7 +337,6 @@ namespace TF2.Common
                 if (gensokyo.TryFind("Debuff_GravityInverted", out ModBuff gravityInverted))
                     Player.buffImmune[gravityInverted.Type] = true;
             }
-            cachedHealth = TF2.Round((BaseHealth + SaveHealth()) * healthMultiplier);
             if (TF2.MannCoStoreActive)
             {
                 Main.npcChatText = "";
@@ -363,11 +347,32 @@ namespace TF2.Common
 
         public override void PostUpdate()
         {
+            if (Main.netMode != NetmodeID.Server)
+            {
+                healthBonus = HealthModifiers();
+                float overheal = 1f;
+                if (Player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped)
+                    overheal *= 0.6f;
+                if (Player.GetModPlayer<RazorbackPlayer>().razorbackEquipped)
+                    overheal = 0f;
+                overhealMultiplier = overheal;
+                float healResistance = 1f;
+                if (Player.GetModPlayer<EqualizerPlayer>().equalizerEquipped)
+                    healResistance *= 0.1f;
+                if (Player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped)
+                    healResistance *= 0.25f;
+                if (Player.GetModPlayer<FistsOfSteelPlayer>().fistsOfSteelEquipped)
+                    healResistance *= 0.6f;
+                healReduction = healResistance;
+                focus = Player.controlJump && Player.mount.Type == ModContent.MountType<TF2Mount>() && Player.HasBuff<TF2MountBuff>();
+            }
+            cachedHealth = TF2.Round((BaseHealth + HealthModifiers()) * healthMultiplier);
             if (ClassSelected)
             {
                 if (!initializedClass)
                 {
                     metal = maxMetal;
+                    Player.statLife = cachedHealth;
                     initializedClass = true;
                 }
                 if (Player.hideMisc[0])
@@ -404,8 +409,7 @@ namespace TF2.Common
             {
                 foreach (Projectile projectile in Main.projectile)
                 {
-                    if ((projectile.type == ModContent.ProjectileType<HealingBeam>()
-                        || projectile.type == ModContent.ProjectileType<HealingBeamKritzkrieg>())
+                    if ((projectile.ModProjectile is HealingBeam)
                         && projectile.Hitbox.Intersects(Player.Hitbox)
                         && projectile.active
                         && projectile.owner != Main.myPlayer)
@@ -421,8 +425,10 @@ namespace TF2.Common
                 cloakImmuneTime = 0;
             else
                 cloakImmuneTime--;
-            multiplayerHealCooldown--;
-            multiplayerHealCooldown = Math.Clamp(multiplayerHealCooldown, 0, 5);
+            healCooldown--;
+            healCooldown = Math.Clamp(healCooldown, 0, TF2.Time(0.1));
+            healPenalty--;
+            healPenalty = Math.Clamp(healPenalty, 0, TF2.Time(10));
             if (Player.HeldItem.ModItem is TF2Weapon weapon)
             {
                 if (damage > 0 && !weapon.Reloading)
@@ -434,11 +440,17 @@ namespace TF2.Common
                 }
             }
             MedicHealthRegeneration();
+            for (int i = 0; i < buddies.Length; i++)
+            {
+                if (buddies[i] >= 0 && !Main.npc[buddies[i]].active)
+                    buddies[i] = -1;
+            }
             for (int i = 0; i < buddyCooldown.Length; i++)
             {
-                if (buddyCooldown[i] > 0 && (buddies[i] == null || !buddies[i].NPC.active))
+                if (buddyCooldown[i] > 0 && buddies[i] < 0)
                     buddyCooldown[i]--;
             }
+            itemDropTime++;
         }
 
         private void MedicHealthRegeneration()
@@ -451,9 +463,10 @@ namespace TF2.Common
                 {
                     if (Player.GetModPlayer<BlutsaugerPlayer>().blutsaugerEquipped)
                         Player.GetModPlayer<TF2Player>().regenerationMultiplier *= 0.33f;
-                    int healAmount = (int)(TF2.GetHealth(Player, 3) * regenerationMultiplier);
+                    float healPenalty = !HealPenalty ? 1f : 2f;
+                    int healAmount = TF2.Round(TF2.GetHealth(Player, 3 * healPenalty) * regenerationMultiplier);
                     if (Player.HeldItem.ModItem is Amputator)
-                        healAmount += TF2.GetHealth(Player, 3);
+                        healAmount += TF2.GetHealth(Player, 3 * healPenalty);
                     Player.Heal(healAmount);
                     healTimer = 0;
                 }
@@ -521,8 +534,7 @@ namespace TF2.Common
                             carriedSentry.Ammo = sentry.Ammo;
                             carriedSentry.RocketAmmo = sentry.RocketAmmo;
                             SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentrypacking0{Main.rand.Next(1, 3)}"), Player.Center);
-                            sentry.NPC.active = false;
-                            sentry.NPC.netUpdate = true;
+                            TF2.KillNPC(npc);
                             if (SoundEngine.TryGetActiveSound(sentry.sentrySoundSlot, out var scanSound))
                                 scanSound?.Stop();
                             sentryWhoAmI = -1;
@@ -546,8 +558,7 @@ namespace TF2.Common
                             };
                             carriedDispenser.ReservedMetal = dispenser.ReservedMetal;
                             SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentrypacking0{Main.rand.Next(1, 3)}"), Player.Center);
-                            dispenser.NPC.active = false;
-                            dispenser.NPC.netUpdate = true;
+                            TF2.KillNPC(npc);
                             dispenserWhoAmI = -1;
                             return;
                         }
@@ -568,8 +579,7 @@ namespace TF2.Common
                                 _ => 0
                             };
                             SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentrypacking0{Main.rand.Next(1, 3)}"), Player.Center);
-                            teleporter.NPC.active = false;
-                            teleporter.NPC.netUpdate = true;
+                            TF2.KillNPC(npc);
                             if (teleporter is TeleporterEntrance)
                             {
                                 (teleporter as TeleporterEntrance).FindTeleporterExit(out TeleporterExit exit);
@@ -607,6 +617,7 @@ namespace TF2.Common
                         TF2Sentry sentry = Building.ConstructBuilding(carriedSentry.Type != ModContent.NPCType<MiniSentry>() ? ModContent.NPCType<SentryLevel1>() : ModContent.NPCType<MiniSentry>(), Player.whoAmI, -Player.direction, carriedSentry.Metal, true, Player.HasBuff<TF2MountBuff>()) as TF2Sentry;
                         sentry.Ammo = carriedSentry.Ammo;
                         sentry.RocketAmmo = carriedSentry.RocketAmmo;
+                        sentry.HaulSentry(carriedSentry.Metal, carriedSentry.Ammo, carriedSentry.RocketAmmo, Player.HasBuff<TF2MountBuff>());
                         SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentryplanting0{Main.rand.Next(1, 3)}"), Player.Center);
                         sentry.NPC.netUpdate = true;
                         carriedSentry = null;
@@ -617,6 +628,7 @@ namespace TF2.Common
                         TF2Dispenser dispenser = Building.ConstructBuilding(ModContent.NPCType<DispenserLevel1>(), Player.whoAmI, -Player.direction, carriedDispenser.Metal, true, false) as TF2Dispenser;
                         dispenser.ReservedMetal = carriedDispenser.ReservedMetal;
                         SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentryplanting0{Main.rand.Next(1, 3)}"), Player.Center);
+                        dispenser.HaulDispenser(carriedDispenser.Metal, carriedDispenser.ReservedMetal);
                         dispenser.NPC.netUpdate = true;
                         carriedDispenser = null;
                         return;
@@ -625,6 +637,7 @@ namespace TF2.Common
                     {
                         TF2Teleporter teleporter = Building.ConstructBuilding((carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel1>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel2>() || carriedTeleporter.Type == ModContent.NPCType<TeleporterEntranceLevel3>()) ? ModContent.NPCType<TeleporterEntranceLevel1>() : ModContent.NPCType<TeleporterExitLevel1>(), Player.whoAmI, -Player.direction, carriedTeleporter.Metal, true, false) as TF2Teleporter;
                         SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/engineer_sentryplanting0{Main.rand.Next(1, 3)}"), Player.Center);
+                        teleporter.HaulTeleporter(carriedTeleporter.Metal);
                         teleporter.NPC.netUpdate = true;
                         carriedTeleporter = null;
                         return;
@@ -659,8 +672,7 @@ namespace TF2.Common
         {
             if (ClassSelected)
                 modifiers.DisableSound();
-            damageReduction = Utils.Clamp(damageReduction, 0f, 1f);
-            modifiers.FinalDamage -= damageReduction;
+            healPenalty = TF2.Time(10);
             if (!modifiers.PvP) return;
             Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
             if (opponent.HeldItem.ModItem is TF2Weapon weapon && weapon.IsWeaponType(TF2Item.Melee) && weapon.WeaponCriticalHits(opponent))
@@ -681,8 +693,8 @@ namespace TF2.Common
             {
                 TF2Player p = opponent.GetModPlayer<TF2Player>();
                 if (p.ClassSelected && !p.crit)
-                    p.damage += info.Damage / p.classMultiplier;
-                p.superDamage += info.Damage / p.classMultiplier;
+                    p.damage += info.Damage / p.damageMultiplier;
+                p.superDamage += info.Damage / p.damageMultiplier;
             }
         }
 
@@ -690,6 +702,12 @@ namespace TF2.Common
         {
             if (ClassSelected)
                 SoundEngine.PlaySound(new SoundStyle($"TF2/Content/Sounds/SFX/Voicelines/{(ClassesFileNames)currentClass}_painsevere0{Main.rand.Next(1, 4)}"), Player.Center);
+            if (removeImmunityFrames)
+            {
+                Player.immune = false;
+                Player.immuneTime = 0;
+                removeImmunityFrames = false;
+            }
         }
 
         public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone)
@@ -697,13 +715,11 @@ namespace TF2.Common
             if (ClassSelected && item.ModItem is TF2Weapon)
             {
                 if (!crit)
-                    damage += damageDone / classMultiplier;
-                superDamage += damageDone / classMultiplier;
+                    damage += damageDone / damageMultiplier;
+                superDamage += damageDone / damageMultiplier;
             }
-
             if (ModContent.GetInstance<TF2Config>().NoTF2Loot || !ClassSelected || item.ModItem?.Mod is not TF2) return;
             if (target.friendly || NPCID.Sets.CountsAsCritter[target.type] || target.type == NPCID.TargetDummy || !target.boss) return;
-
             if (target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown <= 0 && Player.HeldItem.ModItem is TF2Weapon weapon && weapon.IsWeaponType(TF2Item.Melee))
             {
                 if (weapon.WeaponAmmoBoxes(Player))
@@ -711,7 +727,7 @@ namespace TF2.Common
                     IEntitySource ammoSource = target.GetSource_FromAI();
                     int type = Main.rand.NextBool(5) ? ModContent.ItemType<LargeAmmoPoint>() : (Main.rand.NextBool(2) ? ModContent.ItemType<MediumAmmoPoint>() : ModContent.ItemType<SmallAmmoPoint>());
                     int loot = Item.NewItem(ammoSource, target.Center, type);
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.SyncItem, number: loot);
                     target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown = TF2.Time(1);
                 }
@@ -720,7 +736,7 @@ namespace TF2.Common
                     IEntitySource healthSource = target.GetSource_FromAI();
                     int type = Main.rand.NextBool(5) ? ModContent.ItemType<LargeHealthPoint>() : (Main.rand.NextBool(2) ? ModContent.ItemType<MediumHealthPoint>() : ModContent.ItemType<SmallHealthPoint>());
                     int loot = Item.NewItem(healthSource, target.Center, type);
-                    if (Main.netMode == NetmodeID.Server)
+                    if (Main.dedServ)
                         NetMessage.SendData(MessageID.SyncItem, number: loot);
                     target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown = TF2.Time(1);
                 }
@@ -734,13 +750,11 @@ namespace TF2.Common
                 if (ClassSelected && !projectile.spawnedFromNPC)
                 {
                     if (!projectile.crit && !crit)
-                        damage += damageDone / classMultiplier;
-                    superDamage += damageDone / classMultiplier;
+                        damage += damageDone / damageMultiplier;
+                    superDamage += damageDone / damageMultiplier;
                 }
-
                 if (ModContent.GetInstance<TF2Config>().NoTF2Loot || !ClassSelected || proj.ModProjectile?.Mod is not TF2) return;
                 if (target.friendly || NPCID.Sets.CountsAsCritter[target.type] || target.type == NPCID.TargetDummy || !target.boss) return;
-
                 if (target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown <= 0)
                 {
                     if (projectile.ammoShot)
@@ -748,7 +762,7 @@ namespace TF2.Common
                         IEntitySource ammoSource = target.GetSource_FromAI();
                         int type = Main.rand.NextBool(5) ? ModContent.ItemType<LargeAmmoPoint>() : (Main.rand.NextBool(2) ? ModContent.ItemType<MediumAmmoPoint>() : ModContent.ItemType<SmallAmmoPoint>());
                         int loot = Item.NewItem(ammoSource, target.Center, type);
-                        if (Main.netMode == NetmodeID.Server)
+                        if (Main.dedServ)
                             NetMessage.SendData(MessageID.SyncItem, number: loot);
                         target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown = TF2.Time(2);
                     }
@@ -757,7 +771,7 @@ namespace TF2.Common
                         IEntitySource healthSource = target.GetSource_FromAI();
                         int type = Main.rand.NextBool(5) ? ModContent.ItemType<LargeHealthPoint>() : (Main.rand.NextBool(2) ? ModContent.ItemType<MediumHealthPoint>() : ModContent.ItemType<SmallHealthPoint>());
                         int loot = Item.NewItem(healthSource, target.Center, type);
-                        if (Main.netMode == NetmodeID.Server)
+                        if (Main.dedServ)
                             NetMessage.SendData(MessageID.SyncItem, number: loot);
                         target.GetGlobalNPC<TF2GlobalNPC>().pickupCooldown = TF2.Time(2);
                     }
@@ -824,7 +838,12 @@ namespace TF2.Common
                 packet.Write(Player.itemAnimationMax);
                 packet.Write(overheal);
                 packet.Write(focus);
-                packet.Write(multiplayerHealCooldown);
+                packet.Write(healCooldown);
+                packet.Write(healPenalty);
+                foreach (int buddy in buddies)
+                    packet.Write(buddy);
+                foreach (int buddyCooldown in buddyCooldown)
+                    packet.Write(buddyCooldown);
                 packet.Send(toWho, fromWho);
             }
         }
@@ -843,7 +862,10 @@ namespace TF2.Common
             targetCopy.Player.itemAnimationMax = Player.itemAnimationMax;
             p.overheal = overheal;
             p.focus = focus;
-            p.multiplayerHealCooldown = multiplayerHealCooldown;
+            p.healCooldown = healCooldown;
+            p.healPenalty = healPenalty;
+            p.buddies = buddies;
+            p.buddyCooldown = buddyCooldown;
         }
 
         public override void SendClientChanges(ModPlayer clientPlayer)
@@ -860,42 +882,35 @@ namespace TF2.Common
                 || Player.itemAnimation != clientPlayer.Player.itemAnimation
                 || Player.itemAnimationMax != clientPlayer.Player.itemAnimationMax
                 || focus != p.focus
-                || multiplayerHealCooldown != p.multiplayerHealCooldown)
+                || healCooldown != p.healCooldown
+                || healPenalty != p.healPenalty
+                || buddies != p.buddies
+                || buddyCooldown != p.buddyCooldown)
                 SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
         }
 
-        public int SaveHealth()
+        public int HealthModifiers()
         {
             var health = 0;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<Sandman>()))
-                health -= 15;
-            if (bannerType == 2)
-                health += 20;
-            if (Player.GetModPlayer<AliBabasWeeBootiesPlayer>().aliBabasWeeBootiesEquipped)
-                health += 25;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<Eyelander>()))
-                health += !Player.dead ? Player.GetModPlayer<EyelanderPlayer>().heads * 15 - 25 : -25;
-            if (Player.HeldItem.ModItem is GlovesOfRunningUrgently && Player.inventory[58].ModItem is not GlovesOfRunningUrgently)
-                health -= 20;
-            if (Player.HasBuff<DalokohsBarBuff>())
-                health += 50;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<Gunslinger>()))
-                health += 25;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<VitaSaw>()))
-                health -= 10;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<BigEarner>()))
-                health -= 25;
-            if (TF2.IsItemTypeInHotbar(Player, ModContent.ItemType<ConniversKunai>()))
-                health -= 55;
+            foreach (Func<Player, int> func in healthModifiers)
+                health += func(Player);
             return health;
         }
 
-        public static bool IsHealthFull(Player player) => player.statLife == TotalHealth(player);
+        public int CachedHealthModifiers()
+        {
+            var health = 0;
+            foreach (Func<Player, int> func in cachedHealthModifiers)
+                health += func(Player);
+            return health;
+        }
+
+        public static bool IsHealthFull(Player player) => player.statLife >= TotalHealth(player);
 
         public static int TotalHealth(Player player)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            return TF2.Round((p.BaseHealth + p.SaveHealth()) * p.healthMultiplier);
+            return TF2.Round((p.BaseHealth + p.HealthModifiers()) * p.healthMultiplier);
         }
 
         public static float GetCurrentPlayerHealth(Player player) => (float)player.statLife / TotalHealth(player);
@@ -916,6 +931,7 @@ namespace TF2.Common
         {
             ref float speed = ref player.GetModPlayer<TF2Player>().speedMultiplier;
             player.moveSpeed *= (float)(percentage / 100f);
+            player.accRunSpeed *= (float)(percentage / 50f);
             speed *= (float)(percentage / 100f);
         }
 
@@ -923,7 +939,7 @@ namespace TF2.Common
         {
             if (!PlayerLoader.CanHitNPC(Player, npc))
                 return;
-            var modifiers = npc.GetIncomingStrikeModifiers(ModContent.GetInstance<TF2DamageClass>(), direction);
+            var modifiers = npc.GetIncomingStrikeModifiers(ModContent.GetInstance<MercenaryDamage>(), direction);
             PlayerLoader.ModifyHitNPC(Player, npc, ref modifiers);
             modifiers.DefenseEffectiveness *= 0;
             Player.StrikeNPCDirect(npc, modifiers.ToHitInfo(damage, crit, knockback, false, Player.luck));
@@ -981,21 +997,20 @@ namespace TF2.Common
         public Asset<Texture2D> GetClassTexture(string texturePath)
         {
             string defaultTexturePath = $"TF2/Content/Textures/{(ClassName)currentClass}/{texturePath}";
-            return ClassSelected && ModContent.HasAsset(defaultTexturePath) ? ModContent.Request<Texture2D>(defaultTexturePath, AssetRequestMode.ImmediateLoad) : ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing");
+            return ClassSelected && ModContent.HasAsset(defaultTexturePath) ? ModContent.Request<Texture2D>(defaultTexturePath, AssetRequestMode.ImmediateLoad) : TF2.BlankTexture;
         }
 
-        public static void Draw(ref PlayerDrawSet drawInfo, Asset<Texture2D>[] texture, Asset<Texture2D>[,] textureHair, Vector2 position, Rectangle? sourceRect, float rotation, Vector2 origin, float scale, SpriteEffects effect)
+        public static void Draw(ref PlayerDrawSet drawInfo, Asset<Texture2D> texture, Asset<Texture2D> textureHair, Vector2 position, Rectangle? sourceRect, float rotation, Vector2 origin, float scale, SpriteEffects effect)
         {
             DrawData drawData;
-            Player player = drawInfo.drawPlayer;
-            if (textureHair != null && textureHair[0, player.hair] != ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing"))
+            if (textureHair != null && textureHair != ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing"))
             {
-                drawData = new DrawData(textureHair[0, player.hair].Value, position, sourceRect, drawInfo.colorEyeWhites, rotation, origin, scale, effect);
+                drawData = new DrawData(textureHair.Value, position, sourceRect, drawInfo.colorEyeWhites, rotation, origin, scale, effect);
                 drawInfo.DrawDataCache.Add(drawData);
             }
-            if (texture != null && texture[0] != ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing"))
+            if (texture != null && texture != ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing"))
             {
-                drawData = new DrawData(texture[0].Value, position, sourceRect, drawInfo.colorEyeWhites, rotation, origin, scale, effect);
+                drawData = new DrawData(texture.Value, position, sourceRect, drawInfo.colorEyeWhites, rotation, origin, scale, effect);
                 drawInfo.DrawDataCache.Add(drawData);
             }
         }
@@ -1019,11 +1034,10 @@ namespace TF2.Common
 
     public class TF2HeadTexture : PlayerDrawLayer
     {
-        private readonly Asset<Texture2D>[,] Hair = new Asset<Texture2D>[10, 165];
-        private readonly Asset<Texture2D>[,] HairAlt = new Asset<Texture2D>[10, 165];
-        private readonly Asset<Texture2D>[] Head = new Asset<Texture2D>[10];
-        private readonly Asset<Texture2D>[] EyeLids = new Asset<Texture2D>[10];
-        private readonly Asset<Texture2D>[] Eyes = new Asset<Texture2D>[10];
+        private static Asset<Texture2D> Hair;
+        private static Asset<Texture2D> Head;
+        private static Asset<Texture2D> EyeLids;
+        private static Asset<Texture2D> Eyes;
 
         public override bool IsHeadLayer => true;
 
@@ -1035,20 +1049,18 @@ namespace TF2.Common
         {
             Player player = drawInfo.drawPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-
             if (p.ClassSelected)
             {
-                Hair[0, player.hair] = player.direction == 1 ? p.GetClassTexture("Hair") : p.GetClassTexture("Hair_Reverse");
-                HairAlt[0, player.hair] = player.direction == 1 ? p.GetClassTexture("Hair") : p.GetClassTexture("Hair_Reverse");
-                Head[0] = p.GetClassTexture("Head");
-                EyeLids[0] = p.GetClassTexture("EyeLids");
-                Eyes[0] = p.GetClassTexture("Eyes");
+                Hair = player.direction == 1 ? p.GetClassTexture("Hair") : p.GetClassTexture("Hair_Reverse");
+                Head = p.GetClassTexture("Head");
+                EyeLids = p.GetClassTexture("EyeLids");
+                Eyes = p.GetClassTexture("Eyes");
                 Vector2 headPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - (player.bodyFrame.Width / 2) + (player.width / 2)), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.headPosition + drawInfo.headVect;
                 TF2Player.Draw(ref drawInfo, Head, null, headPosition, player.bodyFrame, player.headRotation, drawInfo.headVect, 1f, drawInfo.playerEffect);
                 TF2Player.Draw(ref drawInfo, Eyes, null, headPosition, player.bodyFrame, player.headRotation, drawInfo.headVect, 1f, drawInfo.playerEffect);
                 Vector2 eyelidOffset = Main.OffsetsPlayerHeadgear[player.bodyFrame.Y / player.bodyFrame.Height];
                 eyelidOffset.Y -= 2f;
-                Rectangle eyelidFrame = EyeLids[0].Frame(1, 3, 0, (int)player.eyeHelper.CurrentEyeFrame);
+                Rectangle eyelidFrame = EyeLids.Frame(1, 3, 0, (int)player.eyeHelper.CurrentEyeFrame);
                 TF2Player.Draw(ref drawInfo, EyeLids, null, headPosition + eyelidOffset, eyelidFrame, player.headRotation, drawInfo.headVect, 1f, drawInfo.playerEffect);
                 TF2Player.Draw(ref drawInfo, null, Hair, headPosition, drawInfo.hairFrontFrame, player.headRotation, drawInfo.headVect, 1f, drawInfo.playerEffect);
             }
@@ -1057,8 +1069,8 @@ namespace TF2.Common
 
     public class TF2TorsoTexture : PlayerDrawLayer
     {
-        private readonly Asset<Texture2D>[] Torso = new Asset<Texture2D>[10];
-        private readonly Asset<Texture2D>[] Legs = new Asset<Texture2D>[10];
+        private static Asset<Texture2D> Torso;
+        private static Asset<Texture2D> Legs;
 
         public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => drawInfo.skinVar < 10;
 
@@ -1068,13 +1080,12 @@ namespace TF2.Common
         {
             Player player = drawInfo.drawPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-
             if (p.ClassSelected)
             {
                 player.body = -1;
                 player.legs = -1;
-                Torso[0] = player.direction == 1 ? p.GetClassTexture("Torso") : p.GetClassTexture("Torso_Reverse");
-                Legs[0] = player.direction == 1 ? p.GetClassTexture("Legs") : p.GetClassTexture("Legs_Reverse");
+                Torso = player.direction == 1 ? p.GetClassTexture("Torso") : p.GetClassTexture("Torso_Reverse");
+                Legs = player.direction == 1 ? p.GetClassTexture("Legs") : p.GetClassTexture("Legs_Reverse");
                 Vector2 bodyPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
                 Vector2 legPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
                 bodyPosition.Y += drawInfo.torsoOffset;
@@ -1086,15 +1097,25 @@ namespace TF2.Common
                 if (!player.HasBuff<TF2MountBuff>())
                 {
                     if (drawInfo.isSitting)
-                        DrawSittingLegs(ref drawInfo, Legs[0].Value);
+                    {
+                        DrawSittingLegs(ref drawInfo, Legs.Value);
+                        foreach (Func<Player, Asset<Texture2D>> func in TF2Player.legTextures)
+                            DrawSittingLegs(ref drawInfo, func(player).Value);
+                    }
                     else
+                    {
                         TF2Player.Draw(ref drawInfo, Legs, null, legPosition, player.legFrame, player.legRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
+                        foreach (Func<Player, Asset<Texture2D>> func in TF2Player.legTextures)
+                            TF2Player.Draw(ref drawInfo, func(player), null, legPosition, player.legFrame, player.legRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
+                    }
                 }
                 else
                 {
                     Rectangle legFrame = player.legFrame;
                     legFrame.Y = player.legFrame.Height;
                     TF2Player.Draw(ref drawInfo, Legs, null, legPosition, legFrame, player.legRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
+                    foreach (Func<Player, Asset<Texture2D>> func in TF2Player.legTextures)
+                        TF2Player.Draw(ref drawInfo, func(player), null, legPosition, legFrame, player.legRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
                 }
             }
         }
@@ -1139,8 +1160,8 @@ namespace TF2.Common
 
     public class TF2FrontArmTexture : PlayerDrawLayer
     {
-        private readonly Asset<Texture2D>[] Arm = new Asset<Texture2D>[10];
-        private readonly Asset<Texture2D>[] Hand = new Asset<Texture2D>[10];
+        private static Asset<Texture2D> Arm;
+        private static Asset<Texture2D> Hand;
 
         public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => drawInfo.skinVar < 10;
 
@@ -1152,8 +1173,8 @@ namespace TF2.Common
             TF2Player p = player.GetModPlayer<TF2Player>();
             if (p.ClassSelected)
             {
-                Arm[0] = player.direction == 1 ? p.GetClassTexture("Arms") : p.GetClassTexture("Arms_Reverse");
-                Hand[0] = player.direction == 1 ? p.GetClassTexture("Hands") : p.GetClassTexture("Hands_Reverse");
+                Arm = player.direction == 1 ? p.GetClassTexture("Arms") : p.GetClassTexture("Arms_Reverse");
+                Hand = player.direction == 1 ? p.GetClassTexture("Hands") : p.GetClassTexture("Hands_Reverse");
                 Vector2 frontArmPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
                 Vector2 value = Main.OffsetsPlayerHeadgear[player.bodyFrame.Y / player.bodyFrame.Height];
                 value.Y -= 2f;
@@ -1167,14 +1188,16 @@ namespace TF2.Common
                     frontArmPosition += new Vector2(!drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) ? 1 : -1, !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipVertically) ? 1 : -1);
                 TF2Player.Draw(ref drawInfo, Arm, null, frontArmPosition, drawInfo.compFrontArmFrame, rotation, bodyVect, 1f, drawInfo.playerEffect);
                 TF2Player.Draw(ref drawInfo, Hand, null, frontArmPosition, drawInfo.compFrontArmFrame, rotation, bodyVect, 1f, drawInfo.playerEffect);
+                foreach (Func<Player, Asset<Texture2D>> func in TF2Player.armTextures)
+                    TF2Player.Draw(ref drawInfo, func(player), null, frontArmPosition, drawInfo.compFrontArmFrame, rotation, bodyVect, 1f, drawInfo.playerEffect);
             }
         }
     }
 
     public class TF2BackArmTexture : PlayerDrawLayer
     {
-        private readonly Asset<Texture2D>[] Arm = new Asset<Texture2D>[10];
-        private readonly Asset<Texture2D>[] Hand = new Asset<Texture2D>[10];
+        private static Asset<Texture2D> Arm;
+        private static Asset<Texture2D> Hand;
 
         public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => drawInfo.skinVar < 10;
 
@@ -1184,11 +1207,10 @@ namespace TF2.Common
         {
             Player player = drawInfo.drawPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-
             if (p.ClassSelected)
             {
-                Arm[0] = player.direction == 1 ? p.GetClassTexture("Arms") : p.GetClassTexture("Arms_Reverse");
-                Hand[0] = player.direction == 1 ? p.GetClassTexture("Hands") : p.GetClassTexture("Hands_Reverse");
+                Arm = player.direction == 1 ? p.GetClassTexture("Arms") : p.GetClassTexture("Arms_Reverse");
+                Hand = player.direction == 1 ? p.GetClassTexture("Hands") : p.GetClassTexture("Hands_Reverse");
                 Vector2 backArmPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
                 Vector2 value = Main.OffsetsPlayerHeadgear[player.bodyFrame.Y / player.bodyFrame.Height];
                 value.Y -= 2f;
@@ -1205,6 +1227,8 @@ namespace TF2.Common
                     arm = new Rectangle(80, 112, 40, 56);
                 TF2Player.Draw(ref drawInfo, Arm, null, backArmPosition, arm, rotation, bodyVect2, 1f, drawInfo.playerEffect);
                 TF2Player.Draw(ref drawInfo, Hand, null, backArmPosition, arm, rotation, bodyVect2, 1f, drawInfo.playerEffect);
+                foreach (Func<Player, Asset<Texture2D>> func in TF2Player.armTextures)
+                    TF2Player.Draw(ref drawInfo, func(player), null, backArmPosition, arm, rotation, bodyVect2, 1f, drawInfo.playerEffect);
             }
         }
     }
@@ -1219,7 +1243,6 @@ namespace TF2.Common
         {
             Player player = drawInfo.drawPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-
             if (p.ClassSelected)
             {
                 Vector2 bodyPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
@@ -1229,6 +1252,8 @@ namespace TF2.Common
                 bodyPosition += value * (-drawInfo.playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
                 float bodyRotation = player.bodyRotation;
                 TF2Player.DrawBasic(ref drawInfo, player.direction == 1 ? p.GetClassTexture("Back") : p.GetClassTexture("Back_Reverse"), null, bodyPosition, drawInfo.compTorsoFrame, bodyRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
+                foreach (Func<Player, Asset<Texture2D>> func in TF2Player.backTextures)
+                    TF2Player.Draw(ref drawInfo, func(player), null, bodyPosition, drawInfo.compTorsoFrame, bodyRotation, drawInfo.bodyVect, 1f, drawInfo.playerEffect);
             }
         }
     }
@@ -1243,7 +1268,6 @@ namespace TF2.Common
         {
             Player player = drawInfo.drawPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-
             if (p.currentClass == TF2Item.Soldier || p.currentClass == TF2Item.Demoman)
             {
                 Vector2 bodyPosition = new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - player.bodyFrame.Width / 2 + player.width / 2), (int)(drawInfo.Position.Y - Main.screenPosition.Y + player.height - player.bodyFrame.Height + 4f)) + player.bodyPosition + new Vector2(player.bodyFrame.Width / 2, player.bodyFrame.Height / 2);
@@ -1261,7 +1285,7 @@ namespace TF2.Common
     {
         public override bool InstancePerEntity => true;
 
-        private static bool AllowedItems(Item item) => (item.DamageType == ModContent.GetInstance<TF2DamageClass>()
+        private static bool AllowedItems(Item item) => (item.DamageType == ModContent.GetInstance<MercenaryDamage>()
             || item.DamageType == DamageClass.Default)
             && !item.potion
             && item.damage <= 0
@@ -1284,9 +1308,15 @@ namespace TF2.Common
 
         private bool canUse = true;
 
+        public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
+        {
+            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && item.ModItem?.Mod is not TF2 && (!AllowedItems(item) || item.mountType > -1 && item.mountType != ModContent.MountType<TF2Mount>()))
+                tooltips.Add(new TooltipLine(Mod, "Locked Item", Language.GetTextValue("Mods.TF2.UI.Items.LockedItem")));
+        }
+
         public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            if (!canUse || item.mountType > -1 && item.mountType != ModContent.MountType<TF2Mount>())
+            if ((!canUse || item.mountType > -1 && item.mountType != ModContent.MountType<TF2Mount>()) && TF2.IsItemInHotbar(Main.LocalPlayer, item))
                 spriteBatch.Draw(TextureAssets.Cd.Value, position - TextureAssets.InventoryBack9.Value.Size() / 4.225f * Main.inventoryScale, null, drawColor, 0f, new Vector2(0.5f, 0.5f), 0.8f * Main.inventoryScale, SpriteEffects.None, 0f);
         }
 
@@ -1397,7 +1427,6 @@ namespace TF2.Common
                 opponent.GetModPlayer<TF2Player>().miniCrit = true;
             if (miniCritDebuff && (Player.HeldItem.ModItem is FanOWar || Player.HeldItem.ModItem is Bushwacka))
                 opponent.GetModPlayer<TF2Player>().crit = true;
-
             if (opponent.GetModPlayer<TF2Player>().crit)
             {
                 if (opponent.HeldItem.ModItem?.Mod is TF2)

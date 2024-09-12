@@ -19,20 +19,19 @@ namespace TF2.Content.Buffs
             TF2BuffBase.fireBuff[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<PyroFlamesDegreaserPlayer>().lifeRegenDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<PyroFlamesDegreaserPlayer>().burnDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<PyroFlamesDegreaserNPC>().lifeRegenDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<PyroFlamesDegreaserNPC>().burnDebuff = true;
     }
 
     public class PyroFlamesDegreaserPlayer : PyroFlamesPlayer
     {
         public override void UpdateBadLifeRegen()
         {
-            if (lifeRegenDebuff)
+            if (burnDebuff)
             {
                 timer++;
-                if (Player.lifeRegen > 0)
-                    Player.lifeRegen = 0;
+                TF2.Maximum(ref Player.lifeRegen, 0);
                 Player.lifeRegenTime = 0;
                 if (timer >= TF2.Time(0.5))
                 {
@@ -52,7 +51,7 @@ namespace TF2.Content.Buffs
     {
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
-            if (lifeRegenDebuff)
+            if (burnDebuff)
             {
                 timer++;
                 if (npc.lifeRegen > 0)
