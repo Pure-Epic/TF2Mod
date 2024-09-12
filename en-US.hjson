@@ -33,6 +33,11 @@ Mods: {
 		}
 
 		Buffs: {
+			AmputatorBuff: {
+				DisplayName: Medicating Melody
+				Description: Healing
+			}
+
 			BaseballDebuff: {
 				DisplayName: Slugged!
 				Description: Slowed
@@ -287,7 +292,10 @@ Mods: {
 			GensokyoSaveFile.DisplayName: Gensokyo Save File
 		}
 
-		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
+		DamageClasses: {
+			TF2DamageClass.DisplayName: mercenary damage
+			MercenaryDamage.DisplayName: Mercenary Damage
+		}
 
 		DeathMessages: {
 			Bleeding: "{0} bled to death."
@@ -793,7 +801,8 @@ Mods: {
 					+25% faster firing speed
 					+50% max secondary ammo on wearer
 					+6 max pipebombs out
-					Stickybombs can collide with enemies
+					Detonates stickybombs near you cursor
+					Able to destroy enemy projectiles
 					'''
 				Downsides: 0.8 sec slower bomb arm time
 			}
@@ -983,7 +992,7 @@ Mods: {
 				Tooltip: ""
 				Notes:
 					'''
-					After consuming, move speed is increased, attacks mini-crit, and the player may only use melee weapons. Lasts 16 seconds.
+					After consuming, move speed is increased, attacks mini-crit, damage resistance is increased by 80%, knockback is negated, and the player may only use melee weapons. Lasts 16 seconds.
 					Alt-fire: Share with a friend (Medium Health Kit)
 					Who needs bread?
 					'''
@@ -1489,7 +1498,7 @@ Mods: {
 					Players heal 60% of the damage done to an enemy covered with milk.
 					Can be used to remove debuffs.
 					'''
-				Lore: Although Scout has never revealed the identity of the substance, its appearance and properties confirm it to be Yautja blood.
+				Lore: Being Scout's personal leech spell, it is brewed from Yautja blood.
 			}
 
 			Sandman: {
@@ -1606,7 +1615,7 @@ Mods: {
 					Extinguishing teammates reduces
 					cooldown by -20%
 					'''
-				Lore: Sniper realized that throwing his own bodily fluids won't be suited for a danmaku battle. The solution? Use ichor instead!
+				Lore: Being Sniper's personal weakness spell, it is brewed from ichor.
 			}
 
 			Kukri: {
@@ -1755,6 +1764,7 @@ Mods: {
 					Deals 3x falling damage to the enemy you land on
 					200% increased air control while airborne
 					+25% movement speed while flying
+					Negates fall damage
 					'''
 			}
 
@@ -2078,6 +2088,7 @@ Mods: {
 			DispenserLevel1.DisplayName: Dispenser Level 1
 			DispenserLevel2.DisplayName: Dispenser Level 2
 			DispenserLevel3.DisplayName: Dispenser Level 3
+			MiniSentry.DisplayName: Mini-Sentry Gun
 			SentryLevel1.DisplayName: Sentry Gun Level 1
 			SentryLevel2.DisplayName: Sentry Gun Level 2
 			SentryLevel3.DisplayName: Sentry Gun Level 3
@@ -2091,12 +2102,20 @@ Mods: {
 			EngineerNPC.DisplayName: Engineer
 			HeavyNPC.DisplayName: Heavy
 			MedicNPC.DisplayName: Medic
-			MiniSentry.DisplayName: Mini-Sentry Gun
 			PyroNPC.DisplayName: Pyro
 			ScoutNPC.DisplayName: Scout
 			SniperNPC.DisplayName: Sniper
 			SoldierNPC.DisplayName: Soldier
 			SpyNPC.DisplayName: Spy
+			EnemyDemomanNPC.DisplayName: Demoman
+			EnemyEngineerNPC.DisplayName: Engineer
+			EnemyHeavyNPC.DisplayName: Heavy
+			EnemyMedicNPC.DisplayName: Medic
+			EnemyPyroNPC.DisplayName: Pyro
+			EnemyScoutNPC.DisplayName: Scout
+			EnemySniperNPC.DisplayName: Sniper
+			EnemySoldierNPC.DisplayName: Soldier
+			EnemySpyNPC.DisplayName: Spy
 			Administrator.DisplayName: Administrator
 			MissPauling.DisplayName: Miss Pauling
 			SentryGun: Sentry Gun
@@ -2156,11 +2175,17 @@ Mods: {
 			CrusadersCrossbowSyringe.DisplayName: Syringe
 			HealingBeam.DisplayName: Healing Beam
 			HealingBeamKritzkrieg.DisplayName: Healing Beam
+			HealingBeamQuickFix.DisplayName: Healing Beam
 			Syringe.DisplayName: Syringe
 			GrenadeNPC.DisplayName: Grenade
+			EnemyBulletNPC.DisplayName: Bullet
+			EnemyFireNPC.DisplayName: Fire
+			EnemyGrenadeNPC.DisplayName: Grenade
+			EnemyRocketNPC.DisplayName: Rocket
+			EnemySyringeNPC.DisplayName: Syringe
+			MeleeProjectileNPC.DisplayName: Knife
+			RocketNPC.DisplayName: Rocket
 			SentryBullet.DisplayName: Bullet
-			KnifeProjectileNPC.DisplayName: Knife
-			SentryRocket.DisplayName: Rocket
 			Airblast.DisplayName: Air blast
 			DegreaserFire.DisplayName: Fire
 			DetonatorFlare.DisplayName: Flare
@@ -2176,6 +2201,8 @@ Mods: {
 			SydneySleeperDart.DisplayName: Sydney Sleeper Dart
 			BlackBoxRocket.DisplayName: Rocket
 			DirectHitRocket.DisplayName: Rocket
+			DisciplinaryActionHitbox.DisplayName: Disciplinary Action
+			LibertyLauncherRocket.DisplayName: Rocket
 			Rocket.DisplayName: Rocket
 			RocketJumperRocket.DisplayName: Rocket
 			BigEarnerProjectile.DisplayName: Knife
@@ -2223,9 +2250,6 @@ Mods: {
 			StarMaelstrom2.DisplayName: Star Maelstrom
 			HellFire.DisplayName: Fire
 			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
-			LibertyLauncherRocket.DisplayName: Liberty Launcher Rocket
-			DisciplinaryActionHitbox.DisplayName: Disciplinary Action Hitbox
-			HealingBeamQuickFix.DisplayName: Healing Beam Quick Fix
 		}
 
 		Tiles.CraftingAnvil.MapEntry: Crafting Anvil
@@ -2320,6 +2344,7 @@ Mods: {
 					Mines through ores, wood, and walls
 					Drill power:
 					'''
+				LockedItem: This item is locked for mercenaries
 				Module: Module
 				MultiClass: Multi-Class
 				ReloadSpeed: Reload Speed: {0}
@@ -2352,39 +2377,45 @@ Mods: {
 				Next: Next
 				Scout:
 					'''
-					• You run faster than other classes!
 					• Double jump while in the air!
+					• You run faster than all the other classes!
 					'''
 				Soldier:
 					'''
-					• Shoot your rocket launcher at bosses!
-					• Use your rocket launcher to rocket jump.
+					• Shoot explosive rockets at enemies' feet!
+					• Shoot your rocket launcher at your feet while jumping to rocket jump!
 					'''
 				Pyro:
 					'''
-					• Scorch everything alive!
-					• Airblast with your flamethrower to extinguish allies!
+					• Use your flame thrower to deal burning damage to your enemies!
+					• Airblast enemies and projectiles to push them away, or extinguish teammates!
 					'''
 				Demoman:
 					'''
 					• Remote detonate your stickybombs when enemies are near them!
-					• Stickybomb jump by standing on a stickybomb and jumping as your detonate.
+					• Detonate a stickybomb at your feet while jumping to stickybomb jump!
 					'''
-				Heavy: • Spin your minigun without firing to be ready for approaching enemies!
+				Heavy:
+					'''
+					• Mow down enemies with your minigun!
+					• Spin your minigun early to be ready for approaching enemies!
+					'''
 				Engineer:
 					'''
+					• Build sentry guns to defend yourself! Upgrade them to level 3!
+					• Your dispensers generate free health and ammo!
+					• Build teleporters to help teammates get to the front lines faster!
 					• Collect metal from enemies to build with!
-					• Build sentry guns to defend yourself!
-					• Build dispensers to resupply your team!
 					'''
 				Medic:
 					'''
-					• Fill your ÜberCharge by healing your teammates!
-					• Use a full ÜberCharge to gain invulnerability for you and your teammates.
+					• Heal your teammates and fill your ÜberCharge meter!
+					• Use a full ÜberCharge to gain invulnerability for you and your Medi Gun target.
+					• You regenerate your own health passively!
 					'''
 				Sniper:
 					'''
-					• Your sniper rifle will power up to do more damage while you are zoomed in!
+					• Scope in your sniper rife to charge up damage!
 					• Fully charge your sniper rifle to do critical hits!
 					'''
 				Spy:
@@ -2393,6 +2424,7 @@ Mods: {
 					• Backstab your enemies with your knife to do critical hits!
 					• Throw sappers on enemies to stun them!
 					'''
+				Random: • Let the game randomly choose a class for you.
 			}
 		}
 
