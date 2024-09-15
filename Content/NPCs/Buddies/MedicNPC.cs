@@ -40,6 +40,10 @@ namespace TF2.Content.NPCs.Buddies
 
         protected override float Range => 1500f;
 
+        public override float MaxDamageMultiplier => 1.2f;
+
+        public override float DamageFalloffRange => 700f;
+
         private int regenerationTimer;
         private int healTimer;
 

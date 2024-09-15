@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Materials;
-using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Pyro;
 using TF2.Content.Tiles.Crafting;
 
@@ -43,12 +42,6 @@ namespace TF2.Content.Items.Weapons.Pyro
             airblastTimer++;
             if (airblastTimer >= airblastCooldown)
                 airblastTimer = airblastCooldown;
-        }
-
-        public override void WeaponDistanceModifier(Player player, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (projectile.ModProjectile is TF2Projectile tf2Projectile && !tf2Projectile.crit && !tf2Projectile.miniCrit)
-                modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / TF2.Time(1), 0.5f, 1f);
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Backburner>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();

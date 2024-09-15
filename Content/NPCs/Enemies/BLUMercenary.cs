@@ -8,7 +8,6 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Projectiles;
 using static TF2.Content.NPCs.Buddies.MercenaryBuddy;
 using static TF2.Content.Tiles.TF2Tile;
@@ -110,6 +109,12 @@ namespace TF2.Content.NPCs.Enemies
         protected virtual string ReloadSound => "";
 
         protected virtual float Range => 1000f;
+
+        public virtual float MaxDamageMultiplier => 1.5f;
+
+        public virtual float DamageFalloffRange => 1000f;
+
+        public virtual bool NoDamageModifier => false;
 
         protected virtual bool UsesAmmo => true;
 
@@ -667,7 +672,7 @@ namespace TF2.Content.NPCs.Enemies
             return player.active && !player.dead && distance <= range && (lineOfSight || closeThroughWall);
         }
 
-        protected int GetDamage() => TF2.Round(Damage * TF2.GlobalHealthMultiplier);
+        protected int GetDamage() => TF2.Round(Damage * TF2.GlobalDamageMultiplier);
 
         protected Player GetTargetPlayer(float range)
         {

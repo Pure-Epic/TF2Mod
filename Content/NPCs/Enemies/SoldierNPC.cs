@@ -39,6 +39,10 @@ namespace TF2.Content.NPCs.Enemies
 
         protected override float Range => 2000f;
 
+        public override float MaxDamageMultiplier => 1.25f;
+
+        public override float DamageFalloffRange => 750f;
+
         protected override void EnemyStatistics() => SetEnemyStatistics("TF2/Content/Sounds/SFX/Voicelines/soldier_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/soldier_paincriticaldeath01");
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo) => spawnInfo.Player.GetModPlayer<TF2Player>().ClassSelected ? 0.025f : 0f;

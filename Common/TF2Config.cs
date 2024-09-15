@@ -37,10 +37,6 @@ namespace TF2.Common
         [DefaultValue(false)]
         public bool SingleReload;
 
-        [Header("MainMenu")]
-        [DefaultValue(false)]
-        public bool DisablePlayerIcons;
-
         [DefaultValue(false)]
         [ReloadRequired]
         public bool DefaultTips;

@@ -37,6 +37,8 @@ namespace TF2.Content.NPCs.Buddies
 
         protected override float Range => 500f;
 
+        public override bool NoDamageModifier => true;
+
         protected override void BuddyStatistics() => SetBuddyStatistics(100, "TF2/Content/Sounds/SFX/Voicelines/demoman_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/demoman_paincriticaldeath01");
 
         public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([

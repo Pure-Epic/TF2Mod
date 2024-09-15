@@ -49,7 +49,6 @@ using TF2.Content.UI;
 using TF2.Content.UI.MannCoStore;
 using TF2.Content.UI.MercenaryCreationMenu;
 using TF2.Gensokyo.Content.Items.BossSummons;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TF2
 {
@@ -63,7 +62,51 @@ namespace TF2
 
         internal static Asset<Texture2D> ClassPowerIcon { get; private set; }
 
-        public static float GlobalHealthMultiplier => Main.LocalPlayer.GetModPlayer<TF2Player>().healthMultiplier;
+        public static float GlobalHealthMultiplier
+        {
+            get
+            {
+                if (NPC.downedMoonlord)
+                    return 25f;
+                else if (NPC.downedAncientCultist)
+                    return 15f;
+                else if (NPC.downedGolemBoss)
+                    return 10f;
+                else if (NPC.downedPlantBoss)
+                    return 7.5f;
+                else if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                    return 5f;
+                else if (Main.hardMode)
+                    return 3.5f;
+                else if (NPC.downedBoss3)
+                    return 1.5f;
+                else if (NPC.downedBoss2)
+                    return 1f;
+                else if (NPC.downedBoss1)
+                    return 0.75f;
+                else return 0.5f;
+            }
+        }
+
+        public static float GlobalDamageMultiplier
+        {
+            get
+            {
+                if (NPC.downedMoonlord)
+                    return 7.5f;
+                else if (NPC.downedGolemBoss)
+                    return 5f;
+                else if (NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3)
+                    return 4f;
+                else if (Main.hardMode)
+                    return 3f;
+                else if (NPC.downedBoss3)
+                    return 2f;
+                else if (NPC.downedBoss2)
+                    return 1.5f;
+                else return 1f;
+            }
+        }
 
         public static float Money
         {
@@ -770,11 +813,6 @@ namespace TF2
 
         private void Hook_UICharacter_DrawSelf(On_UICharacter.orig_DrawSelf orig, UICharacter self, SpriteBatch spriteBatch)
         {
-            if (ModContent.GetInstance<TF2ConfigClient>().DisablePlayerIcons)
-            {
-                orig(self, spriteBatch);
-                return;
-            }
             var playerField = typeof(UICharacter).GetField("_player", BindingFlags.Instance | BindingFlags.NonPublic);
             var _player = (Player)playerField.GetValue(self);
             if (_player.GetModPlayer<TF2Player>().ClassSelected) return;
@@ -784,7 +822,6 @@ namespace TF2
         private void Hook_UICharacterList(On_UICharacterListItem.orig_ctor orig, UICharacterListItem self, PlayerFileData data, int snapPointIndex)
         {
             orig(self, data, snapPointIndex);
-            if (ModContent.GetInstance<TF2ConfigClient>().DisablePlayerIcons) return;
             if (data.Player.GetModPlayer<TF2Player>().ClassSelected)
             {
                 classUI = new ClassIcon(data.Player);
@@ -857,7 +894,7 @@ namespace TF2
                         c.Index += 5;
                         c.Emit(OpCodes.Br, end3);
                         c.MarkLabel(branch3);
-                        c.EmitDelegate<Func<Player, string>>((player) => "x" + player.GetModPlayer<TF2Player>().classMultiplier.ToString());
+                        c.EmitDelegate<Func<Player, string>>((player) => "x" + player.GetModPlayer<TF2Player>().damageMultiplier.ToString());
                         c.MarkLabel(end3);
                         if (c.TryGotoNext(
                         x => x.MatchLdstr("UI.Softcore"),
@@ -1882,25 +1919,37 @@ namespace TF2
             return projectile;
         }
 
-        public static void NPCDistanceModifier(NPC npc, Projectile projectile, Player target, ref Player.HurtModifiers modifiers)
+        public static void NPCDistanceModifier(NPC npc, Projectile projectile, Player target, ref Player.HurtModifiers modifiers, float maxDamageMultiplier = 1.5f, float distance = 500f, bool noDistanceModifier = false)
         {
+            if (noDistanceModifier) return;
             if (projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
-                if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
-                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 1f);
+                if (npc.ModNPC is not PyroNPC || npc.ModNPC is not EnemyPyroNPC)
+                {
+                    if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
+                        modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 1f);
+                    else
+                        modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 0.5f);
+                }
                 else
-                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 0.5f);
+                    modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / Time(1), 0.5f, 1f);
             }
         }
 
-        public static void NPCDistanceModifier(NPC npc, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
+        public static void NPCDistanceModifier(NPC npc, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers, float maxDamageMultiplier = 1.5f, float distance = 1000f, bool noDistanceModifier = false)
         {
+            if (noDistanceModifier) return;
             if (projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
-                if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
-                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 1f);
+                if (npc.ModNPC is not PyroNPC || npc.ModNPC is not EnemyPyroNPC)
+                {
+                    if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
+                        modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 1f);
+                    else
+                        modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 0.5f);
+                }
                 else
-                    modifiers.FinalDamage *= 1.5f - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / 500f, 0f, 0.5f);
+                    modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / Time(1), 0.5f, 1f);
             }
         }
 
@@ -2059,7 +2108,7 @@ namespace TF2
             {
                 Color = Color.DarkOliveGreen,
                 DurationInFrames = 30,
-                Velocity = new Vector2(0, -5), 
+                Velocity = new Vector2(0, -5),
                 Text = amount.ToString("C", CultureInfo.CurrentCulture)
             };
             PopupText.NewText(moneyText, spawnLocation ?? player.position);

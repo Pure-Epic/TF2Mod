@@ -2,12 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.Projectiles.Engineer;
-using static Terraria.GameContent.Animations.IL_Actions.Sprites;
 
 namespace TF2.Content.Items.Weapons.Engineer
 {

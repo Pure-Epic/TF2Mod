@@ -32,6 +32,8 @@ namespace TF2.Content.NPCs.Enemies
 
         protected override float Range => 2500f;
 
+        public override bool NoDamageModifier => true;
+
         private int zoomDelay;
         private int chargeTimer;
 

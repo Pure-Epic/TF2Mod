@@ -47,11 +47,5 @@ namespace TF2.Content.Items.Weapons.Pyro
             if (TF2Player.IsHealthFull(player) && player.altFunctionUse != 2)
                 (Main.projectile[projectile].ModProjectile as TF2Projectile).crit = true;
         }
-
-        public override void WeaponDistanceModifier(Player player, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (projectile.ModProjectile is TF2Projectile tf2Projectile && !tf2Projectile.crit && !tf2Projectile.miniCrit)
-                modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / TF2.Time(1), 0.5f, 1f);
-        }
     }
 }

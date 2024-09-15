@@ -17,7 +17,6 @@ using TF2.Content.Buffs;
 using TF2.Content.Dusts;
 using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
-using TF2.Content.Items.Currencies;
 using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Items.Weapons.Heavy;

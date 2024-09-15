@@ -40,6 +40,10 @@ namespace TF2.Content.NPCs.Enemies
 
         protected override float Range => 1500f;
 
+        public override float MaxDamageMultiplier => 1.2f;
+
+        public override float DamageFalloffRange => 700f;
+
         private int regenerationTimer;
 
         protected override void EnemyStatistics() => SetEnemyStatistics("TF2/Content/Sounds/SFX/Voicelines/medic_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/medic_paincriticaldeath01");

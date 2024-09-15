@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
-using TF2.Content.Items.Weapons.Heavy;
 using TF2.Content.NPCs.Buddies;
 using TF2.Content.Projectiles;
 

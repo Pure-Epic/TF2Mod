@@ -2,7 +2,6 @@
 using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
-using TF2.Content.Items.Weapons.Soldier;
 
 namespace TF2.Content.Items
 {

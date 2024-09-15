@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 
 namespace TF2.Content.Items.Weapons.Sniper
 {

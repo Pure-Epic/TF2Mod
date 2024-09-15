@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Projectiles.Heavy;
 
 namespace TF2.Content.Items.Weapons.Heavy

@@ -360,10 +360,15 @@ namespace TF2.Content.Items.Weapons
         {
             if (!noDistanceModifier && projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
-                if ((!tf2Projectile.crit && !tf2Projectile.miniCrit) || tf2Projectile.weapon is Ambassador)
-                    modifiers.FinalDamage *= (isRocketLauncher ? 1.25f : isSyringeGun ? 1.2f : 1.5f) - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / (isRocketLauncher ? 750f : isSyringeGun ? 700f : 1000f), 0f, isRocketLauncher ? 0.75f : isSyringeGun ? 0.7f : 1f);
-                else
-                    modifiers.FinalDamage *= (isRocketLauncher ? 1.25f : isSyringeGun ? 1.2f : 1.5f) - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / (isRocketLauncher ? 750f : isSyringeGun ? 700f : 1000f), 0f, isRocketLauncher ? 0.25f : isSyringeGun ? 0.2f : 0.5f);
+                if (!isFlamethrower)
+                {
+                    if ((!tf2Projectile.crit && !tf2Projectile.miniCrit) || tf2Projectile.weapon is Ambassador)
+                        modifiers.FinalDamage *= (isRocketLauncher ? 1.25f : isSyringeGun ? 1.2f : 1.5f) - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / (isRocketLauncher ? 750f : isSyringeGun ? 700f : 1000f), 0f, isRocketLauncher ? 0.75f : isSyringeGun ? 0.7f : 1f);
+                    else
+                        modifiers.FinalDamage *= (isRocketLauncher ? 1.25f : isSyringeGun ? 1.2f : 1.5f) - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / (isRocketLauncher ? 750f : isSyringeGun ? 700f : 1000f), 0f, isRocketLauncher ? 0.25f : isSyringeGun ? 0.2f : 0.5f);
+                }
+                else if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
+                    modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / Time(1), 0.5f, 1f);
             }
         }
 

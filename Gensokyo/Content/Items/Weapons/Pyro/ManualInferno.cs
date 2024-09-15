@@ -5,7 +5,6 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Weapons;
-using TF2.Content.Projectiles;
 using TF2.Gensokyo.Content.Projectiles.Pyro;
 
 namespace TF2.Gensokyo.Content.Items.Weapons.Pyro
@@ -49,11 +48,5 @@ namespace TF2.Gensokyo.Content.Items.Weapons.Pyro
         }
 
         protected override void WeaponFireProjectile(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) => FlamethrowerProjectile(player, source, position, velocity, Item.shoot, damage, knockback);
-
-        public override void WeaponDistanceModifier(Player player, Projectile projectile, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (projectile.ModProjectile is TF2Projectile tf2Projectile && !tf2Projectile.crit && !tf2Projectile.miniCrit)
-                modifiers.FinalDamage *= Utils.Clamp((float)projectile.timeLeft / TF2.Time(1), 0.5f, 1f);
-        }
     }
 }

@@ -222,22 +222,6 @@ namespace TF2.Content.Projectiles
             ProjectileAI();
             if (crit || miniCrit)
                 Projectile.penetrate = -1;
-            /*
-            if (crit)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    float x2 = Projectile.position.X - Projectile.velocity.X / 10f * i;
-                    float y2 = Projectile.position.Y - Projectile.velocity.Y / 10f * i;
-                    int num179 = Dust.NewDust(new Vector2(x2, y2), 1, 1, DustID.Clentaminator_Red);
-                    Main.dust[num179].alpha = Projectile.alpha;
-                    Main.dust[num179].position.X = x2;
-                    Main.dust[num179].position.Y = y2;
-                    Main.dust[num179].velocity *= 0f;
-                    Main.dust[num179].noGravity = true;
-                }
-            }
-            */
             if (homing)
             {
                 float ProjectileSqrt = (float)Math.Sqrt(Projectile.velocity.X * Projectile.velocity.X + Projectile.velocity.Y * Projectile.velocity.Y);
@@ -337,22 +321,20 @@ namespace TF2.Content.Projectiles
             {
                 if (Main.expertMode)
                     modifiers.FinalDamage /= 4;
-                if (npc is not EnemySniperNPC)
-                    TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers);
+                TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers, npc.MaxDamageMultiplier, npc.DamageFalloffRange, npc.NoDamageModifier);
             }
         }
 
         public sealed override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             modifiers.DamageVariationScale *= 0;
-            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy && buddy is not SniperNPC)
-                TF2.NPCDistanceModifier(buddy.NPC, Projectile, target, ref modifiers);
+            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy)
+                TF2.NPCDistanceModifier(buddy.NPC, Projectile, target, ref modifiers, buddy.MaxDamageMultiplier, buddy.DamageFalloffRange, buddy.NoDamageModifier);
             else if (Main.npc[npcOwner].ModNPC is BLUMercenary npc)
             {
                 if (Main.expertMode)
                     modifiers.FinalDamage /= 4;
-                if (npc is not EnemySniperNPC)
-                    TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers);
+                TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers, npc.MaxDamageMultiplier, npc.DamageFalloffRange, npc.NoDamageModifier);
             }
             if (reserveShooterProjectile && target.noGravity)
                 miniCrit = true;

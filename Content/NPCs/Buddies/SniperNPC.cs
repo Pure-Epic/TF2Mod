@@ -30,6 +30,8 @@ namespace TF2.Content.NPCs.Buddies
 
         protected override float Range => 2500f;
 
+        public override bool NoDamageModifier => true;
+
         private int zoomDelay;
         private int chargeTimer;
 

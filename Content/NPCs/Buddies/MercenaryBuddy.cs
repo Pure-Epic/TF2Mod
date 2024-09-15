@@ -117,6 +117,12 @@ namespace TF2.Content.NPCs.Buddies
 
         protected virtual float Range => 1000f;
 
+        public virtual float MaxDamageMultiplier => 1.5f;
+
+        public virtual float DamageFalloffRange => 1000f;
+
+        public virtual bool NoDamageModifier => false;
+
         protected virtual bool UsesAmmo => true;
 
         protected virtual bool MagazineReload => false;
