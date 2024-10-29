@@ -33,6 +33,6 @@ namespace TF2.Content.Items.Weapons.Soldier
             return true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

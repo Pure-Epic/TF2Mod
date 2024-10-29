@@ -31,7 +31,7 @@ namespace TF2.Content.Items.Weapons.Spy
 
         protected override void WeaponPostFireProjectile(Player player, int projectile) => (Main.projectile[projectile].ModProjectile as TF2Projectile).lEtrangerProjectile = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<DeadRinger>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<DeadRinger>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class LEtrangerPlayer : ModPlayer

@@ -69,7 +69,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 player.Heal(TF2Player.GetPlayerHealthFromPercentage(player, 50));
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Eyelander>(2).AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Eyelander>(2).AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class HalfZatoichiPlayer : ModPlayer

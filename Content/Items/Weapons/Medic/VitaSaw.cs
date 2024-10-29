@@ -43,7 +43,7 @@ namespace TF2.Content.Items.Weapons.Medic
             player.GetModPlayer<TF2Player>().organs = Utils.Clamp(player.GetModPlayer<TF2Player>().organs, 0, 4);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Ubersaw>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Ubersaw>().AddIngredient<ScrapMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 
     public class VitaSawPlayer : ModPlayer

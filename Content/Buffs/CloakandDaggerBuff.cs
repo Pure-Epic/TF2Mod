@@ -109,7 +109,6 @@ namespace TF2.Content.Buffs
         }
 
         #region Cloak Drain On Attack
-
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (cloakAndDaggerBuff && Player.HasBuff<CloakAndDaggerBuff>())
@@ -162,7 +161,6 @@ namespace TF2.Content.Buffs
             else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && proj.ModProjectile is TF2Projectile projectile && projectile.lEtrangerProjectile)
                 opponent.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(1.5);
         }
-
         #endregion Cloak Drain On Attack
 
         public override bool FreeDodge(Player.HurtInfo info)

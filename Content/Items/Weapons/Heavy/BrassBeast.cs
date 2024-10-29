@@ -43,6 +43,6 @@ namespace TF2.Content.Items.Weapons.Heavy
                 player.GetModPlayer<MinigunDamageResistance>().minigunDamageResistance = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Natascha>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Natascha>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

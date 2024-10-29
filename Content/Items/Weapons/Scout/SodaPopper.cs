@@ -45,7 +45,7 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<SodaPopperPlayer>().sodaPopperEquipped = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<BonkAtomicPunch>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<BonkAtomicPunch>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class SodaPopperPlayer : ModPlayer

@@ -33,7 +33,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override bool WeaponAddTextureCondition(Player player) => HoldingWeapon<WarriorsSpirit>(player);
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class WarriorsSpiritPlayer : ModPlayer

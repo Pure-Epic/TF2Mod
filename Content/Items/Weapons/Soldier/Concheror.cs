@@ -37,7 +37,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             p.bannerType = 3;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<BattalionsBackup>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BattalionsBackup>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class ConcherorPlayer : BannerPlayer

@@ -32,6 +32,6 @@ namespace TF2.Content.Items.Weapons.Scout
                 player.GetModPlayer<TF2Player>().miniCrit = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<BonkAtomicPunch>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<BonkAtomicPunch>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

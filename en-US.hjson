@@ -190,7 +190,7 @@ Mods: {
 
 			TF2MountBuff: {
 				DisplayName: Mann's Anti-Danmaku System
-				Description: Nice try, pal!
+				Description: Hehey, I'm flyin'!
 			}
 		}
 
@@ -292,10 +292,7 @@ Mods: {
 			GensokyoSaveFile.DisplayName: Gensokyo Save File
 		}
 
-		DamageClasses: {
-			TF2DamageClass.DisplayName: mercenary damage
-			MercenaryDamage.DisplayName: Mercenary Damage
-		}
+		DamageClasses.MercenaryDamage.DisplayName: Mercenary
 
 		DeathMessages: {
 			Bleeding: "{0} bled to death."
@@ -581,11 +578,6 @@ Mods: {
 				Tooltip: ""
 			}
 
-			Australium: {
-				DisplayName: Australium
-				Tooltip: ""
-			}
-
 			HauntedMetalScrap: {
 				DisplayName: Haunted Metal Scrap
 				Tooltip: ""
@@ -651,8 +643,8 @@ Mods: {
 				Tooltip: ""
 			}
 
-			CraftingAnvilItem: {
-				DisplayName: Crafting Anvil
+			AustraliumAnvilItem: {
+				DisplayName: Australium Anvil
 				Tooltip:
 					'''
 					For years you have been able
@@ -2252,7 +2244,7 @@ Mods: {
 			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
 		}
 
-		Tiles.CraftingAnvil.MapEntry: Crafting Anvil
+		Tiles.AustraliumAnvil.MapEntry: Australium Anvil
 
 		UI: {
 			HUD: {
@@ -2335,6 +2327,7 @@ Mods: {
 				}
 
 				AttackSpeed: Attack Speed: {0}
+				AustraliumAnvil: Mercenary Crafting Station
 				Buddy: Mercenary Buddy
 				BuddySlotHover: Buddy
 				CategoryText: "{0}'s {1} {2}"
@@ -2342,14 +2335,14 @@ Mods: {
 				DrillDescription:
 					'''
 					Mines through ores, wood, and walls
-					Drill power:
+					Drill power: {0}%
 					'''
+				ItemCategory: "{0} {1}"
 				LockedItem: This item is locked for mercenaries
 				Module: Module
 				MultiClass: Multi-Class
 				ReloadSpeed: Reload Speed: {0}
 				SoulItem: Usable Item
-				SoulItemCategory: "{0} {1}"
 				SoulItemDescription: Increases attack power to ×{0} and health to ×{1}
 				Tool: Mercenary Tool
 			}

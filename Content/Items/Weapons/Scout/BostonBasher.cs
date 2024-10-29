@@ -53,7 +53,7 @@ namespace TF2.Content.Items.Weapons.Scout
             return true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<TribalmansShiv>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<TribalmansShiv>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class BostonBasherPlayer : ModPlayer

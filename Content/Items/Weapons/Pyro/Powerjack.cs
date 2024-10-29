@@ -41,7 +41,7 @@ namespace TF2.Content.Items.Weapons.Pyro
                 player.Heal(TF2.GetHealth(player, 25));
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class PowerjackPlayer : ModPlayer

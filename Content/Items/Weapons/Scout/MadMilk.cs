@@ -44,6 +44,6 @@ namespace TF2.Content.Items.Weapons.Scout
             return true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

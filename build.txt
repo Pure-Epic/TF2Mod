@@ -1,4 +1,4 @@
-displayName = Team Fortress 2
+displayName = TF2Mod
 author = Pure_Epic
 version = 1.3.6.1
 homepage = https://github.com/Pure-Epic/TF2Mod

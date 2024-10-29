@@ -34,6 +34,6 @@ namespace TF2.Content.Items.Weapons.Spy
             Main.projectile[projectile].damage = TF2.Round(Main.projectile[projectile].damage * 1.2f);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

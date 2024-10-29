@@ -30,6 +30,6 @@ namespace TF2.Content.Items.Weapons.Medic
             AddNegativeAttribute(description);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<MadMilk>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<MadMilk>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

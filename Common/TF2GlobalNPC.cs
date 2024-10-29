@@ -1,11 +1,9 @@
-﻿using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
-using TF2.Content.Items.Currencies;
 using TF2.Content.Items.Materials;
 using TF2.Content.Items.Placeables.Crafting;
 using TF2.Content.Items.Weapons;
@@ -74,7 +72,6 @@ namespace TF2.Common
                 }
                 if (npc.boss)
                 {
-                    TF2.DropLoot(npc, ModContent.ItemType<Australium>(), 5);
                     TF2.DropLoot(npc, ModContent.ItemType<MannCoSupplyCrate>());
                     TF2.DropLoot(npc, ModContent.ItemType<ScrapMetal>(), 1, 1, 6);
                     TF2.DropLoot(npc, ModContent.ItemType<ReclaimedMetal>(), 3, 1, 2);
@@ -82,7 +79,11 @@ namespace TF2.Common
                 }
             }
             if (npc.ModNPC is BLUMercenary || npc.boss || TF2.BasicEnemiesThatCanDropMoney(npc))
+            {
                 TF2.AddMoney(Main.player[npc.lastInteraction], 0.05f, npc.Center);
+                if (Main.rand.Next(0, 100) == 0 && TF2.ScreamFortress)
+                    TF2.DropLoot(npc, ModContent.ItemType<HauntedMetalScrap>());
+            }
             if (npc.type == NPCID.EyeofCthulhu)
                 TF2.CreateSoulItem(npc, 0.75f, 1f);
             if ((npc.type == NPCID.EaterofWorldsHead && EaterOfWorldsDrop() == 1 && NPC.CountNPCS(NPCID.EaterofWorldsBody) == 0) || npc.type == NPCID.BrainofCthulhu)
@@ -158,19 +159,8 @@ namespace TF2.Common
 
         public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
         {
-            if (Array.IndexOf([NPCID.EaterofWorldsBody, NPCID.EaterofWorldsHead, NPCID.EaterofWorldsTail], npc.type) > -1)
-            {
-                LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.LegacyHack_IsABoss());
-                leadingConditionRule.OnSuccess(ItemDropRule.Common(ModContent.ItemType<Australium>(), 10));
-                npcLoot.Add(leadingConditionRule);
-            }
             if (npc.type == NPCID.WallofFlesh)
-            {
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<CraftingAnvilItem>(), 1));
-                LeadingConditionRule leadingConditionRule = new LeadingConditionRule(new Conditions.IsHardmode());
-                leadingConditionRule.OnFailedConditions(ItemDropRule.Common(ModContent.ItemType<Australium>(), 1));
-                npcLoot.Add(leadingConditionRule);
-            }
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<AustraliumAnvilItem>(), 1));
         }
 
         public override void ModifyHitByItem(NPC npc, Player player, Item item, ref NPC.HitModifiers modifiers)

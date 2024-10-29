@@ -60,7 +60,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             shield.timer += TF2.Round(shield.ShieldRechargeTime * 0.2f);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<HalfZatoichi>(2).AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<HalfZatoichi>(2).AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class PersianPersuaderPlayer : ModPlayer

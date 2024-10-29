@@ -40,7 +40,7 @@ namespace TF2.Content.Items.Weapons.Scout
                 player.GetModPlayer<TF2Player>().crit = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<BostonBasher>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BostonBasher>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 
     public class SunonaStickPlayer : ModPlayer

@@ -1,18 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.UI;
 using TF2.Common;
 
 namespace TF2.Content.Items.Consumables
 {
     public class SoulItem : TF2Item
     {
+        protected override string CustomCategory => base.CustomCategory;
+
         public float damageMultiplier = 1f;
         public float healthMultiplier = 1f;
         public int pierce = 1;
@@ -34,56 +33,7 @@ namespace TF2.Content.Items.Consumables
             qualityHashSet.Add(Unique);
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
-            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
-            AddName(tooltips);
-            tooltips.Remove(nameTooltip);
-            RemoveDefaultTooltips(tooltips);
-            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetText("Mods.TF2.UI.Items.SoulItemCategory").Format(Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary"), Language.GetTextValue("Mods.TF2.UI.Items.SoulItem")))
-            {
-                OverrideColor = new Color(117, 107, 94)
-            };
-            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
-            AddOtherAttribute(tooltips, Language.GetText("Mods.TF2.UI.Items.SoulItemDescription").Format(damageMultiplier, healthMultiplier));
-            if (Item.favorited)
-            {
-                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                tooltips.Add(favorite);
-                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
-                {
-                    OverrideColor = new Color(235, 226, 202)
-                };
-                tooltips.Add(favoriteDescription);
-                if (Main.LocalPlayer.chest > -1)
-                {
-                    ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
-                    if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
-                    {
-                        TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
-                        {
-                            OverrideColor = new Color(235, 226, 202)
-                        };
-                        tooltips.Add(favorite);
-                    }
-                }
-            }
-            TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
-            TooltipLine price = priceTooltip;
-            tooltips.Add(price);
-            tooltips.Remove(priceTooltip);
-            TooltipLine specialPriceTooltip = tooltips.FirstOrDefault(x => x.Name == "SpecialPrice" && x.Mod == "Terraria");
-            TooltipLine specialPrice = specialPriceTooltip;
-            tooltips.Add(specialPrice);
-            tooltips.Remove(specialPriceTooltip);
-            TooltipLine journeyResearchTooltip = tooltips.FirstOrDefault(x => x.Name == "JourneyResearch" && x.Mod == "Terraria");
-            TooltipLine journeyModeTooltip = journeyResearchTooltip;
-            tooltips.Add(journeyModeTooltip);
-            tooltips.Remove(journeyResearchTooltip);
-        }
+        public override void ModifyTooltips(List<TooltipLine> tooltips) => CustomTooltips(tooltips, Language.GetText("Mods.TF2.UI.Items.ItemCategory").Format(Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary"), Language.GetTextValue("Mods.TF2.UI.Items.SoulItem")), Language.GetText("Mods.TF2.UI.Items.SoulItemDescription").Format(damageMultiplier, healthMultiplier));
 
         public override void PostUpdate() => Lighting.AddLight(Item.Center, Color.LimeGreen.ToVector3());
 

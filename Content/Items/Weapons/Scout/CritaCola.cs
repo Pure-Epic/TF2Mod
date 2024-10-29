@@ -40,6 +40,6 @@ namespace TF2.Content.Items.Weapons.Scout
             return true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<BonkAtomicPunch>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<BonkAtomicPunch>().AddTile<AustraliumAnvil>().Register();
     }
 }

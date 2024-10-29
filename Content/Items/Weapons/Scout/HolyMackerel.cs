@@ -19,6 +19,6 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

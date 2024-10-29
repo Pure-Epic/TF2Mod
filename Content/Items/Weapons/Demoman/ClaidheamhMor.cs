@@ -59,7 +59,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Homewrecker>().AddIngredient<CharginTarge>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Homewrecker>().AddIngredient<CharginTarge>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class ClaidheamhMorPlayer : ModPlayer

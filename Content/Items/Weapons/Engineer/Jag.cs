@@ -41,6 +41,6 @@ namespace TF2.Content.Items.Weapons.Engineer
 
         protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1f : 0.66f;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<SouthernHospitality>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<SouthernHospitality>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

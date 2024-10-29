@@ -9,7 +9,7 @@ namespace TF2.Content.Items.Buddies
 {
     public abstract class BuddyItem : TF2Item
     {
-        protected override string CustomDescription => Language.GetTextValue("Mods.TF2.UI.Items.Buddy");
+        protected override string CustomCategory => Language.GetTextValue("Mods.TF2.UI.Items.Buddy");
 
         public virtual int BuddyType => NPCID.None;
 

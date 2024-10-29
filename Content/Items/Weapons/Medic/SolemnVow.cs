@@ -31,6 +31,6 @@ namespace TF2.Content.Items.Weapons.Medic
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) => target.AddBuff(ModContent.BuffType<JarateDebuff>(), TF2.Time(5));
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>(8).AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>(8).AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

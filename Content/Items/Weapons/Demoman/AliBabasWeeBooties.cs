@@ -28,7 +28,7 @@ namespace TF2.Content.Items.Weapons.Demoman
 
         public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<AliBabasWeeBootiesPlayer>().aliBabasWeeBootiesEquipped = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Mantreads>().AddIngredient<GlovesOfRunningUrgently>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Mantreads>().AddIngredient<GlovesOfRunningUrgently>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class AliBabasWeeBootiesPlayer : ModPlayer

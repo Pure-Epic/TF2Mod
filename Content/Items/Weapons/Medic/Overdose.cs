@@ -43,6 +43,6 @@ namespace TF2.Content.Items.Weapons.Medic
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<CrusadersCrossbow>().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<CrusadersCrossbow>().AddIngredient<GlovesOfRunningUrgently>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

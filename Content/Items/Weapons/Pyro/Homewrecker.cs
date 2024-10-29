@@ -45,6 +45,6 @@ namespace TF2.Content.Items.Weapons.Pyro
             modifiers.SourceDamage *= target.ModNPC?.Mod == gensokyo && target.boss || target.TypeName == "Byakuren Hijiri" ? 2f : 0.75f;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Equalizer>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Equalizer>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

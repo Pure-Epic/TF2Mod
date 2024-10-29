@@ -35,6 +35,6 @@ namespace TF2.Content.Items.Weapons.Sniper
                 (Main.projectile[projectile].ModProjectile as SydneySleeperDart).jarateDuration = TF2.Time(2) + (int)(TF2.Time(3) * (chargeTime / maxChargeTime));
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Huntsman>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Huntsman>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

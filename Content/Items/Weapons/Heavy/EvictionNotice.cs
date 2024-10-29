@@ -41,6 +41,6 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponActiveBonus(Player player) => TF2Player.SetPlayerSpeed(player, 115);
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<FistsOfSteel>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<FistsOfSteel>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

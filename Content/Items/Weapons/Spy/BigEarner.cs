@@ -27,6 +27,6 @@ namespace TF2.Content.Items.Weapons.Spy
             AddNegativeAttribute(description);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<ConniversKunai>().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ConniversKunai>().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

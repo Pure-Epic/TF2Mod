@@ -63,7 +63,7 @@ namespace TF2.Content.Items.Weapons.Sniper
                 (Main.projectile[projectile].ModProjectile as TF2Projectile).bazaarBargainProjectile = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<SydneySleeper>().AddIngredient<Eyelander>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<SydneySleeper>().AddIngredient<Eyelander>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class BazaarBargainPlayer : ModPlayer

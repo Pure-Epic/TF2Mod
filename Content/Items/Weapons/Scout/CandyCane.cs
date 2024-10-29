@@ -27,7 +27,7 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<CandyCanePlayer>().candyCaneEquipped = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<PainTrain>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Kritzkrieg>().AddIngredient<PainTrain>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class CandyCanePlayer : ModPlayer

@@ -42,7 +42,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponActiveBonus(Player player) => TF2Player.SetPlayerSpeed(player, 133);
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<KillingGlovesOfBoxing>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<KillingGlovesOfBoxing>().AddIngredient<ScrapMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 
     public class GlovesOfRunningUrgentlyPlayer : ModPlayer

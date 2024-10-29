@@ -31,6 +31,6 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<DirectHit>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<DirectHit>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

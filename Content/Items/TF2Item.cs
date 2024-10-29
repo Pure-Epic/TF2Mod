@@ -33,7 +33,9 @@ namespace TF2.Content.Items
 {
     public abstract class TF2Item : ModItem
     {
-        protected virtual string CustomDescription => "";
+        protected virtual string CustomCategory => "";
+
+        public virtual Asset<Texture2D> WeaponTexture => null;
 
         protected virtual string BackTexture => null;
 
@@ -663,7 +665,7 @@ namespace TF2.Content.Items
             for (int i = 0; i < Item.ToolTip.Lines; i++)
                 tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == ("Tooltip" + i) && x.Mod == "Terraria"));
             RemoveDefaultTooltips(tooltips);
-            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, new TooltipLine(Mod, "Weapon Category", CustomDescription == "" ? Language.GetTextValue("Mods.TF2.UI.Items.Tool") : CustomDescription)
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, new TooltipLine(Mod, "Weapon Category", CustomCategory == "" ? Language.GetTextValue("Mods.TF2.UI.Items.Tool") : CustomCategory)
             {
                 OverrideColor = new Color(117, 107, 94)
             });
@@ -695,6 +697,61 @@ namespace TF2.Content.Items
                     }
                 }
             }
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Placeable" && x.Mod == "Terraria"));
+            TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
+            TooltipLine price = priceTooltip;
+            tooltips.Add(price);
+            tooltips.Remove(priceTooltip);
+            TooltipLine specialPriceTooltip = tooltips.FirstOrDefault(x => x.Name == "SpecialPrice" && x.Mod == "Terraria");
+            TooltipLine specialPrice = specialPriceTooltip;
+            tooltips.Add(specialPrice);
+            tooltips.Remove(specialPriceTooltip);
+            TooltipLine journeyResearchTooltip = tooltips.FirstOrDefault(x => x.Name == "JourneyResearch" && x.Mod == "Terraria");
+            TooltipLine journeyModeTooltip = journeyResearchTooltip;
+            tooltips.Add(journeyModeTooltip);
+            tooltips.Remove(journeyResearchTooltip);
+        }
+
+        protected void CustomTooltips(List<TooltipLine> tooltips, string category, string description)
+        {
+            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
+            AddName(tooltips);
+            tooltips.Remove(nameTooltip);
+            for (int i = 0; i < Item.ToolTip.Lines; i++)
+                tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == ("Tooltip" + i) && x.Mod == "Terraria"));
+            RemoveDefaultTooltips(tooltips);
+            TooltipLine categoryText = new TooltipLine(Mod, "Weapon Category", category)
+            {
+                OverrideColor = new Color(117, 107, 94)
+            };
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, categoryText);
+            AddOtherAttribute(tooltips, description);
+            if (Item.favorited)
+            {
+                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                tooltips.Add(favorite);
+                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                tooltips.Add(favoriteDescription);
+                if (Main.LocalPlayer.chest > -1)
+                {
+                    ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
+                    if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
+                    {
+                        TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202)
+                        };
+                        tooltips.Add(favorite);
+                    }
+                }
+            }
+            tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Placeable" && x.Mod == "Terraria"));
             TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
             TooltipLine price = priceTooltip;
             tooltips.Add(price);

@@ -136,6 +136,8 @@ namespace TF2
             }
         }
 
+        public static bool ScreamFortress => DateTime.Today.Month == 10 || (DateTime.Today.Month == 11 && DateTime.Today.Day < 7);
+
         public static IPlayerRenderer PlayerRenderer = new TF2PlayerRenderer();
         public static UserInterface MannCoStore = new UserInterface();
         private ClassIcon classUI;
@@ -782,6 +784,7 @@ namespace TF2
             FeignDeath,
         }
 
+        #region Modifications
         private static void Hook_ModifyMaxStats(ModifyMaxStatsAction orig, Player player)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
@@ -1764,7 +1767,8 @@ namespace TF2
         }
 
         private int Hook_DamageVar(On_Main.orig_DamageVar_float_float orig, float dmg, float luck) => damageFalloff ? Round(dmg) : orig(dmg, luck);
-
+        #endregion Modifications
+        #region Methods
         public static int Time(double time) => Convert.ToInt32(time * 60);
 
         public static int Minute(double time) => Convert.ToInt32(time * 3600);
@@ -2196,25 +2200,25 @@ namespace TF2
             packet.Send(-1, Main.myPlayer);
         }
 
-        public static int OverwriteNPC(IEntitySource source, int X, int Y, int Type, int Start = 0, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f, int Target = 255)
+        public static int OverwriteNPC(IEntitySource source, int X, int Y, int Type, int start = 0, float ai0 = 0f, float ai1 = 0f, float ai2 = 0f, float ai3 = 0f, int Target = 255)
         {
-            if (Start >= 0)
+            if (start >= 0)
             {
-                Main.npc[Start] = new NPC();
-                Main.npc[Start].SetDefaults(Type);
-                Main.npc[Start].whoAmI = Start;
-                Main.npc[Start].position.X = X - Main.npc[Start].width / 2;
-                Main.npc[Start].position.Y = Y - Main.npc[Start].height;
-                Main.npc[Start].active = true;
-                Main.npc[Start].timeLeft = (int)(NPC.activeTime * 1.25);
-                Main.npc[Start].wet = Collision.WetCollision(Main.npc[Start].position, Main.npc[Start].width, Main.npc[Start].height);
-                Main.npc[Start].ai[0] = ai0;
-                Main.npc[Start].ai[1] = ai1;
-                Main.npc[Start].ai[2] = ai2;
-                Main.npc[Start].ai[3] = ai3;
-                Main.npc[Start].target = Target;
-                Main.npc[Start].ModNPC?.OnSpawn(source);
-                return Start;
+                Main.npc[start] = new NPC();
+                Main.npc[start].SetDefaults(Type);
+                Main.npc[start].whoAmI = start;
+                Main.npc[start].position.X = X - Main.npc[start].width / 2;
+                Main.npc[start].position.Y = Y - Main.npc[start].height;
+                Main.npc[start].active = true;
+                Main.npc[start].timeLeft = (int)(NPC.activeTime * 1.25);
+                Main.npc[start].wet = Collision.WetCollision(Main.npc[start].position, Main.npc[start].width, Main.npc[start].height);
+                Main.npc[start].ai[0] = ai0;
+                Main.npc[start].ai[1] = ai1;
+                Main.npc[start].ai[2] = ai2;
+                Main.npc[start].ai[3] = ai3;
+                Main.npc[start].target = Target;
+                Main.npc[start].ModNPC?.OnSpawn(source);
+                return start;
             }
             return 200;
         }
@@ -2312,7 +2316,7 @@ namespace TF2
         }
 
         public static bool IsTheSameAs(Item item, Item compareItem) => item.netID == compareItem.netID && item.type == compareItem.type;
-
+        #endregion Methods
         public struct WeaponSize(int x, int y)
         {
             public int X = x;

@@ -42,7 +42,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             p.bannerType = 2;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<BuffBanner>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BuffBanner>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class BattalionsBackupPlayer : BannerPlayer

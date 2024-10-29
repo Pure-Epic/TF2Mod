@@ -27,6 +27,6 @@ namespace TF2.Content.Items.Weapons.Heavy
             AddNegativeAttribute(description);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<BrassBeast>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<BrassBeast>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

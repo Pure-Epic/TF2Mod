@@ -66,7 +66,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<CharginTarge>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<CharginTarge>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 
     public class SplendidScreenPlayer : ShieldPlayer

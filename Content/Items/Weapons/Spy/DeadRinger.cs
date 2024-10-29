@@ -106,7 +106,6 @@ namespace TF2.Content.Items.Weapons.Spy
         }
 
         #region Cloak Drain On Attack
-
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (feignDeath && Player.HasBuff<FeignDeath>())
@@ -141,9 +140,7 @@ namespace TF2.Content.Items.Weapons.Spy
             else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
                 opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter += TF2.Time(2.933);
         }
-
         #endregion Cloak Drain On Attack
-
         public override bool FreeDodge(Player.HurtInfo info)
         {
             if (TF2Weapon.HoldingWeapon<DeadRinger>(Player) && deadRingerEquipped)

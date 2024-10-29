@@ -42,6 +42,6 @@ namespace TF2.Content.Items.Weapons.Sniper
             target.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(6));
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<DeadRinger>().AddIngredient<Huntsman>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<DeadRinger>().AddIngredient<Huntsman>().AddTile<AustraliumAnvil>().Register();
     }
 }

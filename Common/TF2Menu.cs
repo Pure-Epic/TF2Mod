@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
-using System;
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Content.UI;
@@ -16,7 +15,7 @@ namespace TF2.Common
         {
             get
             {
-                if (!ScreamFortress)
+                if (!TF2.ScreamFortress)
                     return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup1");               
                 else
                     return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup_halloween");
@@ -24,8 +23,6 @@ namespace TF2.Common
         }
 
         public override string DisplayName => "Team Fortress 2";
-
-        public static bool ScreamFortress => DateTime.Today.Month == 10 || (DateTime.Today.Month == 11 && DateTime.Today.Day < 7);
 
         public static int classSelected;
 
@@ -44,7 +41,8 @@ namespace TF2.Common
             Main.raining = false;
             logoRotation = 0f;
             logoScale = 1f;
-            Texture2D background = !ScreamFortress ? UITextures.MainMenuBackgroundTextures[0].Value : UITextures.MainMenuBackgroundTextures[1].Value;
+            drawColor = Color.White;
+            Texture2D background = !TF2.ScreamFortress ? UITextures.MainMenuBackgroundTextures[0].Value : UITextures.MainMenuBackgroundTextures[1].Value;
             float width = (float)Main.screenWidth / background.Width;
             float height = (float)Main.screenHeight / background.Height;
             Vector2 center = Vector2.Zero;

@@ -26,7 +26,7 @@ namespace TF2.Content.Items.Weapons.Pyro
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ScotsmansSkullcutter>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ScotsmansSkullcutter>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class BackScratcherPlayer : ModPlayer

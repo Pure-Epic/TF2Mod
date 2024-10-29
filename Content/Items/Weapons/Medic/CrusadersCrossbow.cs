@@ -71,6 +71,6 @@ namespace TF2.Content.Items.Weapons.Medic
                 modifiers.FinalDamage *= 0.5f + Utils.Clamp(Vector2.Distance(player.Center, target.Center) / 500f, 0f, 0.5f);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Huntsman>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Huntsman>().AddIngredient<ScrapMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

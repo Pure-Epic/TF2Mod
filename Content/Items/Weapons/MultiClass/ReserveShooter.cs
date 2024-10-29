@@ -31,6 +31,6 @@ namespace TF2.Content.Items.Weapons.MultiClass
 
         protected override void WeaponPostFireProjectile(Player player, int projectile) => (Main.projectile[projectile].ModProjectile as TF2Projectile).reserveShooterProjectile = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<FrontierJustice>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<FrontierJustice>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

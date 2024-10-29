@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
@@ -10,6 +11,8 @@ namespace TF2.Content.Items.Weapons.Engineer
 {
     public class Gunslinger : TF2Weapon
     {
+        public override Asset<Texture2D> WeaponTexture => ModContent.Request<Texture2D>("TF2/Content/Items/Weapons/Engineer/Gunslinger");
+
         protected override string ArmTexture => "TF2/Content/Textures/Items/Engineer/Gunslinger";
 
         protected override string ArmTextureReverse => "TF2/Content/Textures/Items/Engineer/GunslingerReverse";
@@ -36,13 +39,13 @@ namespace TF2.Content.Items.Weapons.Engineer
 
         protected override bool WeaponDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            spriteBatch.Draw(ModContent.Request<Texture2D>("TF2/Content/Items/Weapons/Engineer/Gunslinger").Value, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(WeaponTexture.Value, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
             return false;
         }
 
         protected override bool WeaponDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = ModContent.Request<Texture2D>("TF2/Content/Items/Weapons/Engineer/Gunslinger").Value;
+            Texture2D texture = WeaponTexture.Value;
             spriteBatch.Draw(texture, Item.position - Main.screenPosition + new Vector2(Item.width / 2, Item.height - texture.Height * 0.5f + 2f), null, lightColor.MultiplyRGB(alphaColor), rotation, texture.Size() * 0.5f, scale, SpriteEffects.None, 0f);
             return false;
         }

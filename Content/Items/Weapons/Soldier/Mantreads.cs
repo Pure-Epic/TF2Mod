@@ -32,7 +32,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             player.noFallDmg = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Gunboats>().AddIngredient<RefinedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Gunboats>().AddIngredient<RefinedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class MantreadsPlayer : ModPlayer

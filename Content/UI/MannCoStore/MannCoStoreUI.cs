@@ -517,14 +517,16 @@ namespace TF2.Content.UI.MannCoStore
 
         public void DrawItemTexture(SpriteBatch spriteBatch)
         {
+            Item item = Item.Item;
             CalculatedStyle innerDimensions = GetInnerDimensions();
-            Main.instance.LoadItem(Item.Item.type);
-            Texture2D value = TextureAssets.Item[Item.Item.type].Value;
-            Rectangle rectangle = (Main.itemAnimations[Item.Item.type] == null) ? value.Frame(1, 1, 0, 0, 0, 0) : Main.itemAnimations[Item.Item.type].GetFrame(value, -1);
+            Main.instance.LoadItem(item.type);
+            TF2Item weapon = item.ModItem as TF2Item;
+            Texture2D texture = (weapon.WeaponTexture != null) ? weapon.WeaponTexture.Value : TextureAssets.Item[item.type].Value;
+            Rectangle rectangle = (Main.itemAnimations[item.type] == null) ? texture.Frame(1, 1, 0, 0, 0, 0) : Main.itemAnimations[item.type].GetFrame(texture, -1);
             float num = 3.5f;
             if (rectangle.Width * num > 100 || rectangle.Height * num > 100)
                 num = (rectangle.Width <= rectangle.Height) ? (100f / rectangle.Height) : (100f / rectangle.Width);
-            spriteBatch.Draw(value, innerDimensions.Center(), new Rectangle?(rectangle), Color.White, 0f, new Vector2(rectangle.Width, rectangle.Height) * 0.5f, num, 0, 0f);
+            spriteBatch.Draw(texture, innerDimensions.Center(), new Rectangle?(rectangle), Color.White, 0f, new Vector2(rectangle.Width, rectangle.Height) * 0.5f, num, 0, 0f);
         }
     }
 

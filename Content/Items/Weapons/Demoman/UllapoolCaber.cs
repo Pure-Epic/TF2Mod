@@ -98,6 +98,6 @@ namespace TF2.Content.Items.Weapons.Demoman
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ScrapMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ScrapMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

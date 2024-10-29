@@ -37,7 +37,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 player.GetModPlayer<TF2Player>().crit = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class PainTrainPlayer : ModPlayer

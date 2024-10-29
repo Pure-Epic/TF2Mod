@@ -42,6 +42,6 @@ namespace TF2.Content.Items.Weapons.Demoman
 
         protected override void WeaponPassiveUpdate(Player player) => TF2Player.SetPlayerSpeed(player, 85);
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>().AddIngredient<Axtinguisher>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Jarate>().AddIngredient<Axtinguisher>().AddTile<AustraliumAnvil>().Register();
     }
 }

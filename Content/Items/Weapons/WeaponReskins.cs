@@ -30,6 +30,6 @@ namespace TF2.Content.Items.Weapons
             AddNeutralAttribute(description);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<ScotsmansSkullcutter>().AddIngredient<HauntedMetalScrap>().AddIngredient<RefinedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ScotsmansSkullcutter>().AddIngredient<HauntedMetalScrap>().AddIngredient<RefinedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

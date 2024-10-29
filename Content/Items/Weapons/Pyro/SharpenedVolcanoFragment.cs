@@ -44,6 +44,6 @@ namespace TF2.Content.Items.Weapons.Pyro
             target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5));
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ReclaimedMetal>(2).AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

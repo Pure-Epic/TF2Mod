@@ -36,8 +36,8 @@ namespace TF2.Content.Projectiles
         public bool miniCrit;
         public bool crit;
         public bool healingProjectile;
-        public bool sniperMiniCrit; // Exclusive to the Sydney Sleeper
-        public bool sniperCrit; // Exclusive to any Sniper Rifle (except for the Sydney Sleeper)
+        public bool sniperMiniCrit;
+        public bool sniperCrit;
         public bool backStab;
         public bool ammoShot;
         public bool healthShot;
@@ -46,6 +46,8 @@ namespace TF2.Content.Projectiles
         public bool lEtrangerProjectile;
         public bool homing;
         public float shootSpeed = 10f;
+        private float distance;
+        private byte target;
 
         protected virtual void ProjectileStatistics()
         { }
@@ -224,19 +226,19 @@ namespace TF2.Content.Projectiles
                 Projectile.penetrate = -1;
             if (homing)
             {
-                float ProjectileSqrt = (float)Math.Sqrt(Projectile.velocity.X * Projectile.velocity.X + Projectile.velocity.Y * Projectile.velocity.Y);
-                float ai = Projectile.localAI[0];
+                float projectileDistance = (float)Math.Sqrt(Projectile.velocity.X * Projectile.velocity.X + Projectile.velocity.Y * Projectile.velocity.Y);
+                float ai = Timer;
                 if (ai == 0f)
                 {
-                    Projectile.localAI[0] = ProjectileSqrt;
-                    ai = ProjectileSqrt;
+                    distance = projectileDistance;
+                    ai = projectileDistance;
                 }
                 if (Projectile.alpha > 0)
                     Projectile.alpha -= 25;
                 if (Projectile.alpha < 0)
                     Projectile.alpha = 0;
-                float ProjectileX = Projectile.position.X;
-                float ProjectileY = Projectile.position.Y;
+                float projectileX = Projectile.position.X;
+                float projectileY = Projectile.position.Y;
                 float maxDetectRadius = Player.GetModPlayer<TF2Player>().homingPower switch
                 {
                     0 => 250f,
@@ -245,12 +247,12 @@ namespace TF2.Content.Projectiles
                     _ => 0f,
                 };
                 bool canSeek = false;
-                int nextAI = 0;
-                if (Projectile.ai[1] == 0f)
+                byte nextAI = 0;
+                if (target == 0f)
                 {
-                    for (int i = 0; i < 200; i++)
+                    for (int i = 0; i < Main.maxProjectiles; i++)
                     {
-                        if (Main.npc[i].CanBeChasedBy(this) && (Projectile.ai[1] == 0f || Projectile.ai[1] == i + 1))
+                        if (Main.npc[i].CanBeChasedBy(this) && (target == 0f || target == i + 1))
                         {
                             float npcX = Main.npc[i].position.X + (Main.npc[i].width / 2);
                             float npcY = Main.npc[i].position.Y + (Main.npc[i].height / 2);
@@ -258,20 +260,20 @@ namespace TF2.Content.Projectiles
                             if (closestNPCDistance < maxDetectRadius && Collision.CanHit(new Vector2(Projectile.position.X + (Projectile.width / 2), Projectile.position.Y + (Projectile.height / 2)), 1, 1, Main.npc[i].position, Main.npc[i].width, Main.npc[i].height))
                             {
                                 maxDetectRadius = closestNPCDistance;
-                                ProjectileX = npcX;
-                                ProjectileY = npcY;
+                                projectileX = npcX;
+                                projectileY = npcY;
                                 canSeek = true;
-                                nextAI = i;
+                                nextAI = (byte)i;
                             }
                         }
                     }
                     if (canSeek)
-                        Projectile.ai[1] = nextAI + 1;
+                        target = (byte)(nextAI + 1);
                     canSeek = false;
                 }
-                if (Projectile.ai[1] > 0f)
+                if (target > 0f)
                 {
-                    int previousAI = (int)(Projectile.ai[1] - 1f);
+                    int previousAI = (int)(target - 1f);
                     if (Main.npc[previousAI].active && Main.npc[previousAI].CanBeChasedBy(this, ignoreDontTakeDamage: true) && !Main.npc[previousAI].dontTakeDamage)
                     {
                         float npcX = Main.npc[previousAI].position.X + (Main.npc[previousAI].width / 2);
@@ -279,19 +281,19 @@ namespace TF2.Content.Projectiles
                         if (Math.Abs(Projectile.position.X + (Projectile.width / 2) - npcX) + Math.Abs(Projectile.position.Y + (Projectile.height / 2) - npcY) < 1000f)
                         {
                             canSeek = true;
-                            ProjectileX = Main.npc[previousAI].position.X + (Main.npc[previousAI].width / 2);
-                            ProjectileY = Main.npc[previousAI].position.Y + (Main.npc[previousAI].height / 2);
+                            projectileX = Main.npc[previousAI].position.X + (Main.npc[previousAI].width / 2);
+                            projectileY = Main.npc[previousAI].position.Y + (Main.npc[previousAI].height / 2);
                         }
                     }
                     else
-                        Projectile.ai[1] = 0f;
+                        target = 0;
                 }
                 if (canSeek)
                 {
                     float newAI = ai;
                     Vector2 vector25 = new(Projectile.position.X + Projectile.width * 0.5f, Projectile.position.Y + Projectile.height * 0.5f);
-                    float newProjectileX = ProjectileX - vector25.X;
-                    float newProjectileY = ProjectileY - vector25.Y;
+                    float newProjectileX = projectileX - vector25.X;
+                    float newProjectileY = projectileY - vector25.Y;
                     float newProjectileSqrt = (float)Math.Sqrt(newProjectileX * newProjectileX + newProjectileY * newProjectileY);
                     newProjectileSqrt = newAI / newProjectileSqrt;
                     newProjectileX *= newProjectileSqrt;
@@ -393,6 +395,8 @@ namespace TF2.Content.Projectiles
             writer.Write(lEtrangerProjectile);
             writer.Write(ammoShot);
             writer.Write(healthShot);
+            writer.Write(distance);
+            writer.Write(target);
             ProjectileSendExtraAI(writer);
         }
 
@@ -415,6 +419,8 @@ namespace TF2.Content.Projectiles
             lEtrangerProjectile = binaryReader.ReadBoolean();
             ammoShot = binaryReader.ReadBoolean();
             healthShot = binaryReader.ReadBoolean();
+            distance = binaryReader.ReadSingle();
+            target = binaryReader.ReadByte();
             ProjectileReceiveExtraAI(binaryReader);
         }
 

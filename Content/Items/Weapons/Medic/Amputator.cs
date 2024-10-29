@@ -112,6 +112,6 @@ namespace TF2.Content.Items.Weapons.Medic
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<VitaSaw>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<VitaSaw>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

@@ -34,6 +34,6 @@ namespace TF2.Content.Items.Weapons.Soldier
             p.noRandomHealthKits = true;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<Gunboats>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<Gunboats>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

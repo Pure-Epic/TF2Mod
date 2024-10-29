@@ -55,7 +55,7 @@ namespace TF2.Content.Items.Weapons.Scout
             }            
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class ShortstopPlayer : ModPlayer

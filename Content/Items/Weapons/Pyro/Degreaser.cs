@@ -44,6 +44,6 @@ namespace TF2.Content.Items.Weapons.Pyro
                 airblastTimer = airblastCooldown;
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Backburner>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Backburner>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

@@ -29,6 +29,6 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponActiveBonus(Player player) => Player.jumpSpeed *= 1.25f;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Shortstop>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Shortstop>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

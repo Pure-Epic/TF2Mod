@@ -28,6 +28,6 @@ namespace TF2.Content.Items.Weapons.Heavy
             AddNegativeAttribute(description);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<FrontierJustice>().AddIngredient<Homewrecker>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<FrontierJustice>().AddIngredient<Homewrecker>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }

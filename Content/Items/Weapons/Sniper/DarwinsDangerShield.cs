@@ -28,7 +28,7 @@ namespace TF2.Content.Items.Weapons.Sniper
             }
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<Razorback>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<Razorback>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class DarwinsDangerShieldPlayer : ModPlayer

@@ -57,7 +57,7 @@ namespace TF2.Content.Items.Weapons.Spy
                 TF2.CreateProjectile(this, source, position, velocity * 10f, ModContent.ProjectileType<YourEternalRewardBeam>(), damage, knockback, player.whoAmI);
         }
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ReclaimedMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }
 
     public class YourEternalRewardPlayer : ModPlayer

@@ -32,6 +32,6 @@ namespace TF2.Content.Items.Weapons.Spy
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().noRandomHealthKits = true;
 
-        public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ScrapMetal>().AddTile<CraftingAnvil>().Register();
+        public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }
 }
