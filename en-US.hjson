@@ -1,4 +1,4 @@
-﻿# You may find this .hjson file approach to translations easier for your mod.
+# You may find this .hjson file approach to translations easier for your mod.
 # .hjson files contain translations for the language specified in the filename. (Make sure this file is UTF-8 encoded only.)
 # The possible languages are: English ("en-US"), German ("de-DE"), Italian ("it-IT"), French ("fr-FR"), Spanish ("es-ES"), Russian ("ru-RU"), Chinese ("zh-Hans"), Portuguese ("pt-BR"), and Polish ("pl-PL")
 # Here in ExampleMod we have organized these files in a folder called Localization. A single file per language makes it extremely easy to to integrate and maintain translations.
@@ -8,27 +8,21 @@
 
 Mods: {
 	TF2: {
-		
-		Currencies: {
-			AustraliumCurrency: australium
-		}
-		
-		Bestiary: {
-			SaxtonHale: Saxton Hale is the CEO of Mann Co. He loves destorying anime girls with his Australian power! He currently has 2764 confirmed kills.
-		}
-		
+		Currencies.AustraliumCurrency: australium
+		Bestiary.SaxtonHale: Saxton Hale is the CEO of Mann Co. He loves destorying anime girls with his Australian power! He currently has 2764 confirmed kills.
+
 		#This is what displays during all of an NPC's happiness levels. Note that the localization key for these should always be "TownNPCMood.*NPCName*.*Mood*" or else it won't display properly.
 		TownNPCMood: {
 			SaxtonHale: {
-				Content: "This place is like Australia!"
-				NoHome: "Where home?"
-				LoveSpace: "Not too many people, just how I like it!"
-				FarFromHome: "I want to go home!"
-				DislikeCrowded: "Too many folks. Saxton Hale no like!"
-				HateCrowded: "Everyone else is ugly and cringe. Saxton Hale very no like!"
+				Content: This place is like Australia!
+				NoHome: Where home?
+				LoveSpace: Not too many people, just how I like it!
+				FarFromHome: I want to go home!
+				DislikeCrowded: Too many folks. Saxton Hale no like!
+				HateCrowded: Everyone else is ugly and cringe. Saxton Hale very no like!
 				LikeBiome: "{BiomeName} is the perfect place to fight animals."
-				LoveBiome: "RED and BLU should fight over {BiomeName} instead of useless gravel pits."
-				DislikeBiome: "Australians, like me, are unfit for {BiomeName}."
+				LoveBiome: RED and BLU should fight over {BiomeName} instead of useless gravel pits.
+				DislikeBiome: Australians, like me, are unfit for {BiomeName}.
 				HateBiome: "{BiomeName} is more useless than gravel pit."
 				LikeNPC: "{NPCName} is based!"
 				LoveNPC: "{NPCName} is giga chad!"
@@ -37,29 +31,29 @@ Mods: {
 			}
 
 			Administrator: {
-				Content: "Flawless victory!"
-				NoHome: "Flawless defeat!"
-				LoveSpace: "Time has been added."
-				FarFromHome: "The bomb is nearing the checkpoint!"
-				DislikeCrowded: "Alert! The enemy has taken our intelligence!"
-				HateCrowded: "You've failed. The enemy has captured our intelligence."
-				LikeBiome: "Control point enabled."
-				LoveBiome: "Control point enabled, get moving!"
-				DislikeBiome: "Alert! The control point is being captured."
-				HateBiome: "We have lost the control point!"
+				Content: Flawless victory!
+				NoHome: Flawless defeat!
+				LoveSpace: Time has been added.
+				FarFromHome: The bomb is nearing the checkpoint!
+				DislikeCrowded: Alert! The enemy has taken our intelligence!
+				HateCrowded: You've failed. The enemy has captured our intelligence.
+				LikeBiome: Control point enabled.
+				LoveBiome: Control point enabled, get moving!
+				DislikeBiome: Alert! The control point is being captured.
+				HateBiome: We have lost the control point!
 				LikeNPC: "{NPCName} is the least disappointing."
-				LoveNPC: "You're all winners! Now, {NPCName}'s an actual winner."
-				DislikeNPC: "I am dumbstruck by your mediocrity, {NPCName}."
-				HateNPC: "Humiliating defeat, {NPCName}!"
+				LoveNPC: You're all winners! Now, {NPCName}'s an actual winner.
+				DislikeNPC: I am dumbstruck by your mediocrity, {NPCName}.
+				HateNPC: Humiliating defeat, {NPCName}!
 			}
 
 			MissPauling: {
-				Content: "I like it here."
-				NoHome: "I don't have anywhere to go, do I?"
-				LoveSpace: "Perfect vacation spot!"
-				FarFromHome: "Where am I?"
-				DislikeCrowded: "A little too crowded here?"
-				HateCrowded: "Definitely too crowded here."
+				Content: I like it here.
+				NoHome: I don't have anywhere to go, do I?
+				LoveSpace: Perfect vacation spot!
+				FarFromHome: Where am I?
+				DislikeCrowded: A little too crowded here?
+				HateCrowded: Definitely too crowded here.
 				LikeBiome: "{BiomeName} is pretty nice."
 				LoveBiome: "{BiomeName} is very nice. Sad that I only have one day off."
 				DislikeBiome: "{BiomeName} is a bit uncomfortable. I could stay here a little longer though."
@@ -67,8 +61,1038 @@ Mods: {
 				LikeNPC: "{NPCName} is a cool person."
 				LoveNPC: "{NPCName} is the best boss ever!"
 				DislikeNPC: "{NPCName} might not be the person I can get along with."
-				HateNPC: "Yeah no. I'm not staying with {NPCName}."
+				HateNPC: Yeah no. I'm not staying with {NPCName}.
 			}
 		}
+
+		Buffs: {
+			BaseballCooldown: {
+				DisplayName: Baseball Cooldown
+				Description: You cannot throw baseballs
+			}
+
+			BaseballDebuff: {
+				DisplayName: Slugged!
+				Description: Slowed
+			}
+
+			Bleeding: {
+				DisplayName: Bleeding
+				Description: Bleeding out rapidly
+			}
+
+			BonkCooldown: {
+				DisplayName: Bonk! Atomic Punch Cooldown
+				Description: You cannot drink Bonk! Atomic Punch
+			}
+
+			BrokenCloak: {
+				DisplayName: Broken Cloak
+				Description: You cannot cloak
+			}
+
+			CloakandDagger: {
+				DisplayName: Cloaked
+				Description: Invincible and invisible
+			}
+
+			Cloaked: {
+				DisplayName: Cloaked
+				Description: Invincible and invisible
+			}
+
+			DefenseRage: {
+				DisplayName: Soldier's Blessing
+				Description: Damage reduction
+			}
+
+			FeignDeath: {
+				DisplayName: Cloaked
+				Description: Invincible and invisible
+			}
+
+			FoodCooldown: {
+				DisplayName: Heavylicious
+				Description: You cannot eat
+			}
+
+			HeavyCrit: {
+				DisplayName: Heavy's Crit
+				Description: Grants crits
+			}
+
+			JarateCooldown: {
+				DisplayName: Jarate Cooldown
+				Description: You need to restock on Jarate
+			}
+
+			JarateDebuff: {
+				DisplayName: Jarate
+				Description: Crit vulnerability
+			}
+
+			KritzkriegUbercharge: {
+				DisplayName: Ubercharge
+				Description: Crits everything
+			}
+
+			MadMilkCooldown: {
+				DisplayName: Mad Milk Cooldown
+				Description: You need to restock on Mad Milk
+			}
+
+			MadMilkDebuff: {
+				DisplayName: Mad Milk
+				Description: Life steal
+			}
+
+			MeleeCrit: {
+				DisplayName: Shield Charge
+				Description: Grants melee crits
+			}
+
+			NataschaDebuff: {
+				DisplayName: Heavy Slow
+				Description: Slowed
+			}
+
+			PyroFlames: {
+				DisplayName: Afterburn
+				Description: Losing life
+			}
+
+			PyroFlamesDegreaser: {
+				DisplayName: Afterburn
+				Description: Losing life
+			}
+
+			Radiation: {
+				DisplayName: Radiation
+				Description: Invinciblity with some side effects
+			}
+
+			Rage: {
+				DisplayName: Soldier's Rage
+				Description: Mini-crits everything
+			}
+
+			RazorbackBuff: {
+				DisplayName: Sniper's Protection
+				Description: You will dodge the next attack
+			}
+
+			Sapped: {
+				DisplayName: Sapped!
+				Description: Slow and painful death
+			}
+
+			Ubercharge: {
+				DisplayName: Ubercharge
+				Description: I am bulletproof!
+			}
+
+			TF2MountBuff: {
+				DisplayName: Mann's Anti Danmaku System
+				Description: Nice try, pal!
+			}
+		}
+
+		Items: {
+			Rank1: {
+				DisplayName: Mercenary I
+				Tooltip:
+					'''
+					75% weapon damage
+					75% npc efficiency
+					'''
+			}
+
+			Rank10: {
+				DisplayName: Expert Assassin I
+				Tooltip:
+					'''
+					400% health
+					20000% weapon damage
+					20000% npc efficiency
+					+400 metal capacity
+					+3 bullet pierce
+					'''
+			}
+
+			Rank11: {
+				DisplayName: Expert Assassin II
+				Tooltip:
+					'''
+					500% health
+					50000% weapon damage
+					50000% npc efficiency
+					+400 metal capacity
+					+3 bullet pierce
+					'''
+			}
+
+			Rank12: {
+				DisplayName: Expert Assassin III
+				Tooltip:
+					'''
+					500% health
+					100000% weapon damage
+					100000% npc efficiency
+					+400 metal capacity
+					+4 bullet pierce
+					'''
+			}
+
+			Rank13: {
+				DisplayName: Death Merchant
+				Tooltip:
+					'''
+					1000% health
+					1000000% weapon damage
+					1000000% npc efficiency
+					+800 metal capacity
+					+5 bullet pierce
+					'''
+			}
+
+			Rank2: {
+				DisplayName: Mercenary II
+				Tooltip:
+					'''
+					125% health
+					100% weapon damage
+					100% npc efficiency
+					'''
+			}
+
+			Rank3: {
+				DisplayName: Mercenary III
+				Tooltip:
+					'''
+					125% health
+					150% weapon damage
+					150% npc efficiency
+					+1 bullet pierce
+					'''
+			}
+
+			Rank4: {
+				DisplayName: Contract Killer I
+				Tooltip:
+					'''
+					125% health
+					350% weapon damage
+					350% npc efficiency
+					+200 metal capacity
+					+1 bullet pierce
+					'''
+			}
+
+			Rank5: {
+				DisplayName: Contract Killer II
+				Tooltip:
+					'''
+					150% health
+					500% weapon damage
+					500% npc efficiency
+					+200 metal capacity
+					+1 bullet pierce
+					'''
+			}
+
+			Rank6: {
+				DisplayName: Contract Killer III
+				Tooltip:
+					'''
+					150% health
+					750% weapon damage
+					750% npc efficiency
+					+200 metal capacity
+					+2 bullet pierce
+					'''
+			}
+
+			Rank7: {
+				DisplayName: Executioner I
+				Tooltip:
+					'''
+					150% health
+					1500% weapon damage
+					1500% npc efficiency
+					+200 metal capacity
+					+2 bullet pierce
+					'''
+			}
+
+			Rank8: {
+				DisplayName: Executioner II
+				Tooltip:
+					'''
+					200% health
+					5000% weapon damage
+					5000% npc efficiency
+					+400 metal capacity
+					+2 bullet pierce
+					'''
+			}
+
+			Rank9: {
+				DisplayName: Executioner III
+				Tooltip:
+					'''
+					300% health
+					10000% weapon damage
+					10000% npc efficiency
+					+400 metal capacity
+					+3 bullet pierce
+					'''
+			}
+
+			TournamentStandard: {
+				DisplayName: Tournament Standard
+				Tooltip:
+					'''
+					100% health
+					100% weapon damage
+					100% npc efficiency
+					'''
+			}
+
+			LargeHealth.DisplayName: Large Health Kit
+			LargeHealthPotion.DisplayName: Large Health Kit
+			MediumHealth.DisplayName: Medium Health Kit
+			MediumHealthPotion.DisplayName: Medium Health Kit
+			Metal.DisplayName: Medium Ammo Box
+
+			PrimaryAmmo: {
+				DisplayName: Large Ammo Box
+				Tooltip: Ammo for Primary Weapons
+			}
+
+			SecondaryAmmo: {
+				DisplayName: Small Ammo Box
+				Tooltip: Ammo for Secondary Weapons
+			}
+
+			SmallHealth.DisplayName: Small Health Kit
+			SmallHealthPotion.DisplayName: Small Health Kit
+
+			DemomanClass: {
+				DisplayName: Demoman Class Token
+				Tooltip: Change class to Demoman
+			}
+
+			EngineerClass: {
+				DisplayName: Engineer Class Token
+				Tooltip: Change class to Engineer
+			}
+
+			HeavyClass: {
+				DisplayName: Heavy Class Token
+				Tooltip: Change class to Heavy
+			}
+
+			MedicClass: {
+				DisplayName: Medic Class Token
+				Tooltip: Change class to Medic
+			}
+
+			PyroClass: {
+				DisplayName: Pyro Class Token
+				Tooltip: Change class to Pyro
+			}
+
+			ScoutClass: {
+				DisplayName: Scout Class Token
+				Tooltip: Change class to Scout
+			}
+
+			SniperClass: {
+				DisplayName: Sniper Class Token
+				Tooltip: Change class to Sniper
+			}
+
+			SoldierClass: {
+				DisplayName: Soldier Class Token
+				Tooltip: Change class to Soldier
+			}
+
+			SpyClass: {
+				DisplayName: Spy Class Token
+				Tooltip: Change class to Spy
+			}
+
+			DemomanBundle: {
+				DisplayName: Demoman Starter Pack
+				Tooltip: Contains Grenade Launcher, Stickybomb Launcher, Bottle, and Demoman Class Token
+			}
+
+			EngineerBundle: {
+				DisplayName: Engineer Starter Pack
+				Tooltip: Contains Shotgun, Pistol, Wrench, Sentry Tool, Dispenser Tool, and Engineer Class Token
+			}
+
+			HeavyBundle: {
+				DisplayName: Heavy Starter Pack
+				Tooltip: Contains Minigun, Shotgun, Fists, and Heavy Class Token
+			}
+
+			MedicBundle: {
+				DisplayName: Medic Starter Pack
+				Tooltip: Contains Syringe Gun, Medi Gun, Bonesaw, and Medic Class Token
+			}
+
+			PyroBundle: {
+				DisplayName: Pyro Starter Pack
+				Tooltip: Contains Flame Thrower, Shotgun, Fire Axe, and Pyro Class Token
+			}
+
+			ScoutBundle: {
+				DisplayName: Scout Starter Pack
+				Tooltip: Contains Scattergun, Pistol, Bat, and Scout Class Token
+			}
+
+			SniperBundle: {
+				DisplayName: Sniper Starter Pack
+				Tooltip: Contains Sniper Rifle, SMG, Kukri, and Sniper Class Token
+			}
+
+			SoldierBundle: {
+				DisplayName: Soldier Starter Pack
+				Tooltip: Contains Rocket Launcher, Shotgun, Shovel, and Soldier Class Token
+			}
+
+			SpyBundle: {
+				DisplayName: Spy Starter Pack
+				Tooltip: Contains Revolver, Knife, Sapper, Invis Watch, and Spy Class Token
+			}
+
+			MannCoStorePackage: {
+				DisplayName: Mann Co. Store Package
+				Tooltip:
+					'''
+					This bag contains one free weapon from the Mann Co. store!
+					{$CommonItemTooltip.RightClickToOpen}
+					'''
+			}
+
+			MannCoSupplyCrate: {
+				DisplayName: Mann Co. Supply Crate
+				Tooltip:
+					'''
+					You need a Mann Co. Supply Crate Key to open this.
+					You can pick one up at the Mann Co. Store.
+					Contains 3 random weapons
+					{$CommonItemTooltip.RightClickToOpen}
+					'''
+			}
+
+			MannCoSupplyCrateKey: {
+				DisplayName: Mann Co. Supply Crate Key
+				Tooltip: Used to open locked supply crates.
+			}
+
+			PlanteraItem: {
+				DisplayName: Plantera's Bulb
+				Tooltip: Now portable!
+			}
+
+			SaxtonHaleSummon: {
+				DisplayName: Saxton Hale's Ace of Spades
+				Tooltip: Summons Saxton Hale
+			}
+
+			Australium: {
+				DisplayName: Australium
+				Tooltip: Use it at Mann Co. Store
+			}
+
+			Bottle: {
+				DisplayName: Bottle
+				Tooltip: Demoman's Starter Melee
+			}
+
+			CharginTarge: {
+				DisplayName: Chargin' Targe
+				Tooltip: Demoman's Unlocked Secondary
+			}
+
+			Eyelander: {
+				DisplayName: Eyelander
+				Tooltip:
+					'''
+					Demoman's Unlocked Melee
+					This weapon has a large melee range and deploys and holsters slower
+					'''
+			}
+
+			GrenadeLauncher: {
+				DisplayName: Grenade Launcher
+				Tooltip: Demoman's Starter Primary
+			}
+
+			ScottishResistance: {
+				DisplayName: Scottish Resistance
+				Tooltip: Demoman's Unlocked Secondary
+			}
+
+			StickybombLauncher: {
+				DisplayName: Stickybomb Launcher
+				Tooltip:
+					'''
+					Alt-Fire: Detonate all Stickybombs
+					Demoman's Starter Secondary
+					'''
+			}
+
+			BuildTool: {
+				DisplayName: Dispenser Tool
+				Tooltip:
+					'''
+					Builds dispensers
+					Dispensers produces hearts, ammo, and metal
+					Dispenser level depends on the amount of metal the player currently has
+					'''
+			}
+
+			BuildToolSentry: {
+				DisplayName: Sentry Tool
+				Tooltip:
+					'''
+					Builds a sentry gun
+					Sentry guns attack the closest enemy
+					Sentry gun level depends on the amount of metal the player currently has
+					'''
+			}
+
+			FrontierJustice: {
+				DisplayName: Frontier Justice
+				Tooltip: Engineer's Unlocked Primary
+			}
+
+			Gunslinger: {
+				DisplayName: Gunslinger
+				Tooltip:
+					'''
+					Engineer's Unlocked Melee
+					Can repair buildings
+					'''
+			}
+
+			SouthernHospitality: {
+				DisplayName: Southern Hospitality
+				Tooltip: Engineer's Crafted Melee
+			}
+
+			Wrangler: {
+				DisplayName: Wrangler
+				Tooltip:
+					'''
+					Engineer's Unlocked Secondary
+					Take manual control of your Sentry Gun.
+					Wrangled sentries gain a shield that reduces damage and repairs by 66%.
+					Sentries are disabled for 3 seconds after becoming unwrangled.
+					'''
+			}
+
+			Wrench: {
+				DisplayName: Wrench
+				Tooltip:
+					'''
+					Engineer's Starter Melee
+					Repairs buildings on hit.
+					'''
+			}
+
+			DroppedSandvich.DisplayName: Sandvich
+
+			Fists: {
+				DisplayName: Fists
+				Tooltip: Heavy's Starter Melee
+			}
+
+			GlovesofRunningUrgently: {
+				DisplayName: Gloves of Running Urgently
+				Tooltip: Heavy's Crafted Melee
+			}
+
+			KillingGlovesofBoxing: {
+				DisplayName: Killing Gloves of Boxing
+				Tooltip: Heavy's Unlocked Melee
+			}
+
+			Minigun: {
+				DisplayName: Minigun
+				Tooltip: Heavy's Starter Primary
+			}
+
+			Natascha: {
+				DisplayName: Natascha
+				Tooltip: Heavy's Unlocked Primary
+			}
+
+			Sandvich: {
+				DisplayName: Sandvich
+				Tooltip:
+					'''
+					Heavy's Unlocked Secondary
+					Eat to regain full health.
+					Alt-fire: Share a Sandvich with a friend (Medium Health Kit).
+					'''
+			}
+
+			ReclaimedMetal.DisplayName: Reclaimed Metal
+			RefinedMetal.DisplayName: Refined Metal
+			ScrapMetal.DisplayName: Scrap Metal
+
+			Blutsauger: {
+				DisplayName: Blutsauger
+				Tooltip: Medic's Unlocked Primary
+			}
+
+			Bonesaw: {
+				DisplayName: Bonesaw
+				Tooltip: Medic's Starter Melee
+			}
+
+			Kritzkrieg: {
+				DisplayName: Kritzkrieg
+				Tooltip:
+					'''
+					Medic's Unlocked Secondary
+					ÜberCharge grants 100 % critical chance
+					'''
+			}
+
+			MediGun: {
+				DisplayName: Medi Gun
+				Tooltip: Medic's Starter Secondary
+			}
+
+			SyringeGun: {
+				DisplayName: Syringe Gun
+				Tooltip: Medic's Starter Primary
+			}
+
+			Ubersaw: {
+				DisplayName: Ubersaw
+				Tooltip: Medic's Unlocked Melee
+			}
+
+			VitaSaw: {
+				DisplayName: Vita-Saw
+				Tooltip: Medic's Crafted Melee
+			}
+
+			Pistol_Engineer: {
+				DisplayName: Pistol
+				Tooltip: Engineer's Starter Secondary
+			}
+
+			Pistol_Scout: {
+				DisplayName: Pistol
+				Tooltip: Scout's Starter Secondary
+			}
+
+			Shotgun_Engineer: {
+				DisplayName: Shotgun
+				Tooltip: Engineer's Starter Primary
+			}
+
+			Shotgun_Heavy: {
+				DisplayName: Shotgun
+				Tooltip: Heavy's Starter Secondary
+			}
+
+			Shotgun_Pyro: {
+				DisplayName: Shotgun
+				Tooltip: Pyro's Starter Secondary
+			}
+
+			Shotgun_Soldier: {
+				DisplayName: Shotgun
+				Tooltip: Soldier's Starter Secondary
+			}
+
+			DemomanSummon: {
+				DisplayName: Demoman
+				Tooltip: Summons Demoman
+			}
+
+			EngineerSummon: {
+				DisplayName: Engineer
+				Tooltip: Summons Engineer
+			}
+
+			HeavySummon: {
+				DisplayName: Heavy
+				Tooltip: Summons Heavy
+			}
+
+			MedicSummon: {
+				DisplayName: Medic
+				Tooltip: Summons Medic
+			}
+
+			PyroSummon: {
+				DisplayName: Pyro
+				Tooltip: Summons Pyro
+			}
+
+			ScoutSummon: {
+				DisplayName: Scout
+				Tooltip: Summons Scout
+			}
+
+			SniperSummon: {
+				DisplayName: Sniper
+				Tooltip: Summons Sniper
+			}
+
+			SoldierSummon: {
+				DisplayName: Soldier
+				Tooltip: Summons Soldier
+			}
+
+			SpySummon: {
+				DisplayName: Spy
+				Tooltip: Summons Spy
+			}
+
+			CraftingAnvilItem: {
+				DisplayName: Crafting Anvil
+				Tooltip:
+					'''
+					For years you have been able
+					to create weapons with your bare hands,
+					using raw steel, in real life.
+					What if we were to tell you
+					there’s now a way to SIMULATE that in-game?
+					Because we just did!
+					'''
+			}
+
+			Axtinguisher: {
+				DisplayName: Axtinguisher
+				Tooltip: Pyro's Unlocked Melee
+			}
+
+			Backburner: {
+				DisplayName: Backburner
+				Tooltip: Pyro's Unlocked Primary
+			}
+
+			Degreaser: {
+				DisplayName: Degreaser
+				Tooltip: Pyro's Crafted Primary
+			}
+
+			FireAxe: {
+				DisplayName: Fire Axe
+				Tooltip: Pyro's Starter Melee
+			}
+
+			FlameThrower: {
+				DisplayName: Flame Thrower
+				Tooltip: Pyro's Starter Primary
+			}
+
+			FlareGun: {
+				DisplayName: Flare Gun
+				Tooltip: Pyro's Unlocked Secondary
+			}
+
+			Powerjack: {
+				DisplayName: Powerjack
+				Tooltip: Pyro's Crafted Melee
+			}
+
+			Bat: {
+				DisplayName: Bat
+				Tooltip: Scout's Starter Melee
+			}
+
+			BonkAtomicPunch: {
+				DisplayName: Bonk Atomic Punch
+				Tooltip:
+					'''
+					Scout's Unlocked Secondary
+					Drink to become invulnerable for 8 seconds.
+					Cannot attack during this time.
+					Damage absorbed will slow you when the effect ends.
+					'''
+			}
+
+			ForceANature: {
+				DisplayName: Force-A-Nature
+				Tooltip: Scout's Unlocked Primary
+			}
+
+			HolyMackerel: {
+				DisplayName: Holy Mackerel
+				Tooltip:
+					'''
+					Scout's Crafted Melee
+					Getting hit by a fish has got to be humiliating.
+					'''
+			}
+
+			MadMilk: {
+				DisplayName: Mad Milk
+				Tooltip: Scout's Crafted Secondary
+			}
+
+			Sandman: {
+				DisplayName: Sandman
+				Tooltip: Scout's Unlocked Melee
+			}
+
+			Scattergun: {
+				DisplayName: Scattergun
+				Tooltip: Scout's Starter Primary
+			}
+
+			Shortstop: {
+				DisplayName: Shortstop
+				Tooltip: Scout's Crafted Primary
+			}
+
+			Bushwacka: {
+				DisplayName: Bushwacka
+				Tooltip: Sniper's Crafted Melee
+			}
+
+			DarwinsDangerShield: {
+				DisplayName: Darwin's Danger Shield
+				Tooltip: Sniper's Crafted Secondary
+			}
+
+			Huntsman: {
+				DisplayName: Huntsman
+				Tooltip: Sniper's Unlocked Primary
+			}
+
+			Jarate: {
+				DisplayName: Jarate
+				Tooltip: Sniper's Unlocked Secondary
+			}
+
+			Kukri: {
+				DisplayName: Kukri
+				Tooltip: Sniper's Starter Melee
+			}
+
+			Razorback: {
+				DisplayName: Razorback
+				Tooltip: Sniper's Unlocked Secondary
+			}
+
+			SMG: {
+				DisplayName: SMG
+				Tooltip: Sniper's Starter Secondary
+			}
+
+			SniperRifle: {
+				DisplayName: Sniper Rifle
+				Tooltip: Sniper's Starter Primary
+			}
+
+			SydneySleeper: {
+				DisplayName: Sydney Sleeper
+				Tooltip: Sniper's Crafted Primary
+			}
+
+			BattalionsBackup: {
+				DisplayName: Battalion's Backup
+				Tooltip: Soldier's Crafted Secondary
+			}
+
+			BlackBox: {
+				DisplayName: Black Box
+				Tooltip: Soldier's Crafted Primary
+			}
+
+			BuffBanner: {
+				DisplayName: Buff Banner
+				Tooltip:
+					'''
+					Soldier's Unlocked Secondary
+					Provides an offensive buff that causes all team members to do mini-crits.
+					Rage increases through damage done.
+					'''
+			}
+
+			DirectHit: {
+				DisplayName: Direct Hit
+				Tooltip: Soldier's Unlocked Primary
+			}
+
+			Equalizer: {
+				DisplayName: Equalizer
+				Tooltip:
+					'''
+					Soldier's Unlocked Melee
+					When weapon is active:
+					'''
+			}
+
+			Gunboats: {
+				DisplayName: Gunboats
+				Tooltip: Soldier's Crafted Secondary
+			}
+
+			RocketJumper: {
+				DisplayName: Rocket Jumper
+				Tooltip: Soldier's Crafted Primary
+			}
+
+			RocketLauncher: {
+				DisplayName: Rocket Launcher
+				Tooltip: Soldier's Starter Primary
+			}
+
+			Shovel: {
+				DisplayName: Shovel
+				Tooltip: Soldier's Starter Melee
+			}
+
+			Ambassador: {
+				DisplayName: Ambassador
+				Tooltip: Spy's Unlocked Secondary
+			}
+
+			CloakandDagger: {
+				DisplayName: Cloak and Dagger
+				Tooltip:
+					'''
+					Set key to cloak
+					Cloak Type: Motion Sensitive
+					Alt-Fire: Turn invisible.
+					Cloak drain rate based on movement speed
+					'''
+			}
+
+			DeadRinger: {
+				DisplayName: Dead Ringer
+				Tooltip:
+					'''
+					Cloak Type: Feign Death.
+					Leave a clone on taking damage and temporarily gain invisibility, speed and damage resistance.
+					Hitting reduces cloak duration
+					'''
+			}
+
+			InvisWatch: {
+				DisplayName: Invis Watch
+				Tooltip:
+					'''
+					Set key to cloak
+					Cloaking gives temporary invincibility
+					Hitting reduces cloak duration
+					'''
+			}
+
+			Knife: {
+				DisplayName: Knife
+				Tooltip: Spy's Starter Melee
+			}
+
+			LEtranger: {
+				DisplayName: L'Etranger
+				Tooltip: Spy's Unlocked Secondary
+			}
+
+			Revolver: {
+				DisplayName: Revolver
+				Tooltip: Spy's Starter Secondary
+			}
+
+			Sapper: {
+				DisplayName: Sapper
+				Tooltip: Stuns enemies
+			}
+
+			YourEternalReward: {
+				DisplayName: Your Eternal Reward
+				Tooltip: Spy's Crafted Melee
+			}
+
+			TF2MountItem: {
+				DisplayName: Mann's Anti Danmaku System
+				Tooltip:
+					'''
+					Dodge danmaku like you dodge child support!
+					Jump to focus, slowing movement, increasing defense, and enabling homing shots for some weapons.
+					'''
+			}
+		}
+
+		Projectiles: {
+			WrenchHitbox.DisplayName: Wrench
+			Bullet.DisplayName: Bullet
+			Grenade.DisplayName: Grenade
+			ScottishResistanceStickybomb.DisplayName: Stickybomb
+			ShieldHitbox.DisplayName: Shield Bash
+			Stickybomb.DisplayName: Stickybomb
+			WranglerBeam.DisplayName: Wrangler Beam
+			FistProjectile.DisplayName: Fists
+			GlovesofRunningUrgentlyProjectile.DisplayName: Fists
+			KillingGlovesofBoxingProjectile.DisplayName: Fists
+			NataschaBullet.DisplayName: Bullet
+			BlutsaugerSyringe.DisplayName: Syringe
+			HealingBeam.DisplayName: Healing Beam
+			HealingBeamKritzkrieg.DisplayName: Healing Beam
+			Syringe.DisplayName: Syringe
+			FlareNPC.DisplayName: Flare
+			GrenadeNPC.DisplayName: Grenade
+			KnifeProjectileNPC.DisplayName: Knife
+			SentryRocket.DisplayName: Rocket
+			SyringeNPC.DisplayName: Medic's Syringe
+			Airblast.DisplayName: Air blast
+			DegreaserFire.DisplayName: Fire
+			Fire.DisplayName: Fire
+			Flare.DisplayName: Flare
+			Baseball.DisplayName: Baseball
+			ForceANatureBullet.DisplayName: Bullet
+			MadMilkProjectile.DisplayName: Mad Milk
+			ShoveHitbox.DisplayName: Shove
+			Arrow.DisplayName: Arrow
+			JarateProjectile.DisplayName: Jarate
+			SydneySleeperDart.DisplayName: Sydney Sleeper Dart
+			BlackBoxRocket.DisplayName: Rocket
+			DirectHitRocket.DisplayName: Rocket
+			Rocket.DisplayName: Rocket
+			RocketJumperRocket.DisplayName: Rocket
+			KnifeProjectile.DisplayName: Knife
+			SapperProjectile.DisplayName: Sapper
+			YourEternalRewardBeam.DisplayName: Your Eternal Reward
+			YourEternalRewardProjectile.DisplayName: Knife
+		}
+
+		DamageClasses.TF2DamageClass.DisplayName: mercenary damage
+
+		NPCs: {
+			DemomanNPC.DisplayName: Demoman
+			DispenserLevel1.DisplayName: Dispenser Level 1
+			DispenserLevel2.DisplayName: Dispenser Level 2
+			DispenserLevel3.DisplayName: Dispenser Level 3
+			EngineerNPC.DisplayName: Engineer
+			HeavyNPC.DisplayName: Heavy
+			MedicNPC.DisplayName: Medic
+			MiniSentry.DisplayName: Mini-Sentry Gun
+			PyroNPC.DisplayName: Pyro
+			ScoutNPC.DisplayName: Scout
+			SentryLevel1.DisplayName: Sentry Gun Level 1
+			SentryLevel2.DisplayName: Sentry Gun Level 2
+			SentryLevel3.DisplayName: Sentry Gun Level 3
+			SniperNPC.DisplayName: Sniper
+			SoldierNPC.DisplayName: Soldier
+			SpyNPC.DisplayName: Spy
+			Administrator.DisplayName: Administrator
+			MissPauling.DisplayName: Miss Pauling
+			SaxtonHale.DisplayName: Saxton Hale
+		}
+
+		Tiles.CraftingAnvil.MapEntry: Crafting Anvil
 	}
 }

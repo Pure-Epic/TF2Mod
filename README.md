@@ -1,0 +1,1 @@
+This is the last version of Team Fortress 2 Mod for the legacy 1.4.3 version of tModLoader. It has been preserved for archival purposes. Do not bother trying to salvage any code from this version as it will fail to compile.
