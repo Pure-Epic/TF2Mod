@@ -1,0 +1,1 @@
+This is the last version of Team Fortress 2 Mod before it was replaced with TF2Mod. It is also bundled with Gensokyo DLC, an addon that enables itself whenever Gensokyo Mod is also enabled.
