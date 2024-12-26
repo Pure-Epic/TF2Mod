@@ -55,7 +55,7 @@ namespace TF2.Content.UI.HUD.Scout
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(ball);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             TF2Weapon weapon = TF2.GetItemInHotbar(Player, ModContent.ItemType<Sandman>()).ModItem as Sandman;

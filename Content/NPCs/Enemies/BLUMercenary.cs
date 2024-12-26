@@ -419,7 +419,7 @@ namespace TF2.Content.NPCs.Enemies
                 if (NPC.direction == -1)
                     origin = new Vector2(itemTexture.Width + offsetX, itemTexture.Height / 2);
                 Vector2 weaponOffset = NPC.position + new Vector2(NPC.width * 0.5f - weaponHitbox.Width * 0.5f - NPC.direction * 2, 0f);
-                Main.spriteBatch.Draw(itemTexture, new Vector2(weaponOffset.X + weaponCenter.X - Main.screenPosition.X, weaponOffset.Y + weaponCenter.Y - Main.screenPosition.Y), (Rectangle?)weaponHitbox, Color.White, rotation, origin, NPC.scale * scale, (SpriteEffects)(NPC.direction == -1 ? 1 : 0), 0f);
+                spriteBatch.Draw(itemTexture, new Vector2(weaponOffset.X + weaponCenter.X - Main.screenPosition.X, weaponOffset.Y + weaponCenter.Y - Main.screenPosition.Y), (Rectangle?)weaponHitbox, Color.White, rotation, origin, NPC.scale * scale, (SpriteEffects)(NPC.direction == -1 ? 1 : 0), 0f);
                 int arm = 5;
                 if (itemRotation >= MathHelper.PiOver4 && itemRotation <= (MathHelper.PiOver4 * 3))
                     arm = 6;

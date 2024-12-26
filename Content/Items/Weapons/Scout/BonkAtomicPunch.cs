@@ -17,6 +17,7 @@ namespace TF2.Content.Items.Weapons.Scout
             SetWeaponAttackSound(SoundID.Item3);
             SetUtilityWeapon();
             SetTimers(TF2.Time(22));
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);

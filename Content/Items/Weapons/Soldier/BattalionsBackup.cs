@@ -13,7 +13,7 @@ namespace TF2.Content.Items.Weapons.Soldier
     public class BattalionsBackup : TF2Accessory
     {
         protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/BattalionsBackup";
-        
+
         protected override string BackTextureReverse => "TF2/Content/Textures/Items/Soldier/BattalionsBackupReverse";
 
         protected override int HealthBoost => 20;

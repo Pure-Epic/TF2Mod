@@ -82,7 +82,7 @@ namespace TF2.Content.Items.Weapons.Demoman
         {
             ShieldUpdate();
             if (Player.GetModPlayer<TF2Player>().HasShield && !chargeActive)
-                timer++;               
+                timer++;
             else
                 timer = 0;
             timer = Utils.Clamp(timer, 0, ShieldRechargeTime);

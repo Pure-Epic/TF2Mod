@@ -59,7 +59,6 @@ namespace TF2.Content.Items.Consumables
 
         public override void SetDefaults()
         {
-            Item.damage = 0;
             Item.width = 50;
             Item.height = 50;
             Item.maxStack = Item.CommonMaxStack;

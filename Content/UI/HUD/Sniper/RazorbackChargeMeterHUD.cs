@@ -44,7 +44,7 @@ namespace TF2.Content.UI.HUD.Sniper
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(razorback);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             RazorbackPlayer razorbackPlayer = Player.GetModPlayer<RazorbackPlayer>();

@@ -80,7 +80,7 @@ namespace TF2.Content.NPCs.Buddies
             if (metalTimer >= TF2.Time(30))
             {
                 IEntitySource ammoSource = NPC.GetSource_FromAI();
-                int loot = Item.NewItem(ammoSource, NPC.Center, ModContent.ItemType<SmallAmmoPoint>());
+                int loot = Item.NewItem(ammoSource, NPC.Center, ModContent.ItemType<MediumAmmoPoint>());
                 if (Main.netMode != NetmodeID.SinglePlayer)
                     NetMessage.SendData(MessageID.SyncItem, number: loot);
                 metalTimer = 0;

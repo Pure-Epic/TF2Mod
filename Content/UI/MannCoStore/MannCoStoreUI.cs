@@ -520,8 +520,7 @@ namespace TF2.Content.UI.MannCoStore
             Item item = Item.Item;
             CalculatedStyle innerDimensions = GetInnerDimensions();
             Main.instance.LoadItem(item.type);
-            TF2Item weapon = item.ModItem as TF2Item;
-            Texture2D texture = (weapon.WeaponTexture != null) ? weapon.WeaponTexture.Value : TextureAssets.Item[item.type].Value;
+            Texture2D texture = TextureAssets.Item[item.type].Value;
             Rectangle rectangle = (Main.itemAnimations[item.type] == null) ? texture.Frame(1, 1, 0, 0, 0, 0) : Main.itemAnimations[item.type].GetFrame(texture, -1);
             float num = 3.5f;
             if (rectangle.Width * num > 100 || rectangle.Height * num > 100)

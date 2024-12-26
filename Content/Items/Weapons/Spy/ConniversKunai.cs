@@ -21,6 +21,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/knife_swing");
             SetWeaponAttackIntervals(altClick: true);
             SetWeaponPrice(weapon: 1, reclaimed: 1, scrap: 1);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

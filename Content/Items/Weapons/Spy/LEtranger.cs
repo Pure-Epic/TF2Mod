@@ -19,6 +19,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/letranger_shoot");
             SetWeaponAttackIntervals(maxAmmo: 6, maxReserve: 24, reloadTime: 1.133, usesMagazine: true, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/revolver_reload");
             SetWeaponPrice(weapon: 1, reclaimed: 1);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

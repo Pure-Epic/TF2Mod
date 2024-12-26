@@ -1,4 +1,4 @@
-Team Fortress 2 is a pretty cool mod, it is one of the Terraria mods ever.
+TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
 
 Features:
 	Weapons from TF2
@@ -23,12 +23,12 @@ Credits:
 	Custom Boss Music is Fruity Robo 2 Credits Theme, by BlueArc.
 
 Community:
-	Wiki page: https://terrariamods.wiki.gg/wiki/Team_Fortress_2
-	Forum thread: https://forums.terraria.org/index.php?threads/team-fortress-2-mod.119952
+	Wiki page: https://terrariamods.wiki.gg/wiki/TF2Mod
+	Forum thread: https://forums.terraria.org/index.php?threads/tf2mod.119952
 	Discord server: https://discord.com/invite/u3zaMsbNzS
 	Source code: https://github.com/Pure-Epic/TF2Mod
 
 Critics Say:
-The Team Fortress 2 mod is quite the mod ever. It is coded, has features, and exists. I'll give the mod a solid /10.
+TF2Mod is quite the mod ever. It is coded, has features, and exists. I'll give the mod a solid /10.
 
 What are you waiting for? Download now to become Team Fortress!

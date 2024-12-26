@@ -55,7 +55,7 @@ namespace TF2.Content.UI.HUD.Heavy
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(food);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             TF2Weapon weapon = TF2.GetItemInHotbar(Player, [ModContent.ItemType<Sandvich>(), ModContent.ItemType<DalokohsBar>(), ModContent.ItemType<BuffaloSteakSandvich>()]).ModItem as TF2Weapon;

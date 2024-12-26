@@ -28,7 +28,8 @@ namespace TF2.Content.UI
                 MainMenuBackgroundTextures =
                 [
                     ModContent.Request<Texture2D>("TF2/Content/Textures/Background"),
-                    ModContent.Request<Texture2D>("TF2/Content/Textures/BackgroundScreamFortress")
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/BackgroundScreamFortress"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/BackgroundSmissmas")
                 ];
                 MainMenuMercenaryTextures =
                 [

@@ -90,7 +90,7 @@ namespace TF2.Content.NPCs.Buddies
 
         protected override void BuddyUpdate()
         {
-            if(State == StateAttack)
+            if (State == StateAttack)
             {
                 zoomDelay++;
                 if (zoomDelay > TF2.Time(1.3))

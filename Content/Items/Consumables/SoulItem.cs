@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TF2.Common;
 
 namespace TF2.Content.Items.Consumables
@@ -12,8 +13,8 @@ namespace TF2.Content.Items.Consumables
     {
         protected override string CustomCategory => base.CustomCategory;
 
-        public float damageMultiplier = 1f;
         public float healthMultiplier = 1f;
+        public float damageMultiplier = 1f;
         public int pierce = 1;
 
         public override void SetStaticDefaults() => Item.ResearchUnlockCount = 0;
@@ -42,18 +43,32 @@ namespace TF2.Content.Items.Consumables
         public override bool? UseItem(Player player)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            if (p.damageMultiplier < damageMultiplier)
-                p.damageMultiplier = damageMultiplier;
             if (p.healthMultiplier < healthMultiplier)
             {
                 p.healthMultiplier = healthMultiplier;
                 player.statLife = player.statLifeMax;
             }
+            if (p.damageMultiplier < damageMultiplier)
+                p.damageMultiplier = damageMultiplier;
             if (p.pierce < pierce)
                 p.pierce = pierce;
             return true;
         }
 
         public override Color? GetAlpha(Color lightColor) => Color.Lerp(lightColor, Color.White, 0.4f);
+
+        public override void LoadData(TagCompound tag)
+        {
+            healthMultiplier = tag.GetFloat("health");
+            damageMultiplier = tag.GetFloat("damage");
+            pierce = tag.GetInt("pierce");
+        }
+
+        public override void SaveData(TagCompound tag)
+        {
+            tag["health"] = healthMultiplier;
+            tag["damage"] = damageMultiplier;
+            tag["pierce"] = pierce;
+        }
     }
 }

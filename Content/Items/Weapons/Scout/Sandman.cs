@@ -39,7 +39,7 @@ namespace TF2.Content.Items.Weapons.Scout
                 timer[1] = TF2.Time(0.5);
                 timer[2] = TF2.Time(0.25);
                 int newDamage = TF2.Round(15 * player.GetModPlayer<TF2Player>().damageMultiplier);
-                TF2Projectile projectile = TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, player.DirectionTo(Main.MouseWorld) * 25f, ModContent.ProjectileType<Baseball>(), newDamage, 0f, player.whoAmI);               
+                TF2Projectile projectile = TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, player.DirectionTo(Main.MouseWorld) * 25f, ModContent.ProjectileType<Baseball>(), newDamage, 0f, player.whoAmI);
                 if (player.GetModPlayer<TF2Player>().focus)
                 {
                     projectile.homing = true;

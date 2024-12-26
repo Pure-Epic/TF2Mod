@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
@@ -28,8 +29,8 @@ namespace TF2.Content.Projectiles.Medic
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.ModNPC is MercenaryBuddy buddy && Main.netMode != NetmodeID.MultiplayerClient)
-                {                 
-                    int healingAmount = TF2.Round(npc.lifeMax / buddy.BaseHealth * 75f);
+                {
+                    int healingAmount = TF2.Round(npc.lifeMax / buddy.BaseHealth * BaseHealingAmount(npc));
                     buddy.Heal(healingAmount);
                     if (Main.dedServ)
                     {
@@ -48,7 +49,7 @@ namespace TF2.Content.Projectiles.Medic
                 if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && !player.dead && !player.hostile && Main.dedServ)
                 {
                     TF2Player p = player.GetModPlayer<TF2Player>();
-                    int healingAmount = TF2.Round(TF2.GetHealth(player, 75) * p.healReduction);
+                    int healingAmount = TF2.Round(TF2.GetHealth(player, BaseHealingAmount(player)) * p.healReduction);
                     player.Heal(healingAmount);
                     if (Main.dedServ)
                     {
@@ -67,5 +68,7 @@ namespace TF2.Content.Projectiles.Medic
                 }
             }
         }
+
+        private float BaseHealingAmount(Entity target) => 150f * (0.5f + Utils.Clamp(Vector2.Distance(Player.Center, target.Center) / 500f, 0f, 0.5f));
     }
 }

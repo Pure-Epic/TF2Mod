@@ -18,6 +18,7 @@ namespace TF2.Content.Items.Weapons.Heavy
             SetWeaponAttackSpeed(0.105);
             SetWeaponAttackIntervals(maxAmmo: 200, altClick: true);
             SetMinigun(spinTime: 1.16, speed: 47, spinSound: "TF2/Content/Sounds/SFX/Weapons/natascha_spin", spinUpSound: "TF2/Content/Sounds/SFX/Weapons/natascha_wind_up", spinDownSound: "TF2/Content/Sounds/SFX/Weapons/natascha_wind_down", attackSound: "TF2/Content/Sounds/SFX/Weapons/natascha_shoot", emptySound: "TF2/Content/Sounds/SFX/Weapons/natascha_empty");
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

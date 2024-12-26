@@ -13,6 +13,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 using TF2.Content.Buffs;
 using TF2.Content.Dusts;
 using TF2.Content.Items;
@@ -289,6 +290,7 @@ namespace TF2.Common
                         || layer == PlayerDrawLayers.ArmOverItem
                         || layer == PlayerDrawLayers.Leggings
                         || layer == PlayerDrawLayers.Shoes
+                        || layer == PlayerDrawLayers.HeldItem
                         || layer.ToString() == "RaceHead"
                         || layer.ToString() == "RaceTorso"
                         || layer.ToString() == "RaceFrontArm"
@@ -1280,9 +1282,337 @@ namespace TF2.Common
         }
     }
 
+    public class TF2WeaponTexture : PlayerDrawLayer
+    {
+        public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) => true;
+
+        public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.HeldItem, PlayerDrawLayers.ArmOverItem);
+
+        protected override void Draw(ref PlayerDrawSet drawInfo)
+        {
+            Player player = drawInfo.drawPlayer;
+            if (player.GetModPlayer<TF2Player>().ClassSelected)
+            {
+                if (player.JustDroppedAnItem) return;
+                if (player.heldProj >= 0 && drawInfo.shadow == 0f && !drawInfo.heldProjOverHand)
+                    drawInfo.projectileDrawPosition = drawInfo.DrawDataCache.Count;
+                Item heldItem = drawInfo.heldItem;
+                int itemType = heldItem.type;
+                if (player.UsingBiomeTorches)
+                {
+                    switch (itemType)
+                    {
+                        case ItemID.Torch:
+                            itemType = player.BiomeTorchHoldStyle(itemType);
+                            break;
+                        case ItemID.Campfire:
+                            itemType = player.BiomeCampfireHoldStyle(itemType);
+                            break;
+                    }
+                }
+                float adjustedItemScale = player.GetAdjustedItemScale(heldItem);
+                Main.instance.LoadItem(itemType);
+                Texture2D value = TextureAssets.Item[itemType].Value;
+                if (heldItem.ModItem is TF2Item weapon)
+                    value = weapon.WeaponActiveTexture.Value;
+                Vector2 position = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y));
+                Rectangle itemDrawFrame = player.GetItemDrawFrame(itemType);
+                drawInfo.itemColor = Lighting.GetColor((int)(drawInfo.Position.X + player.width * 0.5) / 16, (int)((drawInfo.Position.Y + player.height * 0.5) / 16.0));
+                if (itemType == ItemID.RedPotion)
+                    drawInfo.itemColor = Color.White;
+                if (player.shroomiteStealth && heldItem.CountsAsClass(DamageClass.Ranged))
+                {
+                    float num12 = player.stealth;
+                    if ((double)num12 < 0.03)
+                        num12 = 0.03f;
+                    float num13 = (1f + num12 * 10f) / 11f;
+                    drawInfo.itemColor = new Color(drawInfo.itemColor.R * num12, drawInfo.itemColor.G * num12, drawInfo.itemColor.B * num13, drawInfo.itemColor.A * num12);
+                }
+                if (player.setVortex && heldItem.CountsAsClass(DamageClass.Ranged))
+                {
+                    float num14 = player.stealth;
+                    if ((double)num14 < 0.03)
+                        num14 = 0.03f;
+                    _ = (1f + num14 * 10f) / 11f;
+                    drawInfo.itemColor = drawInfo.itemColor.MultiplyRGBA(new Color(Vector4.Lerp(Vector4.One, new Vector4(0f, 0.12f, 0.16f, 0f), 1f - num14)));
+                }
+                bool flag = player.itemAnimation > 0 && heldItem.useStyle != ItemUseStyleID.None;
+                bool flag2 = heldItem.holdStyle != 0 && !player.pulley;
+                if (!player.CanVisuallyHoldItem(heldItem))
+                    flag2 = false;
+                if (drawInfo.shadow != 0f || player.frozen || !(flag || flag2) || itemType <= 0 || player.dead || heldItem.noUseGraphic || (player.wet && heldItem.noWet && !ItemID.Sets.WaterTorches[itemType]) || (player.happyFunTorchTime && player.inventory[player.selectedItem].createTile == TileID.Torches && player.itemAnimation == 0)) return;
+                Color color = new Color(250, 250, 250, heldItem.alpha);
+                Vector2 vector = Vector2.Zero;
+                switch (itemType)
+                {
+                    case ItemID.TheBreaker:
+                    case ItemID.TentacleSpike:
+                    case ItemID.LucyTheAxe:
+                        vector = new Vector2(4f, -4f) * player.Directions;
+                        break;
+                    case ItemID.BreakerBlade:
+                    case ItemID.FleshGrinder:
+                    case ItemID.SpectrePickaxe:
+                    case ItemID.HamBat:
+                    case ItemID.BatBat:
+                        vector = new Vector2(6f, -6f) * player.Directions;
+                        break;
+                    case ItemID.LightsBane:
+                        {
+                            Vector3 val = drawInfo.itemColor.ToVector3();
+                            float amount = Utils.Remap(val.Length() / 1.731f, 0.3f, 0.5f, 1f, 0f);
+                            color = Color.Lerp(Color.Transparent, new Color(255, 255, 255, 127) * 0.7f, amount);
+                            break;
+                        }
+                    case ItemID.MeteorHamaxe:
+                        vector = new Vector2(4f, -6f) * player.Directions;
+                        break;
+                    case ItemID.DyeTradersScimitar:
+                        vector = new Vector2(2f, -2f) * player.Directions;
+                        break;
+                }
+                if (itemType == ItemID.DD2SquireDemonSword)
+                    vector = new Vector2(7 * player.direction, -7f * player.gravDir);
+                if (itemType == ItemID.DD2SquireBetsySword)
+                {
+                    vector = new Vector2(13 * player.direction, -13f * player.gravDir);
+                    color = heldItem.GetAlpha(drawInfo.itemColor);
+                    color = Color.Lerp(color, Color.White, 0.6f);
+                    color.A = 66;
+                }
+                Vector2 origin = new Vector2(itemDrawFrame.Width * 0.5f - itemDrawFrame.Width * 0.5f * player.direction, itemDrawFrame.Height);
+                if (heldItem.useStyle == ItemUseStyleID.DrinkLiquid && player.itemAnimation > 0)
+                {
+                    Vector2 vector3 = new Vector2(0.5f, 0.4f);
+                    if (heldItem.type == ItemID.Teacup || heldItem.type == ItemID.CoffeeCup)
+                    {
+                        vector3 = new Vector2(0.26f, 0.5f);
+                        if (player.direction == -1)
+                            vector3.X = 1f - vector3.X;
+                    }
+                    origin = itemDrawFrame.Size() * vector3;
+                }
+                if (player.gravDir == -1f)
+                    origin.Y = itemDrawFrame.Height - origin.Y;
+                origin += vector;
+                float num15 = player.itemRotation;
+                if (heldItem.useStyle == ItemUseStyleID.GolfPlay)
+                {
+                    ref float x = ref position.X;
+                    float num16 = x;
+                    _ = player.direction;
+                    x = num16 - 0f;
+                    num15 -= (float)Math.PI / 2f * player.direction;
+                    origin.Y = 2f;
+                    origin.X += 2 * player.direction;
+                }
+                if (itemType == ItemID.FairyBell || itemType == ItemID.Bell)
+                {
+                    if (player.gravDir == 1f)
+                    {
+                        if (player.direction == 1)
+                            drawInfo.itemEffect = SpriteEffects.FlipVertically;
+                        else
+                            drawInfo.itemEffect = (SpriteEffects)3;
+                    }
+                    else if (player.direction == 1)
+                        drawInfo.itemEffect = 0;
+                    else
+                        drawInfo.itemEffect = SpriteEffects.FlipHorizontally;
+                }
+                if ((itemType == ItemID.Umbrella || itemType == ItemID.TragicUmbrella) && num15 != 0f)
+                {
+                    position.Y -= 22f * player.gravDir;
+                    num15 = -1.57f * -player.direction * player.gravDir;
+                }
+                ItemSlot.GetItemLight(ref drawInfo.itemColor, heldItem);
+                DrawData item;
+                switch (itemType)
+                {
+                    case ItemID.NebulaArcanum:
+                        {
+                            Texture2D value3 = TextureAssets.Extra[64].Value;
+                            Rectangle rectangle2 = value3.Frame(1, 9, 0, player.miscCounter % 54 / 6);
+                            Vector2 vector5 = new Vector2(rectangle2.Width / 2 * player.direction, 0f);
+                            Vector2 origin3 = rectangle2.Size() / 2f;
+                            item = new DrawData(value3, (drawInfo.ItemLocation - Main.screenPosition + vector5).Floor(), rectangle2, heldItem.GetAlpha(drawInfo.itemColor).MultiplyRGBA(new Color(new Vector4(0.5f, 0.5f, 0.5f, 0.8f))), player.itemRotation, origin3, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                            value3 = TextureAssets.GlowMask[195].Value;
+                            item = new DrawData(value3, (drawInfo.ItemLocation - Main.screenPosition + vector5).Floor(), rectangle2, new Color(250, 250, 250, heldItem.alpha) * 0.5f, player.itemRotation, origin3, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                            return;
+                        }
+                    case ItemID.LawnMower:
+                        {
+                            Texture2D value2 = TextureAssets.Extra[92].Value;
+                            Rectangle rectangle = value2.Frame(1, 4, 0, player.miscCounter % 20 / 5);
+                            Vector2 vector4 = new Vector2(rectangle.Width / 2 * player.direction, 0f);
+                            vector4 += new Vector2(-10 * player.direction, 8f * player.gravDir);
+                            Vector2 origin2 = rectangle.Size() / 2f;
+                            item = new DrawData(value2, (drawInfo.ItemLocation - Main.screenPosition + vector4).Floor(), rectangle, heldItem.GetAlpha(drawInfo.itemColor), player.itemRotation, origin2, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                            return;
+                        }
+                    case ItemID.SpiritFlame:
+                        {
+                            Texture2D texture2D = value;
+                            Rectangle rectangle3 = texture2D.Frame();
+                            Vector2 vector6 = new Vector2(rectangle3.Width / 2 * player.direction, 0f);
+                            Vector2 origin4 = rectangle3.Size() / 2f;
+                            float num17 = (player.miscCounter / 75f * ((float)Math.PI * 2f)).ToRotationVector2().X * 1f + 0f;
+                            Color color2 = new Color(120, 40, 222, 0) * (num17 / 2f * 0.3f + 0.85f) * 0.5f;
+                            num17 = 2f;
+                            for (float num18 = 0f; num18 < 4f; num18 += 1f)
+                            {
+                                item = new DrawData(TextureAssets.GlowMask[218].Value, (drawInfo.ItemLocation - Main.screenPosition + vector6).Floor() + (num18 * ((float)Math.PI / 2f)).ToRotationVector2() * num17, rectangle3, color2, player.itemRotation, origin4, adjustedItemScale, drawInfo.itemEffect);
+                                drawInfo.DrawDataCache.Add(item);
+                            }
+                            item = new DrawData(texture2D, (drawInfo.ItemLocation - Main.screenPosition + vector6).Floor(), rectangle3, heldItem.GetAlpha(drawInfo.itemColor).MultiplyRGBA(new Color(new Vector4(0.5f, 0.5f, 0.5f, 0.8f))), player.itemRotation, origin4, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                            return;
+                        }
+                }
+                if (heldItem.useStyle == ItemUseStyleID.Shoot)
+                {
+                    if (Item.staff[itemType])
+                    {
+                        float num19 = player.itemRotation + 0.785f * player.direction;
+                        float num2 = 0f;
+                        float num3 = 0f;
+                        Vector2 origin5 = new Vector2(0f, itemDrawFrame.Height);
+                        if (itemType == ItemID.Toxikarp)
+                        {
+                            num2 = 8 * -player.direction;
+                            num3 = 2 * (int)player.gravDir;
+                        }
+                        if (itemType == ItemID.ApprenticeStaffT3)
+                        {
+                            Vector2 val2 = (player.itemRotation + (float)Math.PI / 4f * player.direction).ToRotationVector2() * new Vector2(-player.direction * 1.5f, player.gravDir) * 3f;
+                            num2 = (int)val2.X;
+                            num3 = (int)val2.Y;
+                        }
+                        if (itemType == ItemID.SkyFracture)
+                        {
+                            num3 = (int)(8 * (int)player.gravDir * (float)Math.Cos(num19));
+                        }
+                        if (itemType == ItemID.CrystalSerpent)
+                        {
+                            Vector2 val3 = (new Vector2(-8f, 0f) * player.Directions).RotatedBy(player.itemRotation);
+                            num2 = val3.X;
+                            num3 = val3.Y;
+                        }
+                        if (player.gravDir == -1f)
+                        {
+                            if (player.direction == -1)
+                            {
+                                num19 += 1.57f;
+                                origin5 = new Vector2(itemDrawFrame.Width, 0f);
+                                num2 -= itemDrawFrame.Width;
+                            }
+                            else
+                            {
+                                num19 -= 1.57f;
+                                origin5 = Vector2.Zero;
+                            }
+                        }
+                        else if (player.direction == -1)
+                        {
+                            origin5 = new Vector2(itemDrawFrame.Width, itemDrawFrame.Height);
+                            num2 -= itemDrawFrame.Width;
+                        }
+                        ItemLoader.HoldoutOrigin(player, ref origin5);
+                        item = new DrawData(value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + origin5.X + num2), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + num3)), itemDrawFrame, heldItem.GetAlpha(drawInfo.itemColor), num19, origin5, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                        if (itemType == ItemID.ApprenticeStaffT3)
+                        {
+                            item = new DrawData(TextureAssets.GlowMask[238].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + origin5.X + num2), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + num3)), itemDrawFrame, new Color(255, 255, 255, 127), num19, origin5, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                        }
+                        return;
+                    }
+                    if (itemType == ItemID.WeatherPain)
+                    {
+                        float rotation = player.itemRotation + 1.57f * player.direction;
+                        Vector2 vector7 = new Vector2(itemDrawFrame.Width * 0.5f, itemDrawFrame.Height * 0.5f);
+                        Vector2 origin6 = new Vector2(itemDrawFrame.Width * 0.5f, itemDrawFrame.Height);
+                        Vector2 spinningpoint = new Vector2(10f, 4f) * player.Directions;
+                        spinningpoint = spinningpoint.RotatedBy(player.itemRotation);
+                        item = new DrawData(value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + vector7.X + spinningpoint.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + vector7.Y + spinningpoint.Y)), itemDrawFrame, heldItem.GetAlpha(drawInfo.itemColor), rotation, origin6, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                        return;
+                    }
+                    position.X -= 50;
+                    Vector2 vector8 = new Vector2(itemDrawFrame.Width / 2, itemDrawFrame.Height / 2);
+                    Vector2 vector2 = Main.DrawPlayerItemPos(player.gravDir, itemType);
+                    int num4 = (int)vector2.X;
+                    vector8.Y = vector2.Y;
+                    Vector2 origin7 = new Vector2(-num4, itemDrawFrame.Height / 2);
+                    if (player.direction == -1)
+                        origin7 = new Vector2(itemDrawFrame.Width + num4, itemDrawFrame.Height / 2);
+                    drawInfo.ItemLocation.X = player.position.X + player.width * 0.5f - itemDrawFrame.Width * 0.5f - player.direction * 2;
+                    drawInfo.ItemLocation.Y = player.MountedCenter.Y - itemDrawFrame.Height * 0.5f;
+                    item = new DrawData(value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + vector8.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + vector8.Y)), itemDrawFrame, heldItem.GetAlpha(drawInfo.itemColor), player.itemRotation, origin7, adjustedItemScale, drawInfo.itemEffect);
+                    drawInfo.DrawDataCache.Add(item);
+                    if (heldItem.color != default)
+                    {
+                        item = new DrawData(value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + vector8.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + vector8.Y)), itemDrawFrame, heldItem.GetColor(drawInfo.itemColor), player.itemRotation, origin7, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                    }
+                    if (heldItem.glowMask != -1)
+                    {
+                        item = new DrawData(TextureAssets.GlowMask[heldItem.glowMask].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + vector8.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + vector8.Y)), itemDrawFrame, new Color(250, 250, 250, heldItem.alpha), player.itemRotation, origin7, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                    }
+                    if (itemType == ItemID.OnyxBlaster)
+                    {
+                        float num5 = (player.miscCounter / 75f * ((float)Math.PI * 2f)).ToRotationVector2().X * 1f + 0f;
+                        Color color3 = new Color(80, 40, 252, 0) * (num5 / 2f * 0.3f + 0.85f) * 0.5f;
+                        for (float num6 = 0f; num6 < 4f; num6 += 1f)
+                        {
+                            item = new DrawData(TextureAssets.GlowMask[220].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + vector8.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + vector8.Y)) + (num6 * ((float)Math.PI / 2f) + player.itemRotation).ToRotationVector2() * num5, null, color3, player.itemRotation, origin7, adjustedItemScale, drawInfo.itemEffect);
+                            drawInfo.DrawDataCache.Add(item);
+                        }
+                    }
+                    return;
+                }
+                if (player.gravDir == -1f)
+                {
+                    item = new DrawData(value, position, itemDrawFrame, heldItem.GetAlpha(drawInfo.itemColor), num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                    drawInfo.DrawDataCache.Add(item);
+                    if (heldItem.color != default)
+                    {
+                        item = new DrawData(value, position, itemDrawFrame, heldItem.GetColor(drawInfo.itemColor), num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                    }
+                    if (heldItem.glowMask != -1)
+                    {
+                        item = new DrawData(TextureAssets.GlowMask[heldItem.glowMask].Value, position, itemDrawFrame, new Color(250, 250, 250, heldItem.alpha), num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                        drawInfo.DrawDataCache.Add(item);
+                    }
+                    return;
+                }
+                item = new DrawData(value, position, itemDrawFrame, heldItem.GetAlpha(drawInfo.itemColor), num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                drawInfo.DrawDataCache.Add(item);
+                if (heldItem.color != default)
+                {
+                    item = new DrawData(value, position, itemDrawFrame, heldItem.GetColor(drawInfo.itemColor), num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                    drawInfo.DrawDataCache.Add(item);
+                }
+                if (heldItem.glowMask != -1)
+                {
+                    item = new DrawData(TextureAssets.GlowMask[heldItem.glowMask].Value, position, itemDrawFrame, color, num15, origin, adjustedItemScale, drawInfo.itemEffect);
+                    drawInfo.DrawDataCache.Add(item);
+                }
+                if (!heldItem.flame || drawInfo.shadow != 0f) return;
+            }
+        }
+    }
+
     public class WeaponRestrictions : GlobalItem
     {
         public override bool InstancePerEntity => true;
+
+        private bool canUse = true;
 
         private static bool AllowedItems(Item item) => (item.DamageType == ModContent.GetInstance<MercenaryDamage>()
             || item.DamageType == DamageClass.Default)
@@ -1305,21 +1635,19 @@ namespace TF2.Common
             || Main.projPet[item.shoot]
             || ProjectileID.Sets.LightPet[item.shoot];
 
-        private bool canUse = true;
-
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
-            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && item.ModItem?.Mod is not TF2 && (!AllowedItems(item) || item.mountType > -1 && item.mountType != ModContent.MountType<TF2Mount>()))
+            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && item.ModItem?.Mod is not TF2 && !AllowedItems(item))
                 tooltips.Add(new TooltipLine(Mod, "Locked Item", Language.GetTextValue("Mods.TF2.UI.Items.LockedItem")));
         }
 
         public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            if ((!canUse || item.mountType > -1 && item.mountType != ModContent.MountType<TF2Mount>()) && TF2.IsItemInHotbar(Main.LocalPlayer, item))
+            if (!canUse && TF2.IsItemInHotbar(Main.LocalPlayer, item))
                 spriteBatch.Draw(TextureAssets.Cd.Value, position - TextureAssets.InventoryBack9.Value.Size() / 4.225f * Main.inventoryScale, null, drawColor, 0f, new Vector2(0.5f, 0.5f), 0.8f * Main.inventoryScale, SpriteEffects.None, 0f);
         }
 
-        public override bool CanUseItem(Item item, Player player) => !player.GetModPlayer<TF2Player>().ClassSelected || (item.mountType <= -1 || item.mountType == ModContent.MountType<TF2Mount>()) && AllowedItems(item);
+        public override bool CanUseItem(Item item, Player player) => !player.GetModPlayer<TF2Player>().ClassSelected || AllowedItems(item);
 
         public override void UpdateInventory(Item item, Player player) => canUse = !player.GetModPlayer<TF2Player>().ClassSelected || AllowedItems(item);
     }

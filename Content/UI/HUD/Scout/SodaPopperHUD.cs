@@ -48,7 +48,7 @@ namespace TF2.Content.UI.HUD.Scout
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(hype);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             SodaPopperPlayer p = Player.GetModPlayer<SodaPopperPlayer>();

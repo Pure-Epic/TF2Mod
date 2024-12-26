@@ -1,6 +1,6 @@
-﻿using Terraria.ID;
+﻿using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria;
 
 namespace TF2.Content.Tiles
 {
@@ -18,7 +18,7 @@ namespace TF2.Content.Tiles
                 return tile.HasUnactuatedTile && Main.tileSolid[tile.TileType] && !Main.tileSolidTop[tile.TileType];
             if (ignoreSolidTop)
                 return tile.HasUnactuatedTile && Main.tileSolid[tile.TileType];
-            return tile.HasUnactuatedTile  && (Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType]);
+            return tile.HasUnactuatedTile && (Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType]);
         }
 
         public static bool IsFullBlock(Tile tile) => !tile.IsHalfBlock && !tile.TopSlope && !tile.BottomSlope && !tile.LeftSlope && !tile.RightSlope;

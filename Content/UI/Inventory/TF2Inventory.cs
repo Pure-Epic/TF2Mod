@@ -53,6 +53,7 @@ namespace TF2.Content.UI.Inventory
             On_Main.GUIBarsDrawInner += Hook_GUIBarsDrawInner;
             On_Main.DrawInterface_16_MapOrMinimap += Hook_DrawInterface_16_MapOrMinimap;
             On_Player.OpenInventory += Hook_OpenInventory;
+            On_Player.GetAmountOfExtraAccessorySlotsToShow += GetAmountOfExtraAccessorySlotsToShow;
             On_Main.DrawInventory += Hook_DrawInventory;
             On_Main.DrawPageIcons += Hook_DrawPageIcons;
             On_Main.DrawDefenseCounter += Hook_DrawDefenseCounter;
@@ -70,7 +71,7 @@ namespace TF2.Content.UI.Inventory
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Pet"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Light_Pet")
             ];
-            MercenaryHealthTexture = 
+            MercenaryHealthTexture =
             [
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthBar"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthIcon")
@@ -86,6 +87,7 @@ namespace TF2.Content.UI.Inventory
             On_Main.GUIBarsDrawInner -= Hook_GUIBarsDrawInner;
             On_Main.DrawInterface_16_MapOrMinimap -= Hook_DrawInterface_16_MapOrMinimap;
             On_Player.OpenInventory -= Hook_OpenInventory;
+            On_Player.GetAmountOfExtraAccessorySlotsToShow -= GetAmountOfExtraAccessorySlotsToShow;
             On_Main.DrawInventory -= Hook_DrawInventory;
             On_Main.DrawPageIcons -= Hook_DrawPageIcons;
             On_Main.DrawDefenseCounter -= Hook_DrawDefenseCounter;
@@ -203,6 +205,8 @@ namespace TF2.Content.UI.Inventory
                 orig();
         }
 
+        private int GetAmountOfExtraAccessorySlotsToShow(On_Player.orig_GetAmountOfExtraAccessorySlotsToShow orig, Player self) => self.GetModPlayer<TF2Player>().ClassSelected ? 0 : orig(self);
+
         private void Hook_DrawInventory(On_Main.orig_DrawInventory orig, Main self)
         {
             if (Main.EquipPage == 4)
@@ -222,11 +226,9 @@ namespace TF2.Content.UI.Inventory
                         case 0:
                             context = 17;
                             break;
-
                         case 1:
                             context = 19;
                             break;
-
                         case 2:
                             context = 20;
                             break;
@@ -261,8 +263,7 @@ namespace TF2.Content.UI.Inventory
                 if (Main.EquipPageSelected == 0)
                     Main.EquipPageSelected = 4;
                 int page = -1;
-                Vector2 vector;
-                vector = new Vector2(Main.screenWidth - 162, yPos);
+                Vector2 vector = new Vector2(Main.screenWidth - 162, yPos);
                 vector.X += 82f;
                 Texture2D value = TextureAssets.EquipPage[(Main.EquipPage == 1) ? 5 : 4].Value;
                 if (Collision.CheckAABBvAABBCollision(vector, value.Size(), new Vector2(Main.mouseX, Main.mouseY), Vector2.One) && Main.mouseItem.stack < 1)
@@ -341,7 +342,7 @@ namespace TF2.Content.UI.Inventory
             orig(inv, context, slot);
         }
 
-        private bool Hook_OverrideLeftClick(On_ItemSlot.orig_OverrideLeftClick orig, Item[] inv, int context, int slot) => (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && context == 17) ? (Main.mouseItem.type != ModContent.ItemType<TF2MountItem>() && !Main.mouseItem.IsAir) : orig(inv, context, slot);
+        private bool Hook_OverrideLeftClick(On_ItemSlot.orig_OverrideLeftClick orig, Item[] inv, int context, int slot) => (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && context == 17) ? (Main.mouseItem.type != ModContent.ItemType<TF2MountItem>() && !Main.mouseItem.IsAir) : ((context == 17 && Main.mouseItem.type == ModContent.ItemType<TF2MountItem>()) ? true : orig(inv, context, slot));
 
         private void Hook_MouseHover(On_ItemSlot.orig_MouseHover_ItemArray_int_int orig, Item[] inv, int context, int slot)
         {
@@ -357,10 +358,16 @@ namespace TF2.Content.UI.Inventory
             {
                 if (context == 17 && Main.mouseLeft)
                 {
-                    if (player.miscEquips[3].type == ModContent.ItemType<TF2MountItem>() && Main.mouseLeftRelease)
-                        player.ClearBuff(ModContent.BuffType<TF2MountBuff>());
-                    else if (player.miscEquips[3].type == ModContent.ItemType<TF2MountItem>() && checkItem.IsAir)
-                        player.mount.SetMount(player.miscEquips[3].mountType, player);
+                    if (Main.mouseLeftRelease)
+                    {
+                        if (checkItem.type != ModContent.ItemType<TF2MountItem>())
+                            player.ClearBuff(ModContent.BuffType<TF2MountBuff>());
+                        else
+                        {
+                            SoundEngine.PlaySound(checkItem.UseSound);
+                            player.mount.SetMount(checkItem.mountType, player);
+                        }
+                    }
                 }
                 if (context == 19 && player.miscEquips[0].IsAir && checkItem.buffType > 0 && Main.vanityPet[checkItem.buffType] && !Main.lightPet[checkItem.buffType] && Main.mouseLeft)
                     player.hideMisc[0] = true;
@@ -379,8 +386,7 @@ namespace TF2.Content.UI.Inventory
 
         private void Hook_SetMount(On_Mount.orig_SetMount orig, Mount self, int m, Player mountedPlayer, bool faceLeft)
         {
-            if (mountedPlayer.GetModPlayer<TF2Player>().ClassSelected && m != ModContent.MountType<TF2Mount>())
-                return;
+            if (mountedPlayer.GetModPlayer<TF2Player>().ClassSelected && m != ModContent.MountType<TF2Mount>()) return;
             else
                 orig(self, m, mountedPlayer, faceLeft);
         }
@@ -408,23 +414,23 @@ namespace TF2.Content.UI.Inventory
                     }
                 }
                 else if (npc.ModNPC is EnemyHeavyNPC enemyHeavy && !npc.active)
+                {
+                    if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinUpSoundSlot, out var spinUp))
+                        spinUp.Stop();
+                    if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinDownSoundSlot, out var spinDown))
+                        spinDown.Stop();
+                    if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinSoundSlot, out var spinSound))
+                        spinSound.Stop();
+                    if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunAttackSoundSlot, out var attackSound))
+                        attackSound.Stop();
+                    if (Main.netMode != NetmodeID.SinglePlayer)
                     {
-                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinUpSoundSlot, out var spinUp))
-                            spinUp.Stop();
-                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinDownSoundSlot, out var spinDown))
-                            spinDown.Stop();
-                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunSpinSoundSlot, out var spinSound))
-                            spinSound.Stop();
-                        if (SoundEngine.TryGetActiveSound(enemyHeavy.minigunAttackSoundSlot, out var attackSound))
-                            attackSound.Stop();
-                        if (Main.netMode != NetmodeID.SinglePlayer)
-                        {
-                            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
-                            packet.Write((byte)MessageType.DespawnHeavy);
-                            packet.Write((byte)npc.whoAmI);
-                            packet.Send(-1, Main.myPlayer);
-                        }
+                        ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                        packet.Write((byte)MessageType.DespawnHeavy);
+                        packet.Write((byte)npc.whoAmI);
+                        packet.Send(-1, Main.myPlayer);
                     }
+                }
             }
         }
 

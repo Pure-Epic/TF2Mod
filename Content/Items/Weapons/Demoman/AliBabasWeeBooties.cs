@@ -18,6 +18,7 @@ namespace TF2.Content.Items.Weapons.Demoman
         {
             SetWeaponCategory(Demoman, Primary, Unique, Craft);
             SetWeaponPrice(weapon: 2, refined: 1, scrap: 2);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);

@@ -110,16 +110,6 @@ namespace TF2.Content.NPCs.TownNPCs
         public static void CreateMannCoStore()
         {
             ResetMannCoStore();
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MannCoSupplyCrateKey>(), 2.49f);
-            AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<ScoutBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Soldier, ModContent.ItemType<SoldierBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Pyro, ModContent.ItemType<PyroBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Demoman, ModContent.ItemType<DemomanBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Heavy, ModContent.ItemType<HeavyBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Engineer, ModContent.ItemType<EngineerBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Medic, ModContent.ItemType<MedicBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Sniper, ModContent.ItemType<SniperBundle>(), 9.99f);
-            AddShopItem(true, MannCoStoreCategory.Spy, ModContent.ItemType<SpyBundle>(), 9.99f);
             AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallAmmoPotion>(), 0.49f);
             AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumAmmoPotion>(), 1.49f);
             AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeAmmoPotion>(), 1.99f);
@@ -227,6 +217,16 @@ namespace TF2.Content.NPCs.TownNPCs
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<MedicBuddy>(), 9.99f);
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SniperBuddy>(), 6.99f);
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SpyBuddy>(), 5.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MannCoSupplyCrateKey>(), 2.49f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<ScoutBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<SoldierBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<PyroBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<DemomanBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<HeavyBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<EngineerBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<MedicBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<SniperBundle>(), 9.99f);
+            AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<SpyBundle>(), 9.99f);
             MannCoStoreUI.UpdateItemGrid();
         }
 
@@ -377,6 +377,7 @@ namespace TF2.Content.NPCs.TownNPCs
         Medic,
         Sniper,
         Spy,
-        Buddy
+        Buddy,
+        Bundle
     }
 }

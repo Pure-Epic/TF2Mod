@@ -138,6 +138,8 @@ namespace TF2
 
         public static bool ScreamFortress => DateTime.Today.Month == 10 || (DateTime.Today.Month == 11 && DateTime.Today.Day < 7);
 
+        public static bool Smissmas => DateTime.Today.Month == 12 || (DateTime.Today.Month == 1 && DateTime.Today.Day < 7);
+
         public static IPlayerRenderer PlayerRenderer = new TF2PlayerRenderer();
         public static UserInterface MannCoStore = new UserInterface();
         private ClassIcon classUI;

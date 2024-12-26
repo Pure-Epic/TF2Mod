@@ -35,7 +35,7 @@ namespace TF2.Content.Items
     {
         protected virtual string CustomCategory => "";
 
-        public virtual Asset<Texture2D> WeaponTexture => null;
+        public virtual Asset<Texture2D> WeaponActiveTexture => TextureAssets.Item[Type];
 
         protected virtual string BackTexture => null;
 

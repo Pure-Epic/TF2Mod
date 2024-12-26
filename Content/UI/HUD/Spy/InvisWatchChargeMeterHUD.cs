@@ -44,7 +44,7 @@ namespace TF2.Content.UI.HUD.Spy
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(cloak);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             CloakPlayer cloakPlayer = Player.GetModPlayer<CloakPlayer>();

@@ -6,6 +6,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Gensokyo.Common;
 using TF2.Gensokyo.Content.NPCs.Byakuren_Hijiri;
 
 namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
@@ -218,47 +219,8 @@ namespace TF2.Gensokyo.Content.Projectiles.NPCs.Byakuren_Hijiri
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
             float length = 5000f + Projectile.scale * 5f;
             Vector2 scale = new(Projectile.scale, 1f);
-            DrawLaser(texture, Projectile.Center - Main.screenPosition, Projectile.Center + Projectile.velocity * length - Main.screenPosition, scale, 25, 24, 24);
+            GensokyoDLC.DrawLaser(texture, Projectile.Center - Main.screenPosition, Projectile.Center + Projectile.velocity * length - Main.screenPosition, scale, Color.White, 24, 25, 24);
             return false;
-        }
-
-        // Gensokyo mod laser drawing hook. It is based from Utils.DrawLaser()
-        private void DrawLaser(Texture2D texture, Vector2 start, Vector2 end, Vector2 scale, int bodyLength, int headLength, int tailLength)
-        {
-            Vector2 vector = Vector2.Normalize(end - start);
-            float length = (end - start).Length();
-            float unitVector = Utils.ToRotation(vector) - MathHelper.ToRadians(90f);
-            if (Utils.HasNaNs(vector)) return;
-            Rectangle rectangle;
-
-            // Draw the tail
-            rectangle = new Rectangle(0, 0, texture.Width, tailLength);
-            Vector2 vector2 = Utils.Size(rectangle) / 2f;
-            Main.EntitySpriteDraw(texture, start, new Rectangle?(rectangle), Color.White * Projectile.Opacity, unitVector, Utils.Size(rectangle) / 2f, scale, 0, 0);
-
-            // Draw the body
-            float height = rectangle.Height;
-            float maxHeight = height * scale.Y;
-            Vector2 vector3 = start + vector * (rectangle.Height - vector2.Y) * scale.Y;
-            while (maxHeight + 1f < length)
-            {
-                rectangle = new Rectangle(0, tailLength + 2, texture.Width, bodyLength);
-                height = rectangle.Height;
-                vector2 = new Vector2(rectangle.Width / 2f, 0f);
-                if (length - maxHeight < rectangle.Height)
-                {
-                    height *= (length - maxHeight) / rectangle.Height;
-                    rectangle.Height = (int)(length - maxHeight + 1f);
-                }
-                maxHeight += height * scale.Y;
-                Main.EntitySpriteDraw(texture, vector3, new Rectangle?(rectangle), Color.White * Projectile.Opacity, unitVector, vector2, scale, 0, 0);
-                vector3 += height * scale.Y * vector;
-            }
-
-            // Draw the head
-            rectangle = new Rectangle(0, tailLength + bodyLength + 4, texture.Width, headLength);
-            vector2 = new Vector2(rectangle.Width / 2f, 0f);
-            Main.EntitySpriteDraw(texture, vector3, new Rectangle?(rectangle), Color.White * Projectile.Opacity, unitVector, vector2, scale, 0, 0);
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)

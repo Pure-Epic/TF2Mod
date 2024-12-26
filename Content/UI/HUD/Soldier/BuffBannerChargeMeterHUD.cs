@@ -45,7 +45,7 @@ namespace TF2.Content.UI.HUD.Soldier
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(rage);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             BannerPlayer p = Player.GetModPlayer<TF2Player>().bannerType switch

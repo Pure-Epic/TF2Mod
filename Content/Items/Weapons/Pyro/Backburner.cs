@@ -33,8 +33,6 @@ namespace TF2.Content.Items.Weapons.Pyro
             return ((player.altFunctionUse != 2 && currentAmmoClip > 0) || (player.altFunctionUse == 2 && currentAmmoClip >= airblastCost)) && airblastTimer >= airblastCooldown;
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().noRandomAmmoBoxes = true;
-
         protected override void WeaponActiveUpdate(Player player)
         {
             airblastTimer++;

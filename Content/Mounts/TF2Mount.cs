@@ -21,16 +21,16 @@ namespace TF2.Content.Mounts
     {
         public float speed;
         public bool idle;
-        private readonly string[] homingPowerText =
+        private readonly LocalizedText[] homingPowerText =
         [
-            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Low"),
-            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Medium"),
-            Language.GetTextValue("Mods.TF2.UI.Items.Mount.High")
+            Language.GetText("Mods.TF2.UI.Items.Mount.Low"),
+            Language.GetText("Mods.TF2.UI.Items.Mount.Medium"),
+            Language.GetText("Mods.TF2.UI.Items.Mount.High")
         ];
-        private readonly string[] mountSpeedText =
+        private readonly LocalizedText[] mountSpeedText =
         [
-            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Normal"),
-            Language.GetTextValue("Mods.TF2.UI.Items.Mount.Fast")
+            Language.GetText("Mods.TF2.UI.Items.Mount.Normal"),
+            Language.GetText("Mods.TF2.UI.Items.Mount.Fast")
         ];
 
         public override void SetStaticDefaults()
@@ -41,8 +41,8 @@ namespace TF2.Content.Mounts
             MountData.flightTimeMax = 1000;
             MountData.fatigueMax = 1000;
             MountData.totalFrames = 1;
-            MountData.buff = ModContent.BuffType<TF2MountBuff>(); // The ID number of the buff assigned to the mount.
-            MountData.playerYOffsets = Enumerable.Repeat(0, MountData.totalFrames).ToArray(); // Fills an array with values for less repeating code
+            MountData.buff = ModContent.BuffType<TF2MountBuff>();
+            MountData.playerYOffsets = Enumerable.Repeat(0, MountData.totalFrames).ToArray();
             MountData.standingFrameCount = 1;
             MountData.standingFrameDelay = 12;
             MountData.standingFrameStart = 0;
@@ -62,7 +62,6 @@ namespace TF2.Content.Mounts
             MountData.swimFrameCount = MountData.inAirFrameCount;
             MountData.swimFrameDelay = MountData.inAirFrameDelay;
             MountData.swimFrameStart = MountData.inAirFrameStart;
-
             if (!Main.dedServ)
             {
                 MountData.textureWidth = MountData.backTexture.Width() + 20;
@@ -249,7 +248,7 @@ namespace TF2.Content.Mounts
             Item.useTime = 30;
             Item.useAnimation = 30;
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/horror");
+            Item.UseSound = new SoundStyle("TF2/Content/Sounds/SFX/manns_anti_danmaku_system_activate");
             Item.noUseGraphic = true;
             Item.mountType = ModContent.MountType<TF2Mount>();
             Item.rare = ModContent.RarityType<NormalRarity>();
@@ -321,6 +320,15 @@ namespace TF2.Content.Mounts
             tooltips.Add(journeyModeTooltip);
             tooltips.Remove(journeyResearchTooltip);
         }
+
+        protected override bool WeaponModifyDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            if (!Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected)
+                spriteBatch.Draw(TextureAssets.Cd.Value, position - TextureAssets.InventoryBack9.Value.Size() / 4.225f * Main.inventoryScale, null, drawColor, 0f, new Vector2(0.5f, 0.5f), 0.8f * Main.inventoryScale, SpriteEffects.None, 0f);
+            return false;
+        }
+
+        public override bool CanUseItem(Player player) => Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected;
     }
 
     public class TF2MountBuff : ModBuff
@@ -370,23 +378,11 @@ namespace TF2.Content.Mounts
         {
             if (!drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus) return;
             focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Hitbox");
-
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             Texture2D texture = focusModeHitboxTexture.Value;
             Rectangle rectangle = texture.Bounds;
-
-            drawInfo.DrawDataCache.Add(new DrawData(
-                focusModeHitboxTexture.Value,
-                position,
-                rectangle,
-                Color.White,
-                0f,
-                focusModeHitboxTexture.Size() * 0.5f,
-                1f,
-                SpriteEffects.None,
-                0
-            ));
+            drawInfo.DrawDataCache.Add(new DrawData(focusModeHitboxTexture.Value, position, rectangle, Color.White, 0f, focusModeHitboxTexture.Size() * 0.5f, 1f, SpriteEffects.None, 0));
         }
     }
 }

@@ -31,7 +31,7 @@ namespace TF2.Content.Items.Weapons.Spy
         protected override void WeaponPostFireProjectile(Player player, int projectile)
         {
             if (player.GetModPlayer<TF2Player>().Cloaked)
-            Main.projectile[projectile].damage = TF2.Round(Main.projectile[projectile].damage * 1.2f);
+                Main.projectile[projectile].damage = TF2.Round(Main.projectile[projectile].damage * 1.2f);
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<LEtranger>().AddIngredient<ReclaimedMetal>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();

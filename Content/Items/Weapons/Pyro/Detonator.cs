@@ -3,7 +3,9 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Items.Materials;
 using TF2.Content.Projectiles.Pyro;
+using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Pyro
 {
@@ -18,6 +20,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponAttackSpeed(0.25, hide: true);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/detonator_shoot");
             SetWeaponAttackIntervals(maxAmmo: 16, altClick: true, noAmmo: true, customReloadTime: 2, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/flaregun_reload");
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)
@@ -68,5 +71,7 @@ namespace TF2.Content.Items.Weapons.Pyro
                 currentAmmoClip--;
             return base.WeaponPreAttack(player);
         }
+
+        public override void AddRecipes() => CreateRecipe().AddIngredient<FlareGun>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();
     }
 }

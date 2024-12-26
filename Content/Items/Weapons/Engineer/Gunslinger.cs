@@ -11,15 +11,13 @@ namespace TF2.Content.Items.Weapons.Engineer
 {
     public class Gunslinger : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponTexture => ModContent.Request<Texture2D>("TF2/Content/Items/Weapons/Engineer/Gunslinger");
+        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Nothing");
 
         protected override string ArmTexture => "TF2/Content/Textures/Items/Engineer/Gunslinger";
 
         protected override string ArmTextureReverse => "TF2/Content/Textures/Items/Engineer/GunslingerReverse";
 
         protected override int HealthBoost => 25;
-
-        public override string Texture => "TF2/Content/Textures/MeleeHitbox";
 
         protected override void WeaponStatistics()
         {
@@ -28,26 +26,13 @@ namespace TF2.Content.Items.Weapons.Engineer
             SetWeaponDamage(damage: 65, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/gunslinger_swing");
-            
+
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)
         {
             AddPositiveAttribute(description);
             AddNegativeAttribute(description);
-        }
-
-        protected override bool WeaponDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        {
-            spriteBatch.Draw(WeaponTexture.Value, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
-            return false;
-        }
-
-        protected override bool WeaponDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-        {
-            Texture2D texture = WeaponTexture.Value;
-            spriteBatch.Draw(texture, Item.position - Main.screenPosition + new Vector2(Item.width / 2, Item.height - texture.Height * 0.5f + 2f), null, lightColor.MultiplyRGB(alphaColor), rotation, texture.Size() * 0.5f, scale, SpriteEffects.None, 0f);
-            return false;
         }
 
         protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<GunslingerPlayer>().gunslingerEquipped;

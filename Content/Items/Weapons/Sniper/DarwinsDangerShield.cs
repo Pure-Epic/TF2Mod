@@ -14,6 +14,7 @@ namespace TF2.Content.Items.Weapons.Sniper
         {
             SetWeaponCategory(Sniper, Secondary, Unique, Craft);
             SetWeaponPrice(weapon: 1, reclaimed: 1);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);

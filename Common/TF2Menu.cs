@@ -15,10 +15,25 @@ namespace TF2.Common
         {
             get
             {
-                if (!TF2.ScreamFortress)
-                    return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup1");               
-                else
+                if (!(TF2.ScreamFortress || TF2.Smissmas))
+                    return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup1");
+                else if (TF2.ScreamFortress)
                     return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup_halloween");
+                else
+                    return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup_smissmas");
+            }
+        }
+
+        internal static Texture2D Background
+        {
+            get
+            {
+                if (!(TF2.ScreamFortress || TF2.Smissmas))
+                    return UITextures.MainMenuBackgroundTextures[0].Value;
+                else if (TF2.ScreamFortress)
+                    return UITextures.MainMenuBackgroundTextures[1].Value;
+                else
+                    return UITextures.MainMenuBackgroundTextures[2].Value;
             }
         }
 
@@ -42,18 +57,17 @@ namespace TF2.Common
             logoRotation = 0f;
             logoScale = 1f;
             drawColor = Color.White;
-            Texture2D background = !TF2.ScreamFortress ? UITextures.MainMenuBackgroundTextures[0].Value : UITextures.MainMenuBackgroundTextures[1].Value;
-            float width = (float)Main.screenWidth / background.Width;
-            float height = (float)Main.screenHeight / background.Height;
+            float width = (float)Main.screenWidth / Background.Width;
+            float height = (float)Main.screenHeight / Background.Height;
             Vector2 center = Vector2.Zero;
             if (height > width)
             {
                 width = height;
-                center.X -= (background.Width * width - Main.screenWidth) * 0.5f;
+                center.X -= (Background.Width * width - Main.screenWidth) * 0.5f;
             }
             else
-                center.Y -= (background.Height * width - Main.screenHeight) * 0.5f;
-            spriteBatch.Draw(background, center, null, Color.White, 0f, Vector2.Zero, width, SpriteEffects.None, 0f);
+                center.Y -= (Background.Height * width - Main.screenHeight) * 0.5f;
+            spriteBatch.Draw(Background, center, null, Color.White, 0f, Vector2.Zero, width, SpriteEffects.None, 0f);
             DrawClass(classSelected, spriteBatch, center, width);
             return true;
         }

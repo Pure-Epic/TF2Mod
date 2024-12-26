@@ -68,7 +68,7 @@ namespace TF2.Content.NPCs.Buddies
                 AttackTimer = 0;
                 weaponAnimation = AttackSpeed;
                 NPC.netUpdate = true;
-            }          
+            }
         }
     }
 }

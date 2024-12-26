@@ -16,6 +16,7 @@ namespace TF2.Content.Items.Weapons.Engineer
             SetWeaponAttackSpeed(0.625);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/shotgun_shoot");
             SetWeaponAttackIntervals(maxAmmo: 3, maxReserve: 32, reloadTime: 0.5, initialReloadTime: 1, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/shotgun_reload");
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

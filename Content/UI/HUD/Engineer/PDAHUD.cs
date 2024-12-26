@@ -4,19 +4,19 @@ using Microsoft.Xna.Framework.Input;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TF2.Common;
 using TF2.Content.Items;
+using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Mounts;
-using TF2.Content.NPCs.Buildings.SentryGun;
 using TF2.Content.NPCs.Buildings;
-using TF2.Content.UI.HUD;
 using TF2.Content.NPCs.Buildings.Dispenser;
+using TF2.Content.NPCs.Buildings.SentryGun;
 using TF2.Content.NPCs.Buildings.Teleporter;
-using TF2.Content.Items.Weapons;
-using Terraria.ID;
+using TF2.Content.UI.HUD;
 
 namespace TF2.Content.UI.MercenaryCreationMenu
 {

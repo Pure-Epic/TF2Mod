@@ -52,7 +52,7 @@ namespace TF2.Content.Items.Weapons.Scout
                     modifiers.FinalDamage *= 1.75f - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / 1250f, 0f, 1.25f);
                 else
                     modifiers.FinalDamage *= 1.75f - Utils.Clamp(Vector2.Distance(player.Center, target.Center) / 1250f, 0f, 0.75f);
-            }            
+            }
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<ForceANature>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();

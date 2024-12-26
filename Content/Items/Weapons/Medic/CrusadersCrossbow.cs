@@ -24,6 +24,7 @@ namespace TF2.Content.Items.Weapons.Medic
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/crusaders_crossbow_shoot");
             SetWeaponAttackIntervals(maxReserve: 38, noAmmo: true, customReloadTime: 1.75, reloadSoundPath: "TF2/Content/Sounds/SFX/Weapons/syringegun_reload");
             SetWeaponPrice(weapon: 1, scrap: 2);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

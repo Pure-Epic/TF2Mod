@@ -43,6 +43,6 @@ namespace TF2.Content.Buffs
 
         public bool markedForDeath;
 
-        public override void ResetEffects(NPC npc) => markedForDeath = false;      
+        public override void ResetEffects(NPC npc) => markedForDeath = false;
     }
 }

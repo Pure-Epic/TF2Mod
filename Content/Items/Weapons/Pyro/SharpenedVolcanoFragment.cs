@@ -18,6 +18,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/melee_swing");
             SetWeaponPrice(weapon: 1, reclaimed: 2);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

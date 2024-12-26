@@ -56,7 +56,7 @@ namespace TF2.Content.UI.HUD.Scout
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(drink);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();

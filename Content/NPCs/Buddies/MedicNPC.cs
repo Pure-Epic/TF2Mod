@@ -95,7 +95,7 @@ namespace TF2.Content.NPCs.Buddies
             if (healTimer >= TF2.Time(30))
             {
                 IEntitySource ammoSource = NPC.GetSource_FromAI();
-                int loot = Item.NewItem(ammoSource, NPC.Center, ModContent.ItemType<SmallHealthPoint>());
+                int loot = Item.NewItem(ammoSource, NPC.Center, ModContent.ItemType<MediumHealthPoint>());
                 if (Main.netMode != NetmodeID.SinglePlayer)
                     NetMessage.SendData(MessageID.SyncItem, number: loot);
                 healTimer = 0;

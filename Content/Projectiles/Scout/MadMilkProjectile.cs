@@ -96,7 +96,7 @@ namespace TF2.Content.Projectiles.Scout
         }
 
         protected virtual void HitNPC(NPC npc)
-        {           
+        {
             if (npc.friendly)
             {
                 for (int i = 0; i < NPC.maxBuffs; i++)

@@ -19,6 +19,7 @@ namespace TF2.Content.Items.Weapons.Heavy
             SetWeaponAttackIntervals(maxAmmo: 200, altClick: true);
             SetMinigun(spinTime: 0.696, speed: 47, spinSound: "TF2/Content/Sounds/SFX/empty", spinUpSound: "TF2/Content/Sounds/SFX/Weapons/tomislav_wind_up", spinDownSound: "TF2/Content/Sounds/SFX/Weapons/tomislav_wind_down", attackSound: "TF2/Content/Sounds/SFX/Weapons/tomislav_shoot", emptySound: "TF2/Content/Sounds/SFX/empty");
             SetWeaponPrice(weapon: 1, reclaimed: 3);
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

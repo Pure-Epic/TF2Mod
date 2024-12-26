@@ -250,7 +250,7 @@ namespace TF2.Content.Projectiles
                 byte nextAI = 0;
                 if (target == 0f)
                 {
-                    for (int i = 0; i < Main.maxProjectiles; i++)
+                    for (int i = 0; i < Main.maxNPCs; i++)
                     {
                         if (Main.npc[i].CanBeChasedBy(this) && (target == 0f || target == i + 1))
                         {

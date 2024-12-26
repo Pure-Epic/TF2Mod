@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Projectiles.Pyro;
 
 namespace TF2.Content.Items.Weapons.Pyro
@@ -31,8 +30,6 @@ namespace TF2.Content.Items.Weapons.Pyro
                 player.itemAnimation = player.itemAnimationMax = airblastCooldown;
             return ((player.altFunctionUse != 2 && currentAmmoClip > 0) || (player.altFunctionUse == 2 && currentAmmoClip >= airblastCost)) && airblastTimer >= airblastCooldown;
         }
-
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().noRandomAmmoBoxes = true;
 
         protected override void WeaponActiveUpdate(Player player)
         {

@@ -503,6 +503,11 @@ Mods: {
 				Tooltip: Used to open locked supply crates.
 			}
 
+			GiftStuffedStocking: {
+				DisplayName: Gift-Stuffed Stocking
+				Tooltip: Contains an assortment of goodies for good little mercenaries.
+			}
+
 			MediumAmmoBox: {
 				DisplayName: Medium Ammo Box
 				Tooltip: ""
@@ -1138,7 +1143,7 @@ Mods: {
 				Downsides:
 					'''
 					-66% health regenerated per second on wearer
-					No random health kits
+					No random health points
 					'''
 			}
 
@@ -1214,7 +1219,7 @@ Mods: {
 					'''
 					20% slower firing speed
 					Each hit sets Marked-For-Death to yourself for 2 seconds
-					No random health kits
+					No random health points
 					'''
 			}
 
@@ -1230,7 +1235,7 @@ Mods: {
 				DisplayName: Half-Zatoichi
 				Tooltip: ""
 				Sword: This weapon has a large melee range and deploys and holsters slower
-				Upsides: Gain 50% of base health on critcal hits or mini-crits
+				Upsides: Gain 50% of base health on critical hits or mini-crits
 				Downsides:
 					'''
 					No random critical hits
@@ -1512,6 +1517,7 @@ Mods: {
 					'''
 					+100% damage bonus
 					+40% faster firing speed
+					+13% max primary ammo on wearer
 					40% more accurate
 					'''
 				Downsides:
@@ -1567,7 +1573,7 @@ Mods: {
 				DisplayName: Bazaar Bargain
 				Tooltip: ""
 				Downsides: Base charge rate decreased by 50%
-				Notes: Each scoped headshot kill increases the weapon's charge rate by 25% up to 200%.
+				Notes: Each scoped headshot hit increases the weapon's charge rate by 25% up to 200%.
 			}
 
 			Bushwacka: {
@@ -1676,7 +1682,7 @@ Mods: {
 				Downsides:
 					'''
 					-25% clip size
-					No random health kits
+					No random health points
 					'''
 			}
 
@@ -1732,7 +1738,7 @@ Mods: {
 				DisplayName: Gunboats
 				Tooltip: ""
 				Upsides: -60% damage vulnerability
-				Downsides: No random health kits
+				Downsides: No random health points
 			}
 
 			LibertyLauncher: {
@@ -1768,7 +1774,7 @@ Mods: {
 					'''
 					20% slower firing speed
 					No random critical hits
-					No random health kits while active
+					No random health points while active
 					'''
 			}
 
@@ -1856,7 +1862,7 @@ Mods: {
 				Downsides:
 					'''
 					-55 max health on wearer
-					No random health kits
+					No random health points
 					'''
 				Notes:
 					'''
@@ -2315,7 +2321,7 @@ Mods: {
 					MountInstruction2: Press {0} to change speed
 					MountInstruction2Unassigned: Assign keybind to change to change speed
 					Normal: Normal
-					Speed: Speed {0}
+					Speed: Speed: {0}
 				}
 
 				Rarity: {

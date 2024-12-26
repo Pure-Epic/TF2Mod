@@ -17,6 +17,7 @@ namespace TF2.Content.Items.Weapons.Sniper
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Voicelines/sniper_jaratetoss");
             SetUtilityWeapon(itemUseGraphic: false);
             SetTimers(TF2.Time(20));
+            noThe = true;
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

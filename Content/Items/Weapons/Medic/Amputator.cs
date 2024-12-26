@@ -50,7 +50,7 @@ namespace TF2.Content.Items.Weapons.Medic
                     foreach (NPC healedNPC in Main.ActiveNPCs)
                     {
                         if (healedNPC.ModNPC is MercenaryBuddy)
-                            healedNPC.AddBuff(ModContent.BuffType<AmputatorBuff>(), TF2.Time(4.2));                        
+                            healedNPC.AddBuff(ModContent.BuffType<AmputatorBuff>(), TF2.Time(4.2));
                     }
                     timer[1] = 1;
                     timer[0] = 0;

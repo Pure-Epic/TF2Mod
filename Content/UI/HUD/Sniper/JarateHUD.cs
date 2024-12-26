@@ -55,7 +55,7 @@ namespace TF2.Content.UI.HUD.Sniper
         }
 
         protected override void HUDPostInitialize(UIElement area) => area.Append(jar);
-        
+
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
             TF2Weapon weapon = TF2.GetItemInHotbar(Player, ModContent.ItemType<Jarate>()).ModItem as Jarate;

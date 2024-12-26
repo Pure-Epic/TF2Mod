@@ -96,7 +96,7 @@ namespace TF2.Gensokyo.Common
                         Vector2 centered = new Vector2(rect.X + (rect.Width / 2) - (texture.Width / 2), rect.Y + (rect.Height / 2) - (texture.Height / 2));
                         sb.Draw(texture, centered, color);
                     }
-                }                                           
+                }
             );
         }
 

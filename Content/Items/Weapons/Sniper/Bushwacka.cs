@@ -2,8 +2,8 @@
 using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
-using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Materials;
+using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Sniper

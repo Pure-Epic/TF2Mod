@@ -19,6 +19,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using TF2.Common;
 using TF2.Content.Items;
+using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Tools;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
@@ -639,6 +640,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bat>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Soldier:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<RocketLauncher>());
@@ -646,6 +649,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shovel>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Pyro:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<FlameThrower>());
@@ -653,6 +658,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<FireAxe>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Demoman:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<GrenadeLauncher>());
@@ -660,6 +667,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bottle>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Heavy:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Minigun>());
@@ -667,6 +676,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Fists>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Engineer:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Shotgun>());
@@ -676,6 +687,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<DestructionPDA>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Medic:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<SyringeGun>());
@@ -683,6 +696,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Bonesaw>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Sniper:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<SniperRifle>());
@@ -690,6 +705,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Kukri>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
                 case TF2Item.Spy:
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Revolver>());
@@ -697,6 +714,8 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<Sapper>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<AustraliumDrill>());
                     _player.inventory[i++].SetDefaults(ModContent.ItemType<MannCoCatalog>());
+                    if (TF2.Smissmas)
+                        _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
             }
             _player.miscEquips[3].SetDefaults(ModContent.ItemType<TF2MountItem>());
