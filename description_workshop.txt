@@ -1,4 +1,4 @@
-TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
+Team Fortress 2 is a pretty cool mod, it is one of the Terraria mods ever.
 
 [h1]Features:[/h1]
 [list]
@@ -23,7 +23,7 @@ TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
 [h1]Credits:[/h1]
 [list]
 [*]All assets are owned by Valve. All sprites are either from Team Fortress Wiki or made by me using Source Filmmaker. This is a fan made project.
-[*]Full credits can be found on our official wiki: https://terrariamods.wiki.gg/wiki/TF2Mod/Credits
+[*]Full credits can be found on our official wiki: https://terrariamods.wiki.gg/wiki/Team_Fortress_2/Credits
 [*]Also, thanks to the tModLoader team for making Example Mod. This wouldn't be possible without them.
 [*]Additional thanks to Team Shanghai Alice for Touhou Project. (Spoilers for future content...)
 [*]Custom Boss Music is Fruity Robo 2 Credits Theme, by BlueArc.
@@ -31,13 +31,13 @@ TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
 
 [h1]Community:[/h1]
 [list]
-[*]Wiki page: https://terrariamods.wiki.gg/wiki/TF2Mod
-[*]Forum thread: https://forums.terraria.org/index.php?threads/tf2mod.119952
+[*]Wiki page: https://terrariamods.wiki.gg/wiki/Team_Fortress_2
+[*]Forum thread: https://forums.terraria.org/index.php?threads/teamfortress2.119952
 [*]Discord server: https://discord.com/invite/u3zaMsbNzS
 [*]Source code: https://github.com/Pure-Epic/TF2Mod
 [/list]
 
 [h1]Critics Say:[/h1]
-TF2Mod is quite the mod ever. It is coded, has features, and exists. I'll give the mod a solid /10.
+Team Fortress 2 is quite the mod ever. It is coded, has features, and exists. I'll give the mod a solid /10.
 
 What are you waiting for? Download now to become Team Fortress!
