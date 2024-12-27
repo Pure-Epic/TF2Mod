@@ -331,13 +331,6 @@ namespace TF2.Common
                 if (calamity.TryFind("WeakPetrification", out ModBuff weakPetrification))
                     Player.buffImmune[weakPetrification.Type] = true;
             }
-            if (ModLoader.TryGetMod("Gensokyo", out Mod gensokyo))
-            {
-                if (gensokyo.TryFind("Debuff_MovementInverted", out ModBuff movementInverted))
-                    Player.buffImmune[movementInverted.Type] = true;
-                if (gensokyo.TryFind("Debuff_GravityInverted", out ModBuff gravityInverted))
-                    Player.buffImmune[gravityInverted.Type] = true;
-            }
             if (TF2.MannCoStoreActive)
             {
                 Main.npcChatText = "";
@@ -949,15 +942,9 @@ namespace TF2.Common
         public Rectangle FocusShotHitbox()
         {
             float scale = 1f;
-            if (TF2.gensokyoLoaded)
-                scale = (float)TF2.Gensokyo.Call("GetPlayerScale", Player.whoAmI);
             int width = (int)(10 * scale);
             int height = (int)(10 * scale);
-            return new Rectangle(
-                (int)Player.Center.X - width / 2,
-                (int)Player.Center.Y - height / 2,
-                width,
-                height);
+            return new Rectangle((int)Player.Center.X - width / 2, (int)Player.Center.Y - height / 2, width, height);
         }
 
         public static bool CanSwitchWeaponPDA(Player player)

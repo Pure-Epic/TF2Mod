@@ -1,32 +1,20 @@
-TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
+TF2Mod is a Terraria content mod that is based on Valve's hit class-based shooter, Team Fortress 2. The mod adds a new player type, called mercenaries, that plays differently from your typical Terrarian.
 
 [h1]Features:[/h1]
 [list]
-[*]Weapons from TF2
-[*]NPCs
-[*]Accessories
-[*][strike]Tools to help destroy Gensokyo[/strike]
-[/list]
-
-[h1]Future Features:[/h1]
-[list]
-[*]More weapons
-[*]More bosses
-[/list]
-
-[h1]Cross Mod Content:[/h1]
-[list]
-[*]Adds post-Moon Lord progression for the Calamity Mod.
-[*]Has incredible synergy with the Gensokyo mod. It's highly recommended to combine both mods together.
+[*]Mercenaries which can be created within the mercenary creation menu when creating a new player.
+[*]Nine new classes with their own special abilities.
+[*]Weapons that can reload and support dynamic damage scalings.
+[*]The Mann Co. Store with its own special currency.
+[*]Enemy mercenaries that drop money upon defeat.
+[*]Support for bullet hell battles.
+[*]An experience that no other mod can provide.
 [/list]
 
 [h1]Credits:[/h1]
 [list]
-[*]All assets are owned by Valve. All sprites are either from Team Fortress Wiki or made by me using Source Filmmaker. This is a fan made project.
-[*]Full credits can be found on our official wiki: https://terrariamods.wiki.gg/wiki/TF2Mod/Credits
-[*]Also, thanks to the tModLoader team for making Example Mod. This wouldn't be possible without them.
-[*]Additional thanks to Team Shanghai Alice for Touhou Project. (Spoilers for future content...)
-[*]Custom Boss Music is Fruity Robo 2 Credits Theme, by BlueArc.
+[*]All assets are owned by Valve. All sprites are either created specifically for this mod or derived from the Team Fortress Wiki. This is a fan made project.
+[*]Full credits can be found on our official wiki: https://terrariamods.wiki.gg/wiki/TF2Mod/Credits.
 [/list]
 
 [h1]Community:[/h1]
@@ -36,8 +24,3 @@ TF2Mod is a pretty cool mod, it is one of the Terraria mods ever.
 [*]Discord server: https://discord.com/invite/u3zaMsbNzS
 [*]Source code: https://github.com/Pure-Epic/TF2Mod
 [/list]
-
-[h1]Critics Say:[/h1]
-TF2Mod is quite the mod ever. It is coded, has features, and exists. I'll give the mod a solid /10.
-
-What are you waiting for? Download now to become Team Fortress!

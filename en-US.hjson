@@ -20,18 +20,6 @@ Mods: {
 			Spy: He is a puzzle, wrapped in an enigma, shrouded in riddles, lovingly sprinkled with intrigue, express mailed to Mystery, Alaska, and LOOK OUT BEHIND YOU! but it is too late. You're dead. For he is the Spy - globetrotting rogue, lady killer (metaphorically) and mankiller (for real).
 		}
 
-		BossChecklist: {
-			BossRush: {
-				DisplayName: Boss Rush
-				SpawnInfo: Fight Gensokyo's greatest warriors and face the consequences...
-			}
-
-			ByakurenHijiri: {
-				SpawnInfo: Complete the Boss Rush...
-				DespawnMessage: The protector of youkai remains victorious!
-			}
-		}
-
 		Buffs: {
 			AmputatorBuff: {
 				DisplayName: Medicating Melody
@@ -288,8 +276,6 @@ Mods: {
 					Tooltip: ""
 				}
 			}
-
-			GensokyoSaveFile.DisplayName: Gensokyo Save File
 		}
 
 		DamageClasses.MercenaryDamage.DisplayName: Mercenary
@@ -311,10 +297,10 @@ Mods: {
 			Updates: This Team Fortress 2 update hits different.
 			NoUpdates: Last updated 6 years ago!
 			SaxtonHale: Saxton Hale solos Goku.
-			Money: Certain money drop money when killed, which can be spent in the Mann Co. Store.
+			Money: Certain enemies drop money when killed which can be spent in the Mann Co. Store.
 			MannCoStore: If you aren't 100% satisfied with our product line, you can take it up with me!
 			Crates: Use keys to open crates. They contain new weapons waiting to be used.
-			NoGrinding: Do you want a specific item that takes days to get? The Mann Co. Store may have it for a good price.
+			BuyWeapons: Want a specific weapon? The Mann Co. Store may have it for a good price.
 			Weapons: You can keep using stock weapons for your entire playthrough. Yes, some of them are that good.
 			Reloading: Make sure to keep track of your weapon's ammo. Reloading at the wrong time may ensue defeat!
 			Ammo: Guns have a limited amount of ammo. Make sure to not run out of it!
@@ -341,24 +327,8 @@ Mods: {
 			Medic2: Medic's ÜberCharge can change the tide of a battle.
 			Sniper: Sniper has the highest damage per shot, but the lowest shoot speed.
 			Sniper2: Sniper works best from long distances.
-			Spy: Spy focuses on chip damage, while maintaining survivability.
+			Spy: Spy focuses on chip damage while maintaining survivability.
 			Spy2: Spy's cloak makes him invincible, but degrades over time or with every evaded hit.
-			Random: Hog Riderrrrr!
-			Random2: Tick-tock. Heavy like a Brinks truck...
-			Random3: Me when someone says ara ara in my Buddhist Discord server:
-			Touhou: Team Fortress 2 and Touhou make an unlikely friendship.
-			Touhou2: Imagine if every Team Fortress 2 mercenary fought every Touhou girl.
-			Touhou3: Reimu bad, Heavy good!
-			Touhou4: If I was forced to kiss Yukari Yakumo or suffer eternal torment... Wait, they're the same thing.
-			Touhou5: Born to teleport bread, forced to play Touhou LostWord.
-			Touhou6: Imagine if the Black Templars invaded Gensokyo.
-			GensokyoCrossPromotion: I wonder what happens if I combine the Team Fortress 2 mod with the Gensokyo mod?
-			GensokyoCrossPromotion2: The Team Fortress 2 mod has perfect synergy with another particular mod.
-			GensokyoCrossPromotion3: I have no other mods to play with the Team Fortress 2 mod. What shall I do? Gensokyo mod:
-			CurioTrader: Rinnosuke Morichika sells exclusive weapons for a good price. Don't tell Saxton Hale!
-			GensokyoExtraContent: The Gensokyo mod doesn't end after defeating all the Tier 8 bosses. There might be a few bosses that you might have missed...
-			BossRushTeaser: There are legends of a mysterious scroll, which unleashes the might of Gensokyo.
-			ByakurenTeaser: The Gensokyo mod includes a boss that her power prohibits her from being added to that mod.
 		}
 
 		Items: {
@@ -1970,106 +1940,6 @@ Mods: {
 					Jump to focus, slowing movement, decreasing hitbox size against danmaku, and enabling homing shots for some weapons.
 					'''
 			}
-
-			BossRushSummon: {
-				DisplayName: Disenchanted Sutra Scroll
-				Tooltip: Starts Boss Rush
-			}
-
-			ByakurenBossBag: {
-				DisplayName: Treasure Bag (Byakuren Hijiri)
-				Tooltip: "{$CommonItemTooltip.RightClickToOpen}"
-			}
-
-			GensokyoDLC_StarterBox: {
-				DisplayName: What's in the Gensokyo Box?
-				Tooltip: Open the Gensokyo Box to reveal its contents.
-			}
-
-			PhotonShotgun: {
-				DisplayName: Photon Shotgun
-				Tooltip: ""
-				Upsides:
-					'''
-					Pellets ignite enemies
-					+25% clip size
-					'''
-				Downsides: No random critical hits
-			}
-
-			ManualInferno: {
-				DisplayName: Manual Inferno
-				Tooltip: ""
-				Upsides:
-					'''
-					+200% afterburn damage bonus
-					Extinguishing teammates restores 20 health
-					'''
-				Downsides: Reloading required
-			}
-
-			AdvancedScoutRifle: {
-				DisplayName: Advanced Scout Rifle
-				Tooltip: ""
-				Upsides:
-					'''
-					+60% clip size
-					+40% damage bonus
-					Scope included
-					Silent Killer: Quieter firing noise
-					'''
-				Downsides: 50% damage vulnerability on wearer
-			}
-
-			HarshPunisher: {
-				DisplayName: Harsh Punisher
-				Tooltip: ""
-				Upsides:
-					'''
-					+100% damage bonus
-					+50% faster firing speed
-					+100% charge rate
-					No unscoping
-					'''
-				Downsides:
-					'''
-					On Full Charge: -20% damage per shot
-					Reloading required
-					'''
-			}
-
-			OffensiveRocketSystem: {
-				DisplayName: Offensive Rocket System
-				Tooltip: ""
-				Upsides:
-					'''
-					+50% clip size
-					50% faster reload time
-					Fires a burst of 3 rockets
-					'''
-				Downsides:
-					'''
-					-50% damage penalty
-					-10% max primary ammo on wearer
-					'''
-			}
-
-			HeadhunterPistols: {
-				DisplayName: Headhunter Pistols
-				Tooltip: ""
-				Upsides:
-					'''
-					+66% clip size
-					+200% damage bonus
-					'''
-				Downsides:
-					'''
-					100% slower firing speed
-					100% slower reload time
-					-44% max secondary ammo on wearer
-					No random critical hits
-					'''
-			}
 		}
 
 		Keybinds: {
@@ -2141,15 +2011,6 @@ Mods: {
 					Princess_LovesNPC: I like {NPCName}.
 				}
 			}
-
-			ByakurenHijiri: {
-				DisplayName: Byakuren Hijiri
-
-				BossChecklistIntegration: {
-					SpawnInfo: Complete the Boss Rush...
-					DespawnMessage: The protector of youkai remains victorious!
-				}
-			}
 		}
 
 		Projectiles: {
@@ -2212,42 +2073,6 @@ Mods: {
 			AustraliumDrillProjectile.DisplayName: Australium Drill
 			Bullet.DisplayName: Bullet
 			SuperBullet.DisplayName: Bullet
-			AmagimiHijirisAirScroll.DisplayName: Amagimi Hijiri's Air Scroll
-			ButterflyWing.DisplayName: Makai Butterfly
-			DevilsRecitation1.DisplayName: Devil's Recitation
-			DevilsRecitation2.DisplayName: Devil's Recitation
-			DevilsRecitation3.DisplayName: Devil's Recitation
-			DevilsRecitation4.DisplayName: Devil's Recitation
-			DevilsRecitation5.DisplayName: Devil's Recitation
-			DevilsRecitation6.DisplayName: Devil's Recitation
-			DevilsRecitation7.DisplayName: Devil's Recitation
-			FlyingFantastica1.DisplayName: Flying Fantastica
-			FlyingFantastica2.DisplayName: Flying Fantastica
-			FlyingFantastica3.DisplayName: Flying Fantastica
-			FlyingFantastica4.DisplayName: Flying Fantastica
-			FlyingFantastica5.DisplayName: Flying Fantastica
-			MysticFragranceofaMakaiButterfly1.DisplayName: Mystic Fragrance of a Makai Butterfly
-			MysticFragranceofaMakaiButterfly2.DisplayName: Mystic Fragrance of a Makai Butterfly
-			MysticFragranceofaMakaiButterfly3.DisplayName: Mystic Fragrance of a Makai Butterfly
-			OmenofPurpleClouds1.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds2.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds3.DisplayName: Omen of Purple Clouds
-			OmenofPurpleClouds4.DisplayName: Omen of Purple Clouds
-			PreMysticFragranceofaMakaiButterfly1.DisplayName: Byakuren Hijiri's Danmaku
-			PreMysticFragranceofaMakaiButterfly2.DisplayName: Byakuren Hijiri's Laser
-			PreOmenofPurpleClouds1.DisplayName: Byakuren Hijiri's Danmaku
-			PreOmenofPurpleClouds2.DisplayName: Byakuren Hijiri's Danmaku
-			PreOmenofPurpleClouds3.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom1.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom2.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom3.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom4.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom5.DisplayName: Byakuren Hijiri's Danmaku
-			PreStarMaelstrom6.DisplayName: Byakuren Hijiri's Danmaku
-			StarMaelstrom1.DisplayName: Star Maelstrom
-			StarMaelstrom2.DisplayName: Star Maelstrom
-			HellFire.DisplayName: Fire
-			PhotonShotgunBullet.DisplayName: Photon Shotgun Bullet
 		}
 
 		Tiles.AustraliumAnvil.MapEntry: Australium Anvil

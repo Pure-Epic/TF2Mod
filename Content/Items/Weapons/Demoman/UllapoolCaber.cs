@@ -17,7 +17,7 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class UllapoolCaber : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type]: ModContent.Request<Texture2D>("TF2/Content/Textures/UllapoolCaberDetonated");
+        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type] : ModContent.Request<Texture2D>("TF2/Content/Textures/UllapoolCaberDetonated");
 
         protected override void WeaponStatistics()
         {

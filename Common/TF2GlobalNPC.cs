@@ -33,16 +33,6 @@ namespace TF2.Common
                 NPCID.Sets.ImmuneToAllBuffs[npc.type] = false;
                 NPCID.Sets.ImmuneToRegularBuffs[npc.type] = true;
             }
-            if (!TF2.gensokyoLoaded || !ModLoader.TryGetMod("CalamityMod", out Mod calamity)) return;
-            bool revengeance = (bool)calamity.Call("GetDifficultyActive", "revengeance");
-            bool death = (bool)calamity.Call("GetDifficultyActive", "death");
-            if ((npc.ModNPC?.Mod == TF2.Gensokyo || npc.ModNPC?.Mod is TF2) && !npc.friendly)
-            {
-                if (revengeance && !death)
-                    npc.damage = TF2.Round(npc.damage * 1.25f);
-                else if (death)
-                    npc.damage = TF2.Round(npc.damage * 2.5f);
-            }
         }
 
         public override void AI(NPC npc)
@@ -123,35 +113,34 @@ namespace TF2.Common
                 TF2.CreateSoulItem(npc, 25f, 7.5f, 5);
                 TF2.UpgradeDrill(npc, 225);
             }
-            if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
+            if (TF2.anathemaLoaded)
             {
-                if (calamity.TryFind("Providence", out ModNPC providenceNPC) && npc.type == providenceNPC.Type)
+                if (TF2.Anathema.TryFind("Executioner", out ModNPC executioner) && npc.type == executioner.Type)
                 {
                     TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
                     TF2.UpgradeDrill(npc, 250);
                 }
-                if (calamity.TryFind("DevourerofGodsHead", out ModNPC theDevourerofGodsNPC) && npc.type == theDevourerofGodsNPC.Type)
+            }
+            if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
+            {
+                if (calamity.TryFind("Providence", out ModNPC providence) && npc.type == providence.Type)
+                {
+                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
+                    TF2.UpgradeDrill(npc, 250);
+                }
+                if (calamity.TryFind("DevourerofGodsHead", out ModNPC theDevourerofGods) && npc.type == theDevourerofGods.Type)
                 {
                     TF2.CreateSoulItem(npc, 100f, 10f, 5);
                     TF2.UpgradeDrill(npc, 250);
                 }
-                if (calamity.TryFind("Yharon", out ModNPC yharonNPC) && npc.type == yharonNPC.Type)
+                if (calamity.TryFind("Yharon", out ModNPC yharon) && npc.type == yharon.Type)
                 {
                     TF2.CreateSoulItem(npc, 150f, 10f, 5);
                     TF2.UpgradeDrill(npc, 250);
                 }
-                if (calamity.TryFind("SupremeCalamitas", out ModNPC supremeCalamitasNPC) && npc.type == supremeCalamitasNPC.Type)
+                if (calamity.TryFind("SupremeCalamitas", out ModNPC supremeWitchCalamitas) && npc.type == supremeWitchCalamitas.Type)
                 {
                     TF2.CreateSoulItem(npc, 250f, 20f, 6);
-                    TF2.UpgradeDrill(npc, 250);
-                }
-            }
-            else
-            {
-                // In case Gensokyo DLC gets removed from the mod, the rest of the mod can still be compiled
-                if (Mod.TryFind("ByakurenHijiri", out ModNPC byakuren) && npc.type == byakuren.Type)
-                {
-                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
                     TF2.UpgradeDrill(npc, 250);
                 }
             }
@@ -186,32 +175,6 @@ namespace TF2.Common
                 }
                 modifiers.DefenseEffectiveness *= 0;
                 modifiers.DamageVariationScale *= 0;
-                // Used for making some boss fights not extremely time-consuming
-                if (npc.type == NPCID.TheDestroyer || npc.type == NPCID.TheDestroyerBody || npc.type == NPCID.TheDestroyerBody)
-                    modifiers.SourceDamage *= 2.5f;
-                if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
-                {
-                    if (npc.type == NPCID.Plantera)
-                        modifiers.SourceDamage *= 2.5f;
-                    if (calamity.TryFind("AstrumDeusHead", out ModNPC astrumDeusNPC) && npc.type == astrumDeusNPC.Type)
-                        modifiers.SourceDamage *= 3f;
-                    if (calamity.TryFind("AstrumDeusBody", out ModNPC astrumDeusNPC2) && npc.type == astrumDeusNPC2.Type)
-                        modifiers.SourceDamage *= 3f;
-                    if (calamity.TryFind("AstrumDeusTail", out ModNPC astrumDeusNPC3) && npc.type == astrumDeusNPC3.Type)
-                        modifiers.SourceDamage *= 3f;
-                    if (calamity.TryFind("StormWeaverHead", out ModNPC stormWeaverNPC) && npc.type == stormWeaverNPC.Type)
-                        modifiers.SourceDamage *= 2.5f;
-                    if (calamity.TryFind("StormWeaverBody", out ModNPC stormWeaverNPC2) && npc.type == stormWeaverNPC2.Type)
-                        modifiers.SourceDamage *= 1.5f;
-                    if (calamity.TryFind("StormWeaverTail", out ModNPC stormWeaverNPC3) && npc.type == stormWeaverNPC3.Type)
-                        modifiers.SourceDamage *= 5f;
-                    if (calamity.TryFind("DevourerofGodsHead", out ModNPC theDevourerofGodsNPC) && npc.type == theDevourerofGodsNPC.Type)
-                        modifiers.SourceDamage *= 5f;
-                    if (calamity.TryFind("DevourerofGodsBody", out ModNPC theDevourerofGodsNPC2) && npc.type == theDevourerofGodsNPC2.Type)
-                        modifiers.SourceDamage *= 5f;
-                    if (calamity.TryFind("DevourerofGodsTail", out ModNPC theDevourerofGodsNPC3) && npc.type == theDevourerofGodsNPC3.Type)
-                        modifiers.SourceDamage *= 5f;
-                }
             }
         }
 

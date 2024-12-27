@@ -16,6 +16,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
@@ -48,7 +49,6 @@ using TF2.Content.Projectiles;
 using TF2.Content.UI;
 using TF2.Content.UI.MannCoStore;
 using TF2.Content.UI.MercenaryCreationMenu;
-using TF2.Gensokyo.Content.Items.BossSummons;
 
 namespace TF2
 {
@@ -143,9 +143,9 @@ namespace TF2
         public static IPlayerRenderer PlayerRenderer = new TF2PlayerRenderer();
         public static UserInterface MannCoStore = new UserInterface();
         private ClassIcon classUI;
-        public static Mod Gensokyo;
-        public static bool gensokyoLoaded;
         private static bool damageFalloff;
+        public static Mod Anathema;
+        public static bool anathemaLoaded;
         public Hook ModifyMaxStats;
         public Hook PlayerModifyHitByProjectile;
         public Hook ModifyHitByProjectile;
@@ -249,297 +249,10 @@ namespace TF2
             TF2DeathMessagesLocalization = null;
             TF2MercenaryText = null;
             BlankTexture = ClassPowerIcon = null;
-            Gensokyo = null;
+            Anathema = null;
         }
 
-        public override void PostSetupContent() => gensokyoLoaded = ModLoader.TryGetMod("Gensokyo", out Gensokyo);
-
-        public override object Call(params object[] args)
-        {
-            try
-            {
-                string message = (string)args[0];
-                switch (message)
-                {
-                    case "AddGensokyoShopItem":
-                        if (Gensokyo != null)
-                        {
-                            if (TryFind("PhotonShotgun", out ModItem photonShotgun))
-                                AddShopItem((int)args[1], true, "Weapons", photonShotgun.Type, 1);
-                            if (TryFind("ManualInferno", out ModItem manualInferno))
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", manualInferno.Type, 1);
-                            if (TryFind("AdvancedScoutRifle", out ModItem advancedScoutRifle))
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", advancedScoutRifle.Type, 1);
-                            if (TryFind("HarshPunisher", out ModItem harshPunisher))
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", harshPunisher.Type, 1);
-                            if (TryFind("OffensiveRocketSystem", out ModItem offensiveRocketSystem))
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", offensiveRocketSystem.Type, 1);
-                            if (TryFind("HeadhunterPistols", out ModItem headhunterPistols))
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", headhunterPistols.Type, 1);
-                            if (TryFind("GensokyoDLC_StarterBox", out ModItem starterBox))
-                                AddShopItem((int)args[1], true, "Consumables", starterBox.Type, 1);
-                            if (!ModContent.GetInstance<TF2Config>().Shop)
-                            {
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Tools", ModContent.ItemType<BossRushSummon>(), 1);
-                                AddShopItem((int)args[1], true, "Consumables", ItemID.LifeCrystal, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.TerrasparkBoots, 1);
-                                AddShopItem((int)args[1], true, "Tools", ItemID.Shellphone, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.FeralClaws, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.GoldenDelight, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Placeables", ItemID.AlchemyTable, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.AnkhShield, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.DiscountCard, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.GreedyRing, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Tools", ItemID.RodofDiscord, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.CrossNecklace, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.StarCloak, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Placeables", ItemID.SliceOfCake, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CrystalShard, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Consumables", ItemID.LifeFruit, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Accessories", ItemID.AvengerEmblem, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Placeables", ItemID.LihzahrdAltar, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.MasterNinjaGear, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Accessories", ItemID.DestroyerEmblem, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Tools", ItemID.Picksaw, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Miscellaneous", ItemID.GoldenKey, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Miscellaneous", ItemID.ShadowKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.JungleKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CorruptionKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CrimsonKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.HallowedKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.FrozenKey, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.DungeonDesertKey, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CopperOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TinOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.IronOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.LeadOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.SilverOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TungstenOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.GoldOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.PlatinumOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.DemoniteOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CrimtaneOre, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Miscellaneous", ItemID.Meteorite, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Obsidian, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss2, "Miscellaneous", ItemID.Hellstone, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CobaltOre, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.PalladiumOre, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.MythrilOre, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.OrichalcumOre, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.AdamantiteOre, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.TitaniumOre, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.ChlorophyteOre, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Miscellaneous", ItemID.LunarOre, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Amethyst, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Topaz, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Sapphire, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Emerald, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Ruby, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Amber, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.Diamond, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CopperBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TinBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.IronBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.LeadBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.SilverBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.TungstenBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.GoldBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.PlatinumBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.DemoniteBar, 1);
-                                AddShopItem((int)args[1], true, "Miscellaneous", ItemID.CrimtaneBar, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Miscellaneous", ItemID.MeteoriteBar, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss2, "Miscellaneous", ItemID.HellstoneBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CobaltBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.PalladiumBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.MythrilBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.OrichalcumBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.AdamantiteBar, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.TitaniumBar, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.HallowedBar, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.ChlorophyteBar, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.ShroomiteBar, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.SpectreBar, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Miscellaneous", ItemID.LunarBar, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.BottledWater, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.LesserHealingPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.HealingPotion, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.GreaterHealingPotion, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Potions", ItemID.SuperHealingPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.LesserManaPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ManaPotion, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.GreaterManaPotion, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Potions", ItemID.SuperManaPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotionLesser, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.LuckPotionGreater, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.AmmoReservationPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ArcheryPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.BattlePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.BuilderPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.CalmingPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.CratePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.TrapsightPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.EndurancePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.FeatherfallPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.FishingPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.FlipperPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.GenderChangePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.GillsPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.GravitationPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.HeartreachPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.HunterPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.InfernoPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.InvisibilityPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.IronskinPotion, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Potions", ItemID.LifeforcePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.MagicPowerPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ManaRegenerationPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.MiningPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.NightOwlPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ObsidianSkinPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.RagePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.RecallPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.RegenerationPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ShinePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.SonarPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.SpelunkerPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.SummoningPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.SwiftnessPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.TeleportationPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.ThornsPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.TitanPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.WarmthPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.WaterWalkingPotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.WormholePotion, 1);
-                                AddShopItem((int)args[1], true, "Potions", ItemID.WrathPotion, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.CursedFlame, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.Ichor, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofLight, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofNight, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofFlight, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofMight, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofSight, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.SoulofFright, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.DarkShard, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.LightShard, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.CopperShortsword, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.Starfury, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.EnchantedSword, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.BladeofGrass, 1);
-                                AddShopItem((int)args[1], NPC.downedQueenBee || NPC.downedBoss3, "Weapons", ItemID.BeeKeeper, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.Muramasa, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.Seedler, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.TheHorsemansBlade, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.InfluxWaver, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.Meowmere, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.StarWrath, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.BrokenHeroSword, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.ShadowFlameKnife, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.DripplerFlail, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.YoyoBag, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.BouncingShield, 1);
-                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.Flairon, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.BerserkerGlove, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Miscellaneous", ItemID.TurtleShell, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Accessories", ItemID.FireGauntlet, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.BeetleHusk, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Weapons", ItemID.CelestialShell, 1);
-                                AddShopItem((int)args[1], true, "Placeables", ItemID.SharpeningStation, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentSolar, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.PhoenixBlaster, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.ZapinatorGray, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.ZapinatorOrange, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.DaedalusStormbow, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.Megashark, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.Uzi, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.TacticalShotgun, 1);
-                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.Tsunami, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.SDMG, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.Celeb2, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.MoltenQuiver, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Accessories", ItemID.StalkersQuiver, 1);
-                                AddShopItem((int)args[1], NPC.downedGolemBoss, "Accessories", ItemID.ReconScope, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.EndlessQuiver, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Miscellaneous", ItemID.EndlessMusketPouch, 1);
-                                AddShopItem((int)args[1], true, "Placeables", ItemID.AmmoBox, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentVortex, 1);
-                                AddShopItem((int)args[1], true, "Consumables", ItemID.ManaCrystal, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.DemonScythe, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.WaterBolt, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.SkyFracture, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.MeteorStaff, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.CrystalSerpent, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Weapons", ItemID.UnholyTrident, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.ShadowbeamStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.InfernoFork, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.SpectreStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.Razorpine, 1);
-                                AddShopItem((int)args[1], NPC.downedFishron, "Weapons", ItemID.RazorbladeTyphoon, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.LastPrism, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.LunarFlareBook, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.ManaFlower, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.CelestialMagnet, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.MagicCuffs, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Placeables", ItemID.CrystalBall, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Miscellaneous", ItemID.Ectoplasm, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentNebula, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.SlimeStaff, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.FlinxStaff, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.VampireFrogStaff, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.AbigailsFlower, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.SanguineStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedQueenSlime, "Weapons", ItemID.Smolstar, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss2, "Weapons", ItemID.OpticStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.PygmyStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedEmpressOfLight, "Weapons", ItemID.EmpressBlade, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.MoonlordTurretStaff, 1);
-                                AddShopItem((int)args[1], NPC.downedMoonlord, "Weapons", ItemID.RainbowCrystalStaff, 1);
-                                AddShopItem((int)args[1], true, "Weapons", ItemID.ThornWhip, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Weapons", ItemID.BoneWhip, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.FireWhip, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Weapons", ItemID.CoolWhip, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBossAny, "Weapons", ItemID.SwordWhip, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.ScytheWhip, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Weapons", ItemID.MaceWhip, 1);
-                                AddShopItem((int)args[1], NPC.downedEmpressOfLight, "Weapons", ItemID.RainbowWhip, 1);
-                                AddShopItem((int)args[1], true, "Accessories", ItemID.PygmyNecklace, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.NecromanticScroll, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Accessories", ItemID.PapyrusScarab, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Placeables", ItemID.BewitchingTable, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Miscellaneous", ItemID.FragmentStardust, 1);
-                                AddShopItem((int)args[1], true, "Consumables", ItemID.SlimeCrown, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.SuspiciousLookingEye, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.WormFood, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.BloodySpine, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss1, "Consumables", ItemID.Abeemination, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss2, "Consumables", ItemID.ClothierVoodooDoll, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss2, "Consumables", ItemID.DeerThing, 1);
-                                AddShopItem((int)args[1], NPC.downedBoss3, "Consumables", ItemID.GuideVoodooDoll, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.QueenSlimeCrystal, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalWorm, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalEye, 1);
-                                AddShopItem((int)args[1], Main.hardMode, "Consumables", ItemID.MechanicalSkull, 1);
-                                AddShopItem((int)args[1], NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3, "Consumables", ModContent.ItemType<PlanteraItem>(), 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.LihzahrdPowerCell, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.EmpressButterfly, 1);
-                                AddShopItem((int)args[1], NPC.downedPlantBoss, "Consumables", ItemID.TruffleWorm, 1);
-                                AddShopItem((int)args[1], NPC.downedAncientCultist, "Consumables", ItemID.CelestialSigil, 1);
-                            }
-                        }
-                        return "Success";
-
-                    case "RegisterPlayerScaleAccess":
-                        if (Gensokyo != null) return "TF2";
-                        return "Success";
-                }
-                Logger.Debug("GensokyoDLC Call Error: Unknown Message: " + message);
-            }
-            catch (Exception e)
-            {
-                Logger.Warn("GensokyoDLC Call Error: " + e.StackTrace + e.Message);
-            }
-            return "Failure";
-        }
+        public override void PostSetupContent() => anathemaLoaded = ModLoader.TryGetMod("Anathema", out Anathema);
 
         public override void HandlePacket(BinaryReader reader, int whoAmI)
         {
@@ -759,8 +472,6 @@ namespace TF2
                     break;
             }
         }
-
-        private static void AddShopItem(int argument, bool availability, string category, int type, int amount) => Gensokyo.Call("AddShopItem", argument, availability, category, type, amount, (int)ItemID.None, 0);
 
         internal enum MessageType : byte
         {
@@ -2268,27 +1979,10 @@ namespace TF2
             }
         }
 
-        public static bool BasicEnemiesThatCanDropMoney(NPC npc) => npc.TypeName == "Flower Fairy"
-                || npc.TypeName == "Snow Fairy"
-                || npc.TypeName == "Sand Fairy"
-                || npc.TypeName == "Water Fairy"
-                || npc.TypeName == "Spore Fairy"
-                || npc.TypeName == "Stone Fairy"
-                || npc.TypeName == "Metal Fairy"
-                || npc.TypeName == "Blood Fairy"
-                || npc.TypeName == "Bone Fairy"
-                || npc.TypeName == "Thorn Fairy"
-                || npc.TypeName == "Lava Fairy"
-                || npc.TypeName == "Hell Raven"
-                || npc.TypeName == "Yamawaro Scout"
-                || npc.TypeName == "Yamawaro Vanguard"
-                || npc.TypeName == "Sunflower Fairy"
-                || npc.TypeName == "Crystal Fairy"
-                || npc.TypeName == "Kappa Explorer"
-                || npc.TypeName == "Kappa Pathfinder"
-                || npc.TypeName == "Kappa Pioneer"
-                || npc.TypeName == "Kappa Adventurer"
-                || npc.TypeName == "Vengeful Spirit";
+        public static bool BasicEnemiesThatCanDropMoney(NPC npc) => npc.TypeName == "Deliquent (MG)"
+                || npc.TypeName == "Deliquent (SMG)"
+                || npc.TypeName == "Deliquent (SR)"
+                || npc.TypeName == "Kaizer PMC";
 
         public static void CreateSoulItem(NPC npc, float damage, float health, int pierce = 1)
         {

@@ -9,7 +9,7 @@ namespace TF2.Common
 {
     public class TF2Menu : ModMenu
     {
-        public override Asset<Texture2D> Logo => ModContent.Request<Texture2D>("TF2/Content/Textures/TF2");
+        public override Asset<Texture2D> Logo => ModContent.Request<Texture2D>("TF2/Content/Textures/TF2Mod");
 
         public override int Music
         {
@@ -37,7 +37,7 @@ namespace TF2.Common
             }
         }
 
-        public override string DisplayName => "Team Fortress 2";
+        public override string DisplayName => "TF2Mod";
 
         public static int classSelected;
 
@@ -55,7 +55,7 @@ namespace TF2.Common
             Main.dayTime = true;
             Main.raining = false;
             logoRotation = 0f;
-            logoScale = 1f;
+            logoScale = 0.75f;
             drawColor = Color.White;
             float width = (float)Main.screenWidth / Background.Width;
             float height = (float)Main.screenHeight / Background.Height;
