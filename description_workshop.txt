@@ -32,7 +32,7 @@ Team Fortress 2 is a pretty cool mod, it is one of the Terraria mods ever.
 [h1]Community:[/h1]
 [list]
 [*]Wiki page: https://terrariamods.wiki.gg/wiki/Team_Fortress_2
-[*]Forum thread: https://forums.terraria.org/index.php?threads/teamfortress2.119952
+[*]Forum thread: https://forums.terraria.org/index.php?threads/team-fortress-2.119952
 [*]Discord server: https://discord.com/invite/u3zaMsbNzS
 [*]Source code: https://github.com/Pure-Epic/TF2Mod
 [/list]
