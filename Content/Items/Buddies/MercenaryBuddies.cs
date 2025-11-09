@@ -20,13 +20,12 @@ namespace TF2.Content.Items.Buddies
             Item.width = 32;
             Item.height = 44;
             Item.accessory = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-            qualityHashSet.Add(Unique);
+            WeaponAddQuality(Unique);
             availability = Purchase;
             noThe = true;
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
+        public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltipsWithAvailability(tooltips);
     }
 
     public class ScoutBuddy : BuddyItem
@@ -36,6 +35,8 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(30);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Scout";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 
     public class SoldierBuddy : BuddyItem
@@ -45,6 +46,8 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(60);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Soldier";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 
     public class PyroBuddy : BuddyItem
@@ -54,6 +57,8 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(60);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Pyro";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 
     public class DemomanBuddy : BuddyItem
@@ -63,6 +68,8 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(45);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Demoman";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 
     public class HeavyBuddy : BuddyItem
@@ -72,6 +79,8 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(90);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Heavy";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 
     public class EngineerBuddy : BuddyItem
@@ -81,6 +90,12 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(60);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Engineer";
+
+        protected override void WeaponDescription(List<TooltipLine> description)
+        {
+            AddPositiveAttribute(description);
+            AddNeutralAttribute(description);
+        }
     }
 
     public class MedicBuddy : BuddyItem
@@ -90,6 +105,12 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(60);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Medic";
+
+        protected override void WeaponDescription(List<TooltipLine> description)
+        {
+            AddPositiveAttribute(description);
+            AddNeutralAttribute(description);
+        }
     }
 
     public class SniperBuddy : BuddyItem
@@ -99,6 +120,13 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(45);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Sniper";
+
+        protected override void WeaponDescription(List<TooltipLine> description)
+        {
+            AddPositiveAttribute(description);
+            AddNegativeAttribute(description);
+            AddNeutralAttribute(description);
+        }
     }
 
     public class SpyBuddy : BuddyItem
@@ -108,5 +136,7 @@ namespace TF2.Content.Items.Buddies
         public override int BuddyCooldown => TF2.Time(45);
 
         public override string Texture => "TF2/Content/Textures/UI/MercenaryCreationMenu/Spy";
+
+        protected override void WeaponDescription(List<TooltipLine> description) => AddNeutralAttribute(description);
     }
 }

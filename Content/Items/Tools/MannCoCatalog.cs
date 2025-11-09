@@ -15,8 +15,7 @@ namespace TF2.Content.Items.Tools
             Item.useTime = Item.useAnimation = TF2.Time(1);
             Item.useStyle = ItemUseStyleID.HoldUp;
             Item.UseSound = SoundID.MenuOpen;
-            Item.rare = ModContent.RarityType<NormalRarity>();
-            qualityHashSet.Add(Stock);
+            WeaponAddQuality(Stock);
             availability = Starter;
         }
 
@@ -24,7 +23,8 @@ namespace TF2.Content.Items.Tools
 
         public override bool? UseItem(Player player)
         {
-            TF2.MannCoStore.SetState(new MannCoStoreUI());
+            if (Main.myPlayer == player.whoAmI)
+                TF2.MannCoStore.SetState(new MannCoStoreUI());
             return true;
         }
     }

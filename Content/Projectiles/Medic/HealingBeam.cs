@@ -17,7 +17,7 @@ namespace TF2.Content.Projectiles.Medic
 
         protected virtual float UberchargeMultiplier => 1f;
 
-        protected virtual float OverhealLimit => 0.5f;
+        public virtual float OverhealLimit => 0.5f;
 
         protected virtual int UberCharge => ModContent.BuffType<UberCharge>();
 

@@ -8,18 +8,6 @@
 
 Mods: {
 	TF2: {
-		Bestiary: {
-			Scout: The youngest of eight boys from the south side of Boston, the Scout learned early how to solve problems with his fists. With seven older brothers on his side, fights tended to end before the runt of the litter could maneuver into punching distance, so the Scout trained himself to run. He ran everywhere, all the time, until he could beat his pack of mad dog siblings to the fray.
-			Soldier: Though he wanted desperately to fight in World War 2, the Soldier was rejected from every branch of the U.S. military. Undaunted, he bought his own ticket to Europe. After arriving and finally locating Poland, the Soldier taught himself how to load and fire a variety of weapons before embarking on a Nazi killing spree for which he was awarded several medals that he designed and made himself. His rampage ended immediately upon hearing about the end of the war in 1949.
-			Pyro: Only two things are known for sure about the mysterious Pyro: he sets things on fire and he doesn't speak. In fact, only the part about setting things on fire is undisputed. Some believe his occasional rasping wheeze may be an attempt to communicate through a mouth obstructed by a filter and attached to lungs ravaged by constant exposure to his asbestos-lined suit. Either way, he's a fearsome, inscrutable, on - fire Frankenstein of a man.If he even is a man.
-			Demoman: A fierce temper, a fascination with all things explosive, and a terrible plan to kill the Loch Ness Monster cost the six year old Demoman his original set of adoptive parents. Later, at the Crypt Grammar School for Orphans near Ullapool in the Scottish Highlands, the boy's bomb-making skills improved dramatically. His disposition and total number of intact eyeballs, however, did not. Word of his proficiency with explosives spread, and it was not long before Crypt Grammar received two visitors; the Demoman's real parents, who lovingly explained that all Demomen are abandoned at birth until their skills manifest themselves, a long-standing, cruel, and wholly unnecessary tradition among the Highland Demolition Men. His unhappy childhood had ended, but his training had just begun.
-			Heavy: Like a hibernating bear, the Heavy appears to be a gentle giant. Also like a bear, confusing his deliberate, sleepy demeanor with gentleness will get you ripped limb from limb. Though he speaks simply and moves with an economy of energy that's often confused with napping, the Heavy isn't dumb; he's not your big friend and he generally wishes that you would just shut up before he has to make you shut up.
-			Engineer: This amiable, soft-spoken good ol' boy from tiny Bee Cave, Texas loves barbeque, guns, and higher education. Natural curiosity, ten years as a roughneck in the west Texas oilfields, and eleven hard science PhDs have trained him to design, build and repair a variety of deadly contraptions.
-			Medic: What he lacks in compassion for the sick, respect for human dignity, and any sort of verifiable formal training in medicine, the Medic more than makes up for with a bottomless supply of giant needles and a trembling enthusiasm for plunging them into exposed flesh. Raised in Stuttgart, Germany during an era when the Hippocratic oath had been downgraded to an optional Hippocratic suggestion, the Medic considers healing a generally unintended side effect of satisfying his own morbid curiosity.
-			Sniper: Half rugged outdoorsman, half alien observer, this taciturn strip of beef jerky has spent the better part of his life alone in the bush, slow baking under the Australian sun.
-			Spy: He is a puzzle, wrapped in an enigma, shrouded in riddles, lovingly sprinkled with intrigue, express mailed to Mystery, Alaska, and LOOK OUT BEHIND YOU! but it is too late. You're dead. For he is the Spy - globetrotting rogue, lady killer (metaphorically) and mankiller (for real).
-		}
-
 		Buffs: {
 			AmputatorBuff: {
 				DisplayName: Medicating Melody
@@ -177,8 +165,28 @@ Mods: {
 			}
 
 			TF2MountBuff: {
+				DisplayName: Remove
+				Description: Remove
+			}
+
+			MannsAntiDanmakuSystemBuff: {
 				DisplayName: Mann's Anti-Danmaku System
 				Description: Hehey, I'm flyin'!
+			}
+
+			DarkAntiDanmakuSystemBuff: {
+				DisplayName: Dark Anti Danmaku System
+				Description: 王の判決を言い渡す：死だ！
+			}
+
+			GravityModuleBuff: {
+				DisplayName: Gravity Module
+				Description: A jump to the sky turns to a Rider Kick
+			}
+
+			SpeedModuleBuff: {
+				DisplayName: Speed Module
+				Description: Rolling around at the speed of sound
 			}
 		}
 
@@ -216,13 +224,7 @@ Mods: {
 				Headers: {
 					Enemies: Enemies
 					Soldier&Demoman: Soldier & Demoman
-					CustomMusic: Custom Music
-					NPCs: N P Cs Header
-				}
-
-				BossMusic: {
-					Label: Goofy Ahh Boss Music
-					Tooltip: Replace boss music with Fruity Robo 2 Theme?
+					NPCs: NPC Settings
 				}
 
 				Shop: {
@@ -295,7 +297,7 @@ Mods: {
 			OneOfTheGamesEver: Team Fortress 2 is one of the games ever.
 			9Years: Welcome to Team Fortress 2. After 9 years in development, hopefully it will have been worth the wait.
 			Updates: This Team Fortress 2 update hits different.
-			NoUpdates: Last updated 6 years ago!
+			NoUpdates: Last updated 7 years ago!
 			SaxtonHale: Saxton Hale solos Goku.
 			Money: Certain enemies drop money when killed which can be spent in the Mann Co. Store.
 			MannCoStore: If you aren't 100% satisfied with our product line, you can take it up with me!
@@ -329,6 +331,7 @@ Mods: {
 			Sniper2: Sniper works best from long distances.
 			Spy: Spy focuses on chip damage while maintaining survivability.
 			Spy2: Spy's cloak makes him invincible, but degrades over time or with every evaded hit.
+			Subreddit: Join us on r/TF2_Men_Kissing!
 		}
 
 		Items: {
@@ -576,46 +579,95 @@ Mods: {
 			DemomanBuddy: {
 				DisplayName: Demoman Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Demoman with a Grenade Launcher to fight for you.
+					Respawns after 45 seconds if killed.
+					'''
 			}
 
 			EngineerBuddy: {
 				DisplayName: Engineer Buddy
 				Tooltip: ""
+				Upsides: Summons a medium ammo point every 30 seconds.
+				Notes:
+					'''
+					Summons an Engineer with a Pistol to fight for you.
+					Respawns after 60 seconds if killed.
+					'''
 			}
 
 			HeavyBuddy: {
 				DisplayName: Heavy Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Heavy with a Minigun to fight for you.
+					Respawns after 90 seconds if killed.
+					'''
 			}
 
 			MedicBuddy: {
 				DisplayName: Medic Buddy
 				Tooltip: ""
+				Upsides: Summons a medium health point every 30 seconds.
+				Notes:
+					'''
+					Summons a Medic with a Syringe Gun to fight for you.
+					Respawns after 60 seconds if killed.
+					'''
 			}
 
 			PyroBuddy: {
 				DisplayName: Pyro Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Pyro with a Flame Thrower to fight for you.
+					Respawns after 60 seconds if killed.
+					'''
 			}
 
 			ScoutBuddy: {
 				DisplayName: Scout Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Scout with a Scattergun to fight for you.
+					Respawns after 30 seconds if killed.
+					'''
 			}
 
 			SniperBuddy: {
 				DisplayName: Sniper Buddy
 				Tooltip: ""
+				Upsides: Every shot is a guaranteed headshot
+				Downsides: Sniper will always zoom to maximum charge before shooting
+				Notes:
+					'''
+					Summons a Sniper with a Sniper Rifle to fight for you.
+					Respawns after 45 seconds if killed.
+					'''
 			}
 
 			SoldierBuddy: {
 				DisplayName: Soldier Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Soldier with a Rocket Launcher to fight for you.
+					Respawns after 60 seconds if killed.
+					'''
 			}
 
 			SpyBuddy: {
 				DisplayName: Spy Buddy
 				Tooltip: ""
+				Notes:
+					'''
+					Summons a Spy with a Revolver to fight for you.
+					Respawns after 45 seconds if killed.
+					'''
 			}
 
 			AustraliumAnvilItem: {
@@ -721,7 +773,7 @@ Mods: {
 				Upsides:
 					'''
 					+25% projectile speed
-					+20% damage vs Touhou girls
+					+20% damage vs bosses
 					'''
 				Downsides:
 					'''
@@ -1222,7 +1274,7 @@ Mods: {
 			PainTrain: {
 				DisplayName: Pain Train
 				Tooltip: ""
-				Upsides: 100% critical hit vs Touhou girls
+				Upsides: 100% critical hit vs bosses
 				Downsides: 10% projectile damage vulnerability on wearer
 			}
 
@@ -1345,7 +1397,7 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					+100% damage vs Touhou girls
+					+100% damage vs bosses
 					Parries danmaku
 					'''
 				Downsides: -25% damage vs basic enemies
@@ -1680,7 +1732,7 @@ Mods: {
 					'''
 					+25% damage bonus
 					+80% projectile speed
-					Mini-crits Touhou girls
+					Mini-crits bosses
 					'''
 				Downsides:
 					'''
@@ -1931,14 +1983,37 @@ Mods: {
 				Notes: Cursed by dark spirits similar to those that dwell within the Eyelander.
 			}
 
-			TF2MountItem: {
+			MannsAntiDanmakuSystem: {
 				DisplayName: Mann's Anti-Danmaku System
+				Tooltip: ""
+				Downsides: Can only be activated when a boss is alive
+				Notes:
+					'''
+					Dodge danmaku like you dodge child support!
+					Jump to focus, slowing movement, decreasing hitbox size against danmaku, and enabling homing shots for some weapons.
+					'''
+			}
+
+			DarkAntiDanmakuSystem: {
+				DisplayName: Dark Anti-Danmaku System
 				Tooltip: ""
 				Notes:
 					'''
 					Dodge danmaku like you dodge child support!
 					Jump to focus, slowing movement, decreasing hitbox size against danmaku, and enabling homing shots for some weapons.
 					'''
+			}
+
+			GravityModule: {
+				DisplayName: Gravity Module
+				Tooltip: ""
+				Upsides: Reduces gravity by 75%
+			}
+
+			SpeedModule: {
+				DisplayName: Speed Module
+				Tooltip: ""
+				Upsides: 200% move speed on wearer when activated
 			}
 		}
 
@@ -1947,9 +2022,9 @@ Mods: {
 			Reload.DisplayName: Reload
 			"Buff Banner.DisplayName": Buff Banner
 			"Shield Charge.DisplayName": Shield Charge
-			"Homing Distance.DisplayName": Homing Distance
-			"Mount Speed.DisplayName": Mount Speed
-			"Move Building.DisplayName": Move  Building
+			"Move Building.DisplayName": Move Building
+			"Module Power.DisplayName": Module Power
+			"Module Secondary Power.DisplayName": Module Secondary Power
 		}
 
 		NPCs: {
@@ -1966,26 +2041,24 @@ Mods: {
 			TeleporterExitLevel1.DisplayName: Teleporter Exit Level 1
 			TeleporterExitLevel2.DisplayName: Teleporter Exit Level 2
 			TeleporterExitLevel3.DisplayName: Teleporter Exit Level 3
-			DemomanNPC.DisplayName: Demoman
-			EngineerNPC.DisplayName: Engineer
-			HeavyNPC.DisplayName: Heavy
-			MedicNPC.DisplayName: Medic
-			PyroNPC.DisplayName: Pyro
 			ScoutNPC.DisplayName: Scout
-			SniperNPC.DisplayName: Sniper
 			SoldierNPC.DisplayName: Soldier
+			PyroNPC.DisplayName: Pyro
+			DemomanNPC.DisplayName: Demoman
+			HeavyNPC.DisplayName: Heavy
+			EngineerNPC.DisplayName: Engineer
+			MedicNPC.DisplayName: Medic
+			SniperNPC.DisplayName: Sniper
 			SpyNPC.DisplayName: Spy
-			EnemyDemomanNPC.DisplayName: Demoman
-			EnemyEngineerNPC.DisplayName: Engineer
-			EnemyHeavyNPC.DisplayName: Heavy
-			EnemyMedicNPC.DisplayName: Medic
-			EnemyPyroNPC.DisplayName: Pyro
 			EnemyScoutNPC.DisplayName: Scout
-			EnemySniperNPC.DisplayName: Sniper
 			EnemySoldierNPC.DisplayName: Soldier
+			EnemyPyroNPC.DisplayName: Pyro
+			EnemyDemomanNPC.DisplayName: Demoman
+			EnemyHeavyNPC.DisplayName: Heavy
+			EnemyEngineerNPC.DisplayName: Engineer
+			EnemyMedicNPC.DisplayName: Medic
+			EnemySniperNPC.DisplayName: Sniper
 			EnemySpyNPC.DisplayName: Spy
-			Administrator.DisplayName: Administrator
-			MissPauling.DisplayName: Miss Pauling
 			SentryGun: Sentry Gun
 			MiniSentryGun: Combat Mini-Sentry Gun
 			Dispenser: Dispenser
@@ -2121,8 +2194,8 @@ Mods: {
 					Starter: Starter
 					Unlocked: Unlocked
 					Crafted: Crafted
-					Uncrated: Uncrated
 					Purchased: Purchased
+					Uncrated: Uncrated
 					Contract: Contract
 					Exclusive: Exclusive
 				}
@@ -2134,17 +2207,23 @@ Mods: {
 					PDA: PDA
 				}
 
-				Mount: {
-					Description: "{0} {1}"
+				GravityModule: {
+					Gravity: Gravity: {0}%
+					Instruction: Press {0} to change gravity
+					InstructionUnassigned: Assign keybind to change gravity
+					Upsides: Reduces gravity by {0}%
+				}
+
+				MannsAntiDanmakuSystem: {
 					Fast: Fast
 					High: High
 					HomingPower: Homing Power: {0}
 					Low: Low
 					Medium: Medium
-					MountInstruction: Press {0} to change homing power
-					MountInstructionUnassigned: Assign keybind to change homing power
-					MountInstruction2: Press {0} to change speed
-					MountInstruction2Unassigned: Assign keybind to change to change speed
+					Instruction: Press {0} to change homing power
+					InstructionUnassigned: Assign keybind to change homing power
+					Instruction2: Press {0} to change speed
+					Instruction2Unassigned: Assign keybind to change to change speed
 					Normal: Normal
 					Speed: Speed: {0}
 				}
@@ -2155,6 +2234,13 @@ Mods: {
 					Genuine: Genuine {0}
 					Strange: Strange {0}
 					Unusual: Unusual {0}
+				}
+
+				SpeedModule: {
+					Instruction: Press {0} to change speed
+					InstructionUnassigned: Assign keybind to change speed
+					Speed: Speed: {0}%
+					Upsides: "{0}% move speed on wearer when activated"
 				}
 
 				AttackSpeed: Attack Speed: {0}
@@ -2251,7 +2337,5 @@ Mods: {
 				Random: • Let the game randomly choose a class for you.
 			}
 		}
-
-		BossChecklistIntegration.BossRush.EntryName: Boss Rush
 	}
 }

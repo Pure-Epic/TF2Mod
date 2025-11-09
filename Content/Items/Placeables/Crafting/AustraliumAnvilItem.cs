@@ -22,10 +22,9 @@ namespace TF2.Content.Items.Placeables.Crafting
             Item.autoReuse = true;
             Item.consumable = true;
             Item.createTile = ModContent.TileType<AustraliumAnvil>();
-            Item.rare = ModContent.RarityType<UniqueRarity>();
             Item.value = Item.buyPrice(platinum: 1);
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

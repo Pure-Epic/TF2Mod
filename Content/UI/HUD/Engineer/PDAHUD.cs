@@ -9,9 +9,9 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using TF2.Common;
 using TF2.Content.Items;
+using TF2.Content.Items.Modules;
 using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Engineer;
-using TF2.Content.Mounts;
 using TF2.Content.NPCs.Buildings;
 using TF2.Content.NPCs.Buildings.Dispenser;
 using TF2.Content.NPCs.Buildings.SentryGun;
@@ -180,22 +180,22 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                     {
                         case 1:
                             if (p.sentryWhoAmI > -1) return;
-                            Building.ConstructBuilding(!player.GetModPlayer<GunslingerPlayer>().gunslingerEquipped ? ModContent.NPCType<SentryLevel1>() : ModContent.NPCType<MiniSentry>(), player.whoAmI, -player.direction, 0, false, player.HasBuff<TF2MountBuff>());
+                            Building.ConstructBuilding(!player.GetModPlayer<GunslingerPlayer>().gunslingerEquipped ? ModContent.NPCType<SentryLevel1>() : ModContent.NPCType<MiniSentry>(), player.whoAmI, -player.direction, 0, player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingsentry01"), player.Center);
                             break;
                         case 2:
                             if (p.dispenserWhoAmI > -1) return;
-                            Building.ConstructBuilding(ModContent.NPCType<DispenserLevel1>(), player.whoAmI, -player.direction, 0, false, false);
+                            Building.ConstructBuilding(ModContent.NPCType<DispenserLevel1>(), player.whoAmI, -player.direction, 0, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingdispenser01"), player.Center);
                             break;
                         case 3:
                             if (p.teleporterEntranceWhoAmI > -1) return;
-                            Building.ConstructBuilding(ModContent.NPCType<TeleporterEntranceLevel1>(), player.whoAmI, -player.direction, 0, false, false);
+                            Building.ConstructBuilding(ModContent.NPCType<TeleporterEntranceLevel1>(), player.whoAmI, -player.direction, 0, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingteleporter01"), player.Center);
                             break;
                         case 4:
                             if (p.teleporterExitWhoAmI > -1) return;
-                            Building.ConstructBuilding(ModContent.NPCType<TeleporterExitLevel1>(), player.whoAmI, -player.direction, 0, false, false);
+                            Building.ConstructBuilding(ModContent.NPCType<TeleporterExitLevel1>(), player.whoAmI, -player.direction, 0, false);
                             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autobuildingteleporter01"), player.Center);
                             break;
                         default:

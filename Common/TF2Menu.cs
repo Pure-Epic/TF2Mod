@@ -16,7 +16,7 @@ namespace TF2.Common
             get
             {
                 if (!(TF2.ScreamFortress || TF2.Smissmas))
-                    return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup1");
+                    return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup");
                 else if (TF2.ScreamFortress)
                     return MusicLoader.GetMusicSlot(Mod, "Content/Sounds/Music/gamestartup_halloween");
                 else

@@ -168,10 +168,11 @@ namespace TF2.Content.UI.MannCoStore
 
         private static void MakeFilterButtons(UIElement outerContainer)
         {
-            filters = new MannCoStoreFilter[10];
+            int filterAmount = Enum.GetNames(typeof(MannCoStoreCategory)).Length;
+            filters = new MannCoStoreFilter[filterAmount];
             foreach (MannCoStoreCategory category in (MannCoStoreCategory[])Enum.GetValues(typeof(MannCoStoreCategory)))
             {
-                if ((int)category >= 10) break;
+                if ((int)category >= filterAmount) break;
                 filters[(int)category] = new MannCoStoreFilter(category);
                 filters[(int)category].Left.Set((float)category * 35f + 38.5f, 0f);
                 filters[(int)category].Top.Set(70f, 0f);
@@ -295,9 +296,15 @@ namespace TF2.Content.UI.MannCoStore
                 foreach (MannCoStoreItem item in TF2.ShoppingCart)
                 {
                     if (item.Item.ModItem is TF2Item weapon)
+                    {
+                        weapon.WeaponAddQuality(TF2Item.Unique);
                         weapon.availability = TF2Item.Purchase;
+                    }
                     if (item.Item2.ModItem is TF2Item weapon2)
+                    {
+                        weapon2.WeaponAddQuality(TF2Item.Unique);
                         weapon2.availability = TF2Item.Purchase;
+                    }
                     Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_GiftOrReward(), item.Item, item.Item.stack);
                     if (item.Item2 != null && item.Item2.type != ItemID.None)
                         Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_GiftOrReward(), item.Item2, item.Item2.stack);

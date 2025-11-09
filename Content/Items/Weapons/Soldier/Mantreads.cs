@@ -6,7 +6,7 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Dusts;
 using TF2.Content.Items.Materials;
-using TF2.Content.Mounts;
+using TF2.Content.Items.Modules;
 using TF2.Content.NPCs.Enemies;
 using TF2.Content.Tiles.Crafting;
 
@@ -49,7 +49,7 @@ namespace TF2.Content.Items.Weapons.Soldier
                 {
                     if (Player.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Main.myPlayer && Player.velocity.Y > 0)
                     {
-                        player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[3].Format(player.name, Player.name)), TF2.Round((10 + TF2.Round((Player.position.Y / 16f - Player.fallStart) * Player.gravDir - 25 + Player.extraFall) * 30) * Player.GetModPlayer<TF2Player>().damageMultiplier), player.direction, true, knockback: 10f, scalingArmorPenetration: 1f);
+                        player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[3].ToNetworkText(player.name, Player.name)), TF2.Round((10 + TF2.Round((Player.position.Y / 16f - Player.fallStart) * Player.gravDir - 25 + Player.extraFall) * 30) * Player.GetModPlayer<TF2Player>().damageMultiplier), player.direction, true, knockback: 10f, scalingArmorPenetration: 1f);
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/mantreads"), player.Center);
                         Dust.NewDust(player.Center, 0, 0, ModContent.DustType<Stomp>(), Scale: 1f);
                         break;
@@ -75,7 +75,7 @@ namespace TF2.Content.Items.Weapons.Soldier
         public override void UpdateEquips()
         {
             if (mantreadsEquipped)
-                TF2Player.SetPlayerSpeed(Player, (Player.velocity.Y != 0 && !Player.HasBuff<TF2MountBuff>()) ? 200 : 125);
+                TF2Player.SetPlayerSpeed(Player, (Player.velocity.Y != 0 && !Player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive) ? 200 : 125);
         }
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)

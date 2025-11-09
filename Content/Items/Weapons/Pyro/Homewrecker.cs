@@ -37,13 +37,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             }
         }
 
-        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            // Temporary solution
-            ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
-            if (gensokyo == null && target.boss) return;
-            modifiers.SourceDamage *= target.ModNPC?.Mod == gensokyo && target.boss || target.TypeName == "Byakuren Hijiri" ? 2f : 0.75f;
-        }
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 2f : 0.75f;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Equalizer>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }

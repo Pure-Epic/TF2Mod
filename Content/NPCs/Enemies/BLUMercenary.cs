@@ -374,7 +374,10 @@ namespace TF2.Content.NPCs.Enemies
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 2;
-            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
+            NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
+            {
+                Hide = true
+            });
         }
 
         public sealed override void SetDefaults()

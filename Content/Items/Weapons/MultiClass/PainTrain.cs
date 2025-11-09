@@ -31,9 +31,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
 
         protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
         {
-            // Temporary solution
-            ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
-            if (gensokyo != null && target.ModNPC?.Mod == gensokyo && target.boss || target.TypeName == "Byakuren Hijiri")
+            if (target.boss)
                 player.GetModPlayer<TF2Player>().crit = true;
         }
 

@@ -4,8 +4,6 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent.Bestiary;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Weapons.Scout;
@@ -44,11 +42,6 @@ namespace TF2.Content.NPCs.Enemies
         protected override void EnemyStatistics() => SetEnemyStatistics("TF2/Content/Sounds/SFX/Voicelines/scout_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/scout_paincriticaldeath01");
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo) => spawnInfo.Player.GetModPlayer<TF2Player>().ClassSelected ? 0.025f : 0f;
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement(Language.GetTextValue("TF2.Bestiary.Scout")),
-            ]);
 
         protected override void EnemyAttack(Player target)
         {

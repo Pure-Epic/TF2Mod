@@ -42,7 +42,7 @@ namespace TF2.Content.Buffs
                     Player.statLife -= TF2.Round(25 * damageMultiplier);
                     CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(25 * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
-                        Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[6].Format(Player.name)), (int)(4 * damageMultiplier), 0);
+                        Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[6].ToNetworkText(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
                 Dust dust = Dust.NewDustDirect(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Electric);

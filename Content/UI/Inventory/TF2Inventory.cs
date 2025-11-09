@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using ReLogic.Content;
 using System;
@@ -7,6 +9,7 @@ using System.Reflection;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
+using Terraria.GameContent.UI;
 using Terraria.GameInput;
 using Terraria.Graphics.Capture;
 using Terraria.ID;
@@ -14,11 +17,13 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Default;
 using Terraria.UI;
+using Terraria.UI.Chat;
 using Terraria.UI.Gamepad;
 using TF2.Common;
+using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Buddies;
-using TF2.Content.Mounts;
+using TF2.Content.Items.Modules;
 using TF2.Content.NPCs.Buddies;
 using TF2.Content.NPCs.Enemies;
 using TF2.Content.UI.MannCoStore;
@@ -43,27 +48,25 @@ namespace TF2.Content.UI.Inventory
 
         public static float MapMargin => -225f - (MapOpen ? 254f : 144f);
 
-
         public override void Load()
         {
             DrawAccSlots = new Hook(typeof(AccessorySlotLoader).GetMethod("DrawAccSlots", BindingFlags.Instance | BindingFlags.Public), Hook_DrawAccSlots);
             DrawAccSlots.Apply();
             DrawVisibility = new Hook(typeof(AccessorySlotLoader).GetMethod("DrawVisibility", BindingFlags.Instance | BindingFlags.NonPublic), Hook_DrawVisibility);
             DrawVisibility.Apply();
+
             On_Main.GUIBarsDrawInner += Hook_GUIBarsDrawInner;
             On_Main.DrawInterface_16_MapOrMinimap += Hook_DrawInterface_16_MapOrMinimap;
-            On_Player.OpenInventory += Hook_OpenInventory;
-            On_Player.GetAmountOfExtraAccessorySlotsToShow += GetAmountOfExtraAccessorySlotsToShow;
             On_Main.DrawInventory += Hook_DrawInventory;
             On_Main.DrawPageIcons += Hook_DrawPageIcons;
             On_Main.DrawDefenseCounter += Hook_DrawDefenseCounter;
+            On_Player.OpenInventory += Hook_OpenInventory;
+            On_Player.GetAmountOfExtraAccessorySlotsToShow += GetAmountOfExtraAccessorySlotsToShow;
             On_ItemSlot.SelectEquipPage += Hook_SelectEquipPage;
             On_ItemSlot.SwapEquip_ItemArray_int_int += Hook_SwapEquip;
-            On_ItemSlot.MouseHover_ItemArray_int_int += Hook_MouseHover;
-            On_ItemSlot.OverrideLeftClick += Hook_OverrideLeftClick;
             On_ItemSlot.PickItemMovementAction += Hook_PickItemMovementAction;
             On_ItemSlot.RightClick_ItemArray_int_int += Hook_RightClick;
-            On_Mount.SetMount += Hook_SetMount;
+            On_PopupText.NewText_PopupTextContext_Item_int_bool_bool += Hook_NewText;
             MercenaryItemSlotTexture =
             [
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/Inventory/Inventory_Back"),
@@ -86,18 +89,16 @@ namespace TF2.Content.UI.Inventory
             DrawVisibility = null;
             On_Main.GUIBarsDrawInner -= Hook_GUIBarsDrawInner;
             On_Main.DrawInterface_16_MapOrMinimap -= Hook_DrawInterface_16_MapOrMinimap;
-            On_Player.OpenInventory -= Hook_OpenInventory;
-            On_Player.GetAmountOfExtraAccessorySlotsToShow -= GetAmountOfExtraAccessorySlotsToShow;
             On_Main.DrawInventory -= Hook_DrawInventory;
             On_Main.DrawPageIcons -= Hook_DrawPageIcons;
             On_Main.DrawDefenseCounter -= Hook_DrawDefenseCounter;
+            On_Player.OpenInventory -= Hook_OpenInventory;
+            On_Player.GetAmountOfExtraAccessorySlotsToShow -= GetAmountOfExtraAccessorySlotsToShow;
             On_ItemSlot.SelectEquipPage -= Hook_SelectEquipPage;
             On_ItemSlot.SwapEquip_ItemArray_int_int -= Hook_SwapEquip;
-            On_ItemSlot.MouseHover_ItemArray_int_int -= Hook_MouseHover;
-            On_ItemSlot.OverrideLeftClick -= Hook_OverrideLeftClick;
             On_ItemSlot.PickItemMovementAction -= Hook_PickItemMovementAction;
             On_ItemSlot.RightClick_ItemArray_int_int -= Hook_RightClick;
-            On_Mount.SetMount -= Hook_SetMount;
+            On_PopupText.NewText_PopupTextContext_Item_int_bool_bool -= Hook_NewText;
             MercenaryItemSlotTexture = null;
             MercenaryHealthTexture = null;
         }
@@ -169,7 +170,7 @@ namespace TF2.Content.UI.Inventory
             else
                 spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, Round(hitbox.Width * (float)(player.statLife - p.overheal) / maxHealth), hitbox.Height), new Color(178, 0, 0));
             if (p.overheal > 0)
-                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, Round(hitbox.Width * Math.Clamp((float)p.overheal / OverhealRound(maxHealth * p.overhealMultiplier * 0.5f), 0f, 1f)), hitbox.Height), new Color(255, 255, 255, 128));
+                spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, Round(hitbox.Width * Math.Clamp((float)p.overheal / HealthRound(maxHealth * p.overhealMultiplier * 0.5f), 0f, 1f)), hitbox.Height), new Color(255, 255, 255, 128));
             spriteBatch.Draw(MercenaryHealthTexture[1].Value, new Rectangle(Main.screenWidth - 296, 3, 80, 80), Color.White);
             string health = player.statLife.ToString();
             TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, health, new Vector2(Main.screenWidth - 256 - (FontAssets.MouseText.Value.MeasureString(health) / 2f).X, 46 - (FontAssets.MouseText.Value.MeasureString(health) / 2f).Y), Color.White, 0f, default, Vector2.One);
@@ -191,22 +192,6 @@ namespace TF2.Content.UI.Inventory
             orig(self);
         }
 
-        private void Hook_OpenInventory(On_Player.orig_OpenInventory orig)
-        {
-            if (TF2.MannCoStore.CurrentState is MannCoStoreUI) return;
-            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected)
-            {
-                Recipe.FindRecipes();
-                Main.playerInventory = true;
-                Main.EquipPageSelected = 4;
-                SoundEngine.PlaySound(SoundID.MenuOpen);
-            }
-            else
-                orig();
-        }
-
-        private int GetAmountOfExtraAccessorySlotsToShow(On_Player.orig_GetAmountOfExtraAccessorySlotsToShow orig, Player self) => self.GetModPlayer<TF2Player>().ClassSelected ? 0 : orig(self);
-
         private void Hook_DrawInventory(On_Main.orig_DrawInventory orig, Main self)
         {
             if (Main.EquipPage == 4)
@@ -216,29 +201,25 @@ namespace TF2.Content.UI.Inventory
                 Rectangle r = new Rectangle(0, 0, (int)(TextureAssets.InventoryBack.Width() * Main.inventoryScale), (int)(TextureAssets.InventoryBack.Height() * Main.inventoryScale));
                 Item[] inv = Main.LocalPlayer.miscEquips;
                 int positionX = Main.screenWidth - 92;
-                int positionY = mapHeight + 174;
+                int positionY = mapHeight + 221;
                 r.X = positionX - 47;
-                for (int m = 0; m <= 2; m++)
+                for (int m = 0; m <= 1; m++)
                 {
                     int context = 0;
                     switch (m)
                     {
                         case 0:
-                            context = 17;
-                            break;
-                        case 1:
                             context = 19;
                             break;
-                        case 2:
+                        case 1:
                             context = 20;
                             break;
                     }
                     r.Y = positionY + m * 47;
                     int slot = m switch
                     {
-                        0 => 3,
-                        1 => 0,
-                        2 => 1,
+                        0 => 0,
+                        1 => 1,
                         _ => 0
                     };
                     if (r.Contains(cursorPosition) && !PlayerInput.IgnoreMouseInterface)
@@ -321,6 +302,22 @@ namespace TF2.Content.UI.Inventory
                 orig(inventoryX, inventoryY);
         }
 
+        private void Hook_OpenInventory(On_Player.orig_OpenInventory orig)
+        {
+            if (TF2.MannCoStore.CurrentState is MannCoStoreUI) return;
+            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected)
+            {
+                Recipe.FindRecipes();
+                Main.playerInventory = true;
+                Main.EquipPageSelected = 4;
+                SoundEngine.PlaySound(SoundID.MenuOpen);
+            }
+            else
+                orig();
+        }
+
+        private int GetAmountOfExtraAccessorySlotsToShow(On_Player.orig_GetAmountOfExtraAccessorySlotsToShow orig, Player self) => self.GetModPlayer<TF2Player>().ClassSelected ? 0 : orig(self);
+
         private void Hook_SelectEquipPage(On_ItemSlot.orig_SelectEquipPage orig, Item item)
         {
             if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected)
@@ -342,33 +339,11 @@ namespace TF2.Content.UI.Inventory
             orig(inv, context, slot);
         }
 
-        private bool Hook_OverrideLeftClick(On_ItemSlot.orig_OverrideLeftClick orig, Item[] inv, int context, int slot) => (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && context == 17) ? (Main.mouseItem.type != ModContent.ItemType<TF2MountItem>() && !Main.mouseItem.IsAir) : ((context == 17 && Main.mouseItem.type == ModContent.ItemType<TF2MountItem>()) ? true : orig(inv, context, slot));
-
-        private void Hook_MouseHover(On_ItemSlot.orig_MouseHover_ItemArray_int_int orig, Item[] inv, int context, int slot)
-        {
-            if (context == 17 && Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && (inv[slot].type <= ItemID.None || inv[slot].stack <= 0))
-                Main.hoverItemName = Language.GetTextValue("Mods.TF2.UI.Items.Module");
-            else orig(inv, context, slot);
-        }
-
         private int Hook_PickItemMovementAction(On_ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem)
         {
             Player player = Main.LocalPlayer;
             if (player.GetModPlayer<TF2Player>().ClassSelected)
             {
-                if (context == 17 && Main.mouseLeft)
-                {
-                    if (Main.mouseLeftRelease)
-                    {
-                        if (checkItem.type != ModContent.ItemType<TF2MountItem>())
-                            player.ClearBuff(ModContent.BuffType<TF2MountBuff>());
-                        else
-                        {
-                            SoundEngine.PlaySound(checkItem.UseSound);
-                            player.mount.SetMount(checkItem.mountType, player);
-                        }
-                    }
-                }
                 if (context == 19 && player.miscEquips[0].IsAir && checkItem.buffType > 0 && Main.vanityPet[checkItem.buffType] && !Main.lightPet[checkItem.buffType] && Main.mouseLeft)
                     player.hideMisc[0] = true;
                 if (context == 20 && player.miscEquips[1].IsAir && checkItem.buffType > 0 && Main.lightPet[checkItem.buffType] && Main.mouseLeft)
@@ -380,15 +355,95 @@ namespace TF2.Content.UI.Inventory
         private void Hook_RightClick(On_ItemSlot.orig_RightClick_ItemArray_int_int orig, Item[] inv, int context, int slot)
         {
             Item item = inv[slot];
-            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && (item.mountType > 0 || Main.vanityPet[item.buffType] || Main.lightPet[item.buffType])) return;
+            if (Main.LocalPlayer.GetModPlayer<TF2Player>().ClassSelected && (Main.vanityPet[item.buffType] || Main.lightPet[item.buffType])) return;
             orig(inv, context, slot);
         }
 
-        private void Hook_SetMount(On_Mount.orig_SetMount orig, Mount self, int m, Player mountedPlayer, bool faceLeft)
+        private int Hook_NewText(On_PopupText.orig_NewText_PopupTextContext_Item_int_bool_bool orig, PopupTextContext context, Item newItem, int stack, bool noStack, bool longText)
         {
-            if (mountedPlayer.GetModPlayer<TF2Player>().ClassSelected && m != ModContent.MountType<TF2Mount>()) return;
+            if (newItem.ModItem is TF2Item item)
+            {
+                if (!Main.showItemText)
+                    return -1;
+                if (newItem.Name == null || !newItem.active)
+                    return -1;
+                if (Main.netMode == NetmodeID.Server)
+                    return -1;
+                for (int i = 0; i < 20; i++)
+                {
+                    PopupText popupText = Main.popupText[i];
+                    if (!popupText.active || popupText.notActuallyAnItem || !(popupText.name == newItem.AffixName()) || popupText.NoStack || noStack)
+                        continue;
+                    string text = newItem.Name + " (" + (popupText.stack + stack) + ")";
+                    Vector2 vector = FontAssets.MouseText.Value.MeasureString(text);
+                    if (popupText.lifeTime < 0)
+                        popupText.scale = 1f;
+                    if (popupText.lifeTime < Time(1))
+                        popupText.lifeTime = Time(1);
+                    popupText.stack += stack;
+                    popupText.scale = 0f;
+                    popupText.rotation = 0f;
+                    popupText.position.X = newItem.position.X + newItem.width * 0.5f - vector.X * 0.5f;
+                    popupText.position.Y = newItem.position.Y + newItem.height * 0.25f - vector.Y * 0.5f;
+                    popupText.velocity.Y = -7f;
+                    popupText.context = context;
+                    popupText.npcNetID = 0;
+                    if (popupText.coinText)
+                        popupText.stack = 1L;
+                    return i;
+                }
+                int num2 = FindNextItemTextSlot();
+                if (num2 >= 0)
+                {
+                    string text3 = newItem.AffixName();
+                    if (stack > 1)
+                        text3 = text3 + " (" + stack + ")";
+                    Vector2 vector2 = FontAssets.MouseText.Value.MeasureString(text3);
+                    PopupText popupText2 = Main.popupText[num2];
+                    PopupText.ResetText(popupText2);
+                    popupText2.active = true;
+                    popupText2.position.X = newItem.position.X + newItem.width * 0.5f - vector2.X * 0.5f;
+                    popupText2.position.Y = newItem.position.Y + newItem.height * 0.25f - vector2.Y * 0.5f;
+                    popupText2.color = item.GetQualityColor();
+                    popupText2.name = item.GetItemName();
+                    popupText2.stack = stack;
+                    popupText2.velocity.Y = -7f;
+                    popupText2.lifeTime = 60;
+                    popupText2.context = context;
+                    if (longText)
+                        popupText2.lifeTime *= 5;
+                    popupText2.coinValue = 0L;
+                }
+                return num2;
+            }
             else
-                orig(self, m, mountedPlayer, faceLeft);
+                return orig(context, newItem, stack, noStack, longText);
+        }
+
+        private static int FindNextItemTextSlot()
+        {
+            int num = -1;
+            for (int i = 0; i < 20; i++)
+            {
+                if (!Main.popupText[i].active)
+                {
+                    num = i;
+                    break;
+                }
+            }
+            if (num == -1)
+            {
+                double num2 = Main.bottomWorld;
+                for (int j = 0; j < 20; j++)
+                {
+                    if (num2 > Main.popupText[j].position.Y)
+                    {
+                        num = j;
+                        num2 = Main.popupText[j].position.Y;
+                    }
+                }
+            }
+            return num;
         }
 
         public override void PostUpdateWorld()
@@ -462,12 +517,6 @@ namespace TF2.Content.UI.Inventory
         public override bool RightClick(int type, int buffIndex)
         {
             Player player = Main.LocalPlayer;
-            if (type == ModContent.BuffType<TF2MountBuff>() && player.GetModPlayer<TF2Player>().ClassSelected)
-            {
-                player.QuickSpawnItem(player.GetSource_FromThis(), player.miscEquips[3]);
-                player.miscEquips[3].type = ItemID.None;
-                player.miscEquips[3].stack = 0;
-            }
             if (Main.vanityPet[type] && player.GetModPlayer<TF2Player>().ClassSelected)
             {
                 player.QuickSpawnItem(player.GetSource_FromThis(), player.miscEquips[0]);
@@ -521,9 +570,9 @@ namespace TF2.Content.UI.Inventory
 
         public override void OnMouseHover(AccessorySlotType context) => Main.hoverItemName = SlotType switch
         {
-            TF2Item.Primary => "Primary",
-            TF2Item.Secondary => "Secondary",
-            TF2Item.PDA => "PDA",
+            TF2Item.Primary => Language.GetTextValue("Mods.TF2.UI.Items.Category.Primary"),
+            TF2Item.Secondary => Language.GetTextValue("Mods.TF2.UI.Items.Category.Secondary"),
+            TF2Item.PDA => Language.GetTextValue("Mods.TF2.UI.Items.Category.PDA"),
             _ => ""
         };
 
@@ -543,7 +592,8 @@ namespace TF2.Content.UI.Inventory
                     case PDASlot:
                         p.pdaEquipped = true;
                         break;
-                };
+                }
+                ;
             }
             else
             {
@@ -558,7 +608,8 @@ namespace TF2.Content.UI.Inventory
                     case PDASlot:
                         p.pdaEquipped = false;
                         break;
-                };
+                }
+                ;
             }
             base.ApplyEquipEffects();
         }
@@ -604,6 +655,52 @@ namespace TF2.Content.UI.Inventory
         public override string FunctionalTexture => "TF2/Content/Textures/UI/Inventory/Inventory_PDA";
     }
 
+    public class ModuleSlot : TF2AccessorySlot
+    {
+        public override Vector2? CustomLocation => new Vector2(Main.screenWidth - 139, 174 + TF2Inventory.mapHeight);
+
+        public override string FunctionalTexture => "TF2/Content/Textures/UI/Inventory/Inventory_Module";
+
+        public override void PostDraw(AccessorySlotType context, Item item, Vector2 position, bool isHovered)
+        {
+            int moduleBuff = Player.GetModPlayer<TF2Player>().moduleBuff;
+            if (FunctionalItem.ModItem is not TF2Module module) return;
+            if (Player.HasBuff(moduleBuff) && !module.Unlocked)
+            {
+                string counter = Round(Player.buffTime[Player.FindBuffIndex(moduleBuff)] / 60f).ToString();
+                TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, counter, new Vector2(position.X + (26f * Main.inventoryScale - (FontAssets.MouseText.Value.MeasureString(counter) / 2f).X), position.Y + 26f - (FontAssets.MouseText.Value.MeasureString(counter) / 2f).Y), Color.White, 0f, default, Vector2.One);
+            }
+        }
+
+        public override bool IsHidden() => Main.EquipPage != 4;
+
+        public override bool CanAcceptItem(Item checkItem, AccessorySlotType context)
+        {
+            if (checkItem.ModItem is TF2Module module && module.AutomaticActivation && module.Unlocked && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                TF2Player p = Player.GetModPlayer<TF2Player>();
+                Player.ClearBuff(p.moduleBuff);
+                p.moduleActivated = true;
+                SoundEngine.PlaySound(module.Item.UseSound, Player.Center);
+            }
+            return checkItem.ModItem is TF2Module;
+        }
+
+        public override void OnMouseHover(AccessorySlotType context) => Main.hoverItemName = Language.GetTextValue("Mods.TF2.UI.Items.Module");
+
+        public override void ApplyEquipEffects()
+        {
+            TF2Player p = Player.GetModPlayer<TF2Player>();
+            if (FunctionalItem.type == ItemID.None)
+            {
+                p.moduleActivated = false;
+                Player.ClearBuff(p.moduleBuff);
+                p.moduleBuff = 0;
+            }
+            base.ApplyEquipEffects();
+        }
+    }
+
     public abstract class TF2BuddySlot : TF2AccessorySlot
     {
         public override Vector2? CustomLocation
@@ -615,7 +712,7 @@ namespace TF2.Content.UI.Inventory
                 int maximumHeight = 950;
                 if (Main.screenHeight < maximumHeight && accessorySlots >= 10)
                     minimumHeight -= (int)(56f * Main.inventoryScale * (accessorySlots - 9));
-                int positionX = Main.screenWidth - 92 - 47 - 47;
+                int positionX = Main.screenWidth - 186;
                 int positionY = (int)(minimumHeight + (SlotIndex - 1) * 56 * Main.inventoryScale);
                 return new Vector2(positionX, positionY);
             }
@@ -625,8 +722,9 @@ namespace TF2.Content.UI.Inventory
         {
             int[] buddies = Player.GetModPlayer<TF2Player>().buddies;
             int[] buddyCooldown = Player.GetModPlayer<TF2Player>().buddyCooldown;
+            string counter = Round(buddyCooldown[SlotIndex - 1] / 60f).ToString();
             if ((buddies[SlotIndex - 1] < 0) && buddyCooldown[SlotIndex - 1] > 0)
-                TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, Round(buddyCooldown[SlotIndex - 1] / 60f).ToString(), new Vector2(position.X + (26f * Main.inventoryScale - (FontAssets.MouseText.Value.MeasureString(Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).X), position.Y + 26f - (FontAssets.MouseText.Value.MeasureString(Round(Player.GetModPlayer<TF2Player>().buddyCooldown[SlotIndex - 1] / 60f).ToString()) / 2f).Y), Color.White, 0f, default, Vector2.One);
+                TF2Item.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, counter, new Vector2(position.X + (26f * Main.inventoryScale - (FontAssets.MouseText.Value.MeasureString(counter) / 2f).X), position.Y + 26f - (FontAssets.MouseText.Value.MeasureString(counter) / 2f).Y), Color.White, 0f, default, Vector2.One);
         }
 
         public override bool IsHidden() => Main.EquipPage != 4 || SlotIndex == 0;

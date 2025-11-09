@@ -16,9 +16,8 @@ namespace TF2.Content.Items.Materials
             Item.height = 38;
             Item.maxStack = Item.CommonMaxStack;
             Item.value = Item.buyPrice(gold: 2);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -40,9 +39,8 @@ namespace TF2.Content.Items.Materials
             Item.height = 38;
             Item.maxStack = Item.CommonMaxStack;
             Item.value = Item.buyPrice(gold: 6);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -70,9 +68,8 @@ namespace TF2.Content.Items.Materials
             Item.height = 38;
             Item.maxStack = Item.CommonMaxStack;
             Item.value = Item.buyPrice(gold: 18);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -98,8 +95,7 @@ namespace TF2.Content.Items.Materials
             Item.height = 29;
             Item.maxStack = Item.CommonMaxStack;
             Item.value = Item.buyPrice(platinum: 10);
-            Item.rare = ModContent.RarityType<UnusualRarity>();
-            qualityHashSet.Add(Unusual);
+            WeaponAddQuality(Unusual);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

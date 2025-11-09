@@ -3,7 +3,6 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons;
-using TF2.Content.Mounts;
 
 namespace TF2.Content.Buffs
 {
@@ -44,8 +43,6 @@ namespace TF2.Content.Buffs
 
         public override bool CanUseItem(Item item, Player player)
         {
-            if (item.type == ModContent.ItemType<TF2MountItem>())
-                return true;
             if (player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff && item.ModItem is TF2Weapon weapon && !weapon.IsWeaponType(TF2Item.Melee))
             {
                 player.controlUseItem = false;

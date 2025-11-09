@@ -28,6 +28,7 @@ using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Soldier;
 using TF2.Content.Items.Weapons.Spy;
+using TF2.Content.UI.Inventory;
 
 namespace TF2.Content.Items
 {
@@ -183,12 +184,12 @@ namespace TF2.Content.Items
         public const int Uncrate = 5;
         public const int Contract = 6;
         public const int Exclusive = 7;
-        protected const int Stock = 1;
-        protected const int Unique = 2;
-        protected const int Vintage = 3;
-        protected const int Genuine = 4;
-        protected const int Strange = 5;
-        protected const int Unusual = 6;
+        public const int Stock = 1;
+        public const int Unique = 2;
+        public const int Vintage = 3;
+        public const int Genuine = 4;
+        public const int Strange = 5;
+        public const int Unusual = 6;
 
         protected bool noThe;
         protected int metalValue;
@@ -202,17 +203,6 @@ namespace TF2.Content.Items
         private Asset<Texture2D> legTexture;
         private Asset<Texture2D> legTextureReverse;
 
-
-        protected readonly int[] qualityTypes =
-        [
-            ItemRarityID.White,
-            ModContent.RarityType<NormalRarity>(),
-            ModContent.RarityType<UniqueRarity>(),
-            0,
-            0,
-            0,
-            ModContent.RarityType<UnusualRarity>()
-        ];
         protected readonly string[] classNames =
         [
             "",
@@ -240,8 +230,8 @@ namespace TF2.Content.Items
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Starter"),
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Unlocked"),
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Crafted"),
-            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Uncrated"),
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Purchased"),
+            Language.GetTextValue("Mods.TF2.UI.Items.Availability.Uncrated"),
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Contract"),
             Language.GetTextValue("Mods.TF2.UI.Items.Availability.Exclusive")
         ];
@@ -271,12 +261,12 @@ namespace TF2.Content.Items
         protected virtual void WeaponDescription(List<TooltipLine> description)
         { }
 
-        protected virtual void WeaponAddQuality(int quality)
+        public virtual void WeaponAddQuality(int quality)
         {
             if (quality <= 0 || quality > Unusual)
                 quality = 0;
             if (qualityHashSet.Add(quality) && qualityHashSet.Max() <= quality)
-                Item.rare = qualityTypes[quality];
+                Item.rare = ModContent.RarityType<TF2Rarity>();
         }
 
         protected virtual bool WeaponDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) => true;
@@ -351,7 +341,7 @@ namespace TF2.Content.Items
             {
                 TooltipLine line = new TooltipLine(Mod, "Name", lines2[i])
                 {
-                    OverrideColor = GetItemColor()
+                    OverrideColor = GetQualityColor()
                 };
                 description.Insert(i, line);
             }
@@ -632,7 +622,7 @@ namespace TF2.Content.Items
             return name;
         }
 
-        public Color GetItemColor() => qualityHashSet.Max() switch
+        public Color GetQualityColor() => qualityHashSet.Max() switch
         {
             Unusual => new Color(134, 80, 172),
             Strange => new Color(207, 106, 50),
@@ -698,6 +688,57 @@ namespace TF2.Content.Items
                 }
             }
             tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "Placeable" && x.Mod == "Terraria"));
+            TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
+            TooltipLine price = priceTooltip;
+            tooltips.Add(price);
+            tooltips.Remove(priceTooltip);
+            TooltipLine specialPriceTooltip = tooltips.FirstOrDefault(x => x.Name == "SpecialPrice" && x.Mod == "Terraria");
+            TooltipLine specialPrice = specialPriceTooltip;
+            tooltips.Add(specialPrice);
+            tooltips.Remove(specialPriceTooltip);
+            TooltipLine journeyResearchTooltip = tooltips.FirstOrDefault(x => x.Name == "JourneyResearch" && x.Mod == "Terraria");
+            TooltipLine journeyModeTooltip = journeyResearchTooltip;
+            tooltips.Add(journeyModeTooltip);
+            tooltips.Remove(journeyResearchTooltip);
+        }
+
+        public void DefaultTooltipsWithAvailability(List<TooltipLine> tooltips)
+        {
+            TooltipLine nameTooltip = tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria");
+            AddName(tooltips);
+            tooltips.Remove(nameTooltip);
+            RemoveDefaultTooltips(tooltips);
+            TooltipLine category = new TooltipLine(Mod, "Weapon Category", Language.GetText("Mods.TF2.UI.Items.ItemCategory").Format(availabilityNames[availability], CustomCategory))
+            {
+                OverrideColor = new Color(117, 107, 94)
+            };
+            tooltips.Insert(tooltips.FindLastIndex(x => x.Name == "Name" && x.Mod == "TF2") + 1, category);
+            WeaponDescription(tooltips);
+            if (Item.favorited)
+            {
+                TooltipLine favorite = new TooltipLine(Mod, "Favorite", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[56].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                tooltips.Add(favorite);
+                TooltipLine favoriteDescription = new TooltipLine(Mod, "Favorite Description", FontAssets.MouseText.Value.CreateWrappedText(Lang.tip[57].Value, 350f))
+                {
+                    OverrideColor = new Color(235, 226, 202)
+                };
+                tooltips.Add(favoriteDescription);
+                if (Main.LocalPlayer.chest > -1)
+                {
+                    ChestUI.GetContainerUsageInfo(out bool sync, out Item[] chestinv);
+                    if (ChestUI.IsBlockedFromTransferIntoChest(Item, chestinv))
+                    {
+                        TooltipLine noTransfer = new TooltipLine(Mod, "No Transfer", FontAssets.MouseText.Value.CreateWrappedText(Language.GetTextValue("UI.ItemCannotBePlacedInsideItself"), 350f))
+                        {
+                            OverrideColor = new Color(235, 226, 202)
+                        };
+                        tooltips.Add(favorite);
+                    }
+                }
+            }
             TooltipLine priceTooltip = tooltips.FirstOrDefault(x => x.Name == "Price" && x.Mod == "Terraria");
             TooltipLine price = priceTooltip;
             tooltips.Add(price);
@@ -916,7 +957,7 @@ namespace TF2.Content.Items
             }
             Vector2 zero = Vector2.Zero;
             List<TooltipLine> lines2 = ItemLoader.ModifyTooltips(Main.HoverItem, ref numLines, tooltipNames, ref array, ref array2, ref array3, ref yoyoLogo, out Color?[] overrideColor, prefixlineIndex);
-            List<DrawableTooltipLine> drawableLines = lines2.Select((TooltipLine x, int i) => new DrawableTooltipLine(x, i, 0, 0, Color.White)).ToList();
+            List<DrawableTooltipLine> drawableLines = [.. lines2.Select((x, i) => new DrawableTooltipLine(x, i, 0, 0, Color.White))];
             int minimumHeight = 25;
             zero.X = 400f;
             for (int j = 0; j < numLines; j++)
@@ -980,7 +1021,7 @@ namespace TF2.Content.Items
             else if (Item.ModItem is TF2Weapon || Item.ModItem is TF2Accessory)
             {
                 availability = Exclusive;
-                qualityHashSet.Add(Vintage);
+                WeaponAddQuality(Vintage);
             }
             if (tag.GetList<int>("qualities") != null && tag.GetList<int>("qualities").Count > 0)
                 qualityHashSet = [.. tag.GetList<int>("qualities")];
@@ -1088,5 +1129,12 @@ namespace TF2.Content.Items
             }
             return classType == player.GetModPlayer<TF2Player>().currentClass;
         }
+    }
+
+    public class TF2Rarity : ModRarity
+    {
+        public override Color RarityColor => new Color(178, 178, 178);
+
+        public override int GetPrefixedRarity(int offset, float valueMult) => Type;
     }
 }

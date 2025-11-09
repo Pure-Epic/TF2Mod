@@ -15,6 +15,7 @@ using Terraria.Utilities;
 using TF2.Content.Items.Buddies;
 using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Consumables.Bundles;
+using TF2.Content.Items.Modules;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
 using TF2.Content.Items.Weapons.Heavy;
@@ -70,7 +71,7 @@ namespace TF2.Content.NPCs.TownNPCs
             NPC.lifeMax = 1000;
             NPC.damage = 100;
             NPC.defense = 100;
-            NPC.aiStyle = 7;
+            NPC.aiStyle = NPCAIStyleID.Passive;
             NPC.friendly = true;
             NPC.townNPC = true;
             NPC.knockBackResist = 0f;
@@ -110,12 +111,12 @@ namespace TF2.Content.NPCs.TownNPCs
         public static void CreateMannCoStore()
         {
             ResetMannCoStore();
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallAmmoPotion>(), 0.49f);
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumAmmoPotion>(), 1.49f);
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeAmmoPotion>(), 1.99f);
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallHealthPotion>(), 0.99f);
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumHealthPotion>(), 2.99f);
-            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeHealthPotion>(), 4.99f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallAmmoPotion>(), 0.04f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumAmmoPotion>(), 0.09f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeAmmoPotion>(), 0.24f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<SmallHealthPotion>(), 0.09f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MediumHealthPotion>(), 0.24f);
+            AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<LargeHealthPotion>(), 0.49f);
             AddShopItem(true, MannCoStoreCategory.Scout, ModContent.ItemType<ForceANature>(), 0.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<Shortstop>(), 1.99f);
             AddShopItem(Main.hardMode, MannCoStoreCategory.Scout, ModContent.ItemType<SodaPopper>(), 1.99f);
@@ -217,6 +218,9 @@ namespace TF2.Content.NPCs.TownNPCs
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<MedicBuddy>(), 9.99f);
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SniperBuddy>(), 6.99f);
             AddShopItem(true, MannCoStoreCategory.Buddy, ModContent.ItemType<SpyBuddy>(), 5.99f);
+            AddShopItem(true, MannCoStoreCategory.Module, ModContent.ItemType<GravityModule>(), 2.49f);
+            AddShopItem(true, MannCoStoreCategory.Module, ModContent.ItemType<SpeedModule>(), 2.49f);
+            AddShopItem(true, MannCoStoreCategory.Module, ModContent.ItemType<MannsAntiDanmakuSystem>(), 2.49f);
             AddShopItem(true, MannCoStoreCategory.All, ModContent.ItemType<MannCoSupplyCrateKey>(), 2.49f);
             AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<ScoutBundle>(), 9.99f);
             AddShopItem(true, MannCoStoreCategory.Bundle, ModContent.ItemType<SoldierBundle>(), 9.99f);
@@ -378,6 +382,7 @@ namespace TF2.Content.NPCs.TownNPCs
         Sniper,
         Spy,
         Buddy,
+        Module,
         Bundle
     }
 }

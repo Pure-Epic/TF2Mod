@@ -1,7 +1,6 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Mounts;
 
 namespace TF2.Content.Buffs
 {
@@ -26,7 +25,7 @@ namespace TF2.Content.Buffs
                 Player.AddBuff(BuffID.Slow, TF2.Time(5));
                 penalty = false;
             }
-            if (radiationBuff && Player.HeldItem.type != ModContent.ItemType<TF2MountItem>() && Player.GetModPlayer<RadioactivePlayer>().radiationBuff)
+            if (radiationBuff && Player.GetModPlayer<RadioactivePlayer>().radiationBuff)
             {
                 Player.controlUseItem = false;
                 Player.controlUseTile = false;
@@ -47,8 +46,6 @@ namespace TF2.Content.Buffs
 
         public override bool CanUseItem(Item item, Player player)
         {
-            if (item.type == ModContent.ItemType<TF2MountItem>())
-                return true;
             if (player.GetModPlayer<RadioactivePlayer>().radiationBuff)
             {
                 player.controlUseItem = false;

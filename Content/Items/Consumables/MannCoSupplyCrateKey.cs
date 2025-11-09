@@ -15,9 +15,9 @@ namespace TF2.Content.Items.Consumables
             Item.width = 25;
             Item.height = 16;
             Item.maxStack = Item.CommonMaxStack;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
             Item.value = Item.buyPrice(platinum: 1);
-            qualityHashSet.Add(Unique);
+            WeaponAddQuality(Unique);
+            noThe = true;
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

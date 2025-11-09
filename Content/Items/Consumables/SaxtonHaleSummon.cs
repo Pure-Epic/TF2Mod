@@ -30,12 +30,10 @@ namespace TF2.Content.Items.Consumables
 
         public override bool? UseItem(Player player)
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (Main.myPlayer == player.whoAmI)
             {
                 SoundEngine.PlaySound(SoundID.AchievementComplete, player.position);
-
                 int type = ModContent.NPCType<SaxtonHale>();
-
                 if (Main.netMode != NetmodeID.MultiplayerClient)
                     NPC.SpawnOnPlayer(player.whoAmI, type);
                 else

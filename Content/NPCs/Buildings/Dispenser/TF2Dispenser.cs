@@ -3,7 +3,6 @@ using ReLogic.Content;
 using System.IO;
 using Terraria;
 using Terraria.Audio;
-using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -44,6 +43,10 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 1;
+            NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
+            {
+                Hide = true
+            });
             NPC.netAlways = true;
         }
 
@@ -163,11 +166,6 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
             NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/dispenser_explode");
         }
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement("Need a Dispenser here."),
-            ]);
 
         protected override void DispenserSpawn()
         {

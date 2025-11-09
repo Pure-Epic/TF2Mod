@@ -16,9 +16,9 @@ namespace TF2.Common
 
         public static ModKeybind Cloak { get; private set; }
 
-        public static ModKeybind HomingPower { get; private set; }
+        public static ModKeybind ModulePower { get; private set; }
 
-        public static ModKeybind MountSpeed { get; private set; }
+        public static ModKeybind ModuleSecondaryPower { get; private set; }
 
         public override void Load()
         {
@@ -27,8 +27,8 @@ namespace TF2.Common
             ShieldCharge = KeybindLoader.RegisterKeybind(Mod, "Shield Charge", "Mouse2");
             MoveBuilding = KeybindLoader.RegisterKeybind(Mod, "Move Building", "B");
             Cloak = KeybindLoader.RegisterKeybind(Mod, "Cloak", "F");
-            HomingPower = KeybindLoader.RegisterKeybind(Mod, "Homing Distance", "I");
-            MountSpeed = KeybindLoader.RegisterKeybind(Mod, "Mount Speed", "O");
+            ModulePower = KeybindLoader.RegisterKeybind(Mod, "Module Power", "I");
+            ModuleSecondaryPower = KeybindLoader.RegisterKeybind(Mod, "Module Secondary Power", "O");
         }
 
         public override void Unload()
@@ -38,8 +38,8 @@ namespace TF2.Common
             ShieldCharge = null;
             MoveBuilding = null;
             Cloak = null;
-            HomingPower = null;
-            MountSpeed = null;
+            ModulePower = null;
+            ModuleSecondaryPower = null;
         }
     }
 }

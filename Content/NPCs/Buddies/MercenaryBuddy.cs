@@ -12,7 +12,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
-using TF2.Content.Mounts;
+using TF2.Content.Items.Modules;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Medic;
 using static TF2.Content.Tiles.TF2Tile;
@@ -319,7 +319,10 @@ namespace TF2.Content.NPCs.Buddies
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 2;
-            ContentSamples.NpcBestiaryRarityStars[Type] = 5;
+            NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
+            {
+                Hide = true
+            });
         }
 
         public sealed override void SetDefaults()
@@ -378,7 +381,7 @@ namespace TF2.Content.NPCs.Buddies
         public sealed override void OnSpawn(IEntitySource source)
         {
             healthMultiplier = Player.GetModPlayer<TF2Player>().healthMultiplier;
-            finalBaseHealth = NPC.lifeMax = TF2.Round(BaseHealth * healthMultiplier);
+            finalBaseHealth = NPC.lifeMax = TF2.HealthRound(BaseHealth * healthMultiplier);
             NPC.life = NPC.lifeMax;
             NPC.direction = -1;
             horizontalFrame = 0;
@@ -400,7 +403,7 @@ namespace TF2.Content.NPCs.Buddies
             fallingThroughPlatforms = false;
             onSolidGround = IsOnSolidGround(NPC.Bottom, NPC.velocity, NPC.width);
             NPC.oldPosition = NPC.position;
-            focus = Player.HasBuff<TF2MountBuff>() && !temporaryBuddy;
+            focus = Player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive && !temporaryBuddy;
             NPC.noGravity = focus;
             NPC.lifeMax = finalBaseHealth + overheal;
             TF2.Maximum(ref NPC.life, NPC.lifeMax);
@@ -540,15 +543,14 @@ namespace TF2.Content.NPCs.Buddies
             }
             BuddyUpdate();
             BuddyUpdateWithTarget(target);
-            if (overheal > 0)
-                overhealDecayTimer++;
             bool healed = false;
             foreach (Projectile projectile in Main.ActiveProjectiles)
             {
-                if ((projectile.ModProjectile is HealingBeam)
-                    && projectile.Hitbox.Intersects(NPC.Hitbox))
+                if ((projectile.ModProjectile is HealingBeam healingBeam) && projectile.Hitbox.Intersects(NPC.Hitbox) && NPC.life <= finalBaseHealth * healingBeam.OverhealLimit)
                     healed = true;
             }
+            if (overheal > 0 && !healed)
+                overhealDecayTimer++;
             if (overhealDecayTimer > TF2.Time(0.5) && !healed)
             {
                 overhealDecayTimer = 0;

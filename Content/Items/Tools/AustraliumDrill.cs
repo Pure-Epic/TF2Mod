@@ -22,10 +22,9 @@ namespace TF2.Content.Items.Tools
             Item.noMelee = true;
             Item.noUseGraphic = true;
             Item.channel = true;
-            Item.rare = ModContent.RarityType<NormalRarity>();
             Item.tileBoost = 10;
             Item.pick = Item.axe = Item.hammer = 55;
-            qualityHashSet.Add(Stock);
+            WeaponAddQuality(Stock);
             availability = Starter;
         }
 

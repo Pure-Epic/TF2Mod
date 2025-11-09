@@ -24,9 +24,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 45;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -50,9 +49,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 44;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -76,9 +74,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 41;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -102,9 +99,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 42;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -128,9 +124,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 46;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -154,9 +149,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 49;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -182,9 +176,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 45;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -208,9 +201,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 49;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -234,9 +226,8 @@ namespace TF2.Content.Items.Consumables.Bundles
             Item.width = 58;
             Item.height = 42;
             Item.consumable = true;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

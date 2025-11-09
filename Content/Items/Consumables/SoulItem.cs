@@ -17,7 +17,11 @@ namespace TF2.Content.Items.Consumables
         public float damageMultiplier = 1f;
         public int pierce = 1;
 
-        public override void SetStaticDefaults() => Item.ResearchUnlockCount = 0;
+        public override void SetStaticDefaults()
+        {
+            Item.ResearchUnlockCount = 0;
+            ItemID.Sets.ItemNoGravity[Item.type] = true;
+        }
 
         public override void SetDefaults()
         {
@@ -28,10 +32,8 @@ namespace TF2.Content.Items.Consumables
             Item.UseSound = SoundID.Item4;
             Item.consumable = true;
             Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
-            ItemID.Sets.ItemNoGravity[Item.type] = true;
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => CustomTooltips(tooltips, Language.GetText("Mods.TF2.UI.Items.ItemCategory").Format(Language.GetTextValue("Mods.TF2.UI.TF2MercenaryCreation.Mercenary"), Language.GetTextValue("Mods.TF2.UI.Items.SoulItem")), Language.GetText("Mods.TF2.UI.Items.SoulItemDescription").Format(damageMultiplier, healthMultiplier));

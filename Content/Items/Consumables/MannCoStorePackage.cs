@@ -12,9 +12,8 @@ namespace TF2.Content.Items.Consumables
             Item.height = 35;
             Item.consumable = true;
             Item.knockBack = 0f;
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

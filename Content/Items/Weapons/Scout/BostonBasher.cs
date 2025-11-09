@@ -36,7 +36,7 @@ namespace TF2.Content.Items.Weapons.Scout
             {
                 if (!player.immuneNoBlink)
                 {
-                    player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[1].Format(player.name)), TF2.GetHealth(player, 18), 0, cooldownCounter: 5);
+                    player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[1].ToNetworkText(player.name)), TF2.GetHealth(player, 18), 0, cooldownCounter: 5);
                     player.GetModPlayer<BleedingPlayer>().damageMultiplier = TF2.GetHealth(player, 1);
                     player.AddBuff(ModContent.BuffType<Bleeding>(), TF2.Time(5));
                 }

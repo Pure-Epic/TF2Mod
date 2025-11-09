@@ -66,9 +66,8 @@ namespace TF2.Content.Items.Consumables
             Item.maxStack = 30;
             Item.potion = true;
             Item.value = Item.buyPrice(platinum: 1);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -149,9 +148,8 @@ namespace TF2.Content.Items.Consumables
             Item.maxStack = 30;
             Item.potion = true;
             Item.value = Item.buyPrice(platinum: 2);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
@@ -232,9 +230,8 @@ namespace TF2.Content.Items.Consumables
             Item.maxStack = 30;
             Item.potion = true;
             Item.value = Item.buyPrice(platinum: 5);
-            Item.rare = ModContent.RarityType<UniqueRarity>();
+            WeaponAddQuality(Unique);
             noThe = true;
-            qualityHashSet.Add(Unique);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);

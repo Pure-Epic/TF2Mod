@@ -25,8 +25,7 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
-            if (target.ModNPC?.Mod == gensokyo && target.boss || target.TypeName == "Byakuren Hijiri")
+            if (target.boss)
                 miniCrit = true;
         }
 
@@ -40,7 +39,7 @@ namespace TF2.Content.Projectiles.Soldier
                 Player.velocity -= velocity;
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 36.5);
-                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].Format(Player.name)), selfDamage, 0, cooldownCounter: 5);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
         }
     }

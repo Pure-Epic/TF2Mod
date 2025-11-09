@@ -23,10 +23,6 @@ namespace TF2.Common
         [DefaultValue(false)]
         [ReloadRequired]
         public bool NoTF2Loot;
-
-        [Header("CustomMusic")]
-        [DefaultValue(false)]
-        public bool BossMusic;
     }
 
     public class TF2ConfigClient : ModConfig

@@ -6,7 +6,6 @@ using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -76,6 +75,10 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 2;
+            NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
+            {
+                Hide = true
+            });
             NPC.netAlways = true;
         }
 
@@ -267,11 +270,6 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_explode");
         }
 
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement("The answer: use a gun."),
-            ]);
-
         protected override void SentrySpawn() => Timer = Time(0.2);
 
         protected override void SentryAI()
@@ -374,11 +372,6 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_explode");
         }
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement("And if that don't work... use more gun."),
-            ]);
 
         protected override void SentrySpawn() => Timer = Time(0.1);
 
@@ -486,11 +479,6 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_explode");
         }
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement("More gun and four rockets? This is insane!"),
-            ]);
 
         protected override void SentryDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
@@ -641,11 +629,6 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
             NPC.HitSound = new SoundStyle("TF2/Content/Sounds/SFX/Weapons/wrench_hit_build_success");
             NPC.DeathSound = new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_explode");
         }
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) => bestiaryEntry.Info.AddRange([
-                BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Surface,
-                new FlavorTextBestiaryInfoElement("I love that little gun!"),
-            ]);
 
         protected override void SentryDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {

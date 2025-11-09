@@ -84,7 +84,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
                 int healthPenalty = TF2.GetHealth(Player, 50);
                 if (Player.statLife > healthPenalty && halfZatoichiCheck)
                 {
-                    Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[4].Format(Player.name)), healthPenalty, 0);
+                    Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[4].ToNetworkText(Player.name)), healthPenalty, 0);
                     halfZatoichiCheck = false;
                 }
             }

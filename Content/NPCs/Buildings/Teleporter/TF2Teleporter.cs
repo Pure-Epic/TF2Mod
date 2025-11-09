@@ -38,6 +38,10 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
         public override void SetStaticDefaults()
         {
             Main.npcFrameCount[NPC.type] = 4;
+            NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
+            {
+                Hide = true
+            });
             NPC.netAlways = true;
         }
 
@@ -189,6 +193,7 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
                     if (NPC.Hitbox.Intersects(player.Hitbox) && !player.dead && !player.hostile && Timer >= TeleporterCooldown)
                     {
                         player.Center = new Vector2(exit.NPC.Center.X, exit.NPC.position.Y);
+                        player.fallStart = (int)(player.position.Y / 16f);
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_send"), NPC.Center);
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_receive"), exit.NPC.Center);
                         Timer = 0;

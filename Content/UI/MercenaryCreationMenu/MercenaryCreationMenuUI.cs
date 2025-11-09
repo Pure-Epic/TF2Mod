@@ -20,6 +20,7 @@ using Terraria.UI;
 using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
+using TF2.Content.Items.Modules;
 using TF2.Content.Items.Tools;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
@@ -31,7 +32,7 @@ using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Soldier;
 using TF2.Content.Items.Weapons.Spy;
-using TF2.Content.Mounts;
+using TF2.Content.UI.Inventory;
 
 namespace TF2.Content.UI.MercenaryCreationMenu
 {
@@ -718,7 +719,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
             }
-            _player.miscEquips[3].SetDefaults(ModContent.ItemType<TF2MountItem>());
+            ModContent.GetInstance<ModuleSlot>().FunctionalItem.SetDefaults(ModContent.ItemType<MannsAntiDanmakuSystem>());
             p.cachedHealth = p.BaseHealth;
         }
 
@@ -880,7 +881,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             if (!drawInfo.drawPlayer.mount.Active || !drawInfo.drawPlayer.UsingSuperCart) return;
             for (int j = 0; j < 1000; j++)
             {
-                if (Main.projectile[j].active && Main.projectile[j].owner == drawInfo.drawPlayer.whoAmI && Main.projectile[j].type == 591)
+                if (Main.projectile[j].active && Main.projectile[j].owner == drawInfo.drawPlayer.whoAmI && Main.projectile[j].type == ProjectileID.MinecartMechLaser)
                     Main.instance.DrawProj(j);
             }
         }
@@ -1104,7 +1105,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             if (!drawPlayer.dead)
             {
                 SpriteEffects spriteEffects = drawPlayer.direction != 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
-                camera.SpriteBatch.Draw(TextureAssets.Extra[37].Value, new Vector2((int)(position.X - camera.UnscaledPosition.X - drawPlayer.bodyFrame.Width / 2 + drawPlayer.width / 2), (int)(position.Y - camera.UnscaledPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 8f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2), null, Lighting.GetColor((int)(position.X + drawPlayer.width * 0.5) / 16, (int)(position.Y + drawPlayer.height * 0.5) / 16, Color.White), 0f, new Vector2(TextureAssets.Extra[37].Width() / 2, TextureAssets.Extra[37].Height() / 2), 1f, spriteEffects, 0f);
+                camera.SpriteBatch.Draw(TextureAssets.Extra[ExtrasID.PlayerStoned].Value, new Vector2((int)(position.X - camera.UnscaledPosition.X - drawPlayer.bodyFrame.Width / 2 + drawPlayer.width / 2), (int)(position.Y - camera.UnscaledPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 8f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2), null, Lighting.GetColor((int)(position.X + drawPlayer.width * 0.5) / 16, (int)(position.Y + drawPlayer.height * 0.5) / 16, Color.White), 0f, new Vector2(TextureAssets.Extra[ExtrasID.PlayerStoned].Width() / 2, TextureAssets.Extra[ExtrasID.PlayerStoned].Height() / 2), 1f, spriteEffects, 0f);
             }
         }
 

@@ -47,12 +47,7 @@ namespace TF2.Content.Projectiles.Demoman
             return false;
         }
 
-        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            // Temporary solution
-            ModLoader.TryGetMod("Gensokyo", out Mod gensokyo);
-            modifiers.SourceDamage *= ((gensokyo != null && target.ModNPC?.Mod == gensokyo && target.boss) || target.TypeName == "Byakuren Hijiri") ? 1.2f : 1f;
-        }
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1.2f : 1f;
 
         protected override void GrenadeJump(Vector2 velocity)
         {
@@ -63,7 +58,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Player.velocity -= velocity;
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 55.5);
-                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].Format(Player.name)), selfDamage, 0, cooldownCounter: 5);
+                Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
             Projectile.timeLeft = 0;
         }

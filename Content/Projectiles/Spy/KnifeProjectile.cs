@@ -79,7 +79,7 @@ namespace TF2.Content.Projectiles.Spy
         protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
             if (!modifiers.PvP || !backStab) return;
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
         }
 
         protected override void ProjectileDestroy(int timeLeft) => Player.GetModPlayer<TF2Player>().backStab = false;
@@ -98,7 +98,7 @@ namespace TF2.Content.Projectiles.Spy
         {
             if (!modifiers.PvP) return;
             TF2.Overheal(Player, target.statLife, 2f);
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
@@ -116,7 +116,7 @@ namespace TF2.Content.Projectiles.Spy
         {
             if (!modifiers.PvP || !backStab) return;
             Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].Format(target.name, Player.name)), target.statLife, 0);
+            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)

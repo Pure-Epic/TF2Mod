@@ -96,7 +96,7 @@ namespace TF2.Content.NPCs.Buildings
         protected virtual void BuildingReceiveExtraAI(BinaryReader binaryReader)
         { }
 
-        public static Building ConstructBuilding(int type = -1, int owner = 0, int direction = 1, int metal = 0, bool hauled = false, bool isAir = false)
+        public static Building ConstructBuilding(int type = -1, int owner = 0, int direction = 1, int metal = 0, bool isAir = false)
         {
             Player player = Main.player[owner];
             NPC npc = NPC.NewNPCDirect(player.GetSource_FromThis(), (int)player.Center.X, (int)player.Center.Y, type, 0, 0, metal, 0, owner);

@@ -261,7 +261,7 @@ namespace TF2.Content.Items.Weapons
             {
                 if (currentAmmoClip <= 0 && currentAmmoReserve > 0 && !noAmmoClip && player.itemAnimation == 0)
                     reload = true;
-                if (Item != player.inventory[58] && player.whoAmI == Main.myPlayer)
+                if (Item != player.inventory[58] && Main.myPlayer == player.whoAmI)
                     UpdateAmmo(player);
             }
         }
@@ -1241,7 +1241,7 @@ namespace TF2.Content.Items.Weapons
 
         public override sealed void UseStyle(Player player, Rectangle heldItemFrame)
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (Main.myPlayer == player.whoAmI)
                 WeaponAttackAnimation(player);
         }
 
@@ -1369,7 +1369,7 @@ namespace TF2.Content.Items.Weapons
 
         public override sealed bool? UseItem(Player player)
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (Main.myPlayer == player.whoAmI)
             {
                 if (isStickybombLauncher)
                 {
