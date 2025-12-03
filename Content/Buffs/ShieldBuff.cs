@@ -4,7 +4,7 @@ using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
-    public class MeleeCrit : ModBuff
+    public class ShieldBuff : ModBuff
     {
         public override void SetStaticDefaults()
         {

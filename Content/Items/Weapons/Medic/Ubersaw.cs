@@ -34,7 +34,6 @@ namespace TF2.Content.Items.Weapons.Medic
                 if (item.ModItem is TF2Weapon weapon && weapon.GetWeaponMechanic("Medi Gun"))
                     weapon.uberCharge += weapon.uberChargeCapacity / 4f;
             }
-            player.AddBuff(ModContent.BuffType<MarkedForDeath>(), TF2.Time(2));
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
@@ -48,7 +47,6 @@ namespace TF2.Content.Items.Weapons.Medic
                     break;
                 }
             }
-            player.AddBuff(ModContent.BuffType<MarkedForDeath>(), TF2.Time(2));
         }
     }
 }

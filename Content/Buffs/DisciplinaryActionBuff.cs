@@ -7,7 +7,7 @@ using TF2.Content.NPCs.Buddies;
 
 namespace TF2.Content.Buffs
 {
-    public class Whipped : ModBuff
+    public class DisciplinaryActionBuff : ModBuff
     {
         public override void SetStaticDefaults()
         {
@@ -31,7 +31,7 @@ namespace TF2.Content.Buffs
 
         public override void Update(NPC npc, ref int buffIndex)
         {
-            if (npc.ModNPC is MercenaryBuddy buddy)
+            if (npc.ModNPC is Buddy buddy)
             {
                 double speed = buddy switch
                 {
@@ -42,7 +42,7 @@ namespace TF2.Content.Buffs
                     MedicNPC => 132.8,
                     _ => 125
                 };
-                MercenaryBuddy.SetBuddySpeed(buddy, speed);
+                Buddy.SetBuddySpeed(buddy, speed);
             }
         }
     }
@@ -53,7 +53,7 @@ namespace TF2.Content.Buffs
 
         public override void PostUpdate()
         {
-            if (Player.HasBuff<Whipped>())
+            if (Player.HasBuff<DisciplinaryActionBuff>())
                 playBuffSound = true;
             else if (playBuffSound)
             {

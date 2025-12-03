@@ -2,10 +2,11 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
-    public class BaseballDebuff : ModBuff
+    public class SandmanDebuff : ModBuff
     {
         public override void SetStaticDefaults()
         {
@@ -15,7 +16,7 @@ namespace TF2.Content.Buffs
             BuffID.Sets.IsATagBuff[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.slow = true;
+        public override void Update(Player player, ref int buffIndex) => TF2Player.SetPlayerSpeed(player, 30);
 
         public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SluggedNPC>().slowDebuff = true;
     }

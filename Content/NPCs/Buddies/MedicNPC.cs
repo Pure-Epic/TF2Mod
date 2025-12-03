@@ -14,7 +14,7 @@ using TF2.Content.Projectiles.Medic;
 
 namespace TF2.Content.NPCs.Buddies
 {
-    public class MedicNPC : MercenaryBuddy
+    public class MedicNPC : Buddy
     {
         protected override Asset<Texture2D> Spritesheet => ModContent.Request<Texture2D>("TF2/Content/NPCs/Buddies/MedicNPC");
 
@@ -22,7 +22,7 @@ namespace TF2.Content.NPCs.Buddies
 
         public override int BaseHealth => 150;
 
-        protected override float SpeedMuliplier => 1.07f;
+        public override float BaseSpeed => 1.07f;
 
         protected override int Weapon => ModContent.ItemType<SyringeGun>();
 

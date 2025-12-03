@@ -14,9 +14,9 @@ Mods: {
 				Description: Healing
 			}
 
-			BaseballDebuff: {
-				DisplayName: Slugged!
-				Description: Slowed
+			BattalionsBackupBuff: {
+				DisplayName: Soldier's Blessing
+				Description: Damage reduction
 			}
 
 			BigEarnerBuff: {
@@ -29,6 +29,16 @@ Mods: {
 				Description: Bleeding out rapidly
 			}
 
+			BonkAtomicPunchBuff: {
+				DisplayName: Radiation
+				Description: Invinciblity with some side effects
+			}
+
+			BonkAtomicPunchDebuff: {
+				DisplayName: Radiation Penalty
+				Description: Movement speed is reduced
+			}
+
 			BrokenCloak: {
 				DisplayName: Broken Cloak
 				Description: You cannot cloak
@@ -37,6 +47,11 @@ Mods: {
 			BuffaloSteakSandvichBuff: {
 				DisplayName: Buffalo Steak Sandvich
 				Description: Melee mini-crits!
+			}
+
+			BuffBannerBuff: {
+				DisplayName: Soldier's Rage
+				Description: Mini-crits everything
 			}
 
 			CloakAndDaggerBuff: {
@@ -49,14 +64,29 @@ Mods: {
 				Description: Invincible and invisible
 			}
 
+			ConcherorBuff: {
+				DisplayName: Soldier's Honor
+				Description: Speed boost and lifesteal
+			}
+
+			CritaColaBuff: {
+				DisplayName: Crit-a-Cola Rampage
+				Description: Mini-crits everything
+			}
+
 			DalokohsBarBuff: {
 				DisplayName: Dalokohs Bar
 				Description: More health!
 			}
 
-			DefenseRage: {
-				DisplayName: Soldier's Blessing
-				Description: Damage reduction
+			DisciplinaryActionBuff: {
+				DisplayName: Disciplined
+				Description: Speed boost
+			}
+
+			EvictionNoticeBuff: {
+				DisplayName: Evictor's Rage
+				Description: Speed boost
 			}
 
 			FeignDeath: {
@@ -64,29 +94,14 @@ Mods: {
 				Description: Invincible and invisible
 			}
 
-			HealthRage: {
-				DisplayName: Soldier's Honor
-				Description: Speed boost and lifesteal
-			}
-
-			HeavyCrit: {
-				DisplayName: Knockout
-				Description: Grants crits
-			}
-
-			HeavySpeed: {
-				DisplayName: Evicted
-				Description: Speed boost
-			}
-
-			Hype: {
-				DisplayName: Hype
-				Description: Extra jumps
-			}
-
 			JarateDebuff: {
 				DisplayName: Jarate
 				Description: Crit vulnerability
+			}
+
+			KillingGlovesOfBoxingBuff: {
+				DisplayName: Knockout
+				Description: Grants crits
 			}
 
 			KritzkriegUberCharge: {
@@ -102,11 +117,6 @@ Mods: {
 			MarkedForDeath: {
 				DisplayName: Marked-For-Death
 				Description: Prepare to die...
-			}
-
-			MeleeCrit: {
-				DisplayName: Shield Charge
-				Description: Grants melee crits
 			}
 
 			NataschaDebuff: {
@@ -129,44 +139,34 @@ Mods: {
 				Description: Rapid healing and immunities
 			}
 
-			Radiation: {
-				DisplayName: Radiation
-				Description: Invinciblity with some side effects
-			}
-
-			Rage: {
-				DisplayName: Soldier's Rage
-				Description: Mini-crits everything
-			}
-
 			RazorbackBuff: {
 				DisplayName: Sniper's Protection
 				Description: You will dodge the next attack
 			}
 
-			Sapped: {
+			SandmanDebuff: {
+				DisplayName: Slugged!
+				Description: Slowed
+			}
+
+			SapperDebuff: {
 				DisplayName: Sapped!
 				Description: Slow and painful death
 			}
 
-			ScoutMiniCrit: {
-				DisplayName: Crit-a-Cola Rampage
-				Description: Mini-crits everything
+			ShieldBuff: {
+				DisplayName: Shield Charge
+				Description: Grants melee crits
+			}
+
+			SodaPopperBuff: {
+				DisplayName: Hype
+				Description: Extra jumps
 			}
 
 			UberCharge: {
 				DisplayName: ÜberCharge
 				Description: I am bulletproof!
-			}
-
-			Whipped: {
-				DisplayName: Disciplined
-				Description: Speed boost
-			}
-
-			TF2MountBuff: {
-				DisplayName: Remove
-				Description: Remove
 			}
 
 			MannsAntiDanmakuSystemBuff: {
@@ -1218,6 +1218,7 @@ Mods: {
 					+10% ÜberCharge rate
 					'''
 				Downsides: 50% max overheal
+				Notes: Mirror the blast jumps and shield charges of patients.
 			}
 
 			SolemnVow: {
@@ -1240,7 +1241,6 @@ Mods: {
 				Downsides:
 					'''
 					20% slower firing speed
-					Each hit sets Marked-For-Death to yourself for 2 seconds
 					No random health points
 					'''
 			}
@@ -2244,14 +2244,15 @@ Mods: {
 				}
 
 				AttackSpeed: Attack Speed: {0}
-				AustraliumAnvil: Mercenary Crafting Station
-				Buddy: Mercenary Buddy
+				AustraliumAnvil: Australium Anvil
+				Buddy: Buddy
 				BuddySlotHover: Buddy
 				CategoryText: "{0}'s {1} {2}"
 				Damage: Damage: {0}
 				DrillDescription:
 					'''
 					Mines through ores, wood, and walls
+					Right click to change the shape of a block
 					Drill power: {0}%
 					'''
 				ItemCategory: "{0} {1}"

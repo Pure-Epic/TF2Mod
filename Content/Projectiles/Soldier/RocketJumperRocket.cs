@@ -37,10 +37,11 @@ namespace TF2.Content.Projectiles.Soldier
         {
             if (FindOwner(Projectile, 50f))
             {
-                oldVelocity *= 5f;
+                oldVelocity *= 1.25f;
                 oldVelocity.X = Utils.Clamp(oldVelocity.X, -25f, 25f);
                 oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -25f, 25f);
                 Player.velocity -= oldVelocity;
+                QuickFixMirror();
             }
             return false;
         }
@@ -53,7 +54,6 @@ namespace TF2.Content.Projectiles.Soldier
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 1.4f;
             }
-
             for (int i = 0; i < 80; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, default, 3f);

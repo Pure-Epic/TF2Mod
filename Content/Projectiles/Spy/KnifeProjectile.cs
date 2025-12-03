@@ -52,6 +52,7 @@ namespace TF2.Content.Projectiles.Spy
                 Projectile.Center = playerCenter + Projectile.velocity * 16f;
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2 - MathHelper.PiOver4 * Projectile.spriteDirection;
+            QuickFixMirror();
             SetVisualOffsets();
         }
 

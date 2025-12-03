@@ -49,7 +49,7 @@ namespace TF2.Content.Items.Weapons.Medic
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/amputator_heal"), player.Center);
                     foreach (NPC healedNPC in Main.ActiveNPCs)
                     {
-                        if (healedNPC.ModNPC is MercenaryBuddy)
+                        if (healedNPC.ModNPC is Buddy)
                             healedNPC.AddBuff(ModContent.BuffType<AmputatorBuff>(), TF2.Time(4.2));
                     }
                     timer[1] = 1;
@@ -87,7 +87,7 @@ namespace TF2.Content.Items.Weapons.Medic
                     }
                     foreach (NPC healedNPC in Main.ActiveNPCs)
                     {
-                        if (healedNPC.ModNPC is MercenaryBuddy buddy && healedNPC.life < buddy.finalBaseHealth)
+                        if (healedNPC.ModNPC is Buddy buddy && healedNPC.life < buddy.finalBaseHealth)
                         {
                             for (int j = 0; j < player.inventory.Length; j++)
                             {

@@ -70,9 +70,9 @@ namespace TF2.Content.Projectiles.Heavy
 
     public class KillingGlovesOfBoxingProjectile : FistProjectile
     {
-        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Player.AddBuff(ModContent.BuffType<HeavyCrit>(), TF2.Time(5));
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Player.AddBuff(ModContent.BuffType<KillingGlovesOfBoxingBuff>(), TF2.Time(5));
 
-        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Player.AddBuff(ModContent.BuffType<HeavyCrit>(), TF2.Time(5));
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Player.AddBuff(ModContent.BuffType<KillingGlovesOfBoxingBuff>(), TF2.Time(5));
     }
 
     public class GlovesOfRunningUrgentlyProjectile : FistProjectile
@@ -102,13 +102,13 @@ namespace TF2.Content.Projectiles.Heavy
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             if (!info.PvP) return;
-            Player.AddBuff(ModContent.BuffType<HeavySpeed>(), TF2.Time(3));
+            Player.AddBuff(ModContent.BuffType<EvictionNoticeBuff>(), TF2.Time(3));
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             if (target.type != NPCID.TargetDummy)
-                Player.AddBuff(ModContent.BuffType<HeavySpeed>(), TF2.Time(3));
+                Player.AddBuff(ModContent.BuffType<EvictionNoticeBuff>(), TF2.Time(3));
         }
     }
 }

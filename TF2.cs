@@ -24,7 +24,6 @@ using Terraria.ID;
 using Terraria.IO;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Terraria.UI.Chat;
 using Terraria.UI.Gamepad;
@@ -421,7 +420,7 @@ namespace TF2
                     if (healAmount > 0)
                     {
                         NPC target = Main.npc[i];
-                        MercenaryBuddy buddy = target.ModNPC as MercenaryBuddy;
+                        Buddy buddy = target.ModNPC as Buddy;
                         int maxHealth = buddy.finalBaseHealth;
                         if (buddy.overheal >= HealthRound(maxHealth * limit)) return;
                         target.life += healAmount;
@@ -1022,7 +1021,6 @@ namespace TF2
             {
                 c.EmitDelegate(static () => Main.rare == ModContent.RarityType<TF2Rarity>() ? qualityColor : RarityLoader.GetRarity(Main.rare).RarityColor);
                 c.Emit(OpCodes.Stloc, 11);
-                MonoModHooks.DumpIL(ModContent.GetInstance<TF2>(), il);
             }
         }
 
@@ -1126,7 +1124,7 @@ namespace TF2
                                 text = (npc.ModNPC is Building building)
                                     ? (building.BuildingName + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax + "\n"
                                     + (!Building.MaxLevel(building) ? Language.GetTextValue("Mods.TF2.NPCs.Metal") + ": " + building.Metal + "/" + 200 : ""))
-                                    : (npc.ModNPC is MercenaryBuddy buddy)
+                                    : (npc.ModNPC is Buddy buddy)
                                     ? (text + ": " + Main.npc[num].life + "/" + buddy.finalBaseHealth)
                                     : text + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax;
                             }
@@ -1406,7 +1404,7 @@ namespace TF2
 
         private void Hook_CheckLifeRegen(On_NPC.orig_CheckLifeRegen orig, NPC self)
         {
-            if (self.ModNPC is Building || self.ModNPC is MercenaryBuddy) return;
+            if (self.ModNPC is Building || self.ModNPC is Buddy) return;
             else orig(self);
         }
 
@@ -1936,10 +1934,10 @@ namespace TF2
 
         public static void OverhealNPC(NPC target, int healAmount, float limit = 0.5f)
         {
-            if (target.ModNPC is not MercenaryBuddy) return;
+            if (target.ModNPC is not Buddy) return;
             if (healAmount > 0)
             {
-                MercenaryBuddy buddy = target.ModNPC as MercenaryBuddy;
+                Buddy buddy = target.ModNPC as Buddy;
                 int maxHealth = buddy.finalBaseHealth;
                 if (buddy.overheal >= HealthRound(maxHealth * limit)) return;
                 target.life += healAmount;
@@ -1967,7 +1965,7 @@ namespace TF2
 
         public static void OverhealNPCMultiplayer(NPC target, int healAmount, float limit = 0.5f)
         {
-            if (target.ModNPC is not MercenaryBuddy || Main.netMode == NetmodeID.SinglePlayer) return;
+            if (target.ModNPC is not Buddy || Main.netMode == NetmodeID.SinglePlayer) return;
             ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
             packet.Write((byte)MessageType.OverhealNPC);
             packet.Write((byte)target.whoAmI);

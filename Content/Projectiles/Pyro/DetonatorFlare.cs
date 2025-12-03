@@ -61,10 +61,11 @@ namespace TF2.Content.Projectiles.Pyro
         {
             if (FindOwner(Projectile, 50f))
             {
-                velocity *= 5f;
+                velocity *= 1.25f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                 velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
                 Player.velocity -= velocity;
+                QuickFixMirror();
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 33.5);
                 Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);

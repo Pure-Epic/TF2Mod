@@ -7,7 +7,7 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.Buffs
 {
-    public class HealthRage : ModBuff
+    public class ConcherorBuff : ModBuff
     {
         public override void SetStaticDefaults()
         {
@@ -23,12 +23,12 @@ namespace TF2.Content.Buffs
 
         public override void Update(NPC npc, ref int buffIndex)
         {
-            if (npc.ModNPC is MercenaryBuddy buddy)
-                buddy.temporarySpeedMultiplier *= 10f;
+            if (npc.ModNPC is Buddy buddy)
+                buddy.speedMultiplier *= 10f;
         }
     }
 
-    public class HealthRageNPC : GlobalNPC
+    public class ConcherorBuffNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
@@ -37,7 +37,7 @@ namespace TF2.Content.Buffs
             if (projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
                 NPC healedNPC = Main.npc[tf2Projectile.npcOwner];
-                if (healedNPC.active && healedNPC.HasBuff<HealthRage>() && healedNPC.ModNPC is MercenaryBuddy buddy)
+                if (healedNPC.active && healedNPC.HasBuff<ConcherorBuff>() && healedNPC.ModNPC is Buddy buddy)
                     buddy.Heal(TF2.Round(healedNPC.lifeMax * 0.35f));
             }
         }

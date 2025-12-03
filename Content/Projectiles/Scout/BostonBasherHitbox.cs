@@ -20,6 +20,8 @@ namespace TF2.Content.Projectiles.Scout
             Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.hide = true;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
         }
 
         protected override void ProjectileAI()

@@ -20,7 +20,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public override int BaseHealth => 150;
 
-        protected override float SpeedMuliplier => 1.07f;
+        public override float BaseSpeed => 1.07f;
 
         protected override int Weapon => ModContent.ItemType<SyringeGun>();
 

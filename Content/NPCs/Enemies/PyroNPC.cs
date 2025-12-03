@@ -36,7 +36,7 @@ namespace TF2.Content.NPCs.Enemies
 
         protected static SoundStyle FlameThrowerAttackSound => new SoundStyle("TF2/Content/Sounds/SFX/Weapons/flame_thrower_loop");
 
-        protected SlotId flameThrowerAttackSoundSlot;
+        protected SlotId flameThrowerAttackSoundSlot = new SlotId();
 
         protected override void EnemyStatistics() => SetEnemyStatistics("TF2/Content/Sounds/SFX/Voicelines/pyro_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/pyro_paincriticaldeath01");
 

@@ -28,7 +28,7 @@ namespace TF2.Content.Projectiles.Medic
             SetRotation();
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.ModNPC is MercenaryBuddy buddy && Main.netMode != NetmodeID.MultiplayerClient)
+                if (Projectile.Hitbox.Intersects(npc.Hitbox) && npc.friendly && npc.ModNPC is Buddy buddy && Main.netMode != NetmodeID.MultiplayerClient)
                 {
                     int healingAmount = TF2.Round(npc.lifeMax / buddy.BaseHealth * BaseHealingAmount(npc));
                     buddy.Heal(healingAmount);

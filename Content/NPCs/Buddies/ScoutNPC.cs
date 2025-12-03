@@ -11,7 +11,7 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.NPCs.Buddies
 {
-    public class ScoutNPC : MercenaryBuddy
+    public class ScoutNPC : Buddy
     {
         protected override Asset<Texture2D> Spritesheet => ModContent.Request<Texture2D>("TF2/Content/NPCs/Buddies/ScoutNPC");
 
@@ -19,7 +19,7 @@ namespace TF2.Content.NPCs.Buddies
 
         public override int BaseHealth => 125;
 
-        protected override float SpeedMuliplier => 1.33f;
+        public override float BaseSpeed => 1.33f;
 
         protected override int ExtraJumps => 1;
 

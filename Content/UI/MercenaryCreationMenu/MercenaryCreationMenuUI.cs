@@ -719,7 +719,6 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
             }
-            ModContent.GetInstance<ModuleSlot>().FunctionalItem.SetDefaults(ModContent.ItemType<MannsAntiDanmakuSystem>());
             p.cachedHealth = p.BaseHealth;
         }
 

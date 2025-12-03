@@ -4,7 +4,7 @@ using TF2.Common;
 
 namespace TF2.Content.Buffs
 {
-    public class HeavySpeed : ModBuff
+    public class EvictionNoticeBuff : ModBuff
     {
         public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 

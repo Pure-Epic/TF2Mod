@@ -202,6 +202,7 @@ namespace TF2.Content.Items
         private Asset<Texture2D> armTextureReverse;
         private Asset<Texture2D> legTexture;
         private Asset<Texture2D> legTextureReverse;
+        public Vector2 offset;
 
         protected readonly string[] classNames =
         [
@@ -474,6 +475,10 @@ namespace TF2.Content.Items
             int metalCost = refined * 18 + reclaimed * 6 + scrap * 2;
             metalValue = Item.buyPrice(platinum: weapon, gold: metalCost);
         }
+
+        protected void SetWeaponOffset(float x = 0f, float y = 0f) => offset = new Vector2(x, y);
+
+        protected void SetWeaponOffset(Vector2 offset) => this.offset = offset;
 
         protected void SetTimers(int timer1 = 0, int timer2 = 0, int timer3 = 0, int timer4 = 0, int timer5 = 0)
         {
@@ -1013,6 +1018,8 @@ namespace TF2.Content.Items
             if (Item != GetWeapon(Main.LocalPlayer, weaponType) && Item.ModItem is not TF2Accessory && TF2.IsItemInHotbar(Main.LocalPlayer, Item))
                 spriteBatch.Draw(TextureAssets.Cd.Value, position - TextureAssets.InventoryBack9.Value.Size() / 4.225f * Main.inventoryScale, null, drawColor, 0f, new Vector2(0.5f, 0.5f), 0.8f * Main.inventoryScale, SpriteEffects.None, 0f);
         }
+
+        public override sealed Vector2? HoldoutOffset() => offset;
 
         public override void LoadData(TagCompound tag)
         {

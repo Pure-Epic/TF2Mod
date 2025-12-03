@@ -46,6 +46,9 @@ namespace TF2.Content.Buffs
                         Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[0].ToNetworkText(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
+                int dustIndex = Dust.NewDust(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Blood, 0f, 0f, 100, default, 3f);
+                Main.dust[dustIndex].noGravity = true;
+                Main.dust[dustIndex].velocity *= 5f;
             }
             else
                 timer = 0;

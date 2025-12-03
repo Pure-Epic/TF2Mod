@@ -90,6 +90,7 @@ namespace TF2.Content.Projectiles.Demoman
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                 velocity.Y = Math.Abs(Utils.Clamp(velocity.Y, -25f, 25f));
                 Player.velocity -= velocity;
+                QuickFixMirror();
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 55.5);
                 Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);

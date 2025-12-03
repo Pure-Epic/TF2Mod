@@ -12,7 +12,7 @@ using TF2.Content.Projectiles.Pyro;
 
 namespace TF2.Content.NPCs.Buddies
 {
-    public class PyroNPC : MercenaryBuddy
+    public class PyroNPC : Buddy
     {
         protected override Asset<Texture2D> Spritesheet => ModContent.Request<Texture2D>("TF2/Content/NPCs/Buddies/PyroNPC");
 
@@ -34,7 +34,7 @@ namespace TF2.Content.NPCs.Buddies
 
         protected static SoundStyle FlameThrowerAttackSound => new SoundStyle("TF2/Content/Sounds/SFX/Weapons/flame_thrower_loop");
 
-        protected SlotId flameThrowerAttackSoundSlot;
+        protected SlotId flameThrowerAttackSoundSlot = new SlotId();
 
         protected override void BuddyStatistics() => SetBuddyStatistics(18, "TF2/Content/Sounds/SFX/Voicelines/pyro_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/pyro_paincriticaldeath01");
 

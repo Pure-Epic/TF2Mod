@@ -8,7 +8,7 @@ using Terraria.ModLoader.IO;
 
 namespace TF2.Content.Buffs
 {
-    public class Sapped : ModBuff
+    public class SapperDebuff : ModBuff
     {
         public override void SetStaticDefaults()
         {

@@ -28,12 +28,14 @@ namespace TF2.Content.Projectiles.Demoman
                 Projectile.tileCollide = false;
                 Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
-                if (FindOwner(Projectile, 50f))
+                if (FindOwner(Projectile, 100f) && !Explode)
                 {
+                    Explode = true;
                     velocity *= 2.5f;
                     velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                     velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
                     Player.velocity -= velocity;
+                    QuickFixMirror();
                 }
             }
             if (!Stick && Projectile.timeLeft != 0)
@@ -42,9 +44,7 @@ namespace TF2.Content.Projectiles.Demoman
                 GroundAI();
         }
 
-        protected override void ProjectileDestroy(int timeLeft) => Explode();
-
-        public void Explode()
+        protected override void ProjectileDestroy(int timeLeft)
         {
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/sticky_jumper_explode"), Projectile.Center);
             for (int i = 0; i < 50; i++)
@@ -52,7 +52,6 @@ namespace TF2.Content.Projectiles.Demoman
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Smoke, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 1.4f;
             }
-
             for (int i = 0; i < 80; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, default, 3f);
@@ -62,7 +61,5 @@ namespace TF2.Content.Projectiles.Demoman
                 dust.velocity *= 3f;
             }
         }
-
-        public override void StickyJump(Vector2 velocity) => base.StickyJump(velocity);
     }
 }

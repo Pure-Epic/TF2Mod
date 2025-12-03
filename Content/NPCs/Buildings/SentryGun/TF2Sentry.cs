@@ -54,7 +54,7 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
         protected int wranglerCooldown;
         protected int scanTimer;
         protected bool playTargetSound;
-        internal SlotId sentrySoundSlot;
+        internal SlotId sentrySoundSlot = new SlotId();
         private static Asset<Texture2D> wranglerShield;
 
         public override void Load()

@@ -27,7 +27,7 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         protected virtual SoundStyle TeleporterSound => new SoundStyle("TF2/Content/Sounds/SFX/NPCs/teleporter_spin");
 
-        internal SlotId teleporterSoundSlot;
+        internal SlotId teleporterSoundSlot = new SlotId();
 
         protected virtual void TeleporterSpawn()
         { }
@@ -219,15 +219,18 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         protected override void BuildingDestroy()
         {
-            FindTeleporterExit(out TeleporterExit exit);
             if (SoundEngine.TryGetActiveSound(teleporterSoundSlot, out var entranceSound))
                 entranceSound?.Stop();
-            if (SoundEngine.TryGetActiveSound(exit.teleporterSoundSlot, out var exitSound))
-                exitSound?.Stop();
-            exit?.SyncTeleporter(ModContent.NPCType<TeleporterExitLevel1>());
+            FindTeleporterExit(out TeleporterExit exit);
+            if (exit != null)
+            {
+                if (SoundEngine.TryGetActiveSound(exit.teleporterSoundSlot, out var exitSound))
+                    exitSound?.Stop();
+                exit?.SyncTeleporter(ModContent.NPCType<TeleporterExitLevel1>());
+            }
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (p.currentClass == TF2Item.Engineer)
-                p.teleporterExitWhoAmI = -1;
+                p.teleporterEntranceWhoAmI = -1;
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autodestroyedteleporter01"), Player.Center);
         }
 
@@ -339,15 +342,18 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         protected override void BuildingDestroy()
         {
-            FindTeleporterEntrance(out TeleporterEntrance entrance);
             if (SoundEngine.TryGetActiveSound(teleporterSoundSlot, out var exitSound))
                 exitSound?.Stop();
-            if (SoundEngine.TryGetActiveSound(entrance.teleporterSoundSlot, out var entranceSound))
-                entranceSound?.Stop();
-            entrance?.SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel1>());
+            FindTeleporterEntrance(out TeleporterEntrance entrance);
+            if (entrance != null)
+            {
+                if (SoundEngine.TryGetActiveSound(entrance.teleporterSoundSlot, out var entranceSound))
+                    entranceSound?.Stop();
+                entrance?.SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel1>());
+            }
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (p.currentClass == TF2Item.Engineer)
-                p.teleporterEntranceWhoAmI = -1;
+                p.teleporterExitWhoAmI = -1;
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Voicelines/engineer_autodestroyedteleporter01"), Player.Center);
         }
 

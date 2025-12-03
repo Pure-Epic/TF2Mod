@@ -90,7 +90,7 @@ namespace TF2.Content.Items.Weapons.Demoman
             buffDelay++;
             if (buffDelay >= TF2.Time(0.5))
             {
-                Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+                Player.ClearBuff(ModContent.BuffType<ShieldBuff>());
                 buffDelay = 0;
             }
         }

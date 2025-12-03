@@ -12,7 +12,7 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.NPCs.Buddies
 {
-    public class SpyNPC : MercenaryBuddy
+    public class SpyNPC : Buddy
     {
         protected override Asset<Texture2D> Spritesheet => ModContent.Request<Texture2D>("TF2/Content/NPCs/Buddies/SpyNPC");
 

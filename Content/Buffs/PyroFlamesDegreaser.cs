@@ -36,11 +36,14 @@ namespace TF2.Content.Buffs
                 if (timer >= TF2.Time(0.5))
                 {
                     Player.statLife -= (int)MathHelper.Max(1.33f * damageMultiplier, 1f);
-                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(4 * damageMultiplier), dramatic: false, dot: true);
+                    CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, (int)(1.33f * damageMultiplier), dramatic: false, dot: true);
                     if (Player.statLife <= 0)
-                        Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[5].ToNetworkText(Player.name)), (int)(4 * damageMultiplier), 0);
+                        Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[5].ToNetworkText(Player.name)), (int)(1.33f * damageMultiplier), 0);
                     timer = 0;
                 }
+                int dustIndex = Dust.NewDust(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Torch, 0f, 0f, 100, default, 3f);
+                Main.dust[dustIndex].noGravity = true;
+                Main.dust[dustIndex].velocity *= 5f;
             }
             else
                 timer = 0;

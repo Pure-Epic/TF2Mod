@@ -19,7 +19,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public override int BaseHealth => 125;
 
-        protected override float SpeedMuliplier => 1.33f;
+        public override float BaseSpeed => 1.33f;
 
         protected override int ExtraJumps => 1;
 

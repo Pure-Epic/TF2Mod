@@ -17,7 +17,7 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class UllapoolCaber : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type] : ModContent.Request<Texture2D>("TF2/Content/Textures/UllapoolCaberDetonated");
+        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type] : ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/UllapoolCaberDetonated");
 
         protected override void WeaponStatistics()
         {
@@ -39,14 +39,13 @@ namespace TF2.Content.Items.Weapons.Demoman
 
         protected override bool WeaponDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            Texture2D texture = (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type].Value : ModContent.Request<Texture2D>("TF2/Content/Textures/UllapoolCaberDetonated").Value;
-            spriteBatch.Draw(texture, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(WeaponActiveTexture.Value, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
             return false;
         }
 
         protected override bool WeaponDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
         {
-            Texture2D texture = (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type].Value : ModContent.Request<Texture2D>("TF2/Content/Textures/UllapoolCaberDetonated").Value;
+            Texture2D texture = WeaponActiveTexture.Value;
             spriteBatch.Draw(texture, Item.position - Main.screenPosition + new Vector2(Item.width / 2, Item.height - texture.Height * 0.5f + 2f), null, lightColor.MultiplyRGB(alphaColor), rotation, texture.Size() * 0.5f, scale, SpriteEffects.None, 0f);
             return false;
         }

@@ -61,6 +61,9 @@ namespace TF2.Content.Projectiles.Medic
                     }
                     HealPlayer(targetPlayer);
                     Projectile.Center = target.Center;
+                    p.isHealing = true;
+                    if (targetPlayer.moveSpeed > Player.moveSpeed)
+                        p.healingMovementSpeed = targetPlayer.moveSpeed;
                 }
                 else
                 {
@@ -81,6 +84,13 @@ namespace TF2.Content.Projectiles.Medic
                             HealNPC(npc);
                         }
                         Projectile.Center = target.Center;
+                        if (npc.ModNPC is Buddy buddy)
+                        {
+                            p.isHealing = true;
+                            float moveSpeed = buddy.BaseSpeed * buddy.speedMultiplier;
+                            if (moveSpeed > Player.moveSpeed)
+                                p.healingMovementSpeed = moveSpeed;
+                        }
                     }
                 }
                 Player.itemTime = 2;
@@ -131,7 +141,7 @@ namespace TF2.Content.Projectiles.Medic
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 float sqrDistanceToTarget = Vector2.DistanceSquared(npc.Center, projectile.Center);
-                if (sqrDistanceToTarget < sqrMaxDetectDistance && npc.ModNPC is MercenaryBuddy)
+                if (sqrDistanceToTarget < sqrMaxDetectDistance && npc.ModNPC is Buddy)
                 {
                     sqrMaxDetectDistance = sqrDistanceToTarget;
                     npcFound = npc;
@@ -158,7 +168,7 @@ namespace TF2.Content.Projectiles.Medic
 
         protected void HealNPC(NPC target)
         {
-            if (target.ModNPC is not MercenaryBuddy buddy) return;
+            if (target.ModNPC is not Buddy buddy) return;
             if (HealCooldown <= 0)
             {
                 int healingAmount = TF2.Round(buddy.healthMultiplier * (!buddy.HealPenalty ? 1.2f : 0.4f) * HealMultiplier);

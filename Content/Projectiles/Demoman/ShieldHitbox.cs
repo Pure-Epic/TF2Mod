@@ -54,15 +54,16 @@ namespace TF2.Content.Projectiles.Demoman
             {
                 shield.chargeActive = false;
                 shield.chargeProjectileCreated = false;
-                Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+                Player.ClearBuff(ModContent.BuffType<ShieldBuff>());
                 Player.velocity = new Vector2(0f, 0f);
                 Projectile.Kill();
                 return;
             }
             if (Timer >= TF2.Time(0.5))
-                Player.AddBuff(ModContent.BuffType<MeleeCrit>(), TF2.Time(10));
+                Player.AddBuff(ModContent.BuffType<ShieldBuff>(), TF2.Time(10));
             Projectile.Center = Player.Center;
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
+            QuickFixMirror();
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -85,7 +86,7 @@ namespace TF2.Content.Projectiles.Demoman
             shield.buffDelay = 0;
             shield.chargeActive = false;
             shield.chargeProjectileCreated = false;
-            Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+            Player.ClearBuff(ModContent.BuffType<ShieldBuff>());
             Player.velocity = Vector2.Zero;
             Projectile.Kill();
         }
@@ -99,7 +100,7 @@ namespace TF2.Content.Projectiles.Demoman
             shield.buffDelay = 0;
             shield.chargeActive = false;
             shield.chargeProjectileCreated = false;
-            Player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+            Player.ClearBuff(ModContent.BuffType<ShieldBuff>());
             Player.velocity = Vector2.Zero;
             Projectile.Kill();
         }

@@ -34,7 +34,7 @@ namespace TF2.Content.Buffs
             if (buffActive)
             {
                 timer++;
-                if (timer >= TF2.Time(0.25) && npc.ModNPC is MercenaryBuddy buddy)
+                if (timer >= TF2.Time(0.25) && npc.ModNPC is Buddy buddy)
                 {
                     buddy.Heal(TF2.Round(buddy.healthMultiplier * 6.25f));
                     timer = 0;

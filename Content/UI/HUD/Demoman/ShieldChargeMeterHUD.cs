@@ -66,7 +66,7 @@ namespace TF2.Content.UI.HUD.Demoman
                 charge = (float)p.chargeLeft / p.chargeDuration;
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.Player.HasBuff<MeleeCrit>() ? Color.White : Color.Red);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.Player.HasBuff<ShieldBuff>() ? Color.White : Color.Red);
         }
     }
 }

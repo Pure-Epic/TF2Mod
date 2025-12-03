@@ -175,7 +175,7 @@ namespace TF2.Content.Projectiles.Spy
             TF2Player p = Player.GetModPlayer<TF2Player>();
             SappedPlayer sappedPlayer = target.GetModPlayer<SappedPlayer>();
             sappedPlayer.damageMultiplier = p.damageMultiplier;
-            target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10), true);
+            target.AddBuff(ModContent.BuffType<SapperDebuff>(), TF2.Time(10), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
@@ -183,7 +183,7 @@ namespace TF2.Content.Projectiles.Spy
             TF2Player p = Player.GetModPlayer<TF2Player>();
             SappedNPC npc = target.GetGlobalNPC<SappedNPC>();
             npc.damageMultiplier = p.damageMultiplier;
-            target.AddBuff(ModContent.BuffType<Sapped>(), TF2.Time(10));
+            target.AddBuff(ModContent.BuffType<SapperDebuff>(), TF2.Time(10));
             StickOnEnemy = true;
             TargetWhoAmI = target.whoAmI;
             Projectile.netUpdate = true;

@@ -31,10 +31,10 @@ namespace TF2.Content.Projectiles.Engineer
                 if (TF2.MeleeHitbox(Player).Intersects(player.Hitbox) && player.whoAmI != Projectile.owner && !player.dead && !player.hostile && Main.dedServ)
                 {
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_hit"), player.Center);
-                    if (!Player.HasBuff<Whipped>())
+                    if (!Player.HasBuff<DisciplinaryActionBuff>())
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), Player.Center);
-                    player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(2), false);
-                    Player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(3));
+                    player.AddBuff(ModContent.BuffType<DisciplinaryActionBuff>(), TF2.Time(2), false);
+                    Player.AddBuff(ModContent.BuffType<DisciplinaryActionBuff>(), TF2.Time(3));
                     if (Main.dedServ)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
@@ -48,13 +48,13 @@ namespace TF2.Content.Projectiles.Engineer
             }
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (TF2.MeleeHitbox(Player).Intersects(npc.Hitbox) && npc.ModNPC is MercenaryBuddy)
+                if (TF2.MeleeHitbox(Player).Intersects(npc.Hitbox) && npc.ModNPC is Buddy)
                 {
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_hit"), npc.Center);
-                    if (!Player.HasBuff<Whipped>())
+                    if (!Player.HasBuff<DisciplinaryActionBuff>())
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), Player.Center);
-                    npc.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(2));
-                    Player.AddBuff(ModContent.BuffType<Whipped>(), TF2.Time(3));
+                    npc.AddBuff(ModContent.BuffType<DisciplinaryActionBuff>(), TF2.Time(2));
+                    Player.AddBuff(ModContent.BuffType<DisciplinaryActionBuff>(), TF2.Time(3));
                     if (Main.dedServ)
                     {
                         ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();

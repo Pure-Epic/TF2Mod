@@ -9,7 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Content.Projectiles;
-using static TF2.Content.NPCs.Buddies.MercenaryBuddy;
+using static TF2.Content.NPCs.Buddies.Buddy;
 using static TF2.Content.Tiles.TF2Tile;
 
 namespace TF2.Content.NPCs.Enemies
@@ -86,7 +86,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public virtual int BaseHealth => 100;
 
-        protected virtual float SpeedMuliplier => 1f;
+        public virtual float BaseSpeed => 1f;
 
         protected virtual float JumpHeightMuliplier => 1f;
 
@@ -133,7 +133,7 @@ namespace TF2.Content.NPCs.Enemies
         protected Vector2 targetCenter;
         private Vector2 oldJumpPosition;
         protected short turnTime;
-        public float temporarySpeedMultiplier = 1f;
+        public float speedMultiplier = 1f;
         protected bool stunned;
         protected bool onSolidGround;
         protected bool fallingThroughPlatforms;
@@ -212,7 +212,7 @@ namespace TF2.Content.NPCs.Enemies
         {
             if (RetreatCountdown <= 0)
                 UpdateMoveDirections();
-            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * SpeedMuliplier * temporarySpeedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
+            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * BaseSpeed * speedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
             if (CanStepUp() && StepUp(ref NPC.position, ref NPC.velocity, NPC.direction, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY, ref fallingThroughPlatforms))
                 steppedUp = true;
             else if (CanStepDown() && StepDown(ref NPC.position, ref NPC.velocity, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY))
@@ -224,21 +224,21 @@ namespace TF2.Content.NPCs.Enemies
                 jumping = true;
                 jumped = true;
                 jumpType = 1;
-                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height - 4f);
+                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * BaseSpeed, 0, height - 4f);
             }
             else if (CanJump() && EnemyPlayer.Center.Y <= NPC.Bottom.Y && JumpGaps(NPC.position, NPC.direction, NPC.width, NPC.height))
             {
                 jumping = true;
                 jumped = true;
                 jumpType = 2;
-                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 1);
+                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * BaseSpeed, 1);
             }
             else if (CanJump() && EnemyPlayer.Center.Y < NPC.Top.Y && JumpUpSolidTop(NPC.position, NPC.width, NPC.height, jumpHeight * JumpHeightMuliplier, out float height2))
             {
                 jumping = true;
                 jumped = true;
                 jumpType = 3;
-                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * SpeedMuliplier, 0, height2 - 4f);
+                NPC.velocity.Y = GetJumpSpeed(jumpHeight * JumpHeightMuliplier, jumpSpeed * BaseSpeed, 0, height2 - 4f);
             }
             else if (CanFallThroughSolidTops() && OnSolidTops(NPC.Bottom, NPC.width))
                 fallingThroughPlatforms = true;
@@ -528,7 +528,7 @@ namespace TF2.Content.NPCs.Enemies
             }
             EnemyUpdate();
             EnemyUpdateWithTarget(EnemyPlayer);
-            temporarySpeedMultiplier = 1f;
+            speedMultiplier = 1f;
         }
 
         public sealed override void OnKill() => EnemyDie();
@@ -539,7 +539,7 @@ namespace TF2.Content.NPCs.Enemies
             writer.Write(Ammo);
             writer.Write(ReloadTimer);
             writer.Write(ReloadCooldownTimer);
-            writer.Write(temporarySpeedMultiplier);
+            writer.Write(speedMultiplier);
             writer.Write(targetCenter.X);
             writer.Write(targetCenter.Y);
             writer.Write(oldJumpPosition.X);
@@ -570,7 +570,7 @@ namespace TF2.Content.NPCs.Enemies
             Ammo = reader.ReadInt32();
             ReloadTimer = reader.ReadInt32();
             ReloadCooldownTimer = reader.ReadInt32();
-            temporarySpeedMultiplier = reader.ReadSingle();
+            speedMultiplier = reader.ReadSingle();
             targetCenter = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             oldJumpPosition = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             turnTime = reader.ReadInt16();
@@ -662,7 +662,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public static void SetEnemySpeed(BLUMercenary enemy, double percentage)
         {
-            ref float speed = ref enemy.temporarySpeedMultiplier;
+            ref float speed = ref enemy.speedMultiplier;
             speed *= (float)(percentage / 100f);
         }
 

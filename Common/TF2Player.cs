@@ -132,6 +132,8 @@ namespace TF2.Common
         private int healTimer;
         public float regenerationMultiplier = 1f;
         public bool stopRegen;
+        public bool isHealing;
+        public float healingMovementSpeed;
         public bool activateUberCharge;
         public float uberCharge;
         public float maxUberCharge = 100;
@@ -214,8 +216,13 @@ namespace TF2.Common
                 if (Player.difficulty != 0)
                     Player.difficulty = 0;
             }
-            if (currentClass == TF2Item.Spy && !newPlayer && ModContent.GetInstance<PDASlot>().FunctionalItem.type == ItemID.None)
-                ModContent.GetInstance<PDASlot>().FunctionalItem.SetDefaults(ModContent.ItemType<InvisWatch>());
+            if (!newPlayer)
+            {
+                if (currentClass == TF2Item.Spy && ModContent.GetInstance<PDASlot>().FunctionalItem.type == ItemID.None)
+                    ModContent.GetInstance<PDASlot>().FunctionalItem.SetDefaults(ModContent.ItemType<InvisWatch>());
+                if (ClassSelected && ModContent.GetInstance<ModuleSlot>().FunctionalItem.type == ItemID.None)
+                    ModContent.GetInstance<ModuleSlot>().FunctionalItem.SetDefaults(ModContent.ItemType<MannsAntiDanmakuSystem>());
+            }
             newPlayer = true;
 
             // Temporary code
@@ -250,8 +257,8 @@ namespace TF2.Common
             Player.GetDamage<MercenaryDamage>() *= damageMultiplier;
             if (Main.netMode != NetmodeID.Server)
                 focus = false;
-            Player.moveSpeed = BaseSpeed;
-            Player.accRunSpeed = BaseSpeed;
+            Player.moveSpeed = !isHealing ? BaseSpeed : healingMovementSpeed;
+            Player.accRunSpeed = !isHealing ? BaseSpeed : healingMovementSpeed;
             speedMultiplier = Player.moveSpeed;
             primaryAmmoMultiplier = 1f;
             secondaryAmmoMultiplier = 1f;
@@ -271,6 +278,8 @@ namespace TF2.Common
             constructionSpeedMultiplier = 1f;
             repairRateMultiplier = 1f;
             regenerationMultiplier = 1f;
+            isHealing = false;
+            healingMovementSpeed = Player.moveSpeed;
             brokenCloak = false;
         }
 
@@ -488,37 +497,8 @@ namespace TF2.Common
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (KeybindSystem.Reload.JustPressed && Main.LocalPlayer.HeldItem.ModItem is TF2Weapon weapon && weapon.currentAmmoClip != weapon.maxAmmoClip && weapon.maxAmmoReserve > 0)
+            if (KeybindSystem.Reload.JustPressed && Player.HeldItem.ModItem is TF2Weapon weapon && weapon.currentAmmoClip != weapon.maxAmmoClip && weapon.maxAmmoReserve > 0)
                 weapon.Reloading = true;
-            if (KeybindSystem.SoldierBuff.JustPressed && HasBanner)
-            {
-                TF2Player p = Main.LocalPlayer.GetModPlayer<TF2Player>();
-                BannerPlayer bannerPlayer = p.bannerType switch
-                {
-                    1 => Main.LocalPlayer.GetModPlayer<BuffBannerPlayer>(),
-                    2 => Main.LocalPlayer.GetModPlayer<BattalionsBackupPlayer>(),
-                    3 => Main.LocalPlayer.GetModPlayer<ConcherorPlayer>(),
-                    _ => Main.LocalPlayer.GetModPlayer<BuffBannerPlayer>()
-                };
-                if (bannerPlayer.rage >= bannerPlayer.MaxRage)
-                {
-                    SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/buff_banner_horn_red"), Player.Center);
-                    int buff = p.bannerType switch
-                    {
-                        1 => ModContent.BuffType<Rage>(),
-                        2 => ModContent.BuffType<DefenseRage>(),
-                        3 => ModContent.BuffType<HealthRage>(),
-                        _ => 0
-                    };
-                    foreach (Player targetPlayer in Main.ActivePlayers)
-                        targetPlayer.AddBuff(buff, TF2.Time(10));
-                    foreach (NPC targetNPC in Main.ActiveNPCs)
-                    {
-                        if (targetNPC.ModNPC is MercenaryBuddy)
-                            targetNPC.AddBuff(buff, TF2.Time(10));
-                    }
-                }
-            }
             if (KeybindSystem.MoveBuilding.JustPressed && currentClass == TF2Item.Engineer)
             {
                 if (!CarryingBuilding)
@@ -1283,7 +1263,8 @@ namespace TF2.Common
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             Player player = drawInfo.drawPlayer;
-            if (player.GetModPlayer<TF2Player>().ClassSelected)
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            if (p.ClassSelected)
             {
                 if (player.JustDroppedAnItem) return;
                 if (player.heldProj >= 0 && drawInfo.shadow == 0f && !drawInfo.heldProjOverHand)
@@ -1305,10 +1286,16 @@ namespace TF2.Common
                 float adjustedItemScale = player.GetAdjustedItemScale(heldItem);
                 Main.instance.LoadItem(itemType);
                 Texture2D value = TextureAssets.Item[itemType].Value;
-                if (heldItem.ModItem is TF2Item weapon)
-                    value = weapon.WeaponActiveTexture.Value;
                 Vector2 position = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y));
+                if (heldItem.ModItem is TF2Item weapon)
+                {
+                    value = weapon.WeaponActiveTexture.Value;
+                    if (heldItem.useStyle == 15 && weapon.offset != Vector2.Zero)
+                        position += new Vector2(weapon.offset.X * player.direction, weapon.offset.Y * player.gravDir);
+                }
                 Rectangle itemDrawFrame = player.GetItemDrawFrame(itemType);
+                itemDrawFrame.Width = value.Width;
+                itemDrawFrame.Height = value.Height;
                 drawInfo.itemColor = Lighting.GetColor((int)(drawInfo.Position.X + player.width * 0.5) / 16, (int)((drawInfo.Position.Y + player.height * 0.5) / 16.0));
                 if (itemType == ItemID.RedPotion)
                     drawInfo.itemColor = Color.White;
@@ -1614,16 +1601,20 @@ namespace TF2.Common
             && item.shoot == ProjectileID.None
             && item.type != ItemID.RodofDiscord
             && item.type != ItemID.RodOfHarmony
+            && item.type != ItemID.LifeCrystal
+            && item.type != ItemID.ManaCrystal
             && item.mountType <= -1
             || item.ModItem?.Mod is TF2
             || item.createTile > -1
             || item.createWall > -1
-            || ItemID.Sets.SortingPriorityBossSpawns[item.type] == 12
+            || ItemID.Sets.SortingPriorityBossSpawns[item.type] != -1
+            || ItemID.Sets.SortingPriorityTerraforming[item.type] != -1
             || ItemID.Sets.BossBag[item.type]
             || item.ammo != AmmoID.None
             || item.type == ItemID.ShadowScale
             || item.type == ItemID.TissueSample
             || item.useStyle == ItemUseStyleID.None
+            || item.makeNPC != -1
             || Main.projPet[item.shoot]
             || ProjectileID.Sets.LightPet[item.shoot];
 

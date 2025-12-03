@@ -11,8 +11,8 @@ namespace TF2.Content.Projectiles.Scout
         {
             if (FindOwner(Projectile, 50f))
             {
-                oldVelocity.X = Utils.Clamp(oldVelocity.X, -2f, 2f);
-                oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -2f, 2f);
+                oldVelocity.X = Utils.Clamp(oldVelocity.X, -1.5f, 1.5f);
+                oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -1.5f, 1.5f);
                 Player.velocity -= oldVelocity;
             }
             return true;

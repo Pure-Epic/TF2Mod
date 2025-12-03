@@ -145,6 +145,7 @@ namespace TF2.Content.Items.Modules
                     }
                 }
                 Player.noKnockback = true;
+                Player.noFallDmg = true;
                 if (Player.controlJump)
                 {
                     if (!Player.controlDown)

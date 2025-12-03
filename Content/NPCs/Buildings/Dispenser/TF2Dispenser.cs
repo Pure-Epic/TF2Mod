@@ -216,7 +216,7 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                 {
                     if (!playDispenserSound)
                     {
-                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/medigun_heal"), NPC.Center);
+                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/dispenser_heal"), NPC.Center);
                         playDispenserSound = true;
                     }
                     Timer2 = 0;
@@ -293,7 +293,7 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                 {
                     if (!playDispenserSound)
                     {
-                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/medigun_heal"), NPC.Center);
+                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/dispenser_heal"), NPC.Center);
                         playDispenserSound = true;
                     }
                     Timer2 = 0;
@@ -369,7 +369,7 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                 {
                     if (!playDispenserSound)
                     {
-                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/medigun_heal"), NPC.Center);
+                        SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/dispenser_heal"), NPC.Center);
                         playDispenserSound = true;
                     }
                     Timer2 = 0;

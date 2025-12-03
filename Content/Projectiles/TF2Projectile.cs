@@ -13,6 +13,7 @@ using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.NPCs.Buddies;
 using TF2.Content.NPCs.Enemies;
+using TF2.Content.Projectiles.Medic;
 
 namespace TF2.Content.Projectiles
 {
@@ -197,6 +198,21 @@ namespace TF2.Content.Projectiles
             }
         }
 
+        public void QuickFixMirror()
+        {
+            if (Main.netMode == NetmodeID.MultiplayerClient)
+            {
+                foreach (Projectile projectile in Main.projectile)
+                {
+                    if ((projectile.ModProjectile is HealingBeamQuickFix)
+                        && projectile.Hitbox.Intersects(Player.Hitbox)
+                        && projectile.active
+                        && projectile.owner != Main.myPlayer)
+                        Main.player[projectile.owner].velocity = Player.velocity;
+                }
+            }
+        }
+
         public sealed override void SetDefaults()
         {
             ProjectileStatistics();
@@ -330,7 +346,7 @@ namespace TF2.Content.Projectiles
         public sealed override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             modifiers.DamageVariationScale *= 0;
-            if (Main.npc[npcOwner].ModNPC is MercenaryBuddy buddy)
+            if (Main.npc[npcOwner].ModNPC is Buddy buddy)
                 TF2.NPCDistanceModifier(buddy.NPC, Projectile, target, ref modifiers, buddy.MaxDamageMultiplier, buddy.DamageFalloffRange, buddy.NoDamageModifier);
             else if (Main.npc[npcOwner].ModNPC is BLUMercenary npc)
             {

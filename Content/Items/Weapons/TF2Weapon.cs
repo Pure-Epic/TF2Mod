@@ -60,7 +60,6 @@ namespace TF2.Content.Items.Weapons
         public SoundStyle reloadSound;
 
         protected WeaponSize meleeWeaponSize = new WeaponSize(50, 50);
-        public Vector2 offset;
         private bool noUseGraphic;
         public int cooldownTimer;
         public int deployTimer;
@@ -69,6 +68,7 @@ namespace TF2.Content.Items.Weapons
         protected bool reload;
         protected int ammoReloadRateTimer;
         protected bool isCharging;
+        protected bool isActive;
         protected bool hideAttackSpeed;
 
         protected bool weaponInitialized;
@@ -117,7 +117,6 @@ namespace TF2.Content.Items.Weapons
         protected bool endSpinUpSound;
         protected bool endSpinDownSound;
         protected int sandvichItem;
-        protected bool eatingSandvich;
         private bool isSyringeGun;
         private bool isMediGun;
         public float uberCharge;
@@ -393,8 +392,6 @@ namespace TF2.Content.Items.Weapons
 
         protected void SetWeaponSize(int width = 25, int height = 25) => Item.Size = weaponType != Melee ? (Vector2)new WeaponSize(width, height) : (Vector2)WeaponSize.MeleeWeaponSize;
 
-        protected void SetWeaponOffset(float x = 0f, float y = 0f) => offset = new Vector2(x, y);
-
         protected void SetGunUseStyle(bool focus = false, bool automatic = false, bool rocketLauncher = false, bool grenadeLauncher = false, bool stickybombLauncher = false, bool minigun = false, bool syringeGun = false, bool mediGun = false)
         {
             Item.useStyle = ItemUseStyleID.Shoot;
@@ -462,6 +459,15 @@ namespace TF2.Content.Items.Weapons
         protected void SetDrinkUseStyle()
         {
             Item.useStyle = ItemUseStyleID.DrinkLiquid;
+            Item.noMelee = true;
+            Item.autoReuse = true;
+            noAmmoConsumption = true;
+            noAmmoClip = true;
+        }
+
+        protected void SetBannerUseStyle()
+        {
+            Item.useStyle = 15;
             Item.noMelee = true;
             Item.autoReuse = true;
             noAmmoConsumption = true;
@@ -1142,7 +1148,7 @@ namespace TF2.Content.Items.Weapons
         {
             if (weaponType == Melee)
             {
-                player.ClearBuff(ModContent.BuffType<MeleeCrit>());
+                player.ClearBuff(ModContent.BuffType<ShieldBuff>());
                 if (player.GetModPlayer<TF2Player>().crit && player.GetModPlayer<AliBabasWeeBootiesPlayer>().aliBabasWeeBootiesEquipped)
                 {
                     ShieldPlayer shield = ShieldPlayer.GetShield(player);
@@ -1176,8 +1182,6 @@ namespace TF2.Content.Items.Weapons
             if (ModContent.GetInstance<TF2ConfigClient>().InfiniteAmmo)
                 ammoCost = 0;
         }
-
-        public override sealed Vector2? HoldoutOffset() => offset;
 
         public override sealed void ModifyTooltips(List<TooltipLine> tooltips)
         {

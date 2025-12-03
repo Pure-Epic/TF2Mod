@@ -24,6 +24,15 @@ namespace TF2.Content.Items.Weapons.Scout
 
         public override bool WeaponCanBeUsed(Player player) => timer[0] >= TF2.Time(22);
 
+        protected override void WeaponActiveUpdate(Player player)
+        {
+            if (isActive && player.ItemAnimationEndingOrEnded)
+            {
+                player.AddBuff(ModContent.BuffType<BonkAtomicPunchBuff>(), TF2.Time(8));
+                isActive = false;
+            }
+        }
+
         protected override void WeaponPassiveUpdate(Player player)
         {
             if (timer[0] < TF2.Time(22))
@@ -32,8 +41,8 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override bool? WeaponOnUse(Player player)
         {
-            player.AddBuff(ModContent.BuffType<Radiation>(), TF2.Time(8));
             timer[0] = 0;
+            isActive = true;
             return true;
         }
     }

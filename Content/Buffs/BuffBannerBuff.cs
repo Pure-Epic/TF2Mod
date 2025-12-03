@@ -5,7 +5,7 @@ using TF2.Content.Items.Weapons.Soldier;
 
 namespace TF2.Content.Buffs
 {
-    public class Rage : ModBuff
+    public class BuffBannerBuff : ModBuff
     {
         public override void SetStaticDefaults()
         {

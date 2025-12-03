@@ -870,10 +870,10 @@ namespace TF2.Content.UI.MannCoStore
             Main.instance.LoadItem(Item.Item.type);
             Texture2D value = TextureAssets.Item[Item.Item.type].Value;
             Rectangle rectangle = (Main.itemAnimations[Item.Item.type] == null) ? value.Frame(1, 1, 0, 0, 0, 0) : Main.itemAnimations[Item.Item.type].GetFrame(value, -1);
-            float num = 3.5f;
-            if (rectangle.Width * num > 100 || rectangle.Height * num > 100)
-                num = (rectangle.Width <= rectangle.Height) ? (100f / rectangle.Height) : (100f / rectangle.Width);
-            spriteBatch.Draw(value, new Vector2(innerDimensions.X + 145f, innerDimensions.Center().Y), new Rectangle?(rectangle), Color.White, 0f, new Vector2(rectangle.Width, rectangle.Height) * 0.5f, num, 0, 0f);
+            float scale = 3.5f;
+            if (rectangle.Width * scale > 100 || rectangle.Height * scale > 100)
+                scale = (rectangle.Width <= rectangle.Height) ? (100f / rectangle.Height) : (100f / rectangle.Width);
+            spriteBatch.Draw(value, new Vector2(innerDimensions.X + 145f, innerDimensions.Center().Y), new Rectangle?(rectangle), Color.White, 0f, new Vector2(rectangle.Width, rectangle.Height) * 0.5f, scale, 0, 0f);
         }
     }
 
@@ -975,8 +975,8 @@ namespace TF2.Content.UI.MannCoStore
 
         private void UpdateScrollbar()
         {
-            if (scrollbar == null) return;
-            scrollbar.SetView(GetInnerDimensions().Height, _innerListHeight);
+            if (scrollbar != null)
+                scrollbar.SetView(GetInnerDimensions().Height, _innerListHeight);
         }
 
         public void SetScrollbar(UIScrollbar scrollbar)

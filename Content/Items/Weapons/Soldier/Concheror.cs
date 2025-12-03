@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System.Collections.Generic;
 using Terraria;
@@ -7,17 +8,25 @@ using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Materials;
+using TF2.Content.NPCs.Buddies;
 using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Soldier
 {
-    public class Concheror : TF2Accessory
+    public class Concheror : TF2Weapon
     {
+        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/Concheror");
+
         protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/Concheror";
 
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Soldier, Secondary, Unique, Craft);
+            SetWeaponSize(50, 50);
+            SetWeaponOffset(4, 1);
+            SetBannerUseStyle();
+            SetWeaponAttackSpeed(2.645, hide: true);
+            SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/buff_banner_horn");
             SetWeaponPrice(weapon: 1, reclaimed: 1, scrap: 1);
         }
 
@@ -30,11 +39,43 @@ namespace TF2.Content.Items.Weapons.Soldier
         protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 3;
 
         protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<ConcherorPlayer>().buffActive ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.ConcherorTextures[0] : ItemTextures.ConcherorTextures[1]);
-
-        public override void UpdateAccessory(Player player, bool hideVisual)
+        
+        protected override void WeaponAttackAnimation(Player player)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            p.bannerType = 3;
+            float direction = -MathHelper.PiOver2 * player.direction;
+            player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, direction);
+            player.itemLocation = player.MountedCenter;
+        }
+
+        public override bool WeaponCanBeUsed(Player player)
+        {
+            ConcherorPlayer bannerPlayer = player.GetModPlayer<ConcherorPlayer>();
+            return bannerPlayer.rage >= bannerPlayer.MaxRage;
+        }
+
+        protected override void WeaponActiveUpdate(Player player)
+        {
+            if (isActive && player.ItemAnimationEndingOrEnded)
+            {
+                int buff = ModContent.BuffType<ConcherorBuff>();
+                foreach (Player targetPlayer in Main.ActivePlayers)
+                    targetPlayer.AddBuff(buff, TF2.Time(10));
+                foreach (NPC targetNPC in Main.ActiveNPCs)
+                {
+                    if (targetNPC.ModNPC is Buddy)
+                        targetNPC.AddBuff(buff, TF2.Time(10));
+                }
+                isActive = false;
+            }
+        }
+
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<TF2Player>().bannerType = 3;
+
+        protected override bool? WeaponOnUse(Player player)
+        {
+            TF2.SetPlayerDirection(player);
+            isActive = true;
+            return true;
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<BattalionsBackup>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
@@ -54,10 +95,10 @@ namespace TF2.Content.Items.Weapons.Soldier
             rage = Utils.Clamp(rage, 0, MaxRage);
             if (!p.HasBanner)
                 rage = 0;
-            if (buffActive && Player.HasBuff<HealthRage>())
+            if (buffActive && Player.HasBuff<ConcherorBuff>())
             {
                 rage = 0;
-                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<HealthRage>());
+                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<ConcherorBuff>());
                 buffDuration = Player.buffTime[buffIndex];
             }
             if (p.stopRegen || !p.HasBanner || p.bannerType != 3) return;

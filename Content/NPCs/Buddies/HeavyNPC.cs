@@ -13,7 +13,7 @@ using TF2.Content.Projectiles;
 
 namespace TF2.Content.NPCs.Buddies
 {
-    public class HeavyNPC : MercenaryBuddy
+    public class HeavyNPC : Buddy
     {
         protected override Asset<Texture2D> Spritesheet => ModContent.Request<Texture2D>("TF2/Content/NPCs/Buddies/HeavyNPC");
 
@@ -21,7 +21,7 @@ namespace TF2.Content.NPCs.Buddies
 
         public override int BaseHealth => 300;
 
-        protected override float SpeedMuliplier => 0.77f;
+        public override float BaseSpeed => 0.77f;
 
         protected override int Weapon => ModContent.ItemType<Minigun>();
 
@@ -52,10 +52,10 @@ namespace TF2.Content.NPCs.Buddies
         private int spinTimer;
         private bool endSpinUpSound;
         private bool endSpinDownSound;
-        public SlotId minigunSpinUpSoundSlot;
-        public SlotId minigunSpinDownSoundSlot;
-        public SlotId minigunSpinSoundSlot;
-        public SlotId minigunAttackSoundSlot;
+        public SlotId minigunSpinUpSoundSlot = new SlotId();
+        public SlotId minigunSpinDownSoundSlot = new SlotId();
+        public SlotId minigunSpinSoundSlot = new SlotId();
+        public SlotId minigunAttackSoundSlot = new SlotId();
 
         protected override void BuddyStatistics() => SetBuddyStatistics(9, "TF2/Content/Sounds/SFX/Voicelines/heavy_painsevere01", "TF2/Content/Sounds/SFX/Voicelines/heavy_paincriticaldeath01");
 

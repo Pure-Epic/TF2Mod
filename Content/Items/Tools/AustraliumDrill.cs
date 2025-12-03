@@ -41,6 +41,18 @@ namespace TF2.Content.Items.Tools
             CustomTooltips(tooltips, Language.GetTextValue("Mods.TF2.UI.Items.Tool"), Language.GetText("Mods.TF2.UI.Items.DrillDescription").Format(Main.LocalPlayer.GetModPlayer<TF2Player>().miningPower));
         }
 
-        public override void UpdateInventory(Player player) => Item.pick = Item.axe = Item.hammer = player.GetModPlayer<TF2Player>().miningPower;
+        public override bool AltFunctionUse(Player player) => true;
+
+        public override bool? UseItem(Player player)
+        {
+            if (player.altFunctionUse != 2)
+                Item.pick = Item.axe = Item.hammer = player.GetModPlayer<TF2Player>().miningPower;
+            else
+            {
+                Item.pick = Item.axe = 0;
+                Item.hammer = player.GetModPlayer<TF2Player>().miningPower;
+            }
+            return base.UseItem(player);
+        }
     }
 }

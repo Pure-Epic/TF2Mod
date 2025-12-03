@@ -46,7 +46,7 @@ namespace TF2.Content.Items.Weapons.Sniper
 
         public void Dodge()
         {
-            Player.SetImmuneTimeForAllTypes(80);
+            Player.SetImmuneTimeForAllTypes(TF2.Time(1.5));
             if (Player.whoAmI != Main.myPlayer) return;
             timer = 0;
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/spy_shield_break"), Player.Center);

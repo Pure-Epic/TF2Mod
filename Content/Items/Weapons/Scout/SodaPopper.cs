@@ -37,7 +37,7 @@ namespace TF2.Content.Items.Weapons.Scout
             SodaPopperPlayer p = player.GetModPlayer<SodaPopperPlayer>();
             if (player.controlUseTile && p.sodaPopperEquipped && p.hype >= 350)
             {
-                player.AddBuff(ModContent.BuffType<Hype>(), TF2.Time(10));
+                player.AddBuff(ModContent.BuffType<SodaPopperBuff>(), TF2.Time(10));
                 TF2.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/disciplinary_action_power_up"), player.Center);
             }
             usesFocusShot = p.buffActive;
@@ -67,10 +67,10 @@ namespace TF2.Content.Items.Weapons.Scout
             hype = Utils.Clamp(hype, 0, 350);
             if (!sodaPopperEquipped)
                 hype = 0;
-            if (buffActive && Player.HasBuff<Hype>())
+            if (buffActive && Player.HasBuff<SodaPopperBuff>())
             {
                 hype = 0;
-                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<Hype>());
+                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<SodaPopperBuff>());
                 buffDuration = Player.buffTime[buffIndex];
                 playBuffSound = true;
             }

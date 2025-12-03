@@ -19,7 +19,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public override int BaseHealth => 200;
 
-        protected override float SpeedMuliplier => 0.8f;
+        public override float BaseSpeed => 0.8f;
 
         protected override int Weapon => ModContent.ItemType<RocketLauncher>();
 

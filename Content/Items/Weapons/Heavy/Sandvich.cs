@@ -28,7 +28,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override void WeaponActiveUpdate(Player player)
         {
-            if (player.controlUseTile && !eatingSandvich && timer[0] >= TF2.Time(30) && WeaponCanAltClick(player))
+            if (player.controlUseTile && !isActive && timer[0] >= TF2.Time(30) && WeaponCanAltClick(player))
             {
                 IEntitySource source = player.GetSource_FromThis();
                 sandvichItem = Item.NewItem(source, player.getRect(), ModContent.ItemType<DroppedSandvich>(), 1);
@@ -37,7 +37,7 @@ namespace TF2.Content.Items.Weapons.Heavy
                 NetMessage.SendData(MessageID.SyncItem, number: sandvichItem);
                 timer[0] = 0;
             }
-            else if (eatingSandvich)
+            else if (isActive)
             {
                 timer[0] = 0;
                 timer[1]++;
@@ -52,7 +52,7 @@ namespace TF2.Content.Items.Weapons.Heavy
                 if (timer[2] >= 4)
                 {
                     timer[2] = 0;
-                    eatingSandvich = false;
+                    isActive = false;
                 }
             }
         }
@@ -65,7 +65,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         protected override bool? WeaponOnUse(Player player)
         {
-            eatingSandvich = true;
+            isActive = true;
             return true;
         }
     }

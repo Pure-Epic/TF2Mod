@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -24,6 +25,12 @@ namespace TF2.Content.Projectiles.Demoman
         {
             get => Projectile.localAI[0] == 1f;
             set => Projectile.localAI[0] = value ? 1f : 0f;
+        }
+
+        public bool Explode
+        {
+            get => Projectile.localAI[1] == 1f;
+            set => Projectile.localAI[1] = value ? 1f : 0f;
         }
 
         public const int maxPower = 5;
@@ -79,7 +86,6 @@ namespace TF2.Content.Projectiles.Demoman
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            velocity = Projectile.velocity;
             Projectile.velocity.X = 0;
             Stick = true;
             return false;
@@ -97,6 +103,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Projectile.velocity.X = 0;
             }
             SetRotation();
+            velocity = Projectile.velocity;
         }
 
         public void GroundAI()
@@ -148,16 +155,30 @@ namespace TF2.Content.Projectiles.Demoman
 
         public virtual void StickyJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 100f) && !Explode)
             {
+                Explode = true;
                 velocity *= 2.5f;
                 velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
                 velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
                 Player.velocity -= velocity;
+                QuickFixMirror();
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 79.5);
                 Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
+        }
+
+        protected override void ProjectileSendExtraAI(BinaryWriter writer)
+        {
+            writer.Write(StickOnEnemy);
+            writer.Write(Explode);
+        }
+
+        protected override void ProjectileReceiveExtraAI(BinaryReader binaryReader)
+        {
+            StickOnEnemy = binaryReader.ReadBoolean();
+            Explode = binaryReader.ReadBoolean();
         }
     }
 }
