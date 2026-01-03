@@ -8,6 +8,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
+using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Sniper;
@@ -27,6 +28,8 @@ namespace TF2.Content.Projectiles
 
         protected Player Player => Main.player[Projectile.owner];
 
+        protected bool ProjectileDetonation => explode;
+
         protected bool projectileInitialized;
         public bool spawnedFromNPC;
         public int owner;
@@ -39,16 +42,18 @@ namespace TF2.Content.Projectiles
         public bool healingProjectile;
         public bool sniperMiniCrit;
         public bool sniperCrit;
-        public bool backStab;
+        public bool backstab;
         public bool ammoShot;
         public bool healthShot;
-        public bool reserveShooterProjectile;
-        public bool bazaarBargainProjectile;
-        public bool lEtrangerProjectile;
+        internal bool reserveShooterProjectile;
+        internal bool bazaarBargainProjectile;
+        internal bool ignited;
+        internal bool lEtrangerProjectile;
         public bool homing;
         public float shootSpeed = 10f;
         private float distance;
         private byte target;
+        public bool explode;
 
         protected virtual void ProjectileStatistics()
         { }
@@ -198,6 +203,8 @@ namespace TF2.Content.Projectiles
             }
         }
 
+        public void DetonateProjectile() => explode = true;
+
         public void QuickFixMirror()
         {
             if (Main.netMode == NetmodeID.MultiplayerClient)
@@ -219,7 +226,7 @@ namespace TF2.Content.Projectiles
             Projectile.DamageType = ModContent.GetInstance<MercenaryDamage>();
         }
 
-        public override bool PreDraw(ref Color lightColor) => ProjectileDraw(Projectile, ref lightColor);
+        public sealed override bool PreDraw(ref Color lightColor) => ProjectileDraw(Projectile, ref lightColor);
 
         public sealed override void OnSpawn(IEntitySource source)
         {
@@ -319,6 +326,8 @@ namespace TF2.Content.Projectiles
                     Projectile.velocity.Y = (Projectile.velocity.Y * (swerveDistance - 1) + newProjectileY) / swerveDistance;
                 }
             }
+            if (ProjectileDetonation)
+                Projectile.Kill();
             Projectile.netUpdate = true;
         }
 
@@ -334,7 +343,17 @@ namespace TF2.Content.Projectiles
         public sealed override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
             if (modifiers.PvP)
+            {
+                if (ignited)
+                {
+                    TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
+                    FlameThrowerDebuffPlayer burntPlayer = target.GetModPlayer<FlameThrowerDebuffPlayer>();
+                    burntPlayer.damageMultiplier = p.damageMultiplier;
+                    target.ClearBuff(ModContent.BuffType<DegreaserDebuff>());
+                    target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(8), true);
+                }
                 ProjectileHitPlayer(target, ref modifiers);
+            }
             else if (Main.npc[npcOwner].ModNPC is BLUMercenary npc)
             {
                 if (Main.expertMode)
@@ -353,6 +372,14 @@ namespace TF2.Content.Projectiles
                 if (Main.expertMode)
                     modifiers.FinalDamage /= 4;
                 TF2.NPCDistanceModifier(npc.NPC, Projectile, target, ref modifiers, npc.MaxDamageMultiplier, npc.DamageFalloffRange, npc.NoDamageModifier);
+            }
+            if (ignited)
+            {
+                TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
+                FlameThrowerDebuffNPC npc = target.GetGlobalNPC<FlameThrowerDebuffNPC>();
+                npc.damageMultiplier = p.damageMultiplier;
+                TF2.ExtinguishPyroFlames(target, ModContent.BuffType<DegreaserDebuff>());
+                target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(10));
             }
             if (reserveShooterProjectile && target.noGravity)
                 miniCrit = true;
@@ -405,14 +432,16 @@ namespace TF2.Content.Projectiles
             writer.Write(miniCrit);
             writer.Write(sniperCrit);
             writer.Write(sniperMiniCrit);
-            writer.Write(backStab);
+            writer.Write(backstab);
             writer.Write(reserveShooterProjectile);
             writer.Write(bazaarBargainProjectile);
+            writer.Write(ignited);
             writer.Write(lEtrangerProjectile);
             writer.Write(ammoShot);
             writer.Write(healthShot);
             writer.Write(distance);
             writer.Write(target);
+            writer.Write(explode);
             ProjectileSendExtraAI(writer);
         }
 
@@ -429,14 +458,16 @@ namespace TF2.Content.Projectiles
             miniCrit = binaryReader.ReadBoolean();
             sniperCrit = binaryReader.ReadBoolean();
             sniperMiniCrit = binaryReader.ReadBoolean();
-            backStab = binaryReader.ReadBoolean();
+            backstab = binaryReader.ReadBoolean();
             reserveShooterProjectile = binaryReader.ReadBoolean();
             bazaarBargainProjectile = binaryReader.ReadBoolean();
+            ignited = binaryReader.ReadBoolean();
             lEtrangerProjectile = binaryReader.ReadBoolean();
             ammoShot = binaryReader.ReadBoolean();
             healthShot = binaryReader.ReadBoolean();
             distance = binaryReader.ReadSingle();
             target = binaryReader.ReadByte();
+            explode = binaryReader.ReadBoolean();
             ProjectileReceiveExtraAI(binaryReader);
         }
 

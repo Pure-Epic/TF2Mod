@@ -13,7 +13,7 @@ namespace TF2.Content.UI.HUD.Spy
     [Autoload(Side = ModSide.Client)]
     internal class InvisWatchChargeMeterHUD : TF2HUD
     {
-        protected override bool CanDisplay => Player.GetModPlayer<CloakPlayer>().invisWatchEquipped;
+        protected override bool CanDisplay => Player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped;
 
         protected override Asset<Texture2D> Texture => HUDTextures.RightChargeHUDTexture;
 
@@ -47,7 +47,7 @@ namespace TF2.Content.UI.HUD.Spy
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            CloakPlayer cloakPlayer = Player.GetModPlayer<CloakPlayer>();
+            InvisWatchBuffPlayer cloakPlayer = Player.GetModPlayer<InvisWatchBuffPlayer>();
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 12;
             hitbox.Y += 24;

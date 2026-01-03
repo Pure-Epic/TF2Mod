@@ -9,7 +9,7 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (Timer >= TF2.Time(5))
                 noDistanceModifier = true;
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(250, 250);
@@ -19,7 +19,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Projectile.Center = Projectile.position;
                 StickyJump(velocity);
             }
-            if (!Stick && Projectile.timeLeft != 0)
+            if (!Stick && !ProjectileDetonation)
                 StartingAI();
             else
                 GroundAI();

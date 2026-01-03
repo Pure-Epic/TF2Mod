@@ -78,6 +78,18 @@ namespace TF2.Content.Projectiles.Pyro
             return false;
         }
 
+        protected override void ProjectileAI()
+        {
+            if (Projectile.wet)
+                Projectile.Kill();
+            foreach (Player player in Main.ActivePlayers)
+            {
+                if (Projectile.Hitbox.Intersects(player.Hitbox) && !player.dead && !player.hostile)
+                    player.GetModPlayer<TF2Player>().igniteArrow = true;
+            }
+            Lighting.AddLight(Projectile.Center, Color.Orange.ToVector3());
+        }
+
         public override void ModifyDamageHitbox(ref Rectangle hitbox)
         {
             int size = 30;
@@ -92,19 +104,19 @@ namespace TF2.Content.Projectiles.Pyro
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
+            FlameThrowerDebuffPlayer burntPlayer = target.GetModPlayer<FlameThrowerDebuffPlayer>();
             burntPlayer.damageMultiplier = p.damageMultiplier;
-            target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10), true);
+            target.ClearBuff(ModContent.BuffType<DegreaserDebuff>());
+            target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(10), true);
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
+            FlameThrowerDebuffNPC npc = target.GetGlobalNPC<FlameThrowerDebuffNPC>();
             npc.damageMultiplier = p.damageMultiplier;
-            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(10));
+            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<DegreaserDebuff>());
+            target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(10));
         }
     }
 }

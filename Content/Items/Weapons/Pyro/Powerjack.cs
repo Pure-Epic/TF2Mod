@@ -31,13 +31,13 @@ namespace TF2.Content.Items.Weapons.Pyro
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (hit.Crit && target.type != NPCID.TargetDummy && !TF2Player.IsHealthFull(player))
+            if (hit.Crit && target.type != NPCID.TargetDummy && !TF2Player.IsAtFullHealth(player))
                 player.Heal(TF2.GetHealth(player, 25));
         }
 
         public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo)
         {
-            if (player.GetModPlayer<TF2Player>().crit && !TF2Player.IsHealthFull(player))
+            if (player.GetModPlayer<TF2Player>().crit && !TF2Player.IsAtFullHealth(player))
                 player.Heal(TF2.GetHealth(player, 25));
         }
 

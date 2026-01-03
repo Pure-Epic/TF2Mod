@@ -61,7 +61,7 @@ namespace TF2.Content.UI.HUD.Soldier
             hitbox.Width = 44;
             hitbox.Height = 6;
             float charge;
-            if (!p.buffActive)
+            if (!p.bannerBuff)
             {
                 charge = (float)p.rage / p.MaxRage;
                 charge = Utils.Clamp(charge, 0f, 1f);
@@ -71,7 +71,7 @@ namespace TF2.Content.UI.HUD.Soldier
                 charge = (float)p.buffDuration / TF2.Time(10);
                 charge = Utils.Clamp(charge, 0f, 1f);
             }
-            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.buffActive && p.rage < p.MaxRage ? Color.White : Color.Red);
+            spriteBatch.Draw(TextureAssets.MagicPixel.Value, new Rectangle(hitbox.Left, hitbox.Y, TF2.Round(hitbox.Width * charge), hitbox.Height), !p.bannerBuff && p.rage < p.MaxRage ? Color.White : Color.Red);
         }
     }
 }

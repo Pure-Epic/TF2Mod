@@ -28,9 +28,12 @@ namespace TF2.Content.Items.Weapons.Scout
 
         protected override void WeaponActiveUpdate(Player player)
         {
+            TF2Player p = player.GetModPlayer<TF2Player>();
             if (player.velocity.Y != 0f)
-                player.GetModPlayer<TF2Player>().miniCrit = true;
+                p.miniCrit = true;
         }
+
+        protected override void WeaponActiveBonus(Player player) => player.GetModPlayer<TF2Player>().extraJumps += 1;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<BonkAtomicPunch>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }

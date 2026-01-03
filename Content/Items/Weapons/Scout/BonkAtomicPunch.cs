@@ -29,19 +29,19 @@ namespace TF2.Content.Items.Weapons.Scout
             if (isActive && player.ItemAnimationEndingOrEnded)
             {
                 player.AddBuff(ModContent.BuffType<BonkAtomicPunchBuff>(), TF2.Time(8));
+                timer[0] = 0;
                 isActive = false;
             }
         }
 
         protected override void WeaponPassiveUpdate(Player player)
         {
-            if (timer[0] < TF2.Time(22))
+            if (timer[0] < TF2.Time(22) && !player.HasBuff<BonkAtomicPunchBuff>())
                 timer[0]++;
         }
 
         protected override bool? WeaponOnUse(Player player)
         {
-            timer[0] = 0;
             isActive = true;
             return true;
         }

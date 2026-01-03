@@ -360,6 +360,8 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         public override int BuildingCooldown => Time(1.6);
 
+        protected override int Level => 2;
+
         public override void SetDefaults()
         {
             NPC.width = 32;
@@ -467,6 +469,8 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
 
         public override int BuildingCooldown => Time(1.6);
 
+        protected override int Level => 3;
+
         public override void SetDefaults()
         {
             NPC.width = 42;
@@ -567,7 +571,7 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
                         else if ((targetCenter - NPC.Center).X < 0f)
                             NPC.spriteDirection = NPC.direction = -1;
                         float speed = 25f;
-                        int type = ModContent.ProjectileType<RocketNPC>();
+                        int type = ModContent.ProjectileType<BuddyRocket>();
                         int damage = Round(100 * Player.GetModPlayer<TF2Player>().damageMultiplier);
                         IEntitySource projectileSource = NPC.GetSource_FromAI();
                         SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/NPCs/sentry_rocket"), NPC.Center);
@@ -616,6 +620,8 @@ namespace TF2.Content.NPCs.Buildings.SentryGun
         public override int BuildingCooldownHauled => Time(2.333);
 
         protected override int ScrapMetalAmount => 0;
+
+        protected override bool CanBeUpgraded => false;
 
         public override void SetDefaults()
         {

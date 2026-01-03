@@ -22,6 +22,6 @@ namespace TF2.Content.Items.Weapons.Spy
             AddNegativeAttribute(description);
         }
 
-        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped = true;
+        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped = true;
     }
 }

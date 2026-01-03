@@ -7,10 +7,10 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<DalokohsBarPlayer>().dalokohsBarBuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<DalokohsBarBuffPlayer>().dalokohsBarBuff = true;
     }
 
-    public class DalokohsBarPlayer : ModPlayer
+    public class DalokohsBarBuffPlayer : ModPlayer
     {
         public bool dalokohsBarBuff;
 

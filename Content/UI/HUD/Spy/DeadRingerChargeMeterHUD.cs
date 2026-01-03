@@ -13,7 +13,7 @@ namespace TF2.Content.UI.HUD.Spy
     [Autoload(Side = ModSide.Client)]
     internal class DeadRingerChargeMeterHUD : TF2HUD
     {
-        protected override bool CanDisplay => Player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped;
+        protected override bool CanDisplay => Player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped;
 
         protected override Asset<Texture2D> Texture => HUDTextures.RightChargeHUDTexture;
 
@@ -47,7 +47,7 @@ namespace TF2.Content.UI.HUD.Spy
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            FeignDeathPlayer feignDeathPlayer = Player.GetModPlayer<FeignDeathPlayer>();
+            DeadRingerPlayer feignDeathPlayer = Player.GetModPlayer<DeadRingerPlayer>();
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 12;
             hitbox.Y += 24;

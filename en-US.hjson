@@ -16,7 +16,7 @@ Mods: {
 
 			BattalionsBackupBuff: {
 				DisplayName: Soldier's Blessing
-				Description: Damage reduction
+				Description: Damage reduction and crit immunity
 			}
 
 			BigEarnerBuff: {
@@ -39,11 +39,6 @@ Mods: {
 				Description: Movement speed is reduced
 			}
 
-			BrokenCloak: {
-				DisplayName: Broken Cloak
-				Description: You cannot cloak
-			}
-
 			BuffaloSteakSandvichBuff: {
 				DisplayName: Buffalo Steak Sandvich
 				Description: Melee mini-crits!
@@ -59,9 +54,9 @@ Mods: {
 				Description: Invincible and invisible
 			}
 
-			Cloaked: {
-				DisplayName: Cloaked
-				Description: Invincible and invisible
+			CloakAndDaggerDebuff: {
+				DisplayName: Broken Cloak
+				Description: You cannot cloak
 			}
 
 			ConcherorBuff: {
@@ -79,9 +74,19 @@ Mods: {
 				Description: More health!
 			}
 
+			DegreaserDebuff: {
+				DisplayName: Afterburn
+				Description: Losing life
+			}
+
 			DisciplinaryActionBuff: {
 				DisplayName: Disciplined
 				Description: Speed boost
+			}
+
+			DeadRingerBuff: {
+				DisplayName: Cloaked
+				Description: Invincible and invisible
 			}
 
 			EvictionNoticeBuff: {
@@ -89,7 +94,12 @@ Mods: {
 				Description: Speed boost
 			}
 
-			FeignDeath: {
+			FlameThrowerDebuff: {
+				DisplayName: Afterburn
+				Description: Losing life
+			}
+
+			InvisWatchBuff: {
 				DisplayName: Cloaked
 				Description: Invincible and invisible
 			}
@@ -104,7 +114,7 @@ Mods: {
 				Description: Grants crits
 			}
 
-			KritzkriegUberCharge: {
+			KritzkriegBuff: {
 				DisplayName: ÜberCharge
 				Description: Crits everything
 			}
@@ -124,17 +134,12 @@ Mods: {
 				Description: Slowed
 			}
 
-			PyroFlames: {
-				DisplayName: Afterburn
-				Description: Losing life
+			MediGunBuff: {
+				DisplayName: ÜberCharge
+				Description: I am bulletproof!
 			}
 
-			PyroFlamesDegreaser: {
-				DisplayName: Afterburn
-				Description: Losing life
-			}
-
-			QuickFixUberCharge: {
+			QuickFixBuff: {
 				DisplayName: ÜberCharge
 				Description: Rapid healing and immunities
 			}
@@ -164,11 +169,6 @@ Mods: {
 				Description: Extra jumps
 			}
 
-			UberCharge: {
-				DisplayName: ÜberCharge
-				Description: I am bulletproof!
-			}
-
 			MannsAntiDanmakuSystemBuff: {
 				DisplayName: Mann's Anti-Danmaku System
 				Description: Hehey, I'm flyin'!
@@ -182,6 +182,16 @@ Mods: {
 			GravityModuleBuff: {
 				DisplayName: Gravity Module
 				Description: A jump to the sky turns to a Rider Kick
+			}
+
+			MarineModuleBuff: {
+				DisplayName: Marine Module
+				Description: Sui-Sui, Sui-Sui!
+			}
+
+			PhoenixModuleBuff: {
+				DisplayName: Phoenix Module
+				Description: A year's worth of popsicles not included
 			}
 
 			SpeedModuleBuff: {
@@ -297,7 +307,7 @@ Mods: {
 			OneOfTheGamesEver: Team Fortress 2 is one of the games ever.
 			9Years: Welcome to Team Fortress 2. After 9 years in development, hopefully it will have been worth the wait.
 			Updates: This Team Fortress 2 update hits different.
-			NoUpdates: Last updated 7 years ago!
+			NoUpdates: Last updated 8 years ago!
 			SaxtonHale: Saxton Hale solos Goku.
 			Money: Certain enemies drop money when killed which can be spent in the Mann Co. Store.
 			MannCoStore: If you aren't 100% satisfied with our product line, you can take it up with me!
@@ -310,7 +320,9 @@ Mods: {
 			Points: Hitting bosses may drop power-ups, which can heal you or replenish your ammo.
 			Melee: Melee weapons have a higher chance of dealing random critical hits and making bosses drop power-ups!
 			Crafting: Unlock even more weapons by crafting!
-			Ranks: Bosses drop soul items, which make you stronger.
+			Modules: Modules greatly boost any mercenary.
+			Buddies: Buddies keep you accompanied and fight alongside you!
+			SoulItems: Bosses drop soul items, which make you stronger.
 			Classes: There are nine unique classes to choose from.
 			Playstyles: Choosing a class is the most important part of your playthrough. Pick the one that matches your playstyle.
 			Scout: Scout is the fastest class and can double jump.
@@ -324,13 +336,14 @@ Mods: {
 			Heavy: Heavy is the tankiest class and the slowest one too.
 			Heavy2: Heavy's Sandvich can heal him back to full health.
 			Engineer: Engineer can construct buildings to assist him in combat.
-			Engineer2: Engineer's buildings automatically upgrade themselves when built, only if their owner has enough metal.
+			Engineer2: Engineer's buildings can be repaired and upgraded by hitting them with your wrench.
 			Medic: Medic relies on others to deal damage. In return, he heals them.
 			Medic2: Medic's ÜberCharge can change the tide of a battle.
 			Sniper: Sniper has the highest damage per shot, but the lowest shoot speed.
 			Sniper2: Sniper works best from long distances.
 			Spy: Spy focuses on chip damage while maintaining survivability.
 			Spy2: Spy's cloak makes him invincible, but degrades over time or with every evaded hit.
+			Multiplayer: TF2Mod is always better played with friends!
 			Subreddit: Join us on r/TF2_Men_Kissing!
 		}
 
@@ -589,7 +602,7 @@ Mods: {
 			EngineerBuddy: {
 				DisplayName: Engineer Buddy
 				Tooltip: ""
-				Upsides: Summons a medium ammo point every 30 seconds.
+				Upsides: Every 30 seconds, either constructs a non-upgradable Sentry Gun or spawns a medium ammo point for Engineers.
 				Notes:
 					'''
 					Summons an Engineer with a Pistol to fight for you.
@@ -610,7 +623,7 @@ Mods: {
 			MedicBuddy: {
 				DisplayName: Medic Buddy
 				Tooltip: ""
-				Upsides: Summons a medium health point every 30 seconds.
+				Upsides: Heals you with his Medi Gun when there isn't any bosses.
 				Notes:
 					'''
 					Summons a Medic with a Syringe Gun to fight for you.
@@ -773,7 +786,7 @@ Mods: {
 				Upsides:
 					'''
 					+25% projectile speed
-					+20% damage vs bosses
+					+20% damage vs buildings and bosses
 					'''
 				Downsides:
 					'''
@@ -945,7 +958,7 @@ Mods: {
 					'''
 					-25% damage penalty
 					20% slower repair rate
-					-33% damage penalty vs basic enemies
+					-33% damage penalty vs buildings and basic enemies
 					'''
 			}
 
@@ -997,7 +1010,7 @@ Mods: {
 				Upsides:
 					'''
 					+20% damage bonus
-					20% damage resistance when below 50% health and spun up
+					+20% damage resistance when below 50% health and spun up
 					'''
 				Downsides:
 					'''
@@ -1102,7 +1115,7 @@ Mods: {
 				Upsides:
 					'''
 					On Hit: 100% chance to slow target
-					20% damage resistance when below 50% health and spun up
+					+20% damage resistance when below 50% health and spun up
 					'''
 				Downsides:
 					'''
@@ -1116,7 +1129,7 @@ Mods: {
 				Tooltip: ""
 				Notes:
 					'''
-					Eat to regain full health.
+					Eat to regain up to 300 health.
 					Alt-fire: Share a Sandvich with a friend (Medium Health Kit)
 					'''
 			}
@@ -1274,7 +1287,7 @@ Mods: {
 			PainTrain: {
 				DisplayName: Pain Train
 				Tooltip: ""
-				Upsides: 100% critical hit vs bosses
+				Upsides: +50% damage vs bosses
 				Downsides: 10% projectile damage vulnerability on wearer
 			}
 
@@ -1320,7 +1333,7 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					100% critical hits at full health
+					100% critical hits at full health and when a boss is alive
 					Extinguishing teammates restores 20 health
 					'''
 				Downsides:
@@ -1397,10 +1410,10 @@ Mods: {
 				Tooltip: ""
 				Upsides:
 					'''
-					+100% damage vs bosses
+					+100% damage vs buildings and bosses
 					Parries danmaku
 					'''
-				Downsides: -25% damage vs basic enemies
+				Downsides: -25% damage vs players and basic enemies
 			}
 
 			Powerjack: {
@@ -1692,7 +1705,7 @@ Mods: {
 				Upsides: +20 max health on wearer
 				Notes:
 					'''
-					Provides a defensive buff that protects team members from incoming projectile damage by 50% and 35% from melee damage.
+					Provides a defensive buff that protects team members from crits, incoming projectile damage by 50% and 35% from melee damage.
 					Rage increases through damage done.
 					'''
 			}
@@ -1732,7 +1745,7 @@ Mods: {
 					'''
 					+25% damage bonus
 					+80% projectile speed
-					Mini-crits bosses
+					Mini-crits airborne targets and bosses
 					'''
 				Downsides:
 					'''
@@ -1884,7 +1897,7 @@ Mods: {
 				Downsides:
 					'''
 					-55 max health on wearer
-					No random health points
+					+50% backstab charge
 					'''
 				Notes:
 					'''
@@ -1935,7 +1948,7 @@ Mods: {
 			Knife: {
 				DisplayName: Knife
 				Tooltip: ""
-				Notes: Alt-Fire: Does a backstab that lunges the player and deals critical damage.
+				Notes: Attack an enemy while at full charge to backstab them for a one hit kill.
 			}
 
 			LEtranger: {
@@ -1963,7 +1976,11 @@ Mods: {
 			YourEternalReward: {
 				DisplayName: Your Eternal Reward
 				Tooltip: ""
-				Upsides: Basic attacks fire a projectile
+				Upsides:
+					'''
+					Backstabs summon a ring of knives towards the enemy
+					-50% backstab charge
+					'''
 				Downsides:
 					'''
 					+33% cloak drain rate
@@ -2010,6 +2027,44 @@ Mods: {
 				Upsides: Reduces gravity by 75%
 			}
 
+			MarineModule: {
+				DisplayName: Marine Module
+				Tooltip: ""
+				Upsides:
+					'''
+					Grants immunity to most debuffs
+					Can walk on and swim in liquids with no penalities
+					Replaces the minecart with the marine cart
+					'''
+				Notes: This module's ability is passive
+			}
+
+			NinjaModule: {
+				DisplayName: Ninja Module
+				Tooltip: ""
+				Upsides:
+					'''
+					Allows the ability to climb walls and dash
+					Grants the ability to double jump
+					Can perform auto-jumps
+					Enables night vision
+					'''
+				Notes: This module's ability is passive
+			}
+
+			PhoenixModule: {
+				DisplayName: Phoenix Module
+				Tooltip: ""
+				Upsides: Allows flight and slow fall when activated
+			}
+
+			RegenerationModule: {
+				DisplayName: Regeneration Module
+				Tooltip: ""
+				Upsides: Regenerates 3 health every second
+				Notes: This module's ability is passive
+			}
+
 			SpeedModule: {
 				DisplayName: Speed Module
 				Tooltip: ""
@@ -2041,15 +2096,15 @@ Mods: {
 			TeleporterExitLevel1.DisplayName: Teleporter Exit Level 1
 			TeleporterExitLevel2.DisplayName: Teleporter Exit Level 2
 			TeleporterExitLevel3.DisplayName: Teleporter Exit Level 3
-			ScoutNPC.DisplayName: Scout
-			SoldierNPC.DisplayName: Soldier
-			PyroNPC.DisplayName: Pyro
-			DemomanNPC.DisplayName: Demoman
-			HeavyNPC.DisplayName: Heavy
-			EngineerNPC.DisplayName: Engineer
-			MedicNPC.DisplayName: Medic
-			SniperNPC.DisplayName: Sniper
-			SpyNPC.DisplayName: Spy
+			ScoutBuddyNPC.DisplayName: Scout
+			SoldierBuddyNPC.DisplayName: Soldier
+			PyroBuddyNPC.DisplayName: Pyro
+			DemomanBuddyNPC.DisplayName: Demoman
+			HeavyBuddyNPC.DisplayName: Heavy
+			EngineerBuddyNPC.DisplayName: Engineer
+			MedicBuddyNPC.DisplayName: Medic
+			SniperBuddyNPC.DisplayName: Sniper
+			SpyBuddyNPC.DisplayName: Spy
 			EnemyScoutNPC.DisplayName: Scout
 			EnemySoldierNPC.DisplayName: Soldier
 			EnemyPyroNPC.DisplayName: Pyro
@@ -2061,6 +2116,7 @@ Mods: {
 			EnemySpyNPC.DisplayName: Spy
 			SentryGun: Sentry Gun
 			MiniSentryGun: Combat Mini-Sentry Gun
+			EngineerBuddySentry.DisplayName: Sentry Gun (Engineer Buddy)
 			Dispenser: Dispenser
 			TeleporterEntrance: Teleporter Entrance
 			TeleporterExit: Teleporter Exit
@@ -2109,14 +2165,14 @@ Mods: {
 			HealingBeamKritzkrieg.DisplayName: Healing Beam
 			HealingBeamQuickFix.DisplayName: Healing Beam
 			Syringe.DisplayName: Syringe
-			GrenadeNPC.DisplayName: Grenade
-			EnemyBulletNPC.DisplayName: Bullet
-			EnemyFireNPC.DisplayName: Fire
-			EnemyGrenadeNPC.DisplayName: Grenade
-			EnemyRocketNPC.DisplayName: Rocket
-			EnemySyringeNPC.DisplayName: Syringe
+			BuddyGrenade.DisplayName: Grenade
+			BuddyRocket.DisplayName: Rocket
+			EnemyBullet.DisplayName: Bullet
+			EnemyFire.DisplayName: Fire
+			EnemyGrenade.DisplayName: Grenade
+			EnemyRocket.DisplayName: Rocket
+			EnemySyringe.DisplayName: Syringe
 			MeleeProjectileNPC.DisplayName: Knife
-			RocketNPC.DisplayName: Rocket
 			SentryBullet.DisplayName: Bullet
 			Airblast.DisplayName: Air blast
 			DegreaserFire.DisplayName: Fire
@@ -2146,6 +2202,7 @@ Mods: {
 			AustraliumDrillProjectile.DisplayName: Australium Drill
 			Bullet.DisplayName: Bullet
 			SuperBullet.DisplayName: Bullet
+			BuddyHealingBeam.DisplayName: Buddy Healing Beam
 		}
 
 		Tiles.AustraliumAnvil.MapEntry: Australium Anvil
@@ -2228,6 +2285,15 @@ Mods: {
 					Speed: Speed: {0}
 				}
 
+				PhoenixModule: {
+					FlightMode: Flight Mode: {0}
+					High: High
+					Low: Low
+					Medium: Medium
+					Instruction: Press {0} to change flight
+					InstructionUnassigned: Assign keybind to change flight
+				}
+
 				Rarity: {
 					Unique: The {0}
 					Vintage: Vintage {0}
@@ -2259,9 +2325,10 @@ Mods: {
 				LockedItem: This item is locked for mercenaries
 				Module: Module
 				MultiClass: Multi-Class
+				RegenerationModule: Regenerates {0} health every second
 				ReloadSpeed: Reload Speed: {0}
 				SoulItem: Usable Item
-				SoulItemDescription: Increases attack power to ×{0} and health to ×{1}
+				SoulItemDescription: Increases attack power to ×{0}, health to ×{1}, pierce to {2}, and pickaxe power to {3}%
 				Tool: Mercenary Tool
 			}
 

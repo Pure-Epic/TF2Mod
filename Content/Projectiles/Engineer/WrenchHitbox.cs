@@ -54,7 +54,7 @@ namespace TF2.Content.Projectiles.Engineer
             bool success = false;
             TF2Player p = Player.GetModPlayer<TF2Player>();
             Building buildingNPC = building.ModNPC as Building;
-            if (!buildingNPC.Initialized && Building.BaseLevel(buildingNPC))
+            if (!buildingNPC.Initialized && buildingNPC.BaseLevel())
             {
                 buildingNPC.constructionSpeed += 2.5f * p.constructionSpeedMultiplier;
                 buildingNPC.SyncBuilding();
@@ -83,7 +83,7 @@ namespace TF2.Content.Projectiles.Engineer
                         success = true;
                     }
                 }
-                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
+                if (buildingNPC.Metal < 200 && !buildingNPC.MaxLevel())
                 {
                     cost = (p.metal >= 25) ? 25 : p.metal;
                     sentry.Metal += cost;
@@ -152,7 +152,7 @@ namespace TF2.Content.Projectiles.Engineer
                         success = true;
                     }
                 }
-                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
+                if (buildingNPC.Metal < 200 && !buildingNPC.MaxLevel())
                 {
                     cost = (p.metal >= 25) ? 25 : p.metal;
                     dispenser.Metal += cost;
@@ -181,7 +181,7 @@ namespace TF2.Content.Projectiles.Engineer
                     buildingNPC.SyncBuilding();
                     success = true;
                 }
-                if (buildingNPC.Metal < 200 && !Building.MaxLevel(buildingNPC))
+                if (buildingNPC.Metal < 200 && !buildingNPC.MaxLevel())
                 {
                     cost = (p.metal >= 25) ? 25 : p.metal;
                     teleporter.Metal += cost;

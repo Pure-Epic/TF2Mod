@@ -54,7 +54,9 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (StartTimer)
                 FuseTimer++;
-            if (FuseTimer == fuseTime || Projectile.timeLeft == 0)
+            if (FuseTimer == fuseTime)
+                DetonateProjectile();
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(150, 150);
@@ -76,26 +78,24 @@ namespace TF2.Content.Projectiles.Demoman
             return false;
         }
 
-        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => DetonateProjectile();
 
-        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => DetonateProjectile();
 
         protected override void ProjectileDestroy(int timeLeft) => TF2.Explode(Projectile, new SoundStyle("TF2/Content/Sounds/SFX/explode"));
 
         protected virtual void GrenadeJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 150f))
             {
-                velocity *= 10f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Math.Abs(Utils.Clamp(velocity.Y, -25f, 25f));
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Math.Abs(Utils.Clamp(velocity.Y, -15f, 15f));
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 55.5);
                 Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
-            Projectile.timeLeft = 0;
         }
     }
 }

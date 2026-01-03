@@ -8,14 +8,22 @@ namespace TF2.Content.Items.Weapons.Sniper
 {
     public class Razorback : TF2Accessory
     {
+        protected override string BackTexture => "TF2/Content/Textures/Items/Sniper/Razorback";
+
         protected override void WeaponStatistics() => SetWeaponCategory(Sniper, Secondary, Unique, Unlock);
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);
 
+        protected override bool WeaponAddTextureCondition(Player player)
+        {
+            RazorbackPlayer p = player.GetModPlayer<RazorbackPlayer>();
+            return p.razorbackEquipped && p.timer >= TF2.Time(30);
+        }
+
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            RazorbackPlayer razorbackPlayer = player.GetModPlayer<RazorbackPlayer>();
-            razorbackPlayer.razorbackEquipped = true;
+            RazorbackPlayer p = player.GetModPlayer<RazorbackPlayer>();
+            p.razorbackEquipped = true;
         }
     }
 

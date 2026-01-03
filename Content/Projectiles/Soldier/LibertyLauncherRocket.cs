@@ -8,13 +8,12 @@ namespace TF2.Content.Projectiles.Soldier
     {
         public override string Texture => "TF2/Content/Projectiles/Soldier/Rocket";
 
-        public override void RocketJump(Vector2 velocity)
+        protected override void RocketJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 100f))
             {
-                velocity *= 1.25f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;

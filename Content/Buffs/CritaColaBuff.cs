@@ -12,7 +12,7 @@ namespace TF2.Content.Buffs
         public override void Update(Player player, ref int buffIndex)
         {
             player.GetModPlayer<TF2Player>().miniCrit = true;
-            player.GetModPlayer<CritaColaPlayer>().critaColaActive = true;
+            player.GetModPlayer<CritaColaPlayer>().critaColaBuff = true;
         }
     }
 }

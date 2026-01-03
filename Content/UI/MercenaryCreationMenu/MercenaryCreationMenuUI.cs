@@ -20,7 +20,6 @@ using Terraria.UI;
 using TF2.Common;
 using TF2.Content.Items;
 using TF2.Content.Items.Consumables;
-using TF2.Content.Items.Modules;
 using TF2.Content.Items.Tools;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
@@ -32,7 +31,6 @@ using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Soldier;
 using TF2.Content.Items.Weapons.Spy;
-using TF2.Content.UI.Inventory;
 
 namespace TF2.Content.UI.MercenaryCreationMenu
 {
@@ -719,7 +717,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
                         _player.inventory[i++].SetDefaults(ModContent.ItemType<GiftStuffedStocking>());
                     break;
             }
-            p.cachedHealth = p.BaseHealth;
+            p.maxHealth = p.BaseHealth;
         }
 
         private void Click_GoBack(UIMouseEvent evt, UIElement listeningElement)

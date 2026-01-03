@@ -41,7 +41,7 @@ namespace TF2.Content.Items.Weapons.Engineer
 
         protected override bool? WeaponOnUse(Player player)
         {
-            Projectile.NewProjectile(player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<WrenchHitbox>(), 1, 0f);
+            TF2.CreateProjectile(this, player.GetSource_ItemUse(Item), player.Center, Vector2.Zero, ModContent.ProjectileType<WrenchHitbox>(), 1, 0f);
             return true;
         }
 

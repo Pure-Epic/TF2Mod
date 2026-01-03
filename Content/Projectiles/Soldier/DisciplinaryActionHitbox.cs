@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 using TF2.Content.Buffs;
 using TF2.Content.NPCs.Buddies;
 
-namespace TF2.Content.Projectiles.Engineer
+namespace TF2.Content.Projectiles.Soldier
 {
     public class DisciplinaryActionHitbox : TF2Projectile
     {

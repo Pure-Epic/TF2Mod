@@ -519,6 +519,8 @@ namespace TF2.Content.UI.MannCoStore
                 Main.hoverItemName = Item.Item.Name;
                 Main.HoverItem = Item.Item.Clone();
                 Main.instance.MouseText(Main.hoverItemName, 0, 0, -1, -1, -1, -1, 0);
+                if (Item.Item.ModItem is TF2Item weapon)
+                    weapon.availability = TF2Item.Purchase;
             }
         }
 

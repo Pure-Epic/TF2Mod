@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Items.Materials;
+using TF2.Content.Items.Modules;
 using TF2.Content.Items.Weapons.MultiClass;
 using TF2.Content.Tiles.Crafting;
 
@@ -29,7 +30,7 @@ namespace TF2.Content.Items.Weapons.Soldier
         protected override void WeaponActiveUpdate(Player player)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            if (player.velocity.Y != 0f)
+            if (player.velocity.Y != 0f && !player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive)
                 p.crit = true;
             p.noRandomHealthKits = true;
         }

@@ -16,7 +16,7 @@ namespace TF2.Content.Items.Weapons.Medic
             SetWeaponDamage(projectile: ModContent.ProjectileType<HealingBeamKritzkrieg>());
             SetWeaponAttackSpeed(0.01666, hide: true);
             SetWeaponAttackIntervals(altClick: true, noAmmo: true);
-            SetMediGun(buff: ModContent.BuffType<KritzkriegUberCharge>(), duration: 8);
+            SetMediGun(buff: ModContent.BuffType<KritzkriegBuff>(), duration: 8);
         }
 
         protected override void WeaponDescription(List<TooltipLine> description)

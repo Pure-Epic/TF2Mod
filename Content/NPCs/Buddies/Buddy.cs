@@ -64,7 +64,7 @@ namespace TF2.Content.NPCs.Buddies
             set => NPC.localAI[3] = value;
         }
 
-        protected bool CanCrit => NPC.HasBuff<KritzkriegUberCharge>();
+        protected bool CanCrit => NPC.HasBuff<KritzkriegBuff>();
 
         protected bool CanMiniCrit => NPC.HasBuff<BuffBannerBuff>();
 
@@ -91,11 +91,15 @@ namespace TF2.Content.NPCs.Buddies
 
         protected virtual Asset<Texture2D> SpritesheetReverse => null;
 
+        protected virtual int ExtraFrames => 0;
+
         protected virtual Vector2 TrueWidthAndHeight => new Vector2(32, 44);
 
         public virtual int BaseHealth => 100;
 
         public virtual float BaseSpeed => 1f;
+
+        protected virtual float FollowingDistance => 250f;
 
         protected virtual float JumpHeightMuliplier => 1f;
 
@@ -158,8 +162,8 @@ namespace TF2.Content.NPCs.Buddies
         private byte jumpType;
         protected byte horizontalFrame;
         protected byte verticalFrame;
-        protected float itemRotation;
         protected int weaponAnimation;
+        protected float weaponRotation;
         protected bool forceWeaponDraw;
         protected const int StateIdle = 0;
         protected const int StateWalk = 1;
@@ -175,7 +179,6 @@ namespace TF2.Content.NPCs.Buddies
 
         protected virtual void BuddyFrame()
         {
-            NPC npc = NPC;
             if (Falling)
             {
                 NPC.frameCounter = 0;
@@ -183,7 +186,7 @@ namespace TF2.Content.NPCs.Buddies
                 verticalFrame = 0;
                 return;
             }
-            else if ((State == StateIdle || State == StateReload || (npc.position == npc.oldPosition && State != StateAttack)) && weaponAnimation <= 0 && !forceWeaponDraw)
+            else if ((State == StateIdle || State == StateReload || (NPC.position == NPC.oldPosition && State != StateAttack)) && weaponAnimation <= 0 && !forceWeaponDraw)
             {
                 NPC.frameCounter = 0;
                 horizontalFrame = 0;
@@ -199,8 +202,8 @@ namespace TF2.Content.NPCs.Buddies
             }
             if (State == StateWalk || State == StateFollow)
             {
-                npc.frameCounter++;
-                if (npc.frameCounter >= 2)
+                NPC.frameCounter++;
+                if (NPC.frameCounter >= 2)
                 {
                     NPC.frameCounter = 0;
                     horizontalFrame++;
@@ -223,7 +226,7 @@ namespace TF2.Content.NPCs.Buddies
         protected virtual void BuddyMovement()
         {
             Timer++;
-            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * BaseSpeed * speedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
+            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * BaseSpeed * speedMultiplier, moveAcceleration * speedMultiplier, moveDeceleration * speedMultiplier, moveFriction * speedMultiplier, onSolidGround);
             if (OnLedge(NPC.position, NPC.direction, NPC.width, NPC.height))
                 NPC.velocity.X = 0f;
             if (Timer == TF2.Time(2))
@@ -302,6 +305,9 @@ namespace TF2.Content.NPCs.Buddies
 
         protected virtual bool EnableBasicMovement() => !focus;
 
+        protected virtual void OverrideState()
+        { }
+
         protected void SetBuddyStatistics(int damage, string hurtSound, string deathSound)
         {
             NPC.damage = damage;
@@ -311,8 +317,9 @@ namespace TF2.Content.NPCs.Buddies
 
         protected void BuddyShoot(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = -1, float ai0 = 0, float ai1 = 0, float ai2 = 0)
         {
+            if (Main.netMode == NetmodeID.MultiplayerClient) return;
             TF2Projectile projectile = TF2.NPCCreateProjectile(spawnSource, position, velocity, type, damage, knockBack, owner, ai0, ai1, ai2, CanCrit, CanMiniCrit);
-            if (this is SniperNPC)
+            if (this is SniperBuddyNPC)
                 projectile.crit = true;
         }
 
@@ -320,7 +327,7 @@ namespace TF2.Content.NPCs.Buddies
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[NPC.type] = 2;
+            Main.npcFrameCount[NPC.type] = 2 + ExtraFrames;
             NPCID.Sets.NPCBestiaryDrawOffset.Add(Type, new NPCID.Sets.NPCBestiaryDrawModifiers()
             {
                 Hide = true
@@ -347,16 +354,17 @@ namespace TF2.Content.NPCs.Buddies
         {
             Texture2D sprite = NPC.direction == -1 ? Spritesheet.Value : SpritesheetReverse.Value;
             int width = sprite.Width / 14;
-            int height = sprite.Height / 2;
+            int height = sprite.Height / (2 + ExtraFrames);
             float frameWidth = width - TrueWidthAndHeight.X;
             float frameHeight = height - TrueWidthAndHeight.Y;
-            spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(horizontalFrame * width, verticalFrame * height, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+            Color color = drawColor * NPC.Opacity;
+            spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(horizontalFrame * width, verticalFrame * height, width, height)), color, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
             if ((weaponAnimation > 0) || forceWeaponDraw)
             {
-                float rotation = NPC.direction == -1 ? (itemRotation - MathHelper.Pi) : itemRotation;
-                bool firingUp = itemRotation >= (-MathHelper.PiOver4 * 3) && itemRotation <= -MathHelper.PiOver4;
+                float rotation = NPC.direction == -1 ? (weaponRotation - MathHelper.Pi) : weaponRotation;
+                bool firingUp = weaponRotation >= (-MathHelper.PiOver4 * 3) && weaponRotation <= -MathHelper.PiOver4;
                 if (firingUp)
-                    spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(3 * width, 0, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+                    spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(3 * width, 0, width, height)), color, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
                 float scale = 1f;
                 Vector2 offset = new Vector2(2f, 20f);
                 Main.GetItemDrawFrame(Weapon, out var itemTexture, out var weaponHitbox);
@@ -369,13 +377,13 @@ namespace TF2.Content.NPCs.Buddies
                 if (NPC.direction == -1)
                     origin = new Vector2(itemTexture.Width + offsetX, itemTexture.Height / 2);
                 Vector2 weaponOffset = NPC.position + new Vector2(NPC.width * 0.5f - weaponHitbox.Width * 0.5f - NPC.direction * 2, 0f);
-                Main.spriteBatch.Draw(itemTexture, new Vector2(weaponOffset.X + weaponCenter.X - Main.screenPosition.X, weaponOffset.Y + weaponCenter.Y - Main.screenPosition.Y), (Rectangle?)weaponHitbox, drawColor, rotation, origin, NPC.scale * scale, (SpriteEffects)(NPC.direction == -1 ? 1 : 0), 0f);
+                Main.spriteBatch.Draw(itemTexture, new Vector2(weaponOffset.X + weaponCenter.X - Main.screenPosition.X, weaponOffset.Y + weaponCenter.Y - Main.screenPosition.Y), (Rectangle?)weaponHitbox, color, rotation, origin, NPC.scale * scale, (SpriteEffects)(NPC.direction == -1 ? 1 : 0), 0f);
                 int arm = 5;
-                if (itemRotation >= MathHelper.PiOver4 && itemRotation <= (MathHelper.PiOver4 * 3))
+                if (weaponRotation >= MathHelper.PiOver4 && weaponRotation <= (MathHelper.PiOver4 * 3))
                     arm = 6;
                 else if (firingUp)
                     arm = 4;
-                spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(arm * width, 0, width, height)), drawColor, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
+                spriteBatch.Draw(sprite, NPC.position - screenPos, new Rectangle?(new Rectangle(arm * width, 0, width, height)), color, 0f, new Vector2(frameWidth, frameHeight), NPC.scale, (SpriteEffects)(NPC.direction == 1 ? 1 : 0), 0f);
             }
             return false;
         }
@@ -389,10 +397,9 @@ namespace TF2.Content.NPCs.Buddies
             horizontalFrame = 0;
             verticalFrame = 0;
             AttackTimer = AttackSpeed - 1;
-            if (NPC.ModNPC is HeavyNPC)
+            if (NPC.ModNPC is HeavyBuddyNPC)
                 AttackTimer++;
             Ammo = ClipSize;
-            BuddySpawn();
         }
 
         public sealed override void AI()
@@ -439,6 +446,7 @@ namespace TF2.Content.NPCs.Buddies
             }
             if (FindTargetNPC(Range, out NPC target) && target != null && State != StateReload && (onSolidGround || focus))
                 State = StateAttack;
+            OverrideState();
             switch (State)
             {
                 case StateIdle:
@@ -486,7 +494,7 @@ namespace TF2.Content.NPCs.Buddies
             }
             if (EnableBasicMovement())
             {
-                if (NPC.position.Distance(Player.position) >= 250f && (NPC.position.Y - Player.position.Y <= 250f) && State != StateAttack && State != StateReload)
+                if (NPC.position.Distance(Player.position) >= FollowingDistance && (NPC.position.Y - Player.position.Y <= FollowingDistance) && State != StateAttack && State != StateReload)
                 {
                     State = StateFollow;
                     NPC.netUpdate = true;
@@ -607,7 +615,7 @@ namespace TF2.Content.NPCs.Buddies
             writer.Write(jumpType);
             writer.Write(horizontalFrame);
             writer.Write(verticalFrame);
-            writer.Write(itemRotation);
+            writer.Write(weaponRotation);
             writer.Write(weaponAnimation);
             writer.Write(forceWeaponDraw);
             BuddySendExtraAI(writer);
@@ -638,7 +646,7 @@ namespace TF2.Content.NPCs.Buddies
             jumpType = reader.ReadByte();
             horizontalFrame = reader.ReadByte();
             verticalFrame = reader.ReadByte();
-            itemRotation = reader.ReadSingle();
+            weaponRotation = reader.ReadSingle();
             weaponAnimation = reader.ReadInt32();
             forceWeaponDraw = reader.ReadBoolean();
             BuddyReceiveExtraAI(reader);

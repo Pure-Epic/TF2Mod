@@ -17,7 +17,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponDamage(damage: 40, projectile: ModContent.ProjectileType<BigEarnerProjectile>(), projectileSpeed: 2f, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/knife_swing");
-            SetWeaponAttackIntervals(altClick: true);
+            SetKnife();
             SetWeaponPrice(weapon: 2, reclaimed: 3, scrap: 1);
         }
 

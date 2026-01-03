@@ -55,7 +55,7 @@ namespace TF2.Content.Items.Weapons.Heavy
         {
             if ((TF2Weapon.HoldingWeapon<GlovesOfRunningUrgently>(Player) || TF2Weapon.HoldingWeapon<EvictionNotice>(Player)) && Player.statLife > TF2.GetHealth(Player, 100))
             {
-                if (Player.statLife < TF2.GetHealth(Player, Player.GetModPlayer<TF2Player>().cachedHealth))
+                if (Player.statLife < TF2.GetHealth(Player, Player.GetModPlayer<TF2Player>().maxHealth))
                     giveBackInitialHealth = true;
                 timer++;
                 if (timer >= TF2.Time(0.2))
@@ -69,13 +69,13 @@ namespace TF2.Content.Items.Weapons.Heavy
                     else
                     {
                         Player.statLife = TF2.GetHealth(Player, 100);
-                        returnedHealth += TF2Player.TotalHealth(Player) % 3;
+                        returnedHealth += TF2Player.MaxHealth(Player) % 3;
                     }
                     CombatText.NewText(new Rectangle((int)Player.position.X, (int)Player.position.Y, Player.width, Player.height), CombatText.LifeRegen, decayAmount, dramatic: false, dot: true);
                     timer = 0;
                 }
             }
-            else if (!TF2Player.IsHealthFull(Player))
+            else if (!TF2Player.IsAtFullHealth(Player))
             {
                 if (giveBackInitialHealth)
                 {
@@ -98,7 +98,7 @@ namespace TF2.Content.Items.Weapons.Heavy
                     }
                 }
             }
-            if (TF2Player.IsHealthFull(Player))
+            if (TF2Player.IsAtFullHealth(Player))
                 returnedHealth = 0;
         }
     }

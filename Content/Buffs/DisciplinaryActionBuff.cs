@@ -35,11 +35,11 @@ namespace TF2.Content.Buffs
             {
                 double speed = buddy switch
                 {
-                    ScoutNPC => 126.3,
-                    SoldierNPC or HeavyNPC => 140,
-                    PyroNPC or EngineerNPC or SniperNPC or SpyNPC => 135,
-                    DemomanNPC => 137.5,
-                    MedicNPC => 132.8,
+                    ScoutBuddyNPC => 126.3,
+                    SoldierBuddyNPC or HeavyBuddyNPC => 140,
+                    PyroBuddyNPC or EngineerBuddyNPC or SniperBuddyNPC or SpyBuddyNPC => 135,
+                    DemomanBuddyNPC => 137.5,
+                    MedicBuddyNPC => 132.8,
                     _ => 125
                 };
                 Buddy.SetBuddySpeed(buddy, speed);
@@ -47,7 +47,7 @@ namespace TF2.Content.Buffs
         }
     }
 
-    public class WhippedPlayer : ModPlayer
+    public class DisciplinaryActionBuffPlayer : ModPlayer
     {
         private bool playBuffSound;
 

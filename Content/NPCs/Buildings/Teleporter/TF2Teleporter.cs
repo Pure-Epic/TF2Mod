@@ -227,6 +227,7 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
                 if (SoundEngine.TryGetActiveSound(exit.teleporterSoundSlot, out var exitSound))
                     exitSound?.Stop();
                 exit?.SyncTeleporter(ModContent.NPCType<TeleporterExitLevel1>());
+                exit.Metal = 0;
             }
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (p.currentClass == TF2Item.Engineer)
@@ -275,6 +276,8 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         public override int BuildingCooldown => Time(1.6);
 
+        protected override int Level => 2;
+
         public override void SetDefaults()
         {
             NPC.width = 40;
@@ -297,6 +300,8 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
         public override int InitialHealth => 216;
 
         public override int BuildingCooldown => Time(1.6);
+
+        protected override int Level => 3;
 
         public override void SetDefaults()
         {
@@ -350,6 +355,7 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
                 if (SoundEngine.TryGetActiveSound(entrance.teleporterSoundSlot, out var entranceSound))
                     entranceSound?.Stop();
                 entrance?.SyncTeleporter(ModContent.NPCType<TeleporterEntranceLevel1>());
+                entrance.Metal = 0;
             }
             TF2Player p = Player.GetModPlayer<TF2Player>();
             if (p.currentClass == TF2Item.Engineer)
@@ -396,6 +402,8 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
 
         public override int BuildingCooldown => Time(1.6);
 
+        protected override int Level => 2;
+
         public override void SetDefaults()
         {
             NPC.width = 40;
@@ -416,6 +424,8 @@ namespace TF2.Content.NPCs.Buildings.Teleporter
         public override int InitialHealth => 216;
 
         public override int BuildingCooldown => Time(1.6);
+
+        protected override int Level => 3;
 
         public override void SetDefaults()
         {

@@ -16,11 +16,11 @@ using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Weapons.Demoman;
 using TF2.Content.Items.Weapons.Engineer;
-using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.Projectiles;
 using TF2.Content.Projectiles.Demoman;
 using TF2.Content.Projectiles.Pyro;
+using TF2.Content.Projectiles.Sniper;
 using TF2.Content.Projectiles.Spy;
 using static TF2.TF2;
 
@@ -61,6 +61,7 @@ namespace TF2.Content.Items.Weapons
 
         protected WeaponSize meleeWeaponSize = new WeaponSize(50, 50);
         private bool noUseGraphic;
+        private int singleFireAttackSpeed;
         public int cooldownTimer;
         public int deployTimer;
         public int holsterTimer;
@@ -68,7 +69,7 @@ namespace TF2.Content.Items.Weapons
         protected bool reload;
         protected int ammoReloadRateTimer;
         protected bool isCharging;
-        protected bool isActive;
+        internal bool isActive;
         protected bool hideAttackSpeed;
 
         protected bool weaponInitialized;
@@ -80,12 +81,14 @@ namespace TF2.Content.Items.Weapons
         public bool noDistanceModifier;
         private SoundStyle? meleeHitSound;
         private bool isRocketLauncher;
+        private bool isBanner;
         private bool isFlamethrower;
         protected int airblastCost;
         protected int airblastCooldown;
         protected int airblastTimer;
-        protected SoundStyle flameThrowerAttackSound;
-        protected SlotId flameThrowerAttackSoundSlot;
+        private SoundStyle flameThrowerAttackSound;
+        private SlotId flameThrowerAttackSoundSlot;
+        private bool isFlareGun;
         private bool isGrenadeLauncher;
         protected bool startReloadSound;
         protected bool finishReloadSound;
@@ -97,23 +100,23 @@ namespace TF2.Content.Items.Weapons
         public float chargeTime;
         public float maxChargeTime;
         protected float chargeInterval;
-        protected SoundStyle stickbombLauncherAttackSound;
+        private SoundStyle stickbombLauncherAttackSound;
         protected float chargeUpRate;
         protected bool isSword;
         private bool isMinigun;
         protected int spinUpTime;
         protected int spinTimer;
         protected int minigunBulletCounter;
-        protected SoundStyle minigunSpinSound;
-        protected SoundStyle minigunSpinUpSound;
-        protected SoundStyle minigunSpinDownSound;
-        protected SoundStyle minigunAttackSound;
-        protected SoundStyle minigunEmptySound;
-        protected SlotId minigunSpinUpSoundSlot;
-        protected SlotId minigunSpinDownSoundSlot;
-        protected SlotId minigunSpinSoundSlot;
-        protected SlotId minigunAttackSoundSlot;
-        protected SlotId minigunEmptySoundSlot;
+        private SoundStyle minigunSpinSound;
+        private SoundStyle minigunSpinUpSound;
+        private SoundStyle minigunSpinDownSound;
+        private SoundStyle minigunAttackSound;
+        private SoundStyle minigunEmptySound;
+        private SlotId minigunSpinUpSoundSlot;
+        private SlotId minigunSpinDownSoundSlot;
+        private SlotId minigunSpinSoundSlot;
+        private SlotId minigunAttackSoundSlot;
+        private SlotId minigunEmptySoundSlot;
         protected bool endSpinUpSound;
         protected bool endSpinDownSound;
         protected int sandvichItem;
@@ -123,7 +126,7 @@ namespace TF2.Content.Items.Weapons
         public float uberChargeCapacity;
         private int uberChargeBuff;
         private int uberChargeDuration;
-        protected SoundStyle mediGunHealSound;
+        private SoundStyle mediGunHealSound;
         private bool endHealSound;
         private bool isSniperRifle;
         protected double chargeUpDamage;
@@ -131,6 +134,14 @@ namespace TF2.Content.Items.Weapons
         protected float chargeUpDelay;
         protected float chargeUpDelayTimer;
         protected bool sniperReload;
+        private bool sniperMiniCrit;
+        private bool isBow;
+        private int bowFatigue;
+        private int bowFatigueTimer;
+        private bool arrowCanIgnite;
+        private SoundStyle bowShoot;
+        private SoundStyle bowPullSound;
+        private SoundStyle bowCancelPullSound;
         private bool isKnife;
         protected double speedPercentage;
         protected bool rightClick;
@@ -158,9 +169,20 @@ namespace TF2.Content.Items.Weapons
 
         protected virtual void WeaponEquip(Player player) => equipped = Item == GetWeapon(player, weaponType);
 
-        public virtual bool WeaponCanBeUsed(Player player) => !magazine ? ((currentAmmoClip > 0 && currentAmmoClip >= ammoCost) || noAmmoClip || isMinigun) : WeaponMagazineCanBeUsed(player);
+        public virtual bool WeaponCanBeUsed(Player player)
+        {
+            if (magazine)
+                return WeaponMagazineCanBeUsed(player);
+            else if (isFlareGun)
+                return cooldownTimer >= singleFireAttackSpeed && currentAmmoClip > 0;
+            else if (isBow)
+                return cooldownTimer >= singleFireAttackSpeed;
+            else return (currentAmmoClip > 0 && currentAmmoClip >= ammoCost) || noAmmoClip || isMinigun;
+        }
 
         protected virtual bool WeaponMagazineCanBeUsed(Player player) => !(currentAmmoClip <= 0 || currentAmmoClip < ammoCost || reload);
+
+        public virtual bool KnifeCanBackstab(Player player) => true;
 
         protected virtual bool WeaponCanAltClick(Player player) => isMediGun ? ActivateUberCharge(player) : !player.HasBuff<BuffaloSteakSandvichBuff>() || weaponType == Melee;
 
@@ -250,7 +272,7 @@ namespace TF2.Content.Items.Weapons
                 FlameThrowerUpdate(player);
             if (isMinigun)
                 MinigunUpdate(player, speedPercentage);
-            if (isSniperRifle)
+            if (isSniperRifle || isBow)
                 SniperRifleUpdate(player, speedPercentage);
         }
 
@@ -270,7 +292,13 @@ namespace TF2.Content.Items.Weapons
 
         protected virtual bool WeaponPreAttack(Player player)
         {
-            if (isMinigun)
+            if (isFlareGun)
+            {
+                cooldownTimer = 0;
+                if (!ModContent.GetInstance<TF2ConfigClient>().InfiniteAmmo)
+                    currentAmmoClip--;
+            }
+            else if (isMinigun)
             {
                 if (spinTimer >= spinUpTime && player.controlUseItem && player.altFunctionUse != 2)
                 {
@@ -287,7 +315,7 @@ namespace TF2.Content.Items.Weapons
 
         protected virtual void WeaponAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (!isStickybombLauncher && !isKnife && Item.ModItem is not Huntsman)
+            if (!isStickybombLauncher && !isBow && !isKnife)
             {
                 if ((currentAmmoClip <= 0 && player.ItemAnimationEndingOrEnded || reload && magazine) && !noAmmoClip || !WeaponPreAttack(player)) return;
                 if (!magazine)
@@ -295,7 +323,7 @@ namespace TF2.Content.Items.Weapons
                 if (!noAmmoClip && WeaponCanConsumeAmmo(player))
                     currentAmmoClip -= ammoCost;
                 Vector2 newVelocity = fullAutomatic && spreadRecovery >= Time(1.25) ? velocity : velocity.RotatedByRandom(MathHelper.ToRadians(2.5f));
-                int newDamage = !isSniperRifle ? damage : (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().damageMultiplier);
+                int newDamage = !(isSniperRifle || isBow) ? damage : (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().damageMultiplier);
                 WeaponFireProjectile(player, source, position, newVelocity, type, newDamage, knockback);
                 if (fullAutomatic)
                     spreadRecovery = 0;
@@ -311,17 +339,15 @@ namespace TF2.Content.Items.Weapons
             }
             else if (isKnife)
             {
-                TF2Player p = player.GetModPlayer<TF2Player>();
-                int i = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-                KnifeProjectile projectile = Main.projectile[i].ModProjectile as KnifeProjectile;
-                projectile.weapon = this;
-                if (player.controlUseTile)
+                if (chargeTime >= maxChargeTime)
                 {
-                    projectile.crit = true;
-                    p.backStab = true;
-                    player.velocity = velocity * 12.5f;
-                    player.immuneTime += 24;
+                    damage *= 6;
+                    player.GetModPlayer<TF2Player>().backstab = true;
+                    player.velocity = velocity * 5f;
+                    player.immuneTime += Time(1);
                 }
+                WeaponFireProjectile(player, source, position, velocity, type, damage, knockback);
+                chargeTime = 0f;
             }
         }
 
@@ -384,7 +410,7 @@ namespace TF2.Content.Items.Weapons
                 Stickybomb stickybombProjectile = projectile.ModProjectile as Stickybomb;
                 if (projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer >= armTime)
                 {
-                    projectile.timeLeft = 0;
+                    stickybombProjectile.DetonateProjectile();
                     stickybombsAmount--;
                 }
             }
@@ -472,6 +498,7 @@ namespace TF2.Content.Items.Weapons
             Item.autoReuse = true;
             noAmmoConsumption = true;
             noAmmoClip = true;
+            isBanner = true;
         }
 
         protected void SetPDAUseStyle()
@@ -557,6 +584,14 @@ namespace TF2.Content.Items.Weapons
             flameThrowerAttackSound = new SoundStyle(attackSound);
         }
 
+        protected void SetFlareGun(double attackSpeed = 2)
+        {
+            isFlareGun = true;
+            cooldownTimer = singleFireAttackSpeed = Time(attackSpeed);
+            displayReloadSpeed = attackSpeed;
+            noAmmoClip = true;
+        }
+
         protected void SetStickybombLauncher(int capacity = 0, double maxCharge = 0, double detonationTime = 0, float chargeRate = 1f, float interval = 1f, string attackSound = "TF2/Content/Sounds/SFX/Weapons/stickybomblauncher_shoot")
         {
             isStickybombLauncher = true;
@@ -602,16 +637,43 @@ namespace TF2.Content.Items.Weapons
             mediGunHealSound = new SoundStyle(healSound);
         }
 
-        protected void SetSniperRifle(double chargeDamage = 100, double maxChargeDuration = 2, double zoomDelay = 1.3, double speed = 27, float chargeRate = 1f, float interval = 1f)
+        protected void SetSniperRifle(double chargeDamage = 100, double maxChargeDuration = 2, double zoomDelay = 1.3, double speed = 27, bool miniCrit = false, float chargeRate = 1f, float interval = 1f)
         {
             isSniperRifle = true;
             additionalChargeUpDamage = chargeDamage;
             maxChargeTime = Time(maxChargeDuration);
             chargeUpDelayTimer = chargeUpDelay = Time(zoomDelay);
             speedPercentage = speed;
+            sniperMiniCrit = miniCrit;
             chargeUpRate = chargeRate;
             chargeInterval = interval;
             noDistanceModifier = true;
+        }
+
+        protected void SetBow(double chargeDamage = 70, double maxChargeDuration = 1, double speed = 53, bool miniCrit = false, double fatigueTime = 5, bool canIgnite = true, float chargeRate = 1f, float interval = 1f, string attackSound = "TF2/Content/Sounds/SFX/Weapons/bow_shoot", string pullSound = "TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull", string cancelSound = "TF2/Content/Sounds/SFX/Weapons/bow_shoot_pull_reverse")
+        {
+            isBow = true;
+            additionalChargeUpDamage = chargeDamage;
+            cooldownTimer = singleFireAttackSpeed = Time(fireRate);
+            maxChargeTime = Time(maxChargeDuration);
+            speedPercentage = speed;
+            sniperMiniCrit = miniCrit;
+            bowFatigue = Time(fatigueTime);
+            arrowCanIgnite = canIgnite;
+            chargeUpRate = chargeRate;
+            chargeInterval = interval;
+            noDistanceModifier = true;
+            bowShoot = new SoundStyle(attackSound);
+            bowPullSound = new SoundStyle(pullSound);
+            bowCancelPullSound = new SoundStyle(cancelSound);
+        }
+
+        protected void SetKnife(double maxChargeDuration = 2, float chargeRate = 1f, float interval = 1f)
+        {
+            isKnife = true;
+            maxChargeTime = Time(maxChargeDuration);
+            chargeUpRate = chargeRate;
+            chargeInterval = interval;
         }
 
         private void AddStatisticTooltips(List<TooltipLine> tooltips)
@@ -742,7 +804,11 @@ namespace TF2.Content.Items.Weapons
         protected void EnforcePassiveEffects(Player player)
         {
             if (IsItemInHotbar(player, Item) && equipped)
+            {
+                if (isBow)
+                    BowPassiveUpdate();
                 WeaponPassiveUpdate(player);
+            }
         }
 
         protected void UpdateDelay(Player player, bool resetDelayCondition)
@@ -785,9 +851,9 @@ namespace TF2.Content.Items.Weapons
                     tf2Projectile.crit = true;
                 else if (p.miniCrit && !tf2Projectile.crit)
                     tf2Projectile.miniCrit = true;
-                if (isSniperRifle && chargeTime == maxChargeTime)
+                if ((isSniperRifle || isBow) && chargeTime == maxChargeTime)
                 {
-                    if (Item.ModItem is not SydneySleeper)
+                    if (!sniperMiniCrit)
                     {
                         tf2Projectile.crit = true;
                         tf2Projectile.sniperCrit = true;
@@ -797,13 +863,12 @@ namespace TF2.Content.Items.Weapons
                         tf2Projectile.miniCrit = true;
                         tf2Projectile.sniperMiniCrit = true;
                     }
+                    if (p.igniteArrow && arrowCanIgnite)
+                        tf2Projectile.ignited = true;
                     Main.projectile[projectile].netUpdate = true;
                 }
-                if (tf2Projectile is KnifeProjectile && p.backStab)
-                {
-                    tf2Projectile.backStab = true;
-                    tf2Projectile.crit = true;
-                }
+                if (tf2Projectile is KnifeProjectile && p.backstab)
+                    tf2Projectile.backstab = true;
                 if (randomAmmo)
                     tf2Projectile.ammoShot = true;
                 if (randomHealth)
@@ -866,18 +931,17 @@ namespace TF2.Content.Items.Weapons
         private void RemoveOldestStickybomb(Player player)
         {
             int oldestTime = 0;
-            Projectile oldestProjectile = null;
+            Stickybomb oldestStickybomb = null;
             for (int i = 0; i < Main.maxProjectiles; i++)
             {
                 Projectile projectile = Main.projectile[i];
-                Stickybomb stickybombProjectile = Main.projectile[i].ModProjectile as Stickybomb;
-                if (projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer > oldestTime)
+                if (Main.projectile[i].ModProjectile is Stickybomb stickybombProjectile && projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer > oldestTime)
                 {
-                    oldestProjectile = Main.projectile[i];
+                    oldestStickybomb = stickybombProjectile;
                     oldestTime = stickybombProjectile.Timer;
                 }
             }
-            oldestProjectile.timeLeft = 0;
+            oldestStickybomb.DetonateProjectile();
             stickybombsAmount--;
         }
 
@@ -894,6 +958,24 @@ namespace TF2.Content.Items.Weapons
         {
             if (SoundEngine.TryGetActiveSound(flameThrowerAttackSoundSlot, out var attackSound))
                 attackSound.Position = player.Center;
+        }
+
+        private void FlareGunActiveUpdate(Player player)
+        {
+            if (!finishReloadSound && cooldownTimer == Time(0.3333))
+            {
+                SoundEngine.PlaySound(reloadSound, player.Center);
+                finishReloadSound = true;
+            }
+            if (cooldownTimer >= singleFireAttackSpeed)
+                finishReloadSound = false;
+        }
+
+        private void FlareGunPassiveUpdate()
+        {
+            if (currentAmmoClip > 0)
+                cooldownTimer++;
+            TF2.Maximum(ref cooldownTimer, singleFireAttackSpeed);
         }
 
         private void MinigunActiveUpdate(Player player)
@@ -1038,7 +1120,7 @@ namespace TF2.Content.Items.Weapons
                 p.activateUberCharge = true;
                 p.fullyCharged = false;
                 player.AddBuff(uberChargeBuff, uberChargeDuration, false);
-                if (uberChargeBuff == ModContent.BuffType<QuickFixUberCharge>())
+                if (uberChargeBuff == ModContent.BuffType<QuickFixBuff>())
                     RemoveAllDebuffs(player);
                 PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/invulnerable_on"), player.Center);
             }
@@ -1062,15 +1144,12 @@ namespace TF2.Content.Items.Weapons
 
         protected void SniperRifleUpdate(Player player, double speedPercentage)
         {
-            if (isSniperRifle)
+            if (isCharging)
             {
-                if (isCharging)
-                {
-                    TF2Player.SetPlayerSpeed(player, speedPercentage);
-                    player.GetModPlayer<TF2Player>().disableFocusSlowdown = true;
-                }
-                chargeUpDamage = SniperRifleDamage(additionalChargeUpDamage);
+                TF2Player.SetPlayerSpeed(player, speedPercentage);
+                player.GetModPlayer<TF2Player>().disableFocusSlowdown = true;
             }
+            chargeUpDamage = SniperRifleDamage(additionalChargeUpDamage);
         }
 
         protected void SniperRifleCharge()
@@ -1089,6 +1168,75 @@ namespace TF2.Content.Items.Weapons
         }
 
         private int SniperRifleDamage(double damage) => (int)(Item.damage + damage * chargeTime / maxChargeTime);
+
+        protected void BowActiveUpdate(Player player)
+        {
+            TF2Player p = player.GetModPlayer<TF2Player>();
+            chargeTime = (int)Utils.Clamp(chargeTime, 0, maxChargeTime);
+            if (chargeTime == maxChargeTime)
+            {
+                p.crit = true;
+                if (bowFatigue <= 0)
+                    bowFatigueTimer++;
+            }
+            if (!player.controlUseItem && isCharging && !player.dead)
+            {
+                Vector2 shootDirection = bowFatigueTimer >= bowFatigue ? player.DirectionTo(Main.MouseWorld).RotatedByRandom(MathHelper.ToRadians(60f)) : player.DirectionTo(Main.MouseWorld);
+                Shoot(player, player.GetSource_ItemUse(Item), player.Center, shootDirection * Item.shootSpeed, ModContent.ProjectileType<Arrow>(), (int)Math.Round(chargeUpDamage * player.GetModPlayer<TF2Player>().damageMultiplier), 0f);
+                SetCustomItemTime(player);
+                sniperReload = true;
+                chargeUpDamage = Item.damage;
+                chargeTime = 0f;
+                cooldownTimer = 0;
+                bowFatigueTimer = 0;
+                p.igniteArrow = false;
+                PlaySound(bowShoot, player.Center);
+                isCharging = false;
+            }
+            if (player.controlUseTile && bowFatigueTimer > 0)
+            {
+                PlaySound(bowCancelPullSound, player.Center);
+                bowFatigueTimer = 0;
+                chargeTime = 0f;
+                isCharging = false;
+                player.itemTime = singleFireAttackSpeed;
+            }
+            if (player.dead)
+                isCharging = false;
+        }
+
+        protected void BowPassiveUpdate()
+        {
+            if (currentAmmoReserve > 0 || cooldownTimer > 0)
+                cooldownTimer++;
+            if (cooldownTimer > singleFireAttackSpeed)
+                cooldownTimer = singleFireAttackSpeed;
+            if (cooldownTimer == singleFireAttackSpeed && sniperReload)
+            {
+                if (!ModContent.GetInstance<TF2ConfigClient>().InfiniteAmmo)
+                    currentAmmoReserve--;
+                sniperReload = false;
+            }
+        }
+
+        protected void KnifePassiveUpdate(Player player)
+        {
+            if (player.ItemAnimationActive || player.HeldItem.ModItem is not TF2Weapon weapon || !weapon.GetWeaponMechanic("Knife") || !weapon.KnifeCanBackstab(player))
+            {
+                chargeTime = 0f;
+                return;
+            }
+            if (deployTimer >= deploySpeed)
+            {
+                chargeInterval++;
+                if (chargeInterval >= chargeUpRate)
+                {
+                    chargeTime++;
+                    chargeInterval = 0f;
+                }
+                chargeTime = Utils.Clamp(chargeTime, 0, maxChargeTime);
+            }
+        }
 
         protected static int GetCustomItemTime(Player player) => player.itemTime;
 
@@ -1135,12 +1283,17 @@ namespace TF2.Content.Items.Weapons
 
         public bool GetWeaponMechanic(string weapon) => weapon switch
         {
+            "Rocket Launcher" => isRocketLauncher,
+            "Banner" => isBanner,
             "Flamethrower" => isFlamethrower,
+            "Flare Gun" => isFlareGun,
             "Grenade Launcher" => isGrenadeLauncher,
             "Stickybomb Launcher" => isStickybombLauncher,
             "Minigun" => isMinigun,
             "Medi Gun" => isMediGun,
             "Sniper Rifle" => isSniperRifle,
+            "Bow" or "Huntsman" => isBow,
+            "Knife" => isKnife,
             _ => false,
         };
 
@@ -1190,7 +1343,7 @@ namespace TF2.Content.Items.Weapons
             RemoveDefaultTooltips(tooltips);
             Player player = Main.LocalPlayer;
             WeaponEarlyUpdate(player);
-            string weaponAvailability = !MannCoStoreActive ? availabilityNames[availability] : availabilityNames[5];
+            string weaponAvailability = availabilityNames[availability];
             string weaponCategory = categoryNames[weaponType];
             string category = Language.GetText("Mods.TF2.UI.Items.CategoryText").Format(classNames[classType], weaponAvailability, weaponCategory);
             if (classType == MultiClass)
@@ -1281,14 +1434,18 @@ namespace TF2.Content.Items.Weapons
                 spreadRecovery++;
             if (isFlamethrower)
                 FlameThrowerActiveUpdate(player);
+            if (isFlareGun)
+                FlareGunActiveUpdate(player);
             if (isStickybombLauncher)
                 StickybombLauncherUpdate(player, Item.shoot);
             if (isMinigun)
                 MinigunActiveUpdate(player);
             if (isMediGun)
                 MediGunUpdate(player);
-            if (isSniperRifle && Item.ModItem is not Huntsman)
+            if (isSniperRifle)
                 SniperRifleActiveUpdate(player);
+            if (isBow)
+                BowActiveUpdate(player);
             WeaponActiveUpdate(player);
             critTimer++;
             if (Item.useTime <= Time(0.2) && critTimer >= Time(1) && critDuration <= 0)
@@ -1315,8 +1472,12 @@ namespace TF2.Content.Items.Weapons
             EnforcePassiveEffects(player);
             if (player.HeldItem == Item)
                 WeaponActiveBonus(player);
+            if (isFlareGun)
+                FlareGunPassiveUpdate();
             if (isMediGun)
                 MediGunPassiveUpdate(player);
+            if (isKnife)
+                KnifePassiveUpdate(player);
             OutputDelay(player);
             if (critDuration > 0 && !reload)
                 critDuration--;
@@ -1396,6 +1557,14 @@ namespace TF2.Content.Items.Weapons
                         holsterTimer = 0;
                         return WeaponOnUse(player);
                     }
+                }
+                if (isBow && player.controlUseItem && GetCustomItemTime(player) == 0)
+                {
+                    if (!isCharging)
+                        PlaySound(bowPullSound, player.Center);
+                    isCharging = true;
+                    SniperRifleCharge();
+                    return false;
                 }
                 holsterTimer = 0;
                 return WeaponOnUse(player);

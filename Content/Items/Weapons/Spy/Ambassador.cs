@@ -27,7 +27,7 @@ namespace TF2.Content.Items.Weapons.Spy
 
         protected override void WeaponPostFireProjectile(Player player, int projectile)
         {
-            if (TF2Player.IsHealthFull(player))
+            if (TF2Player.IsAtFullHealth(player))
                 (Main.projectile[projectile].ModProjectile as TF2Projectile).crit = true;
         }
     }

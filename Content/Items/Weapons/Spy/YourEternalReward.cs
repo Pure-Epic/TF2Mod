@@ -1,9 +1,6 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Materials;
 using TF2.Content.Projectiles.Spy;
@@ -20,7 +17,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponDamage(damage: 40, projectile: ModContent.ProjectileType<YourEternalRewardProjectile>(), projectileSpeed: 2f, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/knife_swing");
-            SetWeaponAttackIntervals(altClick: true);
+            SetKnife(maxChargeDuration: 1);
             SetWeaponPrice(weapon: 1, reclaimed: 1);
             noThe = true;
         }
@@ -31,31 +28,21 @@ namespace TF2.Content.Items.Weapons.Spy
             AddNegativeAttribute(description);
         }
 
-        protected override bool WeaponCanAltClick(Player player) => player.GetModPlayer<CloakPlayer>().fullCloak || player.GetModPlayer<CloakAndDaggerPlayer>().fullCloak || player.GetModPlayer<FeignDeathPlayer>().fullCloak;
+        public override bool KnifeCanBackstab(Player player) => player.GetModPlayer<InvisWatchBuffPlayer>().fullCloak || player.GetModPlayer<CloakAndDaggerBuffPlayer>().fullCloak || player.GetModPlayer<DeadRingerPlayer>().fullCloak;
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<YourEternalRewardPlayer>().yourEternalRewardEquipped = true;
 
-        protected override void WeaponAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        protected override void WeaponPostFireProjectile(Player player, int projectile)
         {
-            TF2Player p = player.GetModPlayer<TF2Player>();
-            int i = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
-            KnifeProjectile projectile = Main.projectile[i].ModProjectile as KnifeProjectile;
-            projectile.weapon = this;
-            if (player.controlUseTile)
+            if (Main.projectile[projectile].ModProjectile is YourEternalRewardProjectile knife && knife.backstab)
             {
-                projectile.crit = true;
-                p.backStab = true;
-                player.velocity = velocity * 12.5f;
-                player.immuneTime += 24;
-                if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                    player.GetModPlayer<CloakPlayer>().cloakMeter = 0;
-                if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped)
-                    player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter = 0;
-                if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                    player.GetModPlayer<FeignDeathPlayer>().cloakMeter = 0;
+                if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                    player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = 0;
+                if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped)
+                    player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter = 0;
+                if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                    player.GetModPlayer<DeadRingerPlayer>().cloakMeter = 0;
             }
-            else
-                TF2.CreateProjectile(this, source, position, velocity * 10f, ModContent.ProjectileType<YourEternalRewardBeam>(), damage, knockback, player.whoAmI);
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<CloakAndDagger>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();

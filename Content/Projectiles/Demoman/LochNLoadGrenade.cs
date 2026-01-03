@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ModLoader;
 
 namespace TF2.Content.Projectiles.Demoman
 {
@@ -29,7 +28,9 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (StartTimer)
                 FuseTimer++;
-            if (FuseTimer == fuseTime || Projectile.timeLeft == 0)
+            if (FuseTimer == fuseTime)
+                DetonateProjectile();
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(113, 113);
@@ -47,21 +48,19 @@ namespace TF2.Content.Projectiles.Demoman
             return false;
         }
 
-        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1.2f : 1f;
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= (TF2.IsBuilding(target) || target.boss) ? 1.2f : 1f;
 
         protected override void GrenadeJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 113f))
             {
-                velocity *= 10f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;
                 int selfDamage = TF2.GetHealth(Player, 55.5);
                 Player.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[2].ToNetworkText(Player.name)), selfDamage, 0, cooldownCounter: 5);
             }
-            Projectile.timeLeft = 0;
         }
     }
 }

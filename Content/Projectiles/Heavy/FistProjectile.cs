@@ -86,13 +86,13 @@ namespace TF2.Content.Projectiles.Heavy
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             if (!info.PvP) return;
-            if ((Player.GetModPlayer<TF2Player>().crit || crit) && !TF2Player.IsHealthFull(Player))
+            if ((Player.GetModPlayer<TF2Player>().crit || crit) && !TF2Player.IsAtFullHealth(Player))
                 Player.Heal(TF2.GetHealth(Player, 50));
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (hit.Crit && target.type != NPCID.TargetDummy && !TF2Player.IsHealthFull(Player))
+            if (hit.Crit && target.type != NPCID.TargetDummy && !TF2Player.IsAtFullHealth(Player))
                 Player.Heal(TF2.GetHealth(Player, 50));
         }
     }

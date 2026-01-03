@@ -29,11 +29,7 @@ namespace TF2.Content.Items.Weapons.MultiClass
 
         protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<PainTrainPlayer>().painTrainEquipped = true;
 
-        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (target.boss)
-                player.GetModPlayer<TF2Player>().crit = true;
-        }
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 1.5f : 1f;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Sandman>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }

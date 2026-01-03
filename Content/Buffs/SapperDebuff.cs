@@ -15,18 +15,18 @@ namespace TF2.Content.Buffs
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.CanBeRemovedByNetMessage[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<SappedPlayer>().sapperDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<SapperDebuffPlayer>().sapperDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SappedNPC>().sapperDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<SapperDebuffNPC>().sapperDebuff = true;
     }
 
-    public class SappedPlayer : ModPlayer
+    public class SapperDebuffPlayer : ModPlayer
     {
-        private int timer;
         public bool sapperDebuff;
+        private int timer;
         public float damageMultiplier = 1f;
 
         public override void ResetEffects() => sapperDebuff = false;
@@ -45,21 +45,22 @@ namespace TF2.Content.Buffs
                         Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[6].ToNetworkText(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
-                Dust dust = Dust.NewDustDirect(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Electric);
+                Dust dust = Dust.NewDustDirect(Player.position, Player.width, Player.height, DustID.Electric);
                 dust.velocity *= 2f;
                 dust.noGravity = true;
                 dust.alpha = 128;
                 dust.scale = Main.rand.Next(10, 20) * 0.1f;
+                Lighting.AddLight(Player.Center, Color.Aqua.ToVector3());
             }
         }
     }
 
-    public class SappedNPC : GlobalNPC
+    public class SapperDebuffNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
-        private int timer;
         public bool sapperDebuff;
+        private int timer;
         public float damageMultiplier = 1f;
 
         public override void ResetEffects(NPC npc) => sapperDebuff = false;
@@ -80,11 +81,12 @@ namespace TF2.Content.Buffs
                         npc.netUpdate = true;
                     timer = 0;
                 }
-                Dust dust = Dust.NewDustDirect(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Electric);
+                Dust dust = Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.Electric);
                 dust.velocity *= 2f;
                 dust.noGravity = true;
                 dust.alpha = 128;
                 dust.scale = Main.rand.Next(10, 20) * 0.1f;
+                Lighting.AddLight(npc.Center, Color.Aqua.ToVector3());
             }
             else
                 timer = 0;
@@ -92,15 +94,15 @@ namespace TF2.Content.Buffs
 
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(timer);
             binaryWriter.Write(sapperDebuff);
+            binaryWriter.Write(timer);
             binaryWriter.Write(damageMultiplier);
         }
 
         public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
         {
-            timer = binaryReader.ReadInt32();
             sapperDebuff = binaryReader.ReadBoolean();
+            timer = binaryReader.ReadInt32();
             damageMultiplier = binaryReader.ReadSingle();
         }
     }

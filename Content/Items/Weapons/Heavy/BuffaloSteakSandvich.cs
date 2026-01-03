@@ -39,11 +39,11 @@ namespace TF2.Content.Items.Weapons.Heavy
             }
             else if (isActive)
             {
-                timer[0] = 0;
                 timer[1]++;
                 if (timer[1] >= TF2.Time(4.3))
                 {
                     player.AddBuff(ModContent.BuffType<BuffaloSteakSandvichBuff>(), TF2.Time(16));
+                    timer[0] = 0;
                     timer[1] = 0;
                     isActive = false;
                 }
@@ -67,7 +67,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
     public class DroppedBuffaloSteakSandvich : DroppedSandvich
     {
-        public override string Texture => "TF2/Content/Textures/DroppedBuffaloSteakSandvich";
+        public override string Texture => "TF2/Content/Textures/Items/Heavy/DroppedBuffaloSteakSandvich";
 
         public override void SetDefaults()
         {

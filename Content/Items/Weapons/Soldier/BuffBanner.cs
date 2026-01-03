@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
@@ -15,7 +13,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 {
     public class BuffBanner : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/BuffBanner");
+        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Soldier/BuffBanner_Bugle");
 
         protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/BuffBanner";
 
@@ -33,7 +31,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 1;
 
-        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<BuffBannerPlayer>().buffActive ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.BuffBannerTextures[0] : ItemTextures.BuffBannerTextures[1]);
+        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<BuffBannerPlayer>().bannerBuff ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.BuffBannerTextures[0] : ItemTextures.BuffBannerTextures[1]);
 
         protected override void WeaponAttackAnimation(Player player)
         {
@@ -80,11 +78,11 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         public virtual int MaxRage => TF2.Time(10);
 
+        public bool bannerBuff;
         public int rage;
-        public bool buffActive;
         public int buffDuration;
 
-        public override void ResetEffects() => buffActive = false;
+        public override void ResetEffects() => bannerBuff = false;
 
         public override void OnHurt(Player.HurtInfo info)
         {
@@ -92,7 +90,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             Player opponent = Main.player[info.DamageSource.SourcePlayerIndex];
             TF2Player p = opponent.GetModPlayer<TF2Player>();
             BannerPlayer banner = opponent.GetModPlayer<BannerPlayer>();
-            if (p.HasBanner && banner.BannerID == p.bannerType && !banner.buffActive)
+            if (p.HasBanner && banner.BannerID == p.bannerType && !banner.bannerBuff)
                 banner.rage += TF2.Round(info.Damage / p.damageMultiplier);
             PostHitPlayer(opponent, info);
         }
@@ -101,7 +99,7 @@ namespace TF2.Content.Items.Weapons.Soldier
         {
             if (target.type == NPCID.TargetDummy) return;
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (Player.GetModPlayer<TF2Player>().HasBanner && BannerID == p.bannerType && !buffActive)
+            if (Player.GetModPlayer<TF2Player>().HasBanner && BannerID == p.bannerType && !bannerBuff)
                 rage += TF2.Round(damageDone / p.damageMultiplier);
             PostHitNPC(target, hit, damageDone);
         }
@@ -122,7 +120,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             rage = Utils.Clamp(rage, 0, MaxRage);
             if (!Player.GetModPlayer<TF2Player>().HasBanner)
                 rage = 0;
-            if (buffActive && Player.HasBuff<BuffBannerBuff>())
+            if (bannerBuff && Player.HasBuff<BuffBannerBuff>())
             {
                 rage = 0;
                 int buffIndex = Player.FindBuffIndex(ModContent.BuffType<BuffBannerBuff>());

@@ -80,7 +80,7 @@ namespace TF2.Content.Items.Modules
             Language.GetText("Mods.TF2.UI.Items.MannsAntiDanmakuSystem.Fast")
         ];
 
-        public enum moduleSpeed
+        public enum ModuleSpeed
         {
             Normal,
             Fast,
@@ -174,14 +174,14 @@ namespace TF2.Content.Items.Modules
                 ShieldPlayer shield = ShieldPlayer.GetShield(Player);
                 if (Player.controlUp)
                 {
-                    if (!Player.controlLeft && !Player.controlRight && !p.backStab && !shield.chargeActive)
+                    if (!Player.controlLeft && !Player.controlRight && !p.backstab && !shield.chargeActive)
                         Player.velocity.X = 0f;
                     Player.velocity = new Vector2(Player.velocity.X, -(speed * 12.5f));
                     SendMountMessage(Player);
                 }
                 else if (Player.controlDown)
                 {
-                    if (!Player.controlLeft && !Player.controlRight && !p.backStab && !shield.chargeActive)
+                    if (!Player.controlLeft && !Player.controlRight && !p.backstab && !shield.chargeActive)
                         Player.velocity.X = 0f;
                     Player.velocity = new Vector2(Player.velocity.X, speed * 12.5f);
                     Player.maxFallSpeed = speed * 12.5f;
@@ -205,7 +205,7 @@ namespace TF2.Content.Items.Modules
                     Player.velocity = new Vector2(speed * 12.5f, Player.velocity.Y);
                     SendMountMessage(Player);
                 }
-                idle = !Player.controlUp && !Player.controlDown && !Player.controlLeft && !Player.controlRight! && !p.backStab && !shield.chargeActive;
+                idle = !Player.controlUp && !Player.controlDown && !Player.controlLeft && !Player.controlRight! && !p.backstab && !shield.chargeActive;
                 if (idle)
                 {
                     Player.velocity = new Vector2(0f, 0f);
@@ -243,7 +243,6 @@ namespace TF2.Content.Items.Modules
         public override void Update(Player player, ref int buffIndex)
         {
             player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive = true;
-            player.noKnockback = true;
             player.gravity = 0f;
         }
 
@@ -265,7 +264,7 @@ namespace TF2.Content.Items.Modules
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!(drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus && drawInfo.drawPlayer.HasBuff<MannsAntiDanmakuSystemBuff>())) return;
-            focusModeTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Focus");
+            focusModeTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Modules/Focus");
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             drawInfo.DrawDataCache.Add(new DrawData(focusModeTexture.Value, position, null, Color.White, 0f, focusModeTexture.Size() * 0.5f, 1f, SpriteEffects.None, 0));
@@ -283,7 +282,7 @@ namespace TF2.Content.Items.Modules
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!(drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus && drawInfo.drawPlayer.HasBuff<MannsAntiDanmakuSystemBuff>())) return;
-            focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Hitbox");
+            focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Modules/Hitbox");
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             Texture2D texture = focusModeHitboxTexture.Value;

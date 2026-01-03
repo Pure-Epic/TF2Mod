@@ -10,19 +10,19 @@ namespace TF2.Content.Projectiles.Pyro
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            PyroFlamesDegreaserPlayer burntPlayer = target.GetModPlayer<PyroFlamesDegreaserPlayer>();
+            DegreaserDebuffPlayer burntPlayer = target.GetModPlayer<DegreaserDebuffPlayer>();
             burntPlayer.damageMultiplier = p.damageMultiplier;
-            target.ClearBuff(ModContent.BuffType<PyroFlames>());
-            target.AddBuff(ModContent.BuffType<PyroFlamesDegreaser>(), TF2.Time(5.4));
+            target.ClearBuff(ModContent.BuffType<FlameThrowerDebuff>());
+            target.AddBuff(ModContent.BuffType<DegreaserDebuff>(), TF2.Time(5.4));
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             TF2Player p = Main.player[Projectile.owner].GetModPlayer<TF2Player>();
-            PyroFlamesDegreaserNPC npc = target.GetGlobalNPC<PyroFlamesDegreaserNPC>();
+            DegreaserDebuffNPC npc = target.GetGlobalNPC<DegreaserDebuffNPC>();
             npc.damageMultiplier = p.damageMultiplier;
-            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlames>());
-            target.AddBuff(ModContent.BuffType<PyroFlamesDegreaser>(), TF2.Time(5.4));
+            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<FlameThrowerDebuff>());
+            target.AddBuff(ModContent.BuffType<DegreaserDebuff>(), TF2.Time(5.4));
         }
     }
 }

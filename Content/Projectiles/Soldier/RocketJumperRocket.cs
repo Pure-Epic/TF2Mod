@@ -14,39 +14,33 @@ namespace TF2.Content.Projectiles.Soldier
             foreach (Player player in Main.ActivePlayers)
             {
                 if (Projectile.Hitbox.Intersects(player.Hitbox) && player.whoAmI != Projectile.owner)
-                    Projectile.timeLeft = 0;
+                    DetonateProjectile();
             }
             foreach (NPC npc in Main.ActiveNPCs)
             {
                 if (Projectile.Hitbox.Intersects(npc.Hitbox))
-                    Projectile.timeLeft = 0;
+                    DetonateProjectile();
 
             }
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(100, 100);
                 Projectile.hide = true;
                 Projectile.tileCollide = false;
                 Projectile.Center = Projectile.position;
+                RocketJump(Projectile.velocity);
             }
             SetRotation();
         }
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            if (FindOwner(Projectile, 50f))
-            {
-                oldVelocity *= 1.25f;
-                oldVelocity.X = Utils.Clamp(oldVelocity.X, -25f, 25f);
-                oldVelocity.Y = Utils.Clamp(oldVelocity.Y, -25f, 25f);
-                Player.velocity -= oldVelocity;
-                QuickFixMirror();
-            }
+            DetonateProjectile();
             return false;
         }
 
-        public void Explode()
+        protected override void ProjectileDestroy(int timeLeft)
         {
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/rocket_jumper_explode"), Projectile.Center);
             for (int i = 0; i < 50; i++)
@@ -61,6 +55,18 @@ namespace TF2.Content.Projectiles.Soldier
                 dust.velocity *= 5f;
                 dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Torch, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 3f;
+            }
+            Lighting.AddLight(Projectile.Center, new Vector3(255f, 190f, 0f));
+        }
+
+        protected override void RocketJump(Vector2 velocity)
+        {
+            if (FindOwner(Projectile, 100f))
+            {
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
+                Player.velocity -= velocity;
+                QuickFixMirror();
             }
         }
     }

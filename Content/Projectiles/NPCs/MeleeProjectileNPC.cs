@@ -5,8 +5,6 @@ namespace TF2.Content.Projectiles.NPCs
 {
     public class MeleeProjectileNPC : TF2Projectile
     {
-        public NPC thisNPC;
-
         protected override void ProjectileStatistics()
         {
             SetProjectileSize(100, 100);
@@ -25,8 +23,9 @@ namespace TF2.Content.Projectiles.NPCs
 
         protected override void ProjectileAI()
         {
-            if (thisNPC == null) return;
-            Vector2 npcCenter = thisNPC.position;
+            NPC npc = Main.npc[npcOwner];
+            if (npc == null) return;
+            Vector2 npcCenter = npc.position;
             Projectile.position = npcCenter;
             Projectile.spriteDirection = (Vector2.Dot(Projectile.velocity, Vector2.UnitX) >= 0f).ToDirectionInt();
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2 - MathHelper.PiOver4 * Projectile.spriteDirection;

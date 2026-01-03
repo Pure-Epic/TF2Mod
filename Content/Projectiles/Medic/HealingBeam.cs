@@ -19,7 +19,7 @@ namespace TF2.Content.Projectiles.Medic
 
         public virtual float OverhealLimit => 0.5f;
 
-        protected virtual int UberCharge => ModContent.BuffType<UberCharge>();
+        protected virtual int UberCharge => ModContent.BuffType<MediGunBuff>();
 
         public int HealCooldown
         {
@@ -55,7 +55,7 @@ namespace TF2.Content.Projectiles.Medic
                         AddUberCharge(Player.HeldItem);
                     else
                     {
-                        if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                        if (UberCharge == ModContent.BuffType<QuickFixBuff>())
                             TF2.RemoveAllDebuffs(targetPlayer);
                         targetPlayer.AddBuff(UberCharge, TF2.Time(8), false);
                     }
@@ -77,7 +77,7 @@ namespace TF2.Content.Projectiles.Medic
                                 AddUberCharge(Player.HeldItem);
                             else
                             {
-                                if (UberCharge == ModContent.BuffType<QuickFixUberCharge>())
+                                if (UberCharge == ModContent.BuffType<QuickFixBuff>())
                                     TF2.RemoveAllDebuffs(npc);
                                 npc.AddBuff(UberCharge, TF2.Time(8));
                             }
@@ -156,11 +156,11 @@ namespace TF2.Content.Projectiles.Medic
         {
             if (HealCooldown <= 0)
             {
-                int healingAmount = TF2.Round(TF2.GetRawHealth(target, (!target.GetModPlayer<TF2Player>().HealPenalty ? 1.2f : 0.4f) * HealMultiplier));
+                int healingAmount = TF2.Round(TF2.GetRawHealth(target, (!target.GetModPlayer<TF2Player>().HasHealPenalty ? 1.2f : 0.4f) * HealMultiplier));
                 if (healingAmount <= 0)
                     healingAmount = 1;
                 TF2.OverhealMultiplayer(target, healingAmount, OverhealLimit);
-                if (Player.HasBuff<QuickFixUberCharge>())
+                if (Player.HasBuff<QuickFixBuff>())
                     TF2.Overheal(Player, healingAmount, OverhealLimit);
                 HealCooldown = TF2.Time(0.1);
             }
@@ -178,7 +178,7 @@ namespace TF2.Content.Projectiles.Medic
                     TF2.OverhealNPC(target, healingAmount, OverhealLimit);
                 else
                     TF2.OverhealNPCMultiplayer(target, healingAmount, OverhealLimit);
-                if (Player.HasBuff<QuickFixUberCharge>())
+                if (Player.HasBuff<QuickFixBuff>())
                     TF2.Overheal(Player, TF2.Round(TF2.GetRawHealth(Player, 0.4f * HealMultiplier)), OverhealLimit);
                 HealCooldown = TF2.Time(0.1);
             }

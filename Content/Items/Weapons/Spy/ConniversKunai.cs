@@ -19,7 +19,7 @@ namespace TF2.Content.Items.Weapons.Spy
             SetWeaponDamage(damage: 40, projectile: ModContent.ProjectileType<ConniversKunaiProjectile>(), projectileSpeed: 2f, noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.8);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/knife_swing");
-            SetWeaponAttackIntervals(altClick: true);
+            SetKnife(maxChargeDuration: 3);
             SetWeaponPrice(weapon: 1, reclaimed: 1, scrap: 1);
             noThe = true;
         }

@@ -71,7 +71,7 @@ namespace TF2.Content.Items.Weapons.Medic
                 {
                     foreach (Player healedPlayer in Main.ActivePlayers)
                     {
-                        if (!TF2Player.IsHealthFull(healedPlayer) && !healedPlayer.dead)
+                        if (!TF2Player.IsAtFullHealth(healedPlayer) && !healedPlayer.dead)
                         {
                             TF2Player p = healedPlayer.GetModPlayer<TF2Player>();
                             int healingAmount = TF2.Round(TF2.GetHealth(healedPlayer, 6.25) * p.healReduction);

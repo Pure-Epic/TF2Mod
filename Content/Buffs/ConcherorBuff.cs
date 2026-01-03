@@ -17,7 +17,7 @@ namespace TF2.Content.Buffs
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetModPlayer<ConcherorPlayer>().buffActive = true;
+            player.GetModPlayer<ConcherorPlayer>().bannerBuff = true;
             TF2Player.SetPlayerSpeed(player, 135);
         }
 

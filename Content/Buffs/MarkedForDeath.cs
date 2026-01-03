@@ -1,8 +1,8 @@
+using System.IO;
 using Terraria;
-using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Content.Dusts;
+using Terraria.ModLoader.IO;
 
 namespace TF2.Content.Buffs
 {
@@ -12,7 +12,7 @@ namespace TF2.Content.Buffs
         {
             Main.debuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.CanBeRemovedByNetMessage[Type] = true;
         }
 
         public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<MarkedForDeathPlayer>().markedForDeath = true;
@@ -25,16 +25,6 @@ namespace TF2.Content.Buffs
         public bool markedForDeath;
 
         public override void ResetEffects() => markedForDeath = false;
-
-        public override void ModifyHurt(ref Player.HurtModifiers modifiers)
-        {
-            if (markedForDeath && !modifiers.PvP)
-            {
-                modifiers.SourceDamage.Base *= 1.35f;
-                Dust.NewDust(Player.Center, 0, 0, ModContent.DustType<MiniCrit>(), 0f, 0);
-                SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/crit_hit_mini"), Player.Center);
-            }
-        }
     }
 
     public class MarkedForDeathNPC : GlobalNPC
@@ -44,5 +34,9 @@ namespace TF2.Content.Buffs
         public bool markedForDeath;
 
         public override void ResetEffects(NPC npc) => markedForDeath = false;
+
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) => binaryWriter.Write(markedForDeath);
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) => markedForDeath = binaryReader.ReadBoolean();
     }
 }

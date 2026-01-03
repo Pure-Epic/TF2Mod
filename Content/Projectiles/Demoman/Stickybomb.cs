@@ -27,12 +27,6 @@ namespace TF2.Content.Projectiles.Demoman
             set => Projectile.localAI[0] = value ? 1f : 0f;
         }
 
-        public bool Explode
-        {
-            get => Projectile.localAI[1] == 1f;
-            set => Projectile.localAI[1] = value ? 1f : 0f;
-        }
-
         public const int maxPower = 5;
 
         protected override void ProjectileStatistics()
@@ -57,7 +51,7 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (Timer >= TF2.Time(5))
                 noDistanceModifier = true;
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(250, 250);
@@ -68,7 +62,7 @@ namespace TF2.Content.Projectiles.Demoman
                 Projectile.Center = Projectile.position;
                 StickyJump(velocity);
             }
-            if (!Stick && Projectile.timeLeft != 0)
+            if (!Stick && !ProjectileDetonation)
                 StartingAI();
             else
                 GroundAI();
@@ -97,7 +91,7 @@ namespace TF2.Content.Projectiles.Demoman
         {
             if (!Stick)
                 Projectile.timeLeft = TF2.Minute(1);
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Stick = true;
                 Projectile.velocity.X = 0;
@@ -155,12 +149,10 @@ namespace TF2.Content.Projectiles.Demoman
 
         public virtual void StickyJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 100f) && !Explode)
+            if (FindOwner(Projectile, 100f))
             {
-                Explode = true;
-                velocity *= 2.5f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;
@@ -169,16 +161,8 @@ namespace TF2.Content.Projectiles.Demoman
             }
         }
 
-        protected override void ProjectileSendExtraAI(BinaryWriter writer)
-        {
-            writer.Write(StickOnEnemy);
-            writer.Write(Explode);
-        }
+        protected override void ProjectileSendExtraAI(BinaryWriter writer) => writer.Write(StickOnEnemy);
 
-        protected override void ProjectileReceiveExtraAI(BinaryReader binaryReader)
-        {
-            StickOnEnemy = binaryReader.ReadBoolean();
-            Explode = binaryReader.ReadBoolean();
-        }
+        protected override void ProjectileReceiveExtraAI(BinaryReader binaryReader) => StickOnEnemy = binaryReader.ReadBoolean();
     }
 }

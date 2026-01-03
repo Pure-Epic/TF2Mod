@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using ReLogic.Content;
 using System;
@@ -9,7 +7,6 @@ using System.Reflection;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
-using Terraria.GameContent.UI;
 using Terraria.GameInput;
 using Terraria.Graphics.Capture;
 using Terraria.ID;
@@ -17,10 +14,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Default;
 using Terraria.UI;
-using Terraria.UI.Chat;
 using Terraria.UI.Gamepad;
 using TF2.Common;
-using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Buddies;
 using TF2.Content.Items.Modules;
@@ -54,7 +49,6 @@ namespace TF2.Content.UI.Inventory
             DrawAccSlots.Apply();
             DrawVisibility = new Hook(typeof(AccessorySlotLoader).GetMethod("DrawVisibility", BindingFlags.Instance | BindingFlags.NonPublic), Hook_DrawVisibility);
             DrawVisibility.Apply();
-
             On_Main.GUIBarsDrawInner += Hook_GUIBarsDrawInner;
             On_Main.DrawInterface_16_MapOrMinimap += Hook_DrawInterface_16_MapOrMinimap;
             On_Main.DrawInventory += Hook_DrawInventory;
@@ -79,28 +73,6 @@ namespace TF2.Content.UI.Inventory
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthBar"),
                 ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/HealthIcon")
             ];
-        }
-
-        public override void Unload()
-        {
-            DrawAccSlots.Undo();
-            DrawAccSlots = null;
-            DrawVisibility.Undo();
-            DrawVisibility = null;
-            On_Main.GUIBarsDrawInner -= Hook_GUIBarsDrawInner;
-            On_Main.DrawInterface_16_MapOrMinimap -= Hook_DrawInterface_16_MapOrMinimap;
-            On_Main.DrawInventory -= Hook_DrawInventory;
-            On_Main.DrawPageIcons -= Hook_DrawPageIcons;
-            On_Main.DrawDefenseCounter -= Hook_DrawDefenseCounter;
-            On_Player.OpenInventory -= Hook_OpenInventory;
-            On_Player.GetAmountOfExtraAccessorySlotsToShow -= GetAmountOfExtraAccessorySlotsToShow;
-            On_ItemSlot.SelectEquipPage -= Hook_SelectEquipPage;
-            On_ItemSlot.SwapEquip_ItemArray_int_int -= Hook_SwapEquip;
-            On_ItemSlot.PickItemMovementAction -= Hook_PickItemMovementAction;
-            On_ItemSlot.RightClick_ItemArray_int_int -= Hook_RightClick;
-            On_PopupText.NewText_PopupTextContext_Item_int_bool_bool -= Hook_NewText;
-            MercenaryItemSlotTexture = null;
-            MercenaryHealthTexture = null;
         }
 
         private static void Hook_DrawAccSlots(DrawAccSlotsAction orig, AccessorySlotLoader self, int num20)
@@ -149,7 +121,7 @@ namespace TF2.Content.UI.Inventory
         {
             Player player = Main.LocalPlayer;
             TF2Player p = player.GetModPlayer<TF2Player>();
-            int maxHealth = p.cachedHealth;
+            int maxHealth = p.maxHealth;
             float amount = (float)player.statLife / maxHealth;
             amount = Utils.Clamp(amount, 0f, 1f);
             Rectangle hitbox = new Rectangle(Main.screenWidth - 296, 3, 250, 80);
@@ -450,7 +422,7 @@ namespace TF2.Content.UI.Inventory
         {
             foreach (NPC npc in Main.npc)
             {
-                if (npc.ModNPC is HeavyNPC heavy && !npc.active)
+                if (npc.ModNPC is HeavyBuddyNPC heavy && !npc.active)
                 {
                     if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                         spinUp.Stop();
@@ -754,7 +726,7 @@ namespace TF2.Content.UI.Inventory
                 else if (buddies[SlotIndex - 1] >= 0 && (Main.npc[buddies[SlotIndex - 1]].type != item.BuddyType || buddyCooldown[SlotIndex - 1] <= 0)) //(Main.npc[buddies[SlotIndex - 1]].type != item.BuddyType || buddyCooldown[SlotIndex - 1] <= 0)
                 {
                     NPC npc = Main.npc[buddies[SlotIndex - 1]];
-                    if (npc.ModNPC is HeavyNPC heavy)
+                    if (npc.ModNPC is HeavyBuddyNPC heavy)
                     {
                         if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                             spinUp.Stop();
@@ -775,7 +747,7 @@ namespace TF2.Content.UI.Inventory
             else if (buddies[SlotIndex - 1] >= 0)
             {
                 NPC npc = Main.npc[buddies[SlotIndex - 1]];
-                if (npc.ModNPC is HeavyNPC heavy)
+                if (npc.ModNPC is HeavyBuddyNPC heavy)
                 {
                     if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                         spinUp.Stop();

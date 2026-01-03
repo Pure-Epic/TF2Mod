@@ -64,7 +64,7 @@ namespace TF2.Content.Projectiles.Pyro
                     }
                 }
                 Player player = Main.player[Projectile.owner];
-                if (TF2Player.IsHealthFull(player) || !allowHeal) return;
+                if (TF2Player.IsAtFullHealth(player) || !allowHeal) return;
                 player.Heal(TF2.GetHealth(player, 20));
             }
             else
@@ -86,7 +86,7 @@ namespace TF2.Content.Projectiles.Pyro
                     }
                 }
                 Player player = Main.player[Projectile.owner];
-                if (TF2Player.IsHealthFull(player) || !allowHeal) return;
+                if (TF2Player.IsAtFullHealth(player) || !allowHeal) return;
                 player.Heal(TF2.GetHealth(player, 20));
             }
             else

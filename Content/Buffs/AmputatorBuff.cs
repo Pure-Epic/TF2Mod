@@ -8,30 +8,30 @@ namespace TF2.Content.Buffs
 {
     public class AmputatorBuff : ModBuff
     {
-        public override string Texture => "TF2/Content/Buffs/UberCharge";
+        public override string Texture => "TF2/Content/Buffs/MediGunBuff";
 
         public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<AmputatorBuffNPC>().buffActive = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<AmputatorBuffNPC>().amputatorBuff = true;
     }
 
     public class AmputatorBuffNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
+        public bool amputatorBuff;
         private int timer;
-        public bool buffActive;
 
         public override void ResetEffects(NPC npc)
         {
-            buffActive = false;
+            amputatorBuff = false;
             if (!npc.HasBuff<AmputatorBuff>())
                 timer = 0;
         }
 
         public override void AI(NPC npc)
         {
-            if (buffActive)
+            if (amputatorBuff)
             {
                 timer++;
                 if (timer >= TF2.Time(0.25) && npc.ModNPC is Buddy buddy)
@@ -44,14 +44,14 @@ namespace TF2.Content.Buffs
 
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
+            binaryWriter.Write(amputatorBuff);
             binaryWriter.Write(timer);
-            binaryWriter.Write(buffActive);
         }
 
         public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
         {
+            amputatorBuff = binaryReader.ReadBoolean();
             timer = binaryReader.ReadInt32();
-            buffActive = binaryReader.ReadBoolean();
         }
     }
 }

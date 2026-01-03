@@ -110,6 +110,8 @@ namespace TF2.Content.UI.HUD
 
         public static Asset<Texture2D> OrganCounterHUDTexture => WeaponHUDTextures[10];
 
+        public static Asset<Texture2D> KnifeHUDTexture => WeaponHUDTextures[11];
+
         public static Asset<Texture2D> SentryIcon => PDAHUDTextures[0];
 
         public static Asset<Texture2D> DispenserIcon => PDAHUDTextures[1];
@@ -178,7 +180,8 @@ namespace TF2.Content.UI.HUD
                     ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/ShieldChargeMeterHUD"),
                     ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/MetalHUD"),
                     ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/UberchargeHUD"),
-                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/OrganCounterHUD")
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/OrganCounterHUD"),
+                    ModContent.Request<Texture2D>("TF2/Content/Textures/UI/HUD/KnifeHUD")
                 ];
                 PDAHUDTextures =
                 [

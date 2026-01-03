@@ -19,7 +19,7 @@ namespace TF2.Content.Items.Weapons.Medic
             SetWeaponDamage(projectile: ModContent.ProjectileType<HealingBeamQuickFix>());
             SetWeaponAttackSpeed(0.01666, hide: true);
             SetWeaponAttackIntervals(altClick: true, noAmmo: true);
-            SetMediGun(buff: ModContent.BuffType<QuickFixUberCharge>(), duration: 8, healSound: "TF2/Content/Sounds/SFX/Weapons/quick_fix_heal");
+            SetMediGun(buff: ModContent.BuffType<QuickFixBuff>(), duration: 8, healSound: "TF2/Content/Sounds/SFX/Weapons/quick_fix_heal");
             SetWeaponPrice(weapon: 2, reclaimed: 2);
         }
 

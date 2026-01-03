@@ -17,7 +17,7 @@ namespace TF2.Content.Items.Weapons.Demoman
 {
     public class UllapoolCaber : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type] : ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/UllapoolCaberDetonated");
+        public override Asset<Texture2D> WeaponActiveTexture => (timer[0] >= TF2.Time(5)) ? TextureAssets.Item[Type] : ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Demoman/UllapoolCaberDetonated");
 
         protected override void WeaponStatistics()
         {
@@ -98,6 +98,7 @@ namespace TF2.Content.Items.Weapons.Demoman
                 dust = Dust.NewDustDirect(target.position, target.width, target.height, DustID.Torch, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 3f;
             }
+            Lighting.AddLight(target.Center, new Vector3(255f, 190f, 0f));
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<PainTrain>().AddIngredient<ScrapMetal>(2).AddTile<AustraliumAnvil>().Register();

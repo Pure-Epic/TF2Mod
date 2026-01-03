@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ModLoader;
 
 namespace TF2.Content.Projectiles.Soldier
 {
@@ -11,7 +10,7 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override void ProjectileAI()
         {
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(30, 30);
@@ -23,19 +22,24 @@ namespace TF2.Content.Projectiles.Soldier
             SetRotation();
         }
 
-        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            if (target.boss)
+            if (target.velocity.Y != 0)
                 miniCrit = true;
         }
 
-        public override void RocketJump(Vector2 velocity)
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (FindOwner(Projectile, 50f))
+            if (target.velocity.Y != 0 || target.boss)
+                miniCrit = true;
+        }
+
+        protected override void RocketJump(Vector2 velocity)
+        {
+            if (FindOwner(Projectile, 30f))
             {
-                velocity *= 1.25f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;

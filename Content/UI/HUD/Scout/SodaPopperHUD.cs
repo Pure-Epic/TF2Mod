@@ -58,7 +58,7 @@ namespace TF2.Content.UI.HUD.Scout
             hitbox.Width = 44;
             hitbox.Height = 6;
             float charge;
-            if (!p.buffActive)
+            if (!p.sodaPopperBuff)
             {
                 charge = p.hype / 350f;
                 charge = Utils.Clamp(charge, 0f, 1f);

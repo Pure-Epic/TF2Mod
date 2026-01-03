@@ -121,7 +121,7 @@ namespace TF2.Content.Items.Consumables
 
         public override bool OnPickup(Player player)
         {
-            player.Heal(!player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped ? TF2Player.TotalHealth(player) : (int)(TF2Player.TotalHealth(player) * 1.5f));
+            player.Heal(!player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped ? TF2Player.MaxHealth(player) : (int)(TF2Player.MaxHealth(player) * 1.5f));
             SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/medkit"), player.Center);
             Item.stack = 0;
             return false;
@@ -153,6 +153,6 @@ namespace TF2.Content.Items.Consumables
 
         public override void ModifyTooltips(List<TooltipLine> tooltips) => DefaultTooltips(tooltips);
 
-        public override void GetHealLife(Player player, bool quickHeal, ref int healValue) => healValue = !player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped ? TF2Player.TotalHealth(player) : TF2Player.GetPlayerHealthFromPercentage(player, 150);
+        public override void GetHealLife(Player player, bool quickHeal, ref int healValue) => healValue = !player.GetModPlayer<BackScratcherPlayer>().backScratcherEquipped ? TF2Player.MaxHealth(player) : TF2Player.GetPlayerHealthFromPercentage(player, 150);
     }
 }

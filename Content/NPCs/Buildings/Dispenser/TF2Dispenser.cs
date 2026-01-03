@@ -10,6 +10,7 @@ using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items;
 using TF2.Content.Items.Weapons.Spy;
+using TF2.Content.NPCs.Buddies;
 using static TF2.TF2;
 
 namespace TF2.Content.NPCs.Buildings.Dispenser
@@ -195,12 +196,12 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                         TF2Player p = player.GetModPlayer<TF2Player>();
                         player.Heal(GetHealth(player, 10));
                         AddAmmo(player, 20);
-                        if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                            player.GetModPlayer<CloakPlayer>().cloakMeter = Time(0.5);
-                        if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                            player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += Time(0.5);
-                        if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                            player.GetModPlayer<FeignDeathPlayer>().cloakMeter = Time(0.7);
+                        if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                            player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = Time(0.5);
+                        if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                            player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += Time(0.5);
+                        if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                            player.GetModPlayer<DeadRingerPlayer>().cloakMeter = Time(0.7);
                         if (p.currentClass == TF2Item.Engineer)
                         {
                             int metalCost = ReservedMetal >= 40 ? 40 : ReservedMetal;
@@ -209,6 +210,14 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                             p.metal += metalCost;
                             SyncReservedMetal(metalCost);
                         }
+                        healed = true;
+                    }
+                }
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (npc.ModNPC is Buddy buddy && NPC.Distance(npc.Center) <= 100f && npc.active && npc.friendly)
+                    {
+                        buddy.Heal(Round(buddy.healthMultiplier * 10));
                         healed = true;
                     }
                 }
@@ -235,6 +244,8 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
         public override int InitialHealth => 180;
 
         public override int BuildingCooldown => Time(1.6);
+
+        protected override int Level => 2;
 
         public override void SetDefaults()
         {
@@ -272,12 +283,12 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                         TF2Player p = player.GetModPlayer<TF2Player>();
                         player.Heal(GetHealth(player, 15));
                         AddAmmo(player, 30);
-                        if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                            player.GetModPlayer<CloakPlayer>().cloakMeter = Time(1);
-                        if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                            player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += Time(1);
-                        if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                            player.GetModPlayer<FeignDeathPlayer>().cloakMeter = Time(1.4);
+                        if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                            player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = Time(1);
+                        if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                            player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += Time(1);
+                        if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                            player.GetModPlayer<DeadRingerPlayer>().cloakMeter = Time(1.4);
                         if (p.currentClass == TF2Item.Engineer)
                         {
                             int metalCost = ReservedMetal >= 50 ? 50 : ReservedMetal;
@@ -286,6 +297,14 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                             p.metal += metalCost;
                             SyncReservedMetal(metalCost);
                         }
+                        healed = true;
+                    }
+                }
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (npc.ModNPC is Buddy buddy && NPC.Distance(npc.Center) <= 100f && npc.active && npc.friendly)
+                    {
+                        buddy.Heal(Round(buddy.healthMultiplier * 15));
                         healed = true;
                     }
                 }
@@ -312,6 +331,8 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
         public override int InitialHealth => 216;
 
         public override int BuildingCooldown => Time(1.6);
+
+        protected override int Level => 3;
 
         public override void SetDefaults()
         {
@@ -348,12 +369,12 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                         TF2Player p = player.GetModPlayer<TF2Player>();
                         player.Heal(GetHealth(player, 20));
                         AddAmmo(player, 40);
-                        if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                            player.GetModPlayer<CloakPlayer>().cloakMeter = Time(1.5);
-                        if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                            player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += Time(1.5);
-                        if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                            player.GetModPlayer<FeignDeathPlayer>().cloakMeter = Time(2.1);
+                        if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                            player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = Time(1.5);
+                        if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                            player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += Time(1.5);
+                        if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                            player.GetModPlayer<DeadRingerPlayer>().cloakMeter = Time(2.1);
                         if (p.currentClass == TF2Item.Engineer)
                         {
                             int metalCost = ReservedMetal >= 60 ? 60 : ReservedMetal;
@@ -362,6 +383,14 @@ namespace TF2.Content.NPCs.Buildings.Dispenser
                             p.metal += metalCost;
                             SyncReservedMetal(metalCost);
                         }
+                        healed = true;
+                    }
+                }
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (npc.ModNPC is Buddy buddy && NPC.Distance(npc.Center) <= 100f && npc.active && npc.friendly)
+                    {
+                        buddy.Heal(Round(buddy.healthMultiplier * 20));
                         healed = true;
                     }
                 }

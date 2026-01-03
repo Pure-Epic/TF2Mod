@@ -9,6 +9,6 @@ namespace TF2.Content.Projectiles.Medic
 
         protected override float UberchargeMultiplier => 1.25f;
 
-        protected override int UberCharge => ModContent.BuffType<KritzkriegUberCharge>();
+        protected override int UberCharge => ModContent.BuffType<KritzkriegBuff>();
     }
 }

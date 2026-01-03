@@ -17,8 +17,6 @@ namespace TF2.Content.UI.HUD.Scout
         protected override bool CanDisplay => Player.HeldItem.ModItem is Sandman weapon && Player.inventory[58].ModItem != weapon && weapon.equipped;
 
         protected override int RechargeTime => TF2.Time(10);
-
-        protected override TF2Weapon Weapon => Player.HeldItem.ModItem as Sandman;
     }
 
     [Autoload(Side = ModSide.Client)]

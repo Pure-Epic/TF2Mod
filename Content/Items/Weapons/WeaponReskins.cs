@@ -10,7 +10,7 @@ namespace TF2.Content.Items.Weapons
     {
         protected override bool Reskin => true;
 
-        public override string Texture => "TF2/Content/Textures/Weapons/HorselessHeadlessHorsemannsHeadtaker";
+        public override string Texture => "TF2/Content/Textures/Items/Demoman/HorselessHeadlessHorsemannsHeadtaker";
 
         protected override void WeaponStatistics()
         {

@@ -36,7 +36,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
         public override bool WeaponCanBeUsed(Player player) => timer[0] >= TF2.Time(10);
 
-        protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<DalokohsBarPlayer>().dalokohsBarBuff;
+        protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<DalokohsBarBuffPlayer>().dalokohsBarBuff;
 
         protected override void WeaponActiveUpdate(Player player)
         {
@@ -52,18 +52,18 @@ namespace TF2.Content.Items.Weapons.Heavy
             else if (isActive)
             {
                 player.AddBuff(ModContent.BuffType<DalokohsBarBuff>(), TF2.Time(30));
-                timer[0] = 0;
                 timer[1]++;
                 if (timer[1] >= TF2.Time(1))
                 {
-                    int remainingHealth = TF2Player.TotalHealth(player) - player.statLife;
-                    if (!TF2Player.IsHealthFull(player))
+                    int remainingHealth = TF2Player.MaxHealth(player) - player.statLife;
+                    if (!TF2Player.IsAtFullHealth(player))
                         player.Heal(TF2.GetHealth(player, 25) <= remainingHealth ? TF2.GetHealth(player, 25) : remainingHealth);
                     timer[1] = 0;
                     timer[2]++;
                 }
                 if (timer[2] >= 4)
                 {
+                    timer[0] = 0;
                     timer[2] = 0;
                     isActive = false;
                 }
@@ -87,7 +87,7 @@ namespace TF2.Content.Items.Weapons.Heavy
 
     public class DroppedDalokohsBar : DroppedSandvich
     {
-        public override string Texture => "TF2/Content/Textures/DroppedDalokohsBar";
+        public override string Texture => "TF2/Content/Textures/Items/Heavy/DroppedDalokohsBar";
 
         public override void SetDefaults()
         {

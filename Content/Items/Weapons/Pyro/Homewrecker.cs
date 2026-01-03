@@ -37,7 +37,9 @@ namespace TF2.Content.Items.Weapons.Pyro
             }
         }
 
-        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= target.boss ? 2f : 0.75f;
+        protected override void WeaponHitPlayer(Player player, Player target, ref Player.HurtModifiers modifiers) => modifiers.SourceDamage *= 0.75f;
+
+        protected override void WeaponHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) => modifiers.SourceDamage *= (TF2.IsBuilding(target) || target.boss) ? 2f : 0.75f;
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Equalizer>().AddIngredient<ScrapMetal>().AddTile<AustraliumAnvil>().Register();
     }

@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TF2.Common;
 
 namespace TF2.Content.Buffs
@@ -13,22 +15,22 @@ namespace TF2.Content.Buffs
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.CanBeRemovedByNetMessage[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<MadMilkPlayer>().madMilkDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<MadMilkDebuffPlayer>().madMilkDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<MadMilkNPC>().madMilkDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<MadMilkDebuffNPC>().madMilkDebuff = true;
     }
 
-    public class MadMilkPlayer : ModPlayer
+    public class MadMilkDebuffPlayer : ModPlayer
     {
         public bool madMilkDebuff;
 
         public override void ResetEffects() => madMilkDebuff = false;
     }
 
-    public class MadMilkNPC : GlobalNPC
+    public class MadMilkDebuffNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
@@ -62,7 +64,7 @@ namespace TF2.Content.Buffs
         {
             if (madMilkDebuff)
             {
-                if (TF2Player.IsHealthFull(player)) return;
+                if (TF2Player.IsAtFullHealth(player)) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().damageMultiplier;
                 player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
@@ -73,7 +75,7 @@ namespace TF2.Content.Buffs
             if (madMilkDebuff)
             {
                 Player player = Main.player[projectile.owner];
-                if (TF2Player.IsHealthFull(player)) return;
+                if (TF2Player.IsAtFullHealth(player)) return;
                 float classMultiplier = player.GetModPlayer<TF2Player>().damageMultiplier;
                 player.Heal(TF2.Round(damageDone * 0.6f / classMultiplier * TF2.GetHealth(player, 1)));
             }
@@ -83,10 +85,22 @@ namespace TF2.Content.Buffs
         {
             if (madMilkDebuff)
             {
-                int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.WhiteTorch, 0f, 0f, 100, default, 3f);
+                int dustIndex = Dust.NewDust(npc.position, npc.width, npc.height, DustID.WhiteTorch, 0f, 0f, 100, default, 3f);
                 Main.dust[dustIndex].noGravity = true;
                 Main.dust[dustIndex].velocity *= 5f;
             }
+        }
+
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(madMilkDebuff);
+            binaryWriter.Write(colorInitialized);
+        }
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            madMilkDebuff = binaryReader.ReadBoolean();
+            colorInitialized = binaryReader.ReadBoolean();
         }
     }
 }

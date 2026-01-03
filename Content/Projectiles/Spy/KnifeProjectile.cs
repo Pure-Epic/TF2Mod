@@ -5,6 +5,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 using TF2.Content.Buffs;
+using TF2.Content.NPCs.Enemies;
 
 namespace TF2.Content.Projectiles.Spy
 {
@@ -34,6 +35,8 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileAI()
         {
+            if (Player != null)
+                Projectile.Opacity = Player.GetModPlayer<TF2Player>().opacity;
             if (Timer >= totalDuration)
             {
                 Projectile.Kill();
@@ -42,8 +45,8 @@ namespace TF2.Content.Projectiles.Spy
             else
             {
                 Player.heldProj = Projectile.whoAmI;
-                if (Player.GetModPlayer<TF2Player>().backStab)
-                    backStab = true;
+                if (Player.GetModPlayer<TF2Player>().backstab)
+                    backstab = true;
             }
             Vector2 playerCenter = Player.RotatedRelativePoint(Player.MountedCenter, reverseRotation: false, addGfxOffY: false);
             if (Timer <= 8)
@@ -79,16 +82,40 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            if (!modifiers.PvP || !backStab) return;
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
+            if (!modifiers.PvP || !backstab) return;
+            target.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), TF2Player.MaxHealth(target) * 6, 0);
         }
 
-        protected override void ProjectileDestroy(int timeLeft) => Player.GetModPlayer<TF2Player>().backStab = false;
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (target.ModNPC is BLUMercenary && backstab)
+                modifiers.FinalDamage.Base = target.lifeMax * 6;
+        }
+
+        protected override void ProjectileDestroy(int timeLeft) => Player.GetModPlayer<TF2Player>().backstab = false;
     }
 
     public class YourEternalRewardProjectile : KnifeProjectile
     {
         public override string Texture => "TF2/Content/Items/Weapons/Spy/YourEternalReward";
+
+        protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        {
+            if (backstab)
+            {
+                for (int i = 0; i < 8; i++)
+                    TF2.CreateProjectile(weapon, Player.GetSource_ItemUse(weapon.Item), target.Center + Utils.RotatedBy(Vector2.UnitY * 1000f, MathHelper.ToRadians(i * 45f)), Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(i * 45f)) * -20f, ModContent.ProjectileType<YourEternalRewardBeam>(), TF2.Round(40 * Player.GetModPlayer<TF2Player>().damageMultiplier), 0f, Player.whoAmI);
+            }
+        }
+
+        protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (backstab)
+            {
+                for (int i = 0; i < 8; i++)
+                    TF2.CreateProjectile(weapon, Player.GetSource_ItemUse(weapon.Item), target.Center + Utils.RotatedBy(Vector2.UnitY * 1000f, MathHelper.ToRadians(i * 45f)), Utils.RotatedBy(Vector2.UnitY, MathHelper.ToRadians(i * 45f)) * -20f, ModContent.ProjectileType<YourEternalRewardBeam>(), TF2.Round(40 * Player.GetModPlayer<TF2Player>().damageMultiplier), 0f, Player.whoAmI);
+            }
+        }
     }
 
     public class ConniversKunaiProjectile : KnifeProjectile
@@ -99,13 +126,18 @@ namespace TF2.Content.Projectiles.Spy
         {
             if (!modifiers.PvP) return;
             TF2.Overheal(Player, target.statLife, 2f);
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
+            target.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), TF2Player.MaxHealth(target) * 6, 0);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (target.type != NPCID.TargetDummy)
-                TF2.Overheal(Player, Utils.Clamp(TF2.Round((float)((float)target.life / target.lifeMax * TF2.GetHealth(Player, 210))), TF2.GetHealth(Player, 75), TF2.GetHealth(Player, 210)), 2f);
+            if (backstab)
+            {
+                if (target.type != NPCID.TargetDummy)
+                    TF2.Overheal(Player, Utils.Clamp(TF2.Round((float)((float)target.life / target.lifeMax * TF2.GetHealth(Player, 210))), TF2.GetHealth(Player, 75), TF2.GetHealth(Player, 210)), 2f);
+                if (target.ModNPC is BLUMercenary)
+                    modifiers.FinalDamage.Base = target.lifeMax * 6;
+            }
         }
     }
 
@@ -115,15 +147,20 @@ namespace TF2.Content.Projectiles.Spy
 
         protected override void ProjectileHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            if (!modifiers.PvP || !backStab) return;
+            if (!modifiers.PvP || !backstab) return;
             Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
-            target.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), target.statLife, 0);
+            target.Hurt(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[7].ToNetworkText(target.name, Player.name)), TF2Player.MaxHealth(target) * 6, 0);
         }
 
         protected override void ProjectileHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (target.type != NPCID.TargetDummy && backStab)
-                Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
+            if (backstab)
+            {
+                if (target.type != NPCID.TargetDummy)
+                    Player.AddBuff(ModContent.BuffType<BigEarnerBuff>(), TF2.Time(3));
+                if (target.ModNPC is BLUMercenary)
+                    modifiers.FinalDamage.Base = target.lifeMax * 6;
+            }
         }
     }
 }

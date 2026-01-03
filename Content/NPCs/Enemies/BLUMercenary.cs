@@ -129,6 +129,7 @@ namespace TF2.Content.NPCs.Enemies
         protected float jumpHeight = 6 * 16f;
         protected float jumpSpeed = 3f;
         protected short jumpCooldown = 15;
+        internal int finalBaseHealth;
         protected byte maxTurnTime = (byte)TF2.Time(2);
         protected Vector2 targetCenter;
         private Vector2 oldJumpPosition;
@@ -212,7 +213,7 @@ namespace TF2.Content.NPCs.Enemies
         {
             if (RetreatCountdown <= 0)
                 UpdateMoveDirections();
-            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * BaseSpeed * speedMultiplier, moveAcceleration, moveDeceleration, moveFriction, onSolidGround);
+            AdjustMoveSpeed(ref NPC.velocity, NPC.direction, walkSpeed * BaseSpeed * speedMultiplier, moveAcceleration * speedMultiplier, moveDeceleration * speedMultiplier, moveFriction * speedMultiplier, onSolidGround);
             if (CanStepUp() && StepUp(ref NPC.position, ref NPC.velocity, NPC.direction, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY, ref fallingThroughPlatforms))
                 steppedUp = true;
             else if (CanStepDown() && StepDown(ref NPC.position, ref NPC.velocity, NPC.width, NPC.height, ref NPC.stepSpeed, ref NPC.gfxOffY))
@@ -366,6 +367,7 @@ namespace TF2.Content.NPCs.Enemies
 
         protected void EnemyShoot(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int type, int damage, float knockBack, int owner = -1, float ai0 = 0, float ai1 = 0, float ai2 = 0)
         {
+            if (Main.netMode == NetmodeID.MultiplayerClient) return;
             TF2Projectile projectile = TF2.NPCCreateProjectile(spawnSource, position, velocity, type, damage, knockBack, owner, ai0, ai1, ai2, CanCrit, CanMiniCrit);
             if (this is EnemySniperNPC)
                 projectile.crit = true;
@@ -435,7 +437,7 @@ namespace TF2.Content.NPCs.Enemies
 
         public sealed override void OnSpawn(IEntitySource source)
         {
-            NPC.lifeMax = TF2.Round(BaseHealth * TF2.GlobalHealthMultiplier);
+            finalBaseHealth = NPC.lifeMax = TF2.HealthRound(BaseHealth * TF2.GlobalHealthMultiplier);
             NPC.life = NPC.lifeMax;
             NPC.direction = -1;
             horizontalFrame = 0;
@@ -445,10 +447,12 @@ namespace TF2.Content.NPCs.Enemies
                 AttackTimer++;
             Ammo = ClipSize;
             EnemySpawn();
+            NPC.netUpdate = true;
         }
 
         public sealed override void AI()
         {
+            NPC.lifeMax = finalBaseHealth;
             NPC.TargetClosest(false);
             bool withinRange = WithinAttackRange(Range);
             targetCenter = EnemyPlayer.Center;
@@ -539,6 +543,7 @@ namespace TF2.Content.NPCs.Enemies
             writer.Write(Ammo);
             writer.Write(ReloadTimer);
             writer.Write(ReloadCooldownTimer);
+            writer.Write(finalBaseHealth);
             writer.Write(speedMultiplier);
             writer.Write(targetCenter.X);
             writer.Write(targetCenter.Y);
@@ -570,6 +575,7 @@ namespace TF2.Content.NPCs.Enemies
             Ammo = reader.ReadInt32();
             ReloadTimer = reader.ReadInt32();
             ReloadCooldownTimer = reader.ReadInt32();
+            finalBaseHealth = reader.ReadInt32();
             speedMultiplier = reader.ReadSingle();
             targetCenter = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             oldJumpPosition = new Vector2(reader.ReadSingle(), reader.ReadSingle());

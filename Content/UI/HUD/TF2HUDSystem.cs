@@ -9,14 +9,12 @@ using TF2.Common;
 using TF2.Content.UI.HUD.Demoman;
 using TF2.Content.UI.HUD.Engineer;
 using TF2.Content.UI.HUD.Heavy;
-using TF2.Content.UI.HUD.Inventory;
 using TF2.Content.UI.HUD.Medic;
-using TF2.Content.UI.HUD.Pyro;
 using TF2.Content.UI.HUD.Scout;
 using TF2.Content.UI.HUD.Sniper;
 using TF2.Content.UI.HUD.Soldier;
 using TF2.Content.UI.HUD.Spy;
-using TF2.Content.UI.MercenaryCreationMenu;
+using TF2.Content.UI.Inventory;
 
 namespace TF2.Content.UI.HUD
 {
@@ -47,9 +45,6 @@ namespace TF2.Content.UI.HUD
 
         internal BuffBannerChargeMeterHUD buffBannerChargeMeterHUD = new BuffBannerChargeMeterHUD();
         internal UserInterface buffBannerChargeMeterHUDUserInterface = new UserInterface();
-
-        internal FlareGunAmmoHUD flareGunAmmoHUD = new FlareGunAmmoHUD();
-        internal UserInterface flareGunAmmoHUDUserInterface = new UserInterface();
 
         internal StickybombLauncherAmmoHUD stickybombLauncherAmmoHUD = new StickybombLauncherAmmoHUD();
         internal UserInterface stickybombLauncherAmmoHUDUserInterface = new UserInterface();
@@ -102,6 +97,8 @@ namespace TF2.Content.UI.HUD
         internal RazorbackChargeMeterHUD razorbackChargeMeterHUD = new RazorbackChargeMeterHUD();
         internal UserInterface razorbackChargeMeterHUDUserInterface = new UserInterface();
 
+        internal KnifeHUD knifeHUD = new KnifeHUD();
+        internal UserInterface knifeHUDUserInterface = new UserInterface();
         internal InvisWatchChargeMeterHUD invisWatchChargeMeterHUD = new InvisWatchChargeMeterHUD();
         internal UserInterface invisWatchChargeMeterHUDUserInterface = new UserInterface();
         internal CloakAndDaggerChargeMeterHUD cloakAndDaggerChargeMeterHUD = new CloakAndDaggerChargeMeterHUD();
@@ -166,7 +163,6 @@ namespace TF2.Content.UI.HUD
                     sandmanAmmoHUD,
                     sandmanChargeMeterHUD,
                     buffBannerChargeMeterHUD,
-                    flareGunAmmoHUD,
                     stickybombLauncherAmmoHUD,
                     stickybombAmountHUD,
                     shieldChargeMeterHUD,
@@ -190,6 +186,7 @@ namespace TF2.Content.UI.HUD
                     jarateAmmoHUD,
                     jarateChargeMeterHUD,
                     razorbackChargeMeterHUD,
+                    knifeHUD,
                     invisWatchChargeMeterHUD,
                     cloakAndDaggerChargeMeterHUD,
                     deadRingerChargeMeterHUD,
@@ -207,7 +204,6 @@ namespace TF2.Content.UI.HUD
                     sandmanAmmoHUDUserInterface,
                     sandmanChargeMeterHUDUserInterface,
                     buffBannerChargeMeterHUDUserInterface,
-                    flareGunAmmoHUDUserInterface,
                     stickybombLauncherAmmoHUDUserInterface,
                     stickybombAmountHUDUserInterface,
                     shieldChargeMeterHUDUserInterface,
@@ -231,6 +227,7 @@ namespace TF2.Content.UI.HUD
                     jarateAmmoHUDUserInterface,
                     jarateChargeMeterHUDUserInterface,
                     razorbackChargeMeterHUDUserInterface,
+                    knifeHUDUserInterface,
                     invisWatchChargeMeterHUDUserInterface,
                     cloakAndDaggerChargeMeterHUDUserInterface,
                     deadRingerChargeMeterHUDUserInterface,

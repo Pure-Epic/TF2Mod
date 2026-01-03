@@ -15,7 +15,7 @@ namespace TF2.Content.Buffs
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetModPlayer<BuffBannerPlayer>().buffActive = true;
+            player.GetModPlayer<BuffBannerPlayer>().bannerBuff = true;
             player.GetModPlayer<TF2Player>().miniCrit = true;
         }
     }

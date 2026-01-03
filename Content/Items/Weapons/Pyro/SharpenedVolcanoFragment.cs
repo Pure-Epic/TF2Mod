@@ -30,19 +30,19 @@ namespace TF2.Content.Items.Weapons.Pyro
         public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            PyroFlamesPlayer burntPlayer = target.GetModPlayer<PyroFlamesPlayer>();
+            FlameThrowerDebuffPlayer burntPlayer = target.GetModPlayer<FlameThrowerDebuffPlayer>();
             burntPlayer.damageMultiplier = p.damageMultiplier;
-            target.ClearBuff(ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5), false);
+            target.ClearBuff(ModContent.BuffType<DegreaserDebuff>());
+            target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(7.5), false);
         }
 
         public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
         {
             TF2Player p = player.GetModPlayer<TF2Player>();
-            PyroFlamesNPC npc = target.GetGlobalNPC<PyroFlamesNPC>();
+            FlameThrowerDebuffNPC npc = target.GetGlobalNPC<FlameThrowerDebuffNPC>();
             npc.damageMultiplier = p.damageMultiplier;
-            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<PyroFlamesDegreaser>());
-            target.AddBuff(ModContent.BuffType<PyroFlames>(), TF2.Time(7.5));
+            TF2.ExtinguishPyroFlames(target, ModContent.BuffType<DegreaserDebuff>());
+            target.AddBuff(ModContent.BuffType<FlameThrowerDebuff>(), TF2.Time(7.5));
         }
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Axtinguisher>().AddIngredient<ReclaimedMetal>(2).AddTile<AustraliumAnvil>().Register();

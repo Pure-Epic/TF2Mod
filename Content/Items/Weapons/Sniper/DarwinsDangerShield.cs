@@ -10,6 +10,14 @@ namespace TF2.Content.Items.Weapons.Sniper
 {
     public class DarwinsDangerShield : TF2Accessory
     {
+        protected override string TorsoTexture => "TF2/Content/Textures/Items/Sniper/DarwinsDangerShieldTorso";
+
+        protected override string TorsoTextureReverse => "TF2/Content/Textures/Items/Sniper/DarwinsDangerShieldTorsoReverse";
+
+        protected override string BackTexture => "TF2/Content/Textures/Items/Sniper/DarwinsDangerShield";
+
+        protected override string BackTextureReverse => "TF2/Content/Textures/Items/Sniper/DarwinsDangerShieldReverse";
+
         protected override void WeaponStatistics()
         {
             SetWeaponCategory(Sniper, Secondary, Unique, Craft);
@@ -18,6 +26,8 @@ namespace TF2.Content.Items.Weapons.Sniper
         }
 
         protected override void WeaponDescription(List<TooltipLine> description) => AddPositiveAttribute(description);
+
+        protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<DarwinsDangerShieldPlayer>().darwinsDangerShieldEquipped;
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {

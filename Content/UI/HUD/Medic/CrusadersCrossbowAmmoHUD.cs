@@ -3,7 +3,6 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.UI;
-using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Medic;
 
 namespace TF2.Content.UI.HUD.Medic
@@ -11,9 +10,7 @@ namespace TF2.Content.UI.HUD.Medic
     [Autoload(Side = ModSide.Client)]
     internal class CrusadersCrossbowAmmoHUD : AmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem == Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped;
-
-        protected override TF2Weapon Weapon => Player.HeldItem.ModItem as CrusadersCrossbow;
+        protected override bool CanDisplay => Player.HeldItem.ModItem is CrusadersCrossbow weapon && Player.inventory[58].ModItem != weapon && weapon.equipped;
 
         protected override void HUDUpdate(GameTime gameTime)
         {

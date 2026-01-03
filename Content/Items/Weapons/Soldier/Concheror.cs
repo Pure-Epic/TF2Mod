@@ -15,7 +15,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 {
     public class Concheror : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/Concheror");
+        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Soldier/Concheror_Horn");
 
         protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/Concheror";
 
@@ -38,8 +38,8 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 3;
 
-        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<ConcherorPlayer>().buffActive ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.ConcherorTextures[0] : ItemTextures.ConcherorTextures[1]);
-        
+        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<ConcherorPlayer>().bannerBuff ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.ConcherorTextures[0] : ItemTextures.ConcherorTextures[1]);
+
         protected override void WeaponAttackAnimation(Player player)
         {
             float direction = -MathHelper.PiOver2 * player.direction;
@@ -95,7 +95,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             rage = Utils.Clamp(rage, 0, MaxRage);
             if (!p.HasBanner)
                 rage = 0;
-            if (buffActive && Player.HasBuff<ConcherorBuff>())
+            if (bannerBuff && Player.HasBuff<ConcherorBuff>())
             {
                 rage = 0;
                 int buffIndex = Player.FindBuffIndex(ModContent.BuffType<ConcherorBuff>());
@@ -103,18 +103,19 @@ namespace TF2.Content.Items.Weapons.Soldier
             }
             if (p.stopRegen || !p.HasBanner || p.bannerType != 3) return;
             timer++;
-            if (timer >= TF2.Time(1) && !TF2Player.IsHealthFull(Player))
+            if (timer >= TF2.Time(1) && !TF2Player.IsAtFullHealth(Player))
             {
-                Player.Heal(TF2.GetHealth(Player, 4));
+                float healAmountValue = 4 * p.HealPenaltyMultiplier;
+                Player.Heal(TF2.GetHealth(Player, TF2.Round(TF2.Minimum(ref healAmountValue, 1))));
                 timer = 0;
             }
         }
 
         protected override void PostHitPlayer(Player opponent, Player.HurtInfo info)
         {
-            if (buffActive && opponent.statLife < opponent.statLifeMax)
+            TF2Player p = opponent.GetModPlayer<TF2Player>();
+            if (bannerBuff && !TF2Player.IsAtFullHealth(opponent))
             {
-                TF2Player p = opponent.GetModPlayer<TF2Player>();
                 int amount = TF2.Round(info.Damage / p.damageMultiplier);
                 amount = Utils.Clamp(amount, 0, TF2Player.GetPlayerHealthFromPercentage(Player, 35));
                 opponent.Heal(amount);
@@ -123,7 +124,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override void PostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (buffActive && !TF2Player.IsHealthFull(Player) && target.type != NPCID.TargetDummy)
+            if (bannerBuff && !TF2Player.IsAtFullHealth(Player) && target.type != NPCID.TargetDummy)
             {
                 TF2Player p = Player.GetModPlayer<TF2Player>();
                 int amount = TF2.Round(damageDone / p.damageMultiplier);

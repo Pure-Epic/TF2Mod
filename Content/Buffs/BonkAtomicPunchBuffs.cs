@@ -1,6 +1,4 @@
 using Terraria;
-using Terraria.GameContent;
-using Terraria.ID;
 using Terraria.ModLoader;
 using TF2.Common;
 
@@ -10,49 +8,49 @@ namespace TF2.Content.Buffs
     {
         public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BonkAtomicPunchPlayer>().radiationBuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BonkAtomicPunchBuffPlayer>().bonkAtomicPunchBuff = true;
     }
 
     public class BonkAtomicPunchDebuff : ModBuff
     {
         public override void SetStaticDefaults() => Main.buffNoSave[Type] = true;
 
-        public override void Update(Player player, ref int buffIndex) => TF2Player.SetPlayerSpeed(player, player.GetModPlayer<BonkAtomicPunchPlayer>().damageTaken > 200f ? 50 : 75);
+        public override void Update(Player player, ref int buffIndex) => TF2Player.SetPlayerSpeed(player, player.GetModPlayer<BonkAtomicPunchBuffPlayer>().damageTaken > 200f ? 50 : 75);
     }
 
-    public class BonkAtomicPunchPlayer : ModPlayer
+    public class BonkAtomicPunchBuffPlayer : ModPlayer
     {
-        public bool radiationBuff;
+        public bool bonkAtomicPunchBuff;
         public bool penalty;
         public float damageTaken;
 
-        public override void ResetEffects() => radiationBuff = false;
+        public override void ResetEffects() => bonkAtomicPunchBuff = false;
 
         public override void PostUpdate()
         {
-            if (penalty && !radiationBuff)
+            if (penalty && !bonkAtomicPunchBuff)
             {
                 Player.AddBuff(ModContent.BuffType<BonkAtomicPunchDebuff>(), TF2.Time(5));
                 penalty = false;
             }
-            if (radiationBuff && Player.GetModPlayer<BonkAtomicPunchPlayer>().radiationBuff)
+            if (bonkAtomicPunchBuff && Player.GetModPlayer<BonkAtomicPunchBuffPlayer>().bonkAtomicPunchBuff)
             {
                 Player.controlUseItem = false;
                 Player.controlUseTile = false;
             }
-            if (!(radiationBuff || Player.HasBuff<BonkAtomicPunchDebuff>()))
+            if (!(bonkAtomicPunchBuff || Player.HasBuff<BonkAtomicPunchDebuff>()))
                 damageTaken = 0;
         }
 
         public override bool ConsumableDodge(Player.HurtInfo info)
         {
-            if (radiationBuff)
+            if (bonkAtomicPunchBuff)
             {
                 damageTaken += info.Damage / Player.GetModPlayer<TF2Player>().healthMultiplier;
                 Player.SetImmuneTimeForAllTypes(TF2.Time(0.5));
                 penalty = true;
             }
-            return radiationBuff;
+            return bonkAtomicPunchBuff;
         }
     }
 
@@ -62,7 +60,7 @@ namespace TF2.Content.Buffs
 
         public override bool CanUseItem(Item item, Player player)
         {
-            if (player.GetModPlayer<BonkAtomicPunchPlayer>().radiationBuff)
+            if (player.GetModPlayer<BonkAtomicPunchBuffPlayer>().bonkAtomicPunchBuff)
             {
                 player.controlUseItem = false;
                 player.controlUseTile = false;

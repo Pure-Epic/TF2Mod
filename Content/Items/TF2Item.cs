@@ -28,7 +28,6 @@ using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Soldier;
 using TF2.Content.Items.Weapons.Spy;
-using TF2.Content.UI.Inventory;
 
 namespace TF2.Content.Items
 {
@@ -37,6 +36,10 @@ namespace TF2.Content.Items
         protected virtual string CustomCategory => "";
 
         public virtual Asset<Texture2D> WeaponActiveTexture => TextureAssets.Item[Type];
+
+        protected virtual string TorsoTexture => null;
+
+        protected virtual string TorsoTextureReverse => TorsoTexture;
 
         protected virtual string BackTexture => null;
 
@@ -196,6 +199,8 @@ namespace TF2.Content.Items
         public int[] timer = new int[5];
         protected readonly HashSet<int> classHashSet = new HashSet<int>();
         protected HashSet<int> qualityHashSet = new HashSet<int>();
+        private Asset<Texture2D> torsoTexture;
+        private Asset<Texture2D> torsoTextureReverse;
         private Asset<Texture2D> backTexture;
         private Asset<Texture2D> backTextureReverse;
         private Asset<Texture2D> armTexture;
@@ -248,6 +253,12 @@ namespace TF2.Content.Items
 
         public bool equipped;
 
+        protected virtual void WeaponLoad()
+        { }
+
+        protected virtual void WeaponUnload()
+        { }
+
         protected virtual int WeaponResearchCost() => availability switch
         {
             Starter => 1,
@@ -289,6 +300,8 @@ namespace TF2.Content.Items
 
         protected virtual bool WeaponAddTextureCondition(Player player) => false;
 
+        protected virtual Asset<Texture2D> WeaponTorsoTexture(Player player) => player.direction == 1 ? torsoTexture : torsoTextureReverse;
+
         protected virtual Asset<Texture2D> WeaponBackTexture(Player player) => player.direction == 1 ? backTexture : backTextureReverse;
 
         protected virtual Asset<Texture2D> WeaponArmTexture(Player player) => player.direction == 1 ? armTexture : armTextureReverse;
@@ -298,6 +311,8 @@ namespace TF2.Content.Items
         protected virtual int WeaponModifyHealth(Player player) => HealthBoost;
 
         private int ModifyHealth(Player player) => WeaponModifyHealthCondition(player) ? WeaponModifyHealth(player) : 0;
+
+        private Asset<Texture2D> AddTorsoTexture(Player player) => WeaponAddTextureCondition(player) ? WeaponTorsoTexture(player) : null;
 
         private Asset<Texture2D> AddBackTexture(Player player) => WeaponAddTextureCondition(player) ? WeaponBackTexture(player) : null;
 
@@ -836,6 +851,12 @@ namespace TF2.Content.Items
 
         public sealed override void Load()
         {
+            if (TorsoTexture != null)
+            {
+                torsoTexture = ModContent.Request<Texture2D>(TorsoTexture);
+                torsoTextureReverse = ModContent.Request<Texture2D>(TorsoTextureReverse);
+                TF2Player.torsoTextures.Add(AddTorsoTexture);
+            }
             if (BackTexture != null)
             {
                 backTexture = ModContent.Request<Texture2D>(BackTexture);
@@ -860,10 +881,13 @@ namespace TF2.Content.Items
                 if (!TemporaryHealthBoost)
                     TF2Player.cachedHealthModifiers.Add(ModifyHealth);
             }
+            WeaponLoad();
         }
 
         public sealed override void Unload()
         {
+            if (TorsoTexture != null)
+                TF2Player.torsoTextures.Remove(AddTorsoTexture);
             if (BackTexture != null)
                 TF2Player.backTextures.Remove(AddBackTexture);
             if (ArmTexture != null)
@@ -872,6 +896,7 @@ namespace TF2.Content.Items
                 TF2Player.legTextures.Remove(AddLegTexture);
             if (!(Reskin || HealthBoost == 0))
                 TF2Player.healthModifiers.Remove(ModifyHealth);
+            WeaponUnload();
         }
 
         public override sealed bool? PrefixChance(int pre, UnifiedRandom rand) => false;
@@ -1074,7 +1099,7 @@ namespace TF2.Content.Items
             AddName(tooltips);
             tooltips.Remove(tooltips.FirstOrDefault(x => x.Name == "ItemName" && x.Mod == "Terraria"));
             RemoveDefaultTooltips(tooltips);
-            string weaponAvailability = !TF2.MannCoStoreActive ? availabilityNames[availability] : availabilityNames[5];
+            string weaponAvailability = availabilityNames[availability];
             string weaponCategory = categoryNames[weaponType];
             string category = Language.GetText("Mods.TF2.UI.Items.CategoryText").Format(classNames[classType], weaponAvailability, weaponCategory);
             if (classType == MultiClass)

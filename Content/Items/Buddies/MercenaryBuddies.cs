@@ -30,7 +30,7 @@ namespace TF2.Content.Items.Buddies
 
     public class ScoutBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<ScoutNPC>();
+        public override int BuddyType => ModContent.NPCType<ScoutBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(30);
 
@@ -41,7 +41,7 @@ namespace TF2.Content.Items.Buddies
 
     public class SoldierBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<SoldierNPC>();
+        public override int BuddyType => ModContent.NPCType<SoldierBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(60);
 
@@ -52,7 +52,7 @@ namespace TF2.Content.Items.Buddies
 
     public class PyroBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<PyroNPC>();
+        public override int BuddyType => ModContent.NPCType<PyroBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(60);
 
@@ -63,7 +63,7 @@ namespace TF2.Content.Items.Buddies
 
     public class DemomanBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<DemomanNPC>();
+        public override int BuddyType => ModContent.NPCType<DemomanBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(45);
 
@@ -74,7 +74,7 @@ namespace TF2.Content.Items.Buddies
 
     public class HeavyBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<HeavyNPC>();
+        public override int BuddyType => ModContent.NPCType<HeavyBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(90);
 
@@ -85,7 +85,7 @@ namespace TF2.Content.Items.Buddies
 
     public class EngineerBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<EngineerNPC>();
+        public override int BuddyType => ModContent.NPCType<EngineerBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(60);
 
@@ -100,7 +100,7 @@ namespace TF2.Content.Items.Buddies
 
     public class MedicBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<MedicNPC>();
+        public override int BuddyType => ModContent.NPCType<MedicBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(60);
 
@@ -115,7 +115,7 @@ namespace TF2.Content.Items.Buddies
 
     public class SniperBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<SniperNPC>();
+        public override int BuddyType => ModContent.NPCType<SniperBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(45);
 
@@ -131,7 +131,7 @@ namespace TF2.Content.Items.Buddies
 
     public class SpyBuddy : BuddyItem
     {
-        public override int BuddyType => ModContent.NPCType<SpyNPC>();
+        public override int BuddyType => ModContent.NPCType<SpyBuddyNPC>();
 
         public override int BuddyCooldown => TF2.Time(45);
 

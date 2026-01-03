@@ -14,7 +14,7 @@ namespace TF2.Content.UI.HUD.Demoman
     [Autoload(Side = ModSide.Client)]
     internal class StickybombLauncherAmmoHUD : AmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && !Weapon.noAmmoClip && Weapon.equipped && Weapon.GetWeaponMechanic("Stickybomb Launcher");
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon weapon && Player.inventory[58].ModItem != weapon && !weapon.noAmmoClip && weapon.equipped && weapon.GetWeaponMechanic("Stickybomb Launcher");
 
         protected override Asset<Texture2D> Texture => HUDTextures.AmmoChargeHUDTexture;
 

@@ -14,7 +14,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponCategory(Pyro, Primary, Unique, Craft);
             SetWeaponSize(50, 16);
             SetGunUseStyle();
-            SetWeaponDamage(damage: 18, projectile: ModContent.ProjectileType<DegreaserFire>());
+            SetWeaponDamage(damage: 17, projectile: ModContent.ProjectileType<DegreaserFire>());
             SetWeaponAttackSpeed(0.105, hide: true);
             SetWeaponAttackIntervals(deploy: 0.2, holster: 0.35, maxAmmo: 200, altClick: true, noAmmo: true);
             SetFlamethrower(cost: 25, attackSound: "TF2/Content/Sounds/SFX/Weapons/degreaser_loop");

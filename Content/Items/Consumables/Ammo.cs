@@ -35,12 +35,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == TF2Item.Engineer)
                 p.metal += 40;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             Item.TurnToAir();
             return true;
         }
@@ -83,12 +83,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == Engineer)
                 p.metal += 40;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             return true;
         }
     }
@@ -117,12 +117,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == TF2Item.Engineer)
                 p.metal += 100;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             Item.TurnToAir();
             return false;
         }
@@ -165,12 +165,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == Engineer)
                 p.metal += 100;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             return true;
         }
     }
@@ -199,12 +199,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == TF2Item.Engineer)
                 p.metal += 200;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             Item.TurnToAir();
             return true;
         }
@@ -247,12 +247,12 @@ namespace TF2.Content.Items.Consumables
             }
             if (p.currentClass == Engineer)
                 p.metal += 200;
-            if (player.GetModPlayer<CloakPlayer>().invisWatchEquipped)
-                player.GetModPlayer<CloakPlayer>().cloakMeter = TF2.Time(10);
-            if (player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
-                player.GetModPlayer<CloakAndDaggerPlayer>().cloakMeter += TF2.Time(6.5);
-            if (player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped)
-                player.GetModPlayer<FeignDeathPlayer>().cloakMeter = TF2.Time(14);
+            if (player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped)
+                player.GetModPlayer<InvisWatchBuffPlayer>().cloakMeter = TF2.Time(10);
+            if (player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped && !player.HasBuff<CloakAndDaggerBuff>())
+                player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakMeter += TF2.Time(6.5);
+            if (player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped)
+                player.GetModPlayer<DeadRingerPlayer>().cloakMeter = TF2.Time(14);
             return true;
         }
     }

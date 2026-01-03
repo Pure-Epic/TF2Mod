@@ -32,7 +32,7 @@ namespace TF2.Content.Items.Weapons.Demoman
                 Stickybomb stickybombProjectile = projectile.ModProjectile as Stickybomb;
                 if (projectile.Distance(Main.MouseWorld) <= 50f && projectile.active && projectile.owner == player.whoAmI && projectile.type == Item.shoot && stickybombProjectile.weapon == this && stickybombProjectile.Timer >= armTime)
                 {
-                    projectile.timeLeft = 0;
+                    stickybombProjectile.DetonateProjectile();
                     stickybombsAmount--;
                 }
             }

@@ -14,7 +14,7 @@ namespace TF2.Content.UI.HUD.Scout
     [Autoload(Side = ModSide.Client)]
     internal class BonkAtomicPunchAmmoHUD : SingleAmmoHUD
     {
-        protected override bool CanDisplay => (Player.HeldItem.ModItem is BonkAtomicPunch || Player.HeldItem.ModItem is CritaCola) && Player.inventory[58].ModItem != Weapon && Weapon.equipped;
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon weapon && (Player.HeldItem.ModItem is BonkAtomicPunch || Player.HeldItem.ModItem is CritaCola) && Player.inventory[58].ModItem != weapon && weapon.equipped;
 
         protected override int RechargeTime => TF2.Time(22);
     }

@@ -15,25 +15,25 @@ namespace TF2.Content.Buffs
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.CanBeRemovedByNetMessage[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BleedingPlayer>().bleedDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<BleedingPlayer>().bleedingDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<BleedingNPC>().bleedDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<BleedingNPC>().bleedingDebuff = true;
     }
 
     public class BleedingPlayer : ModPlayer
     {
+        public bool bleedingDebuff;
         private int timer;
-        public bool bleedDebuff;
         public float damageMultiplier = 1f;
 
-        public override void ResetEffects() => bleedDebuff = false;
+        public override void ResetEffects() => bleedingDebuff = false;
 
         public override void UpdateBadLifeRegen()
         {
-            if (bleedDebuff)
+            if (bleedingDebuff)
             {
                 timer++;
                 TF2.Maximum(ref Player.lifeRegen, 0);
@@ -46,7 +46,7 @@ namespace TF2.Content.Buffs
                         Player.KillMe(PlayerDeathReason.ByCustomReason(TF2.TF2DeathMessagesLocalization[0].ToNetworkText(Player.name)), (int)(4 * damageMultiplier), 0);
                     timer = 0;
                 }
-                int dustIndex = Dust.NewDust(new Vector2(Player.position.X, Player.position.Y), Player.width, Player.height, DustID.Blood, 0f, 0f, 100, default, 3f);
+                int dustIndex = Dust.NewDust(Player.position, Player.width, Player.height, DustID.Blood, 0f, 0f, 100, default, 3f);
                 Main.dust[dustIndex].noGravity = true;
                 Main.dust[dustIndex].velocity *= 5f;
             }
@@ -59,15 +59,15 @@ namespace TF2.Content.Buffs
     {
         public override bool InstancePerEntity => true;
 
+        public bool bleedingDebuff;
         private int timer;
-        public bool bleedDebuff;
         public float damageMultiplier = 1f;
 
-        public override void ResetEffects(NPC npc) => bleedDebuff = false;
+        public override void ResetEffects(NPC npc) => bleedingDebuff = false;
 
         public override void UpdateLifeRegen(NPC npc, ref int damage)
         {
-            if (bleedDebuff)
+            if (bleedingDebuff)
             {
                 timer++;
                 TF2.Maximum(ref npc.lifeRegen, 0);
@@ -80,7 +80,7 @@ namespace TF2.Content.Buffs
                         npc.netUpdate = true;
                     timer = 0;
                 }
-                int dustIndex = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y), npc.width, npc.height, DustID.Blood, 0f, 0f, 100, default, 3f);
+                int dustIndex = Dust.NewDust(npc.position, npc.width, npc.height, DustID.Blood, 0f, 0f, 100, default, 3f);
                 Main.dust[dustIndex].noGravity = true;
                 Main.dust[dustIndex].velocity *= 5f;
             }
@@ -90,15 +90,15 @@ namespace TF2.Content.Buffs
 
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
+            binaryWriter.Write(bleedingDebuff);
             binaryWriter.Write(timer);
-            binaryWriter.Write(bleedDebuff);
             binaryWriter.Write(damageMultiplier);
         }
 
         public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
         {
+            bleedingDebuff = binaryReader.ReadBoolean();
             timer = binaryReader.ReadInt32();
-            bleedDebuff = binaryReader.ReadBoolean();
             damageMultiplier = binaryReader.ReadSingle();
         }
     }

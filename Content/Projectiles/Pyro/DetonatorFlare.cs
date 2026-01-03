@@ -15,13 +15,14 @@ namespace TF2.Content.Projectiles.Pyro
             Projectile.penetrate = -1;
             Projectile.friendly = true;
             Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 1;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = -1;
         }
 
         protected override void ProjectileAI()
         {
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(100, 100);
@@ -35,7 +36,7 @@ namespace TF2.Content.Projectiles.Pyro
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            Projectile.timeLeft = 0;
+            DetonateProjectile();
             return false;
         }
 
@@ -51,19 +52,18 @@ namespace TF2.Content.Projectiles.Pyro
                 miniCrit = true;
         }
 
-        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => DetonateProjectile();
 
-        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => DetonateProjectile();
 
         protected override void ProjectileDestroy(int timeLeft) => Explode(Projectile, new SoundStyle("TF2/Content/Sounds/SFX/Weapons/detonator_explode"));
 
         public void FlareJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 100f))
             {
-                velocity *= 1.25f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;
@@ -88,6 +88,7 @@ namespace TF2.Content.Projectiles.Pyro
                 dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, DustID.IchorTorch, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 3f;
             }
+            Lighting.AddLight(projectile.Center, Color.OrangeRed.ToVector3());
         }
 
     }

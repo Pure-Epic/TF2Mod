@@ -20,7 +20,7 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override void ProjectileAI()
         {
-            if (Projectile.timeLeft == 0)
+            if (ProjectileDetonation)
             {
                 Projectile.position = Projectile.Center;
                 Projectile.Size = new Vector2(100, 100);
@@ -34,23 +34,22 @@ namespace TF2.Content.Projectiles.Soldier
 
         protected override bool ProjectileTileCollide(Vector2 oldVelocity)
         {
-            Projectile.timeLeft = 0;
+            DetonateProjectile();
             return false;
         }
 
-        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info) => DetonateProjectile();
 
-        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => Projectile.timeLeft = 0;
+        protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone) => DetonateProjectile();
 
         protected override void ProjectileDestroy(int timeLeft) => TF2.Explode(Projectile, new SoundStyle("TF2/Content/Sounds/SFX/explode"));
 
-        public virtual void RocketJump(Vector2 velocity)
+        protected virtual void RocketJump(Vector2 velocity)
         {
-            if (FindOwner(Projectile, 50f))
+            if (FindOwner(Projectile, 100f))
             {
-                velocity *= 1.25f;
-                velocity.X = Utils.Clamp(velocity.X, -25f, 25f);
-                velocity.Y = Utils.Clamp(velocity.Y, -25f, 25f);
+                velocity.X = Utils.Clamp(velocity.X, -15f, 15f);
+                velocity.Y = Utils.Clamp(velocity.Y, -15f, 15f);
                 Player.velocity -= velocity;
                 QuickFixMirror();
                 if (Player.immuneNoBlink) return;

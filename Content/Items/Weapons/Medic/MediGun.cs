@@ -15,7 +15,7 @@ namespace TF2.Content.Items.Weapons.Medic
             SetWeaponDamage(projectile: ModContent.ProjectileType<HealingBeam>());
             SetWeaponAttackSpeed(0.01666, hide: true);
             SetWeaponAttackIntervals(altClick: true, noAmmo: true);
-            SetMediGun(buff: ModContent.BuffType<UberCharge>(), duration: 8);
+            SetMediGun(buff: ModContent.BuffType<MediGunBuff>(), duration: 8);
         }
     }
 }

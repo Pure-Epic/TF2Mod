@@ -11,7 +11,7 @@ namespace TF2.Content.UI.HUD.Sniper
     [Autoload(Side = ModSide.Client)]
     internal class SniperRifleAmmoHUD : HeavyAmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && Weapon.GetWeaponMechanic("Sniper Rifle") && Weapon.maxAmmoReserve <= 0;
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon weapon && Player.inventory[58].ModItem != weapon && weapon.equipped && weapon.GetWeaponMechanic("Sniper Rifle") && weapon.maxAmmoReserve <= 0;
 
         protected override Asset<Texture2D> Texture => HUDTextures.AmmoChargeHUDTexture;
 

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TF2.Common;
 using TF2.Content.Buffs;
 using TF2.Content.Items.Weapons.Medic;
-using TF2.Content.Items.Weapons.Soldier;
-using TF2.Content.NPCs.Buddies;
 using TF2.Content.Tiles.Crafting;
 
 namespace TF2.Content.Items.Weapons.Scout
@@ -36,19 +32,19 @@ namespace TF2.Content.Items.Weapons.Scout
             if (isActive && player.ItemAnimationEndingOrEnded)
             {
                 player.AddBuff(ModContent.BuffType<CritaColaBuff>(), TF2.Time(8));
+                timer[0] = 0;
                 isActive = false;
             }
         }
 
         protected override void WeaponPassiveUpdate(Player player)
         {
-            if (timer[0] < TF2.Time(22))
+            if (timer[0] < TF2.Time(22) && !player.HasBuff<CritaColaBuff>())
                 timer[0]++;
         }
 
         protected override bool? WeaponOnUse(Player player)
         {
-            timer[0] = 0;
             isActive = true;
             return true;
         }
@@ -58,22 +54,22 @@ namespace TF2.Content.Items.Weapons.Scout
 
     public class CritaColaPlayer : ModPlayer
     {
-        public bool critaColaActive;
+        public bool critaColaBuff;
 
-        public override void ResetEffects() => critaColaActive = false;
+        public override void ResetEffects() => critaColaBuff = false;
 
         public override void OnHurt(Player.HurtInfo info)
         {
             if (!info.PvP) return;
             Player opponent = Main.player[info.DamageSource.SourcePlayerIndex];
-            if (opponent.GetModPlayer<CritaColaPlayer>().critaColaActive)
+            if (opponent.GetModPlayer<CritaColaPlayer>().critaColaBuff)
                 opponent.AddBuff(ModContent.BuffType<MarkedForDeath>(), TF2.Time(5));
 
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (target.type != NPCID.TargetDummy && critaColaActive)
+            if (target.type != NPCID.TargetDummy && critaColaBuff)
                 Player.AddBuff(ModContent.BuffType<MarkedForDeath>(), TF2.Time(5));
         }
     }

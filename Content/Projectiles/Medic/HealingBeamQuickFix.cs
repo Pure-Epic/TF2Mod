@@ -7,12 +7,12 @@ namespace TF2.Content.Projectiles.Medic
     {
         public override string Texture => "TF2/Content/Items/Weapons/Medic/QuickFix";
 
-        protected override float HealMultiplier => !Player.HasBuff<QuickFixUberCharge>() ? 1.4f : 4.2f;
+        protected override float HealMultiplier => !Player.HasBuff<QuickFixBuff>() ? 1.4f : 4.2f;
 
         protected override float UberchargeMultiplier => 1.1f;
 
         public override float OverhealLimit => 0.25f;
 
-        protected override int UberCharge => ModContent.BuffType<QuickFixUberCharge>();
+        protected override int UberCharge => ModContent.BuffType<QuickFixBuff>();
     }
 }

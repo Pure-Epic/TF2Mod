@@ -17,8 +17,6 @@ namespace TF2.Content.UI.HUD.Sniper
         protected override bool CanDisplay => Player.HeldItem.ModItem is Jarate weapon && Player.inventory[58].ModItem != weapon && weapon.equipped;
 
         protected override int RechargeTime => TF2.Time(20);
-
-        protected override TF2Weapon Weapon => Player.HeldItem.ModItem as Jarate;
     }
 
     [Autoload(Side = ModSide.Client)]

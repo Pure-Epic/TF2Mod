@@ -20,10 +20,10 @@ namespace TF2.Common
 
         public override void Load()
         {
-            Reload = KeybindLoader.RegisterKeybind(Mod, "Reload", "Mouse3");
+            Reload = KeybindLoader.RegisterKeybind(Mod, "Reload", "R");
             ShieldCharge = KeybindLoader.RegisterKeybind(Mod, "Shield Charge", "Mouse2");
             MoveBuilding = KeybindLoader.RegisterKeybind(Mod, "Move Building", "B");
-            Cloak = KeybindLoader.RegisterKeybind(Mod, "Cloak", "F");
+            Cloak = KeybindLoader.RegisterKeybind(Mod, "Cloak", "Mouse2");
             ModulePower = KeybindLoader.RegisterKeybind(Mod, "Module Power", "I");
             ModuleSecondaryPower = KeybindLoader.RegisterKeybind(Mod, "Module Secondary Power", "O");
         }

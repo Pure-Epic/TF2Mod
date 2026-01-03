@@ -6,14 +6,13 @@ using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TF2.Content.Items.Weapons;
-using TF2.Content.Items.Weapons.Sniper;
 
 namespace TF2.Content.UI.HUD.Sniper
 {
     [Autoload(Side = ModSide.Client)]
     internal class HuntsmanAmmoHUD : AmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && Weapon.GetWeaponMechanic("Sniper Rifle") && (Weapon is Huntsman || Weapon.maxAmmoReserve > 0);
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon weapon && Player.inventory[58].ModItem != weapon && Weapon.equipped && weapon.GetWeaponMechanic("Bow");
 
         protected override Asset<Texture2D> Texture => HUDTextures.AmmoChargeHUDTexture;
 

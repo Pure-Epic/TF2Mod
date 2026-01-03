@@ -71,6 +71,10 @@ namespace TF2.Content.NPCs.Buildings
 
         protected virtual int ScrapMetalAmount => 0;
 
+        protected virtual int Level => 1;
+
+        protected virtual bool CanBeUpgraded => true;
+
         internal float healthMultiplier;
         internal int preConstructedDamage;
         internal bool hauled;
@@ -173,9 +177,9 @@ namespace TF2.Content.NPCs.Buildings
             }
         }
 
-        public static bool BaseLevel(Building building) => building.NPC.type == ModContent.NPCType<SentryLevel1>() || building.NPC.type == ModContent.NPCType<MiniSentry>() || building.NPC.type == ModContent.NPCType<DispenserLevel1>() || building.NPC.type == ModContent.NPCType<TeleporterEntranceLevel1>() || building.NPC.type == ModContent.NPCType<TeleporterExitLevel1>();
+        public bool BaseLevel() => Level == 1 || !CanBeUpgraded;
 
-        public static bool MaxLevel(Building building) => building.NPC.type == ModContent.NPCType<SentryLevel3>() || building.NPC.type == ModContent.NPCType<MiniSentry>() || building.NPC.type == ModContent.NPCType<DispenserLevel3>() || building.NPC.type == ModContent.NPCType<TeleporterEntranceLevel3>() || building.NPC.type == ModContent.NPCType<TeleporterExitLevel3>();
+        public bool MaxLevel() => Level == 3 || !CanBeUpgraded;
 
         public override bool CheckActive() => false;
 

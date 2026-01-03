@@ -13,7 +13,7 @@ namespace TF2.Content.UI.HUD.Spy
     [Autoload(Side = ModSide.Client)]
     internal class CloakAndDaggerChargeMeterHUD : TF2HUD
     {
-        protected override bool CanDisplay => Player.GetModPlayer<CloakAndDaggerPlayer>().cloakAndDaggerEquipped;
+        protected override bool CanDisplay => Player.GetModPlayer<CloakAndDaggerBuffPlayer>().cloakAndDaggerEquipped;
 
         protected override Asset<Texture2D> Texture => HUDTextures.RightChargeHUDTexture;
 
@@ -47,7 +47,7 @@ namespace TF2.Content.UI.HUD.Spy
 
         protected override void HUDDraw(SpriteBatch spriteBatch)
         {
-            CloakAndDaggerPlayer cloakAndDaggerPlayer = Player.GetModPlayer<CloakAndDaggerPlayer>();
+            CloakAndDaggerBuffPlayer cloakAndDaggerPlayer = Player.GetModPlayer<CloakAndDaggerBuffPlayer>();
             Rectangle hitbox = area.GetInnerDimensions().ToRectangle();
             hitbox.X += 12;
             hitbox.Y += 24;

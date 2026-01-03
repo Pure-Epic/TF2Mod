@@ -30,10 +30,10 @@ namespace TF2.Content.Items.Weapons.Spy
 
         public override bool WeaponCanBeUsed(Player player) => false;
 
-        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<FeignDeathPlayer>().deadRingerEquipped = true;
+        protected override void WeaponPassiveUpdate(Player player) => player.GetModPlayer<DeadRingerPlayer>().deadRingerEquipped = true;
     }
 
-    public class FeignDeathPlayer : ModPlayer
+    public class DeadRingerPlayer : ModPlayer
     {
         public bool deadRingerEquipped;
         public bool feignDeath;
@@ -52,13 +52,13 @@ namespace TF2.Content.Items.Weapons.Spy
         {
             deadRingerEquipped = false;
             feignDeath = false;
-            Player.opacityForAnimation = 1f;
+            Player.GetModPlayer<TF2Player>().opacity = 1f;
             cloakMeterMax = TF2.Time(14);
         }
 
         public override void PreUpdate()
         {
-            if (Player.HasBuff(ModContent.BuffType<FeignDeath>()) && timer2 <= TF2.Time(3))
+            if (Player.HasBuff(ModContent.BuffType<DeadRingerBuff>()) && timer2 <= TF2.Time(3))
                 TF2Player.SetPlayerSpeed(Player, 200);
         }
 
@@ -80,7 +80,7 @@ namespace TF2.Content.Items.Weapons.Spy
                 timer++;
             else
             {
-                Player.ClearBuff(ModContent.BuffType<FeignDeath>());
+                Player.ClearBuff(ModContent.BuffType<DeadRingerBuff>());
                 cloakMeter = 0;
                 timer = 0;
             }
@@ -92,14 +92,14 @@ namespace TF2.Content.Items.Weapons.Spy
                 cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
                 timer = 0;
             }
-            else if (Player.HasBuff(ModContent.BuffType<FeignDeath>()))
+            else if (Player.HasBuff(ModContent.BuffType<DeadRingerBuff>()))
             {
                 timer2++;
                 cloakMeter--;
                 cloakMeter = Utils.Clamp(cloakMeter, 0, cloakMeterMax);
-                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<FeignDeath>());
+                int buffIndex = Player.FindBuffIndex(ModContent.BuffType<DeadRingerBuff>());
                 Player.buffTime[buffIndex] = Convert.ToInt32(cloakMeter);
-                Player.opacityForAnimation = 0.5f;
+                Player.GetModPlayer<TF2Player>().opacity = 0.5f;
                 playDecloakingSound = true;
                 timer = 0;
             }
@@ -108,14 +108,14 @@ namespace TF2.Content.Items.Weapons.Spy
         #region Cloak Drain On Attack
         public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (feignDeath && Player.HasBuff<FeignDeath>())
+            if (feignDeath && Player.HasBuff<DeadRingerBuff>())
                 cloakMeter -= TF2.Time(2.5);
         }
 
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
         {
             if (proj.ModProjectile is not TF2Projectile projectile || projectile.spawnedFromNPC) return;
-            if (feignDeath && Player.HasBuff<FeignDeath>())
+            if (feignDeath && Player.HasBuff<DeadRingerBuff>())
                 cloakMeter -= TF2.Time(2.5);
             else if (Player.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
                 cloakMeter += TF2.Time(2.933);
@@ -123,22 +123,22 @@ namespace TF2.Content.Items.Weapons.Spy
 
         public override void ModifyHurt(ref Player.HurtModifiers modifiers)
         {
-            if (feignDeath && Player.HasBuff<FeignDeath>() && timer2 <= TF2.Time(3))
+            if (feignDeath && Player.HasBuff<DeadRingerBuff>() && timer2 <= TF2.Time(3))
                 modifiers.FinalDamage *= 0.35f;
             if (!modifiers.PvP) return;
             Player opponent = Main.player[modifiers.DamageSource.SourcePlayerIndex];
-            if (opponent.GetModPlayer<FeignDeathPlayer>().feignDeath && opponent.HasBuff<FeignDeath>())
-                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter -= TF2.Time(2.5);
+            if (opponent.GetModPlayer<DeadRingerPlayer>().feignDeath && opponent.HasBuff<DeadRingerBuff>())
+                opponent.GetModPlayer<DeadRingerPlayer>().cloakMeter -= TF2.Time(2.5);
         }
 
         public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
         {
             if (!hurtInfo.PvP) return;
             Player opponent = Main.player[proj.owner];
-            if (opponent.GetModPlayer<FeignDeathPlayer>().feignDeath && opponent.HasBuff<FeignDeath>())
-                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter -= TF2.Time(2.5);
+            if (opponent.GetModPlayer<DeadRingerPlayer>().feignDeath && opponent.HasBuff<DeadRingerBuff>())
+                opponent.GetModPlayer<DeadRingerPlayer>().cloakMeter -= TF2.Time(2.5);
             else if (opponent.GetModPlayer<LEtrangerPlayer>().lEtrangerEquipped && (proj.ModProjectile as TF2Projectile).lEtrangerProjectile)
-                opponent.GetModPlayer<FeignDeathPlayer>().cloakMeter += TF2.Time(2.933);
+                opponent.GetModPlayer<DeadRingerPlayer>().cloakMeter += TF2.Time(2.933);
         }
         #endregion Cloak Drain On Attack
         public override bool FreeDodge(Player.HurtInfo info)
@@ -147,15 +147,15 @@ namespace TF2.Content.Items.Weapons.Spy
             {
                 if (cloakMeter >= cloakMeterMax)
                     cloakMeter /= 2f;
-                else if (feignDeath && Player.HasBuff<FeignDeath>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0)
+                else if (feignDeath && Player.HasBuff<DeadRingerBuff>() && Player.GetModPlayer<TF2Player>().cloakImmuneTime <= 0)
                 {
                     cloakMeter -= TF2.Time(1);
                     Player.GetModPlayer<TF2Player>().cloakImmuneTime += TF2.Time(0.5);
                     SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/cloak_hit"), Player.Center);
                 }
                 info.Damage = TF2.Round(info.Damage * 0.25f);
-                Player.AddBuff(ModContent.BuffType<FeignDeath>(), TF2.Time(7));
-                NPC npc = NPC.NewNPCDirect(Player.GetSource_FromThis(), (int)Player.Center.X, (int)Player.Center.Y, ModContent.NPCType<SpyNPC>(), 0, 0, 0, 0, Player.whoAmI);
+                Player.AddBuff(ModContent.BuffType<DeadRingerBuff>(), TF2.Time(7));
+                NPC npc = NPC.NewNPCDirect(Player.GetSource_FromThis(), (int)Player.Center.X, (int)Player.Center.Y, ModContent.NPCType<SpyBuddyNPC>(), 0, 0, 0, 0, Player.whoAmI);
                 TF2.SpawnNPCMultiplayer(Player, npc, npc.type);
                 TF2.SetFeignDeathSpy(npc);
                 Player.stealth = 1000f;
@@ -175,10 +175,10 @@ namespace TF2.Content.Items.Weapons.Spy
 
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
-            if (KeybindSystem.Cloak.JustPressed && deadRingerEquipped && Player.HasBuff<FeignDeath>())
+            if (KeybindSystem.Cloak.JustPressed && deadRingerEquipped && Player.HasBuff<DeadRingerBuff>())
             {
                 SoundEngine.PlaySound(new SoundStyle("TF2/Content/Sounds/SFX/Weapons/spy_cloak"), Player.Center);
-                Player.ClearBuff(ModContent.BuffType<FeignDeath>());
+                Player.ClearBuff(ModContent.BuffType<DeadRingerBuff>());
             }
         }
     }

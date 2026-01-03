@@ -39,19 +39,23 @@ namespace TF2.Content.Items.Weapons.Heavy
             }
             else if (isActive)
             {
-                timer[0] = 0;
                 timer[1]++;
                 if (timer[1] >= TF2.Time(1))
                 {
-                    int remainingHealth = TF2Player.TotalHealth(player) - player.statLife;
-                    if (!TF2Player.IsHealthFull(player))
+                    int remainingHealth = TF2Player.MaxHealth(player) - player.statLife;
+                    if (!TF2Player.IsAtFullHealth(player))
                         player.Heal(TF2.GetHealth(player, 75) <= remainingHealth ? TF2.GetHealth(player, 75) : remainingHealth);
+                    else
+                        timer[3]++;
                     timer[1] = 0;
                     timer[2]++;
                 }
                 if (timer[2] >= 4)
                 {
+                    if (timer[3] < 4)
+                        timer[0] = 0;
                     timer[2] = 0;
+                    timer[3] = 0;
                     isActive = false;
                 }
             }
@@ -74,7 +78,7 @@ namespace TF2.Content.Items.Weapons.Heavy
     {
         public string droppedPlayerName = string.Empty;
 
-        public override string Texture => "TF2/Content/Textures/DroppedSandvich";
+        public override string Texture => "TF2/Content/Textures/Items/Heavy/DroppedSandvich";
 
         public override void SetStaticDefaults() => Item.ResearchUnlockCount = 0;
 

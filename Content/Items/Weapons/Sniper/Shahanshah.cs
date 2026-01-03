@@ -26,7 +26,7 @@ namespace TF2.Content.Items.Weapons.Sniper
             AddNegativeAttribute(description);
         }
 
-        protected override void WeaponPassiveUpdate(Player player) => Item.damage = TF2.Round(65 * ((player.statLife >= TF2Player.TotalHealth(player) / 2) ? 0.75f : 1.25f));
+        protected override void WeaponPassiveUpdate(Player player) => Item.damage = TF2.Round(65 * ((player.statLife >= TF2Player.MaxHealth(player) / 2) ? 0.75f : 1.25f));
 
         public override void AddRecipes() => CreateRecipe().AddIngredient<Bushwacka>().AddIngredient<Amputator>().AddIngredient<ReclaimedMetal>().AddTile<AustraliumAnvil>().Register();
     }

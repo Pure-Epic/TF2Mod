@@ -60,7 +60,6 @@ namespace TF2.Content.Items.Modules
         public override void Update(Player player, ref int buffIndex)
         {
             player.GetModPlayer<MannsAntiDanmakuSystemPlayer>().mannsAntiDanmakuSystemActive = true;
-            player.noKnockback = true;
             player.gravity = 0f;
         }
 
@@ -82,7 +81,7 @@ namespace TF2.Content.Items.Modules
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!(drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus && drawInfo.drawPlayer.HasBuff<DarkAntiDanmakuSystemBuff>())) return;
-            focusModeTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/DarkFocus");
+            focusModeTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Modules/DarkFocus");
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             drawInfo.DrawDataCache.Add(new DrawData(focusModeTexture.Value, position, null, Color.White, 0f, focusModeTexture.Size() * 0.5f, 1f, SpriteEffects.None, 0));
@@ -100,7 +99,7 @@ namespace TF2.Content.Items.Modules
         protected override void Draw(ref PlayerDrawSet drawInfo)
         {
             if (!(drawInfo.drawPlayer.GetModPlayer<TF2Player>().focus && drawInfo.drawPlayer.HasBuff<DarkAntiDanmakuSystemBuff>())) return;
-            focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/DarkHitbox");
+            focusModeHitboxTexture ??= ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Modules/DarkHitbox");
             Vector2 position = drawInfo.Center - Main.screenPosition;
             position = new Vector2((int)position.X, (int)position.Y);
             Texture2D texture = focusModeHitboxTexture.Value;

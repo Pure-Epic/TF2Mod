@@ -13,14 +13,14 @@ namespace TF2.Content.UI.HUD
     [Autoload(Side = ModSide.Client)]
     public class AmmoHUD : TF2HUD
     {
-        protected virtual TF2Weapon Weapon => Player.HeldItem.ModItem as TF2Weapon;
-
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && !Weapon.noAmmoClip && Weapon.maxAmmoReserve > 0 && Weapon.equipped
-            && !Weapon.GetWeaponMechanic("Stickybomb Launcher")
-            && !Weapon.GetWeaponMechanic("Medi Gun")
-            && !Weapon.GetWeaponMechanic("Sniper Rifle");
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon weapon && Player.inventory[58].ModItem != weapon && !weapon.noAmmoClip && weapon.maxAmmoReserve > 0 && weapon.equipped
+            && !weapon.GetWeaponMechanic("Stickybomb Launcher")
+            && !weapon.GetWeaponMechanic("Medi Gun")
+            && !weapon.GetWeaponMechanic("Sniper Rifle");
 
         protected override Asset<Texture2D> Texture => HUDTextures.AmmoHUDTexture;
+
+        protected static TF2Weapon Weapon => Player.HeldItem.ModItem as TF2Weapon;
 
         protected UIText currentAmmo;
         protected UIText currentAmmoReserve;

@@ -12,7 +12,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponCategory(Pyro, Primary, Stock, Starter);
             SetWeaponSize(50, 14);
             SetGunUseStyle();
-            SetWeaponDamage(damage: 18, projectile: ModContent.ProjectileType<Fire>());
+            SetWeaponDamage(damage: 17, projectile: ModContent.ProjectileType<Fire>());
             SetWeaponAttackSpeed(0.105, hide: true);
             SetWeaponAttackIntervals(maxAmmo: 200, altClick: true, noAmmo: true);
             SetFlamethrower();

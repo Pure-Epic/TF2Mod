@@ -11,25 +11,25 @@ namespace TF2.Content.Projectiles.Soldier
         protected override void ProjectilePostHitPlayer(Player target, Player.HurtInfo info)
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (!TF2Player.IsHealthFull(Player) && target.whoAmI != Projectile.owner)
+            if (!TF2Player.IsAtFullHealth(Player) && target.whoAmI != Projectile.owner)
             {
                 int amount = (int)(0.22222f * info.Damage / p.damageMultiplier * TF2.GetHealth(Player, 1));
                 amount = Utils.Clamp(amount, 0, TF2.GetHealth(Player, 20));
                 Player.Heal(amount);
             }
-            Projectile.timeLeft = 0;
+            DetonateProjectile();
         }
 
         protected override void ProjectilePostHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             TF2Player p = Player.GetModPlayer<TF2Player>();
-            if (!TF2Player.IsHealthFull(Player) && target.type != NPCID.TargetDummy)
+            if (!TF2Player.IsAtFullHealth(Player) && target.type != NPCID.TargetDummy)
             {
                 int amount = (int)(0.22222f * damageDone / p.damageMultiplier * TF2.GetHealth(Player, 1));
                 amount = Utils.Clamp(amount, 0, TF2.GetHealth(Player, 20));
                 Player.Heal(amount);
             }
-            Projectile.timeLeft = 0;
+            DetonateProjectile();
         }
     }
 }

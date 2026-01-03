@@ -14,7 +14,7 @@ namespace TF2.Content.UI.HUD
     [Autoload(Side = ModSide.Client)]
     public class HeavyAmmoHUD : SingleAmmoHUD
     {
-        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && !Weapon.IsWeaponType(TF2Item.Melee) && !Weapon.GetWeaponMechanic("Medi Gun") && !Weapon.GetWeaponMechanic("Sniper Rifle") && Weapon is not Wrangler && Weapon is not ConstructionPDA && Weapon is not DestructionPDA && Weapon is not DeadRinger && Weapon is not Sapper && Weapon.maxAmmoReserve <= 0;
+        protected override bool CanDisplay => Player.HeldItem.ModItem is TF2Weapon && Player.inventory[58].ModItem != Weapon && Weapon.equipped && !Weapon.IsWeaponType(TF2Item.Melee) && !Weapon.GetWeaponMechanic("Banner") && !Weapon.GetWeaponMechanic("Medi Gun") && !Weapon.GetWeaponMechanic("Sniper Rifle") && Weapon is not Wrangler && Weapon is not ConstructionPDA && Weapon is not DestructionPDA && Weapon is not DeadRinger && Weapon is not Sapper && Weapon.maxAmmoReserve <= 0;
 
         protected override void HUDPreInitialize(out UIElement _area, out UIImage _texture)
         {

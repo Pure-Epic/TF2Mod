@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace TF2.Content.Buffs
 {
@@ -12,22 +14,22 @@ namespace TF2.Content.Buffs
             Main.debuff[Type] = true;
             Main.pvpBuff[Type] = true;
             Main.buffNoSave[Type] = true;
-            BuffID.Sets.IsATagBuff[Type] = true;
+            BuffID.Sets.CanBeRemovedByNetMessage[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<JaratePlayer>().jarateDebuff = true;
+        public override void Update(Player player, ref int buffIndex) => player.GetModPlayer<JarateDebuffPlayer>().jarateDebuff = true;
 
-        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<JarateNPC>().jarateDebuff = true;
+        public override void Update(NPC npc, ref int buffIndex) => npc.GetGlobalNPC<JarateDebuffNPC>().jarateDebuff = true;
     }
 
-    public class JaratePlayer : ModPlayer
+    public class JarateDebuffPlayer : ModPlayer
     {
         public bool jarateDebuff;
 
         public override void ResetEffects() => jarateDebuff = false;
     }
 
-    public class JarateNPC : GlobalNPC
+    public class JarateDebuffNPC : GlobalNPC
     {
         public override bool InstancePerEntity => true;
 
@@ -55,6 +57,18 @@ namespace TF2.Content.Buffs
                 initialColor = npc.color;
                 colorInitialized = true;
             }
+        }
+
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(jarateDebuff);
+            binaryWriter.Write(colorInitialized);
+        }
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            jarateDebuff = binaryReader.ReadBoolean();
+            colorInitialized = binaryReader.ReadBoolean();
         }
     }
 }

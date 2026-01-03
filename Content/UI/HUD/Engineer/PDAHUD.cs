@@ -16,9 +16,8 @@ using TF2.Content.NPCs.Buildings;
 using TF2.Content.NPCs.Buildings.Dispenser;
 using TF2.Content.NPCs.Buildings.SentryGun;
 using TF2.Content.NPCs.Buildings.Teleporter;
-using TF2.Content.UI.HUD;
 
-namespace TF2.Content.UI.MercenaryCreationMenu
+namespace TF2.Content.UI.HUD.Engineer
 {
     [Autoload(Side = ModSide.Client)]
     internal class ConstructionPDAHUD : TF2HUD
@@ -421,7 +420,7 @@ namespace TF2.Content.UI.MercenaryCreationMenu
             Rectangle rectangle = texture.Frame(1, 1, 0, 0, 0, 0);
             float num = 4f;
             if (rectangle.Width * num > size || rectangle.Height * num > size)
-                num = (rectangle.Width <= rectangle.Height) ? (size / rectangle.Height) : (size / rectangle.Width);
+                num = rectangle.Width <= rectangle.Height ? size / rectangle.Height : size / rectangle.Width;
             spriteBatch.Draw(texture, innerDimensions.Center(), new Rectangle?(rectangle), Color.White, 0f, new Vector2(rectangle.Width, rectangle.Height) * 0.5f, num, 0, 0f);
         }
     }

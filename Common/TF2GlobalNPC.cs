@@ -70,79 +70,43 @@ namespace TF2.Common
             }
             if (npc.ModNPC is BLUMercenary || npc.boss || TF2.BasicEnemiesThatCanDropMoney(npc))
             {
-                TF2.AddMoney(Main.player[npc.lastInteraction], 0.05f, npc.Center);
+                TF2.AddMoney(Main.player[npc.lastInteraction], 0.1f, npc.Center);
                 if (Main.rand.Next(0, 100) == 0 && TF2.ScreamFortress)
                     TF2.DropLoot(npc, ModContent.ItemType<HauntedMetalScrap>());
             }
             if (npc.type == NPCID.EyeofCthulhu)
                 TF2.CreateSoulItem(npc, 0.75f, 1f);
             if ((npc.type == NPCID.EaterofWorldsHead && EaterOfWorldsDrop() == 1 && NPC.CountNPCS(NPCID.EaterofWorldsBody) == 0) || npc.type == NPCID.BrainofCthulhu)
-            {
-                TF2.CreateSoulItem(npc, 1f, 1.5f);
-                TF2.UpgradeDrill(npc, 65);
-            }
+                TF2.CreateSoulItem(npc, 1f, 1.5f, 65);
             if (npc.type == NPCID.SkeletronHead)
-            {
-                TF2.CreateSoulItem(npc, 1.5f, 2f, 2);
-                TF2.UpgradeDrill(npc, 100);
-            }
+                TF2.CreateSoulItem(npc, 1.5f, 2f, 2, 100);
             if (npc.type == NPCID.WallofFlesh)
-            {
-                TF2.CreateSoulItem(npc, 3.5f, 3f, 3);
-                TF2.UpgradeDrill(npc, 180);
-            }
+                TF2.CreateSoulItem(npc, 3.5f, 3f, 3, 180);
             if (npc.type == NPCID.TheDestroyer || ((npc.type == NPCID.Spazmatism || npc.type == NPCID.Retinazer) && TwinsDrop(npc)) || npc.type == NPCID.SkeletronPrime)
-            {
-                TF2.CreateSoulItem(npc, 5f, 4f, 3);
-                TF2.UpgradeDrill(npc, 200);
-            }
+                TF2.CreateSoulItem(npc, 5f, 4f, 3, 200);
             if (npc.type == NPCID.Plantera)
-            {
-                TF2.CreateSoulItem(npc, 7.5f, 4f, 4);
-                TF2.UpgradeDrill(npc, 200);
-            }
+                TF2.CreateSoulItem(npc, 7.5f, 4f, 4, 200);
             if (npc.type == NPCID.Golem)
-            {
-                TF2.CreateSoulItem(npc, 10f, 5f, 4);
-                TF2.UpgradeDrill(npc, 210);
-            }
+                TF2.CreateSoulItem(npc, 10f, 5f, 4, 210);
             if (npc.type == NPCID.CultistBoss)
-                TF2.CreateSoulItem(npc, 15f, 5f, 4);
+                TF2.CreateSoulItem(npc, 15f, 5f, 4, 210);
             if (npc.type == NPCID.MoonLordCore)
-            {
-                TF2.CreateSoulItem(npc, 25f, 7.5f, 5);
-                TF2.UpgradeDrill(npc, 225);
-            }
+                TF2.CreateSoulItem(npc, 25f, 7.5f, 5, 225);
             if (TF2.anathemaLoaded)
             {
                 if (TF2.Anathema.TryFind("Executioner", out ModNPC executioner) && npc.type == executioner.Type)
-                {
-                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
-                    TF2.UpgradeDrill(npc, 250);
-                }
+                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5, 250);
             }
             if (ModLoader.TryGetMod("CalamityMod", out Mod calamity))
             {
                 if (calamity.TryFind("Providence", out ModNPC providence) && npc.type == providence.Type)
-                {
-                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5);
-                    TF2.UpgradeDrill(npc, 250);
-                }
+                    TF2.CreateSoulItem(npc, 50f, 7.5f, 5, 250);
                 if (calamity.TryFind("DevourerofGodsHead", out ModNPC theDevourerofGods) && npc.type == theDevourerofGods.Type)
-                {
-                    TF2.CreateSoulItem(npc, 100f, 10f, 5);
-                    TF2.UpgradeDrill(npc, 250);
-                }
+                    TF2.CreateSoulItem(npc, 100f, 10f, 5, 250);
                 if (calamity.TryFind("Yharon", out ModNPC yharon) && npc.type == yharon.Type)
-                {
-                    TF2.CreateSoulItem(npc, 150f, 10f, 5);
-                    TF2.UpgradeDrill(npc, 250);
-                }
+                    TF2.CreateSoulItem(npc, 150f, 10f, 5, 250);
                 if (calamity.TryFind("SupremeCalamitas", out ModNPC supremeWitchCalamitas) && npc.type == supremeWitchCalamitas.Type)
-                {
-                    TF2.CreateSoulItem(npc, 250f, 20f, 6);
-                    TF2.UpgradeDrill(npc, 250);
-                }
+                    TF2.CreateSoulItem(npc, 250f, 20f, 6, 250);
             }
         }
 

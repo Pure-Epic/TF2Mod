@@ -12,13 +12,13 @@ namespace TF2.Content.Buffs
 
         public override void Update(Player player, ref int buffIndex)
         {
-            player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff = true;
+            player.GetModPlayer<BuffaloSteakSandvichBuffPlayer>().buffaloSteakSandvichBuff = true;
             TF2Player.SetPlayerSpeed(player, 130);
             player.GetModPlayer<TF2Player>().miniCrit = true;
         }
     }
 
-    public class BuffaloSteakSandvichPlayer : ModPlayer
+    public class BuffaloSteakSandvichBuffPlayer : ModPlayer
     {
         public bool buffaloSteakSandvichBuff;
 
@@ -43,7 +43,7 @@ namespace TF2.Content.Buffs
 
         public override bool CanUseItem(Item item, Player player)
         {
-            if (player.GetModPlayer<BuffaloSteakSandvichPlayer>().buffaloSteakSandvichBuff && item.ModItem is TF2Weapon weapon && !weapon.IsWeaponType(TF2Item.Melee))
+            if (player.GetModPlayer<BuffaloSteakSandvichBuffPlayer>().buffaloSteakSandvichBuff && item.ModItem is TF2Weapon weapon && !weapon.IsWeaponType(TF2Item.Melee))
             {
                 player.controlUseItem = false;
                 player.controlUseTile = false;

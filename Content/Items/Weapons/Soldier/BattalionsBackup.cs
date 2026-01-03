@@ -14,7 +14,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 {
     public class BattalionsBackup : TF2Weapon
     {
-        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Weapons/BattalionsBackup");
+        public override Asset<Texture2D> WeaponActiveTexture => ModContent.Request<Texture2D>("TF2/Content/Textures/Items/Soldier/BattalionsBackup_Bugle");
 
         protected override string BackTexture => "TF2/Content/Textures/Items/Soldier/BattalionsBackup";
 
@@ -41,7 +41,7 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         protected override bool WeaponAddTextureCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 2;
 
-        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<BattalionsBackupPlayer>().buffActive ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.BattalionsBackupTextures[0] : ItemTextures.BattalionsBackupTextures[1]);
+        protected override Asset<Texture2D> WeaponBackTexture(Player player) => !player.GetModPlayer<BattalionsBackupPlayer>().bannerBuff ? base.WeaponBackTexture(player) : (player.direction == -1 ? ItemTextures.BattalionsBackupTextures[0] : ItemTextures.BattalionsBackupTextures[1]);
 
         protected override bool WeaponModifyHealthCondition(Player player) => player.GetModPlayer<TF2Player>().bannerType == 2;
 
@@ -95,7 +95,7 @@ namespace TF2.Content.Items.Weapons.Soldier
             rage = Utils.Clamp(rage, 0, MaxRage);
             if (!Player.GetModPlayer<TF2Player>().HasBanner)
                 rage = 0;
-            if (buffActive && Player.HasBuff<BattalionsBackupBuff>())
+            if (bannerBuff && Player.HasBuff<BattalionsBackupBuff>())
             {
                 rage = 0;
                 int buffIndex = Player.FindBuffIndex(ModContent.BuffType<BattalionsBackupBuff>());
@@ -105,13 +105,13 @@ namespace TF2.Content.Items.Weapons.Soldier
 
         public override void ModifyHitByNPC(NPC npc, ref Player.HurtModifiers modifiers)
         {
-            if (buffActive)
+            if (bannerBuff)
                 modifiers.FinalDamage *= 0.65f;
         }
 
         public override void ModifyHitByProjectile(Projectile proj, ref Player.HurtModifiers modifiers)
         {
-            if (buffActive)
+            if (bannerBuff)
                 modifiers.FinalDamage *= 0.5f;
         }
     }

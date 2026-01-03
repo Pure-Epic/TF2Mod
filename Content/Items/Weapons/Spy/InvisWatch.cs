@@ -19,6 +19,6 @@ namespace TF2.Content.Items.Weapons.Spy
                 AddOtherAttribute(description, currentCloakKey[0] + (string)this.GetLocalization("Notes2"));
         }
 
-        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<CloakPlayer>().invisWatchEquipped = true;
+        public override void UpdateAccessory(Player player, bool hideVisual) => player.GetModPlayer<InvisWatchBuffPlayer>().invisWatchEquipped = true;
     }
 }

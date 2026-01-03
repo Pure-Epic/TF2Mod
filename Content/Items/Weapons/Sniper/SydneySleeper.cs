@@ -19,7 +19,7 @@ namespace TF2.Content.Items.Weapons.Sniper
             SetWeaponAttackSpeed(1.5);
             SetWeaponAttackSound("TF2/Content/Sounds/SFX/Weapons/sniper_shoot");
             SetWeaponAttackIntervals(maxAmmo: 25, noAmmo: true);
-            SetSniperRifle(maxChargeDuration: 1.4);
+            SetSniperRifle(maxChargeDuration: 1.4, miniCrit: true);
             SetWeaponPrice(weapon: 1, reclaimed: 1);
         }
 

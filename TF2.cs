@@ -19,6 +19,7 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
+using Terraria.Graphics.Light;
 using Terraria.Graphics.Renderers;
 using Terraria.ID;
 using Terraria.IO;
@@ -34,7 +35,6 @@ using TF2.Content.Items.Consumables;
 using TF2.Content.Items.Modules;
 using TF2.Content.Items.Weapons;
 using TF2.Content.Items.Weapons.Medic;
-using TF2.Content.Items.Weapons.Scout;
 using TF2.Content.Items.Weapons.Sniper;
 using TF2.Content.Items.Weapons.Spy;
 using TF2.Content.NPCs.Buddies;
@@ -195,8 +195,9 @@ namespace TF2
             On_Player.GetWeaponDamage += Hook_GetWeaponDamage;
             On_Player.GetImmuneAlpha += Hook_GetImmuneAlpha;
             On_Player.GetImmuneAlphaPure += Hook_GetImmuneAlphaPure;
-            On_Player.ApplyEquipFunctional += Hook_ApplyEquipFunctional;
             On_Player.QuickMount += Hook_QuickMount;
+            On_Player.GrappleMovement += Hook_GrappleMovement;
+            On_Player.TrySwitchingLoadout += Hook_TrySwitchingLoadout;
             On_PlayerDrawSet.HeadOnlySetup += Hook_HeadOnlySetup;
             IL_PlayerDrawSet.BoringSetup_2 += Hook_PlayerDrawSet;
             On_ItemSlot.LeftClick_ItemArray_int_int += Hook_LeftClick;
@@ -214,47 +215,7 @@ namespace TF2
             On_Main.DrawNPCChatButtons += Hook_DrawNPCChatButtons;
             On_Projectile.Damage += Hook_Damage;
             On_Main.DamageVar_float_float += Hook_DamageVar;
-        }
-
-        public override void Unload()
-        {
-            ModifyMaxStats.Undo();
-            ModifyMaxStats = null;
-            ModifyHitByProjectile.Undo();
-            ModifyHitByProjectile = null;
-            On_UICharacter.DrawSelf -= Hook_UICharacter_DrawSelf;
-            On_UICharacterListItem.ctor -= Hook_UICharacterList;
-            IL_UICharacterListItem.DrawSelf -= Hook_UICharacterListItem_DrawSelf;
-            On_UICharacterSelect.NewCharacterClick -= Hook_NewCharacterClick;
-            On_Player.Spawn -= Hook_Spawn;
-            IL_Player.Update -= Hook_Update;
-            On_Player.UpdateLifeRegen -= Hook_UpdateLifeRegen;
-            On_Player.GetWeaponDamage -= Hook_GetWeaponDamage;
-            On_Player.GetImmuneAlpha -= Hook_GetImmuneAlpha;
-            On_Player.GetImmuneAlphaPure -= Hook_GetImmuneAlphaPure;
-            On_Player.ApplyEquipFunctional -= Hook_ApplyEquipFunctional;
-            On_Player.QuickMount -= Hook_QuickMount;
-            On_PlayerDrawSet.HeadOnlySetup -= Hook_HeadOnlySetup;
-            IL_PlayerDrawSet.BoringSetup_2 -= Hook_PlayerDrawSet;
-            On_ItemSlot.LeftClick_ItemArray_int_int -= Hook_LeftClick;
-            On_Main.GUIHotbarDrawInner -= Hook_GUIHotbarDrawInner;
-            IL_Main.MouseText_DrawItemTooltip -= Hook_MouseText_DrawItemTooltip;
-            On_Main.DrawMouseOver -= Hook_DrawMouseOver;
-            IL_Main.MouseTextInner -= Hook_MouseTextInner;
-            On_Main.HoverOverNPCs -= Hook_HoverOverNPCs;
-            On_NPC.HitModifiers.GetDamage -= Hook_GetDamage;
-            On_NPC.CalculateHitInfo -= Hook_CalculateHitInfo;
-            On_NPC.UpdateNPC_BuffApplyDOTs -= Hook_UpdateNPC_BuffApplyDOTs;
-            On_NPC.CheckLifeRegen -= Hook_CheckLifeRegen;
-            On_NPC.NPCLoot_DropHeals -= Hook_NPCLoot_DropHeals;
-            On_NPC.DoDeathEvents_DropBossPotionsAndHearts -= Hook_DoDeathEvents_DropBossPotionsAndHearts;
-            On_Main.DrawNPCChatButtons -= Hook_DrawNPCChatButtons;
-            On_Projectile.Damage -= Hook_Damage;
-            On_Main.DamageVar_float_float -= Hook_DamageVar;
-            TF2DeathMessagesLocalization = null;
-            TF2MercenaryText = null;
-            BlankTexture = ClassPowerIcon = null;
-            Anathema = null;
+            On_TileLightScanner.GetTileLight += Hook_GetTileLight;
         }
 
         public override void PostSetupContent() => anathemaLoaded = ModLoader.TryGetMod("Anathema", out Anathema);
@@ -397,8 +358,10 @@ namespace TF2
                     if (healAmount > 0)
                     {
                         player = Main.player[i];
+                        player.HealEffect(healAmount);
                         p = player.GetModPlayer<TF2Player>();
-                        int maxHealth = TF2Player.TotalHealth(player);
+                        p.overhealDecayDelay = Time(0.25);
+                        int maxHealth = TF2Player.MaxHealth(player);
                         if (p.overheal >= HealthRound(maxHealth * limit * p.overhealMultiplier)) return;
                         player.statLife += healAmount;
                         if (player.statLife > maxHealth)
@@ -406,9 +369,8 @@ namespace TF2
                             int extraHealth = player.statLife - maxHealth - p.overheal;
                             p.overheal += extraHealth;
                             Maximum(ref p.overheal, HealthRound(maxHealth * limit * p.overhealMultiplier));
-                            player.statLife = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier + p.overheal);
+                            player.statLife = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier) + p.overheal;
                         }
-                        player.HealEffect(healAmount);
                         if (Main.dedServ)
                             OverhealMultiplayer(player, healAmount, limit);
                     }
@@ -420,6 +382,7 @@ namespace TF2
                     if (healAmount > 0)
                     {
                         NPC target = Main.npc[i];
+                        target.HealEffect(healAmount);
                         Buddy buddy = target.ModNPC as Buddy;
                         int maxHealth = buddy.finalBaseHealth;
                         if (buddy.overheal >= HealthRound(maxHealth * limit)) return;
@@ -431,7 +394,6 @@ namespace TF2
                             Maximum(ref buddy.overheal, HealthRound(maxHealth * limit));
                             target.life = HealthRound(buddy.finalBaseHealth + buddy.overheal);
                         }
-                        target.HealEffect(healAmount);
                         if (Main.dedServ)
                             OverhealNPCMultiplayer(target, healAmount, limit);
                     }
@@ -444,7 +406,7 @@ namespace TF2
                     break;
                 case MessageType.DespawnHeavy:
                     npc = Main.npc[reader.ReadByte()];
-                    if (npc.ModNPC is HeavyNPC heavy)
+                    if (npc.ModNPC is HeavyBuddyNPC heavy)
                     {
                         if (SoundEngine.TryGetActiveSound(heavy.minigunSpinUpSoundSlot, out var spinUp))
                             spinUp.Stop();
@@ -469,13 +431,12 @@ namespace TF2
                     break;
                 case MessageType.FeignDeath:
                     npc = Main.npc[reader.ReadByte()];
-                    (npc.ModNPC as SpyNPC).temporaryBuddy = true;
+                    (npc.ModNPC as SpyBuddyNPC).temporaryBuddy = true;
                     if (Main.dedServ)
                         SetFeignDeathSpy(npc);
                     break;
                 case MessageType.AddMoney:
-                    i = reader.ReadByte();
-                    player = Main.player[i];
+                    player = Main.player[reader.ReadByte()];
                     float money = reader.ReadSingle();
                     player.GetModPlayer<TF2Player>().money += money;
                     AdvancedPopupRequest moneyText = new()
@@ -486,6 +447,14 @@ namespace TF2
                         Text = money.ToString("C", CultureInfo.CurrentCulture)
                     };
                     PopupText.NewText(moneyText, reader.ReadVector2());
+                    break;
+                case MessageType.EngineerBuddy:
+                    npc = Main.npc[reader.ReadByte()];
+                    EngineerBuddyNPC engineerBuddy = npc.ModNPC as EngineerBuddyNPC;
+                    NPC buddySentry = OverwriteNPCDirect(npc.GetSource_FromThis(), (int)npc.Center.X, (int)npc.Center.Y, ModContent.NPCType<EngineerBuddySentry>(), reader.ReadByte(), 0, 0, 0, engineerBuddy.Owner);
+                    buddySentry.Bottom = npc.Bottom;
+                    buddySentry.direction = npc.direction;
+                    buddySentry.netUpdate = true;
                     break;
                 default:
                     break;
@@ -514,7 +483,8 @@ namespace TF2
             KillProjectile,
             DespawnHeavy,
             FeignDeath,
-            AddMoney
+            AddMoney,
+            EngineerBuddy
         }
 
         #region Modifications
@@ -523,7 +493,7 @@ namespace TF2
             TF2Player p = player.GetModPlayer<TF2Player>();
             if (p.ClassSelected)
             {
-                player.statLifeMax = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier + p.overheal);
+                player.statLifeMax = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier) + p.overheal;
                 player.statManaMax = 0;
             }
             else
@@ -590,7 +560,7 @@ namespace TF2
                 c.EmitDelegate<Func<Player, string>>((player) =>
                     {
                         TF2Player p = player.GetModPlayer<TF2Player>();
-                        return p.cachedHealth.ToString() + Language.GetTextValue("GameUI.PlayerLifeMax");
+                        return p.maxHealth.ToString() + Language.GetTextValue("GameUI.PlayerLifeMax");
                     }
                 );
                 c.MarkLabel(end);
@@ -703,7 +673,7 @@ namespace TF2
         private void Hook_Spawn(On_Player.orig_Spawn orig, Player self, PlayerSpawnContext context)
         {
             orig(self, context);
-            self.statLife = self.statLifeMax;
+            self.statLife = TF2Player.MaxHealth(self);
             TF2Player p = self.GetModPlayer<TF2Player>();
             p.overheal = 0;
             p.metal = p.maxMetal;
@@ -721,11 +691,11 @@ namespace TF2
                 vitaSawPlayer.deathUberCharge = 0;
             }
             self.GetModPlayer<RazorbackPlayer>().timer = Time(30);
-            CloakPlayer cloakPlayer = self.GetModPlayer<CloakPlayer>();
+            InvisWatchBuffPlayer cloakPlayer = self.GetModPlayer<InvisWatchBuffPlayer>();
             cloakPlayer.cloakMeter = cloakPlayer.cloakMeterMax;
-            CloakAndDaggerPlayer cloakAndDaggerPlayer = self.GetModPlayer<CloakAndDaggerPlayer>();
+            CloakAndDaggerBuffPlayer cloakAndDaggerPlayer = self.GetModPlayer<CloakAndDaggerBuffPlayer>();
             cloakAndDaggerPlayer.cloakMeter = cloakAndDaggerPlayer.cloakMeterMax;
-            FeignDeathPlayer feignDeathPlayer = self.GetModPlayer<FeignDeathPlayer>();
+            DeadRingerPlayer feignDeathPlayer = self.GetModPlayer<DeadRingerPlayer>();
             feignDeathPlayer.cloakMeter = feignDeathPlayer.cloakMeterMax;
             p.buddyCooldown = [0, 0, 0];
         }
@@ -790,6 +760,8 @@ namespace TF2
             {
                 orig(self);
                 Maximum(ref self.lifeRegen, 0);
+                if (p.currentClass == TF2Item.Scout)
+                    self.GetJumpState<TF2DoubleJump>().Enable();
             }
             else orig(self);
         }
@@ -805,37 +777,132 @@ namespace TF2
 
         private Color Hook_GetImmuneAlphaPure(On_Player.orig_GetImmuneAlphaPure orig, Player self, Color newColor, float alphaReduction) => self.GetModPlayer<TF2Player>().ClassSelected ? newColor : orig(self, newColor, alphaReduction);
 
-        private void Hook_ApplyEquipFunctional(On_Player.orig_ApplyEquipFunctional orig, Player self, Item currentItem, bool hideVisual)
-        {
-            TF2Player p = self.GetModPlayer<TF2Player>();
-            if (p.currentClass == TF2Item.Scout)
-            {
-                p.extraJumps = 1;
-                if (self.GetModPlayer<SodaPopperPlayer>().buffActive)
-                    self.GetModPlayer<TF2Player>().extraJumps = 5;
-                else if (self.HeldItem.ModItem is Atomizer weapon && weapon.deployTimer >= weapon.deploySpeed)
-                    self.GetModPlayer<TF2Player>().extraJumps = 2;
-                self.GetJumpState<ScoutDoubleJump>().Enable();
-            }
-            orig(self, currentItem, hideVisual);
-        }
-
         private void Hook_QuickMount(On_Player.orig_QuickMount orig, Player self)
         {
             TF2Player p = self.GetModPlayer<TF2Player>();
             Item item = ModContent.GetInstance<ModuleSlot>().FunctionalItem;
             if (self.GetModPlayer<TF2Player>().ClassSelected)
             {
-                if (item.ModItem is not TF2Module module) return;
-                if (module.Unlocked)
-                    p.moduleActivated = !p.moduleActivated;
-                else
-                    self.ClearBuff(p.moduleBuff);
-                if (p.moduleActivated)
-                    SoundEngine.PlaySound(item.UseSound, self.Center);
+                if (item.ModItem is TF2Module module)
+                {
+                    if (!module.Passive)
+                    {
+                        if (module.Unlocked)
+                            p.moduleActivated = !p.moduleActivated;
+                        else
+                            self.ClearBuff(p.moduleBuff);
+                        if (p.moduleActivated)
+                            SoundEngine.PlaySound(item.UseSound, self.Center);
+                    }
+                    else if (module is MarineModule)
+                        typeof(Player).GetMethod("QuickMinecart", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(self, null);
+                }
             }
             else
                 orig(self);
+        }
+
+        private void Hook_GrappleMovement(On_Player.orig_GrappleMovement orig, Player self)
+        {
+            MethodInfo getGrapplingForces = typeof(Player).GetMethod("GetGrapplingForces", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (self.grappling[0] < 0) return;
+            self.StopVanityActions();
+            if (Main.myPlayer == self.whoAmI && self.mount.Active)
+                self.mount.Dismount(self);
+            self.canCarpet = true;
+            self.carpetFrame = -1;
+            self.wingFrame = 1;
+            if (self.velocity.Y == 0f || (self.wet && self.velocity.Y > -0.02 && self.velocity.Y < 0.02))
+                self.wingFrame = 0;
+            if (self.wings == 4)
+                self.wingFrame = 3;
+            if (self.wings == 30)
+                self.wingFrame = 0;
+            self.RefreshMovementAbilities();
+            self.rocketFrame = false;
+            self.canRocket = false;
+            self.rocketRelease = false;
+            self.fallStart = (int)(self.position.Y / 16f);
+            int num = -1;
+            for (int i = 0; i < self.grapCount; i++)
+            {
+                if (Main.projectile[self.grappling[i]].type == ProjectileID.TrackHook)
+                    num = i;
+            }
+            object[] parameters = [self.Center, null, null, null];
+            getGrapplingForces.Invoke(self, parameters);
+            int? preferredPlayerDirectionToSet = (int?)parameters[1];
+            float preferedPlayerVelocityX = (float)parameters[2];
+            float preferedPlayerVelocityY = (float)parameters[3];
+            if (preferedPlayerVelocityY > 0f)
+                self.GoingDownWithGrapple = true;
+            self.velocity.X = preferedPlayerVelocityX;
+            self.velocity.Y = preferedPlayerVelocityY;
+            if (num != -1)
+            {
+                Projectile projectile = Main.projectile[self.grappling[num]];
+                if (projectile.position.X < self.position.X + self.width && projectile.position.X + projectile.width >= self.position.X && projectile.position.Y < self.position.Y + self.height && projectile.position.Y + projectile.height >= self.position.Y)
+                {
+                    int num2 = (int)(projectile.position.X + projectile.width / 2) / 16;
+                    int num3 = (int)(projectile.position.Y + projectile.height / 2) / 16;
+                    self.velocity = Vector2.Zero;
+                    if (Main.tile[num2, num3].TileType == TileID.MinecartTrack)
+                    {
+                        Vector2 Position = default;
+                        Position.X = projectile.position.X + projectile.width / 2 - self.width / 2;
+                        Position.Y = projectile.position.Y + projectile.height / 2 - self.height / 2;
+                        self.RemoveAllGrapplingHooks();
+                        int num4 = self.GetModPlayer<MarineModulePlayer>().marineModuleEquipped ? ModContent.MountType<MarineModuleMount>() : 13;
+                        if (self.miscEquips[2].stack > 0 && self.miscEquips[2].mountType >= MountID.Rudolph && MountID.Sets.Cart[self.miscEquips[2].mountType] && (!self.miscEquips[2].expertOnly || Main.expertMode) && (!self.miscEquips[2].masterOnly || Main.masterMode))
+                            num4 = self.miscEquips[2].mountType;
+                        int num5 = self.height + Mount.GetHeightBoost(num4);
+                        if (Minecart.GetOnTrack(num2, num3, ref Position, self.width, num5) && !Collision.SolidCollision(Position, self.width, num5 - 20))
+                        {
+                            self.position = Position;
+                            DelegateMethods.Minecart.rotation = self.fullRotation;
+                            DelegateMethods.Minecart.rotationOrigin = self.fullRotationOrigin;
+                            self.mount.SetMount(num4, self, self.minecartLeft);
+                            Minecart.WheelSparks(self.mount.Delegations.MinecartDust, self.position, self.width, self.height, 25);
+                        }
+                    }
+                }
+            }
+            if (self.itemAnimation == 0)
+            {
+                if (self.velocity.X == 0f && preferredPlayerDirectionToSet.HasValue)
+                    self.ChangeDir(preferredPlayerDirectionToSet.Value);
+                if (self.velocity.X > 0f)
+                    self.ChangeDir(1);
+                if (self.velocity.X < 0f)
+                    self.ChangeDir(-1);
+            }
+            if (self.controlJump)
+            {
+                if (self.releaseJump)
+                {
+                    if ((self.velocity.Y == 0f || (self.wet && self.velocity.Y > -0.02 && self.velocity.Y < 0.02)) && !self.controlDown)
+                    {
+                        self.velocity.Y = 0f - Player.jumpSpeed;
+                        self.jump = Player.jumpHeight / 2;
+                        self.releaseJump = false;
+                    }
+                    else
+                    {
+                        self.velocity.Y += 0.01f;
+                        self.releaseJump = false;
+                    }
+                    self.RefreshExtraJumps();
+                    self.RemoveAllGrapplingHooks();
+                }
+            }
+            else
+                self.releaseJump = true;
+        }
+
+        private void Hook_TrySwitchingLoadout(On_Player.orig_TrySwitchingLoadout orig, Player self, int loadoutIndex)
+        {
+            if (!self.GetModPlayer<TF2Player>().ClassSelected)
+                orig(self, loadoutIndex);
         }
 
         private void Hook_HeadOnlySetup(On_PlayerDrawSet.orig_HeadOnlySetup orig, ref PlayerDrawSet self, Player drawPlayer2, List<DrawData> drawData, List<int> dust, List<int> gore, float X, float Y, float Alpha, float Scale)
@@ -1123,7 +1190,7 @@ namespace TF2
                             {
                                 text = (npc.ModNPC is Building building)
                                     ? (building.BuildingName + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax + "\n"
-                                    + (!Building.MaxLevel(building) ? Language.GetTextValue("Mods.TF2.NPCs.Metal") + ": " + building.Metal + "/" + 200 : ""))
+                                    + (!building.MaxLevel() ? Language.GetTextValue("Mods.TF2.NPCs.Metal") + ": " + building.Metal + "/" + 200 : ""))
                                     : (npc.ModNPC is Buddy buddy)
                                     ? (text + ": " + Main.npc[num].life + "/" + buddy.finalBaseHealth)
                                     : text + ": " + Main.npc[num].life + "/" + Main.npc[num].lifeMax;
@@ -1537,6 +1604,14 @@ namespace TF2
         }
 
         private int Hook_DamageVar(On_Main.orig_DamageVar_float_float orig, float dmg, float luck) => damageFalloff ? Round(dmg) : orig(dmg, luck);
+
+        private void Hook_GetTileLight(On_TileLightScanner.orig_GetTileLight orig, TileLightScanner self, int x, int y, out Vector3 outputColor)
+        {
+            if (Main.LocalPlayer.GetModPlayer<NinjaModulePlayer>().ninjaModuleEquipped)
+                outputColor = Vector3.One;
+            else
+                orig(self, x, y, out outputColor);
+        }
         #endregion Modifications
 
         #region Methods
@@ -1554,40 +1629,46 @@ namespace TF2
 
         public static int HealthRound(double value) => Round(value / 5f) * 5;
 
-        public static void Minimum(ref int value, int minimum)
+        public static int Minimum(ref int value, int minimum)
         {
             if (value < minimum)
                 value = minimum;
+            return value;
         }
 
-        public static void Minimum(ref float value, float minimum)
+        public static float Minimum(ref float value, float minimum)
         {
             if (value < minimum)
                 value = minimum;
+            return value;
         }
 
-        public static void Minimum(ref double value, double minimum)
+        public static double Minimum(ref double value, double minimum)
         {
             if (value < minimum)
                 value = minimum;
+            return value;
         }
 
-        public static void Maximum(ref int value, int maximum)
+        public static int Maximum(ref int value, int maximum)
         {
             if (value > maximum)
                 value = maximum;
+            return value;
         }
 
-        public static void Maximum(ref float value, float maximum)
+        public static float Maximum(ref float value, float maximum)
         {
             if (value > maximum)
                 value = maximum;
+            return value;
         }
 
-        public static void Maximum(ref double value, double maximum)
+        public static double Maximum(ref double value, double maximum)
         {
             if (value > maximum)
                 value = maximum;
+            return value;
         }
 
         public static Vector2 Lerp(Vector2 value1, Vector2 value2, double amount)
@@ -1699,7 +1780,7 @@ namespace TF2
             if (noDistanceModifier) return;
             if (projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
-                if (npc.ModNPC is not PyroNPC || npc.ModNPC is not EnemyPyroNPC)
+                if (npc.ModNPC is not PyroBuddyNPC || npc.ModNPC is not EnemyPyroNPC)
                 {
                     if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
                         modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 1f);
@@ -1716,7 +1797,7 @@ namespace TF2
             if (noDistanceModifier) return;
             if (projectile.ModProjectile is TF2Projectile tf2Projectile)
             {
-                if (npc.ModNPC is not PyroNPC || npc.ModNPC is not EnemyPyroNPC)
+                if (npc.ModNPC is not PyroBuddyNPC || npc.ModNPC is not EnemyPyroNPC)
                 {
                     if (!tf2Projectile.crit && !tf2Projectile.miniCrit)
                         modifiers.FinalDamage *= maxDamageMultiplier - Utils.Clamp(Vector2.Distance(npc.Center, target.Center) / distance, 0f, 1f);
@@ -1818,6 +1899,7 @@ namespace TF2
                 dust = Dust.NewDustDirect(projectile.position, projectile.width, projectile.height, DustID.Torch, 0f, 0f, 100, default, 2f);
                 dust.velocity *= 3f;
             }
+            Lighting.AddLight(projectile.Center, new Vector3(255f, 190f, 0f));
         }
 
         public static void RemoveAllDebuffs(Player player)
@@ -1861,9 +1943,9 @@ namespace TF2
 
         public static float SwordRotation(Player player, float angle) => MathHelper.ToRadians(angle * (player.gravDir >= 0 ? 1f : -1f));
 
-        public static bool IsPlayerOnFire(Player player) => player.HasBuff(ModContent.BuffType<PyroFlames>()) || player.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>());
+        public static bool IsPlayerOnFire(Player player) => player.HasBuff(ModContent.BuffType<FlameThrowerDebuff>()) || player.HasBuff(ModContent.BuffType<DegreaserDebuff>());
 
-        public static bool IsNPCOnFire(NPC npc) => npc.HasBuff(ModContent.BuffType<PyroFlames>()) || npc.HasBuff(ModContent.BuffType<PyroFlamesDegreaser>());
+        public static bool IsNPCOnFire(NPC npc) => npc.HasBuff(ModContent.BuffType<FlameThrowerDebuff>()) || npc.HasBuff(ModContent.BuffType<DegreaserDebuff>());
 
         public static void AddAmmo(Player player, double percentage)
         {
@@ -1917,8 +1999,10 @@ namespace TF2
         {
             if (healAmount > 0)
             {
+                player.HealEffect(healAmount);
                 TF2Player p = player.GetModPlayer<TF2Player>();
-                int maxHealth = TF2Player.TotalHealth(player);
+                p.overhealDecayDelay = Time(0.25);
+                int maxHealth = TF2Player.MaxHealth(player);
                 if (p.overheal >= HealthRound(maxHealth * limit * p.overhealMultiplier)) return;
                 player.statLife += healAmount;
                 if (player.statLife > maxHealth)
@@ -1926,9 +2010,8 @@ namespace TF2
                     int extraHealth = player.statLife - maxHealth - p.overheal;
                     p.overheal += extraHealth;
                     Maximum(ref p.overheal, HealthRound(maxHealth * limit * p.overhealMultiplier));
-                    player.statLife = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier + p.overheal);
+                    player.statLife = HealthRound((p.BaseHealth + p.healthBonus) * p.healthMultiplier) + p.overheal;
                 }
-                player.HealEffect(healAmount);
             }
         }
 
@@ -1937,6 +2020,7 @@ namespace TF2
             if (target.ModNPC is not Buddy) return;
             if (healAmount > 0)
             {
+                target.HealEffect(healAmount);
                 Buddy buddy = target.ModNPC as Buddy;
                 int maxHealth = buddy.finalBaseHealth;
                 if (buddy.overheal >= HealthRound(maxHealth * limit)) return;
@@ -1948,7 +2032,6 @@ namespace TF2
                     Maximum(ref buddy.overheal, HealthRound(maxHealth * limit));
                     target.life = HealthRound(buddy.finalBaseHealth + buddy.overheal);
                 }
-                target.HealEffect(healAmount);
             }
         }
 
@@ -1985,9 +2068,19 @@ namespace TF2
             packet.Send(-1, Main.myPlayer);
         }
 
+        public static void EngineerBuddyConstructSentryGunMultiplayer(EngineerBuddyNPC buddy, NPC npc)
+        {
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
+            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+            packet.Write((byte)MessageType.EngineerBuddy);
+            packet.Write((byte)buddy.NPC.whoAmI);
+            packet.Write((byte)npc.whoAmI);
+            packet.Send(-1, Main.myPlayer);
+        }
+
         public static void SetFeignDeathSpy(NPC npc)
         {
-            (npc.ModNPC as SpyNPC).temporaryBuddy = true;
+            (npc.ModNPC as SpyBuddyNPC).temporaryBuddy = true;
             if (Main.netMode == NetmodeID.SinglePlayer) return;
             ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
             packet.Write((byte)MessageType.FeignDeath);
@@ -2023,11 +2116,13 @@ namespace TF2
         public static void KillNPC(NPC npc)
         {
             npc.life = 0;
-            if (Main.netMode == NetmodeID.SinglePlayer) return;
-            ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
-            packet.Write((byte)MessageType.KillNPC);
-            packet.Write((byte)npc.whoAmI);
-            packet.Send(-1, Main.myPlayer);
+            if (Main.netMode != NetmodeID.SinglePlayer)
+            {
+                ModPacket packet = ModContent.GetInstance<TF2>().GetPacket();
+                packet.Write((byte)MessageType.KillNPC);
+                packet.Write((byte)npc.whoAmI);
+                packet.Send(-1, Main.myPlayer);
+            }
         }
 
         public static SlotId PlaySound(SoundStyle? style, Vector2 position)
@@ -2061,39 +2156,47 @@ namespace TF2
             }
         }
 
+        public static bool IsMercenary(NPC npc) => npc.ModNPC is Buddy or BLUMercenary;
+
+        public static bool IsBuilding(NPC npc) => npc.ModNPC is Building;
+
+        public static bool IsBasicEnemy(NPC npc) => !npc.boss && npc.ModNPC is not BLUMercenary or Building;
+
         public static bool BasicEnemiesThatCanDropMoney(NPC npc) => npc.TypeName == "Deliquent (MG)"
                 || npc.TypeName == "Deliquent (SMG)"
                 || npc.TypeName == "Deliquent (SR)"
                 || npc.TypeName == "Kaizer PMC";
 
-        public static void CreateSoulItem(NPC npc, float damage, float health, int pierce = 1)
+        public static void CreateSoulItem(NPC npc, float damage, float health, int pierce = 1, int pickaxePower = 50)
         {
-            SoulItem soulItem = Main.item[Item.NewItem(npc.GetSource_Loot(), (int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<SoulItem>())].ModItem as SoulItem;
-            soulItem.damageMultiplier = damage;
-            soulItem.healthMultiplier = health;
-            soulItem.pierce = pierce;
-            if (Main.netMode != NetmodeID.SinglePlayer)
-                NetMessage.SendData(MessageID.SyncItem, number: soulItem.Item.whoAmI);
-        }
-
-        public static void UpgradeDrill(NPC npc, int miningPower)
-        {
-            for (int i = 0; i < Main.maxPlayers; i++)
+            if (Main.netMode == NetmodeID.SinglePlayer)
             {
-                if (npc.playerInteraction[i] && miningPower > Main.player[i].GetModPlayer<TF2Player>().miningPower)
-                    Main.player[i].GetModPlayer<TF2Player>().miningPower = miningPower;
+                SoulItem soulItem = Main.item[Item.NewItem(npc.GetSource_Loot(), (int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<SoulItem>(), 1, true, -1)].ModItem as SoulItem;
+                soulItem.damageMultiplier = damage;
+                soulItem.healthMultiplier = health;
+                soulItem.pierce = pierce;
+                soulItem.pickaxePower = pickaxePower;
+            }
+            else if (Main.netMode == NetmodeID.Server)
+            {
+                int soulItemIndex = Item.NewItem(npc.GetSource_Loot(), (int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<SoulItem>(), 1, true, -1);
+                Main.timeItemSlotCannotBeReusedFor[soulItemIndex] = Minute(15);
+                for (int i = 0; i < Main.maxPlayers; i++)
+                {
+                    if (Main.player[i].active && npc.playerInteraction[i])
+                    {
+                        SoulItem soulItem = Main.item[soulItemIndex].ModItem as SoulItem;
+                        soulItem.damageMultiplier = damage;
+                        soulItem.healthMultiplier = health;
+                        soulItem.pierce = pierce;
+                        soulItem.pickaxePower = pickaxePower;
+                        NetMessage.SendData(MessageID.InstancedItem, i, -1, null, soulItemIndex);
+                    }
+                }
+                Main.item[soulItemIndex].active = false;
             }
         }
 
-        public static void Dialogue(string text, Color color)
-        {
-            if (Main.netMode == NetmodeID.SinglePlayer)
-                Main.NewText(text, color);
-            if (Main.dedServ)
-                NetMessage.SendData(MessageID.ChatText, -1, -1, NetworkText.FromLiteral(text), 255, color.R, color.G, color.B, 0, 0, 0);
-        }
-
-        public static bool IsTheSameAs(Item item, Item compareItem) => item.netID == compareItem.netID && item.type == compareItem.type;
         #endregion Methods
 
         public struct WeaponSize(int x, int y)

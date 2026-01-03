@@ -14,7 +14,7 @@ namespace TF2.Content.Items.Weapons.Pyro
             SetWeaponCategory(Pyro, Primary, Unique, Unlock);
             SetWeaponSize(50, 16);
             SetGunUseStyle();
-            SetWeaponDamage(damage: 18, projectile: ModContent.ProjectileType<Fire>(), noRandomCriticalHits: true);
+            SetWeaponDamage(damage: 17, projectile: ModContent.ProjectileType<Fire>(), noRandomCriticalHits: true);
             SetWeaponAttackSpeed(0.105, hide: true);
             SetWeaponAttackIntervals(maxAmmo: 200, altClick: true, noAmmo: true);
             SetFlamethrower(cost: 50, attackSound: "TF2/Content/Sounds/SFX/Weapons/backburner_loop");
@@ -42,7 +42,7 @@ namespace TF2.Content.Items.Weapons.Pyro
 
         protected override void WeaponPostFireProjectile(Player player, int projectile)
         {
-            if (TF2Player.IsHealthFull(player) && player.altFunctionUse != 2)
+            if (TF2Player.IsAtFullHealth(player) && TF2.IsBossAlive() && player.altFunctionUse != 2)
                 (Main.projectile[projectile].ModProjectile as TF2Projectile).crit = true;
         }
     }
